@@ -3,18 +3,23 @@ package org.luckypray.dexkit
 import org.junit.Test
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 
 class UnitTest {
 
     companion object {
 
+        private val demoApkPath: String
         private var bridge: DexKitBridge
 
         init {
             loadLibrary("dexkit")
             val path = System.getProperty("apk.path")
             val demoApk = File(path, "demo.apk")
+            demoApkPath = demoApk.absolutePath
             bridge = DexKitBridge.create(demoApk.absolutePath)
         }
     }
@@ -274,5 +279,68 @@ class UnitTest {
             }
         }.single()
         assert(cls.className == "org.luckypray.dexkit.demo.PlayActivity")
+    }
+
+    @Test
+    fun testConcurrentFindMethodOnSharedBridge() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.findMethod {
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 2)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @Test
+    fun testConcurrentFindFirstMethodOnSharedBridge() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.findMethod {
+                                findFirst = true
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
     }
 }

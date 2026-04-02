@@ -38,6 +38,7 @@
 #include "ThreadPool.h"
 #include "mmap.h"
 #include "package_trie.h"
+#include "query_context.h"
 #include "dexkit.h"
 #include "analyze.h"
 
@@ -69,7 +70,7 @@ public:
             trie::PackageTrie &packageTrie,
             ThreadPool &pool,
             uint32_t split_num,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<std::future<std::vector<MethodBean>>>
     FindMethod(
@@ -79,7 +80,7 @@ public:
             trie::PackageTrie &packageTrie,
             ThreadPool &pool,
             uint32_t split_num,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<std::future<std::vector<FieldBean>>>
     FindField(
@@ -89,7 +90,7 @@ public:
             trie::PackageTrie &packageTrie,
             ThreadPool &pool,
             uint32_t split_num,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<ClassBean> FindClass(
             const schema::FindClass *query,
@@ -97,7 +98,7 @@ public:
             trie::PackageTrie &packageTrie,
             uint32_t start,
             uint32_t end,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<MethodBean> FindMethod(
             const schema::FindMethod *query,
@@ -106,7 +107,7 @@ public:
             trie::PackageTrie &packageTrie,
             uint32_t start,
             uint32_t end,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<FieldBean> FindField(
             const schema::FindField *query,
@@ -115,7 +116,7 @@ public:
             trie::PackageTrie &packageTrie,
             uint32_t start,
             uint32_t end,
-            bool &find_fist_flag
+            QueryContext &query_context
     );
     std::vector<ClassBean> FindClass(
             const schema::FindClass *query,

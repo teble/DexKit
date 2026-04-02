@@ -19,6 +19,7 @@
 // <https://github.com/LuckyPray/DexKit/blob/master/LICENSE>.
 
 #include "include/dexkit.h"
+#include "include/query_context.h"
 
 #include "zip_archive.h"
 #include "ThreadPool.h"
@@ -238,13 +239,13 @@ DexKit::FindClass(const schema::FindClass *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        bool find_fist_flag = false;
+        QueryContext query_context(QueryKind::FindClass);
         ThreadPool pool(_thread_num);
         std::vector<std::future<std::vector<ClassBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindClass(query, class_set, packageTrie, pool, BATCH_SIZE / 2, find_fist_flag);
+                auto res = dex_item->FindClass(query, class_set, packageTrie, pool, BATCH_SIZE / 2, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -256,6 +257,7 @@ DexKit::FindClass(const schema::FindClass *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                (void) query_context.RequestEarlyExit();
                 pool.skip_unexec_tasks();
                 break;
             }
@@ -315,14 +317,14 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        bool find_fist_flag = false;
+        QueryContext query_context(QueryKind::FindMethod);
         ThreadPool pool(_thread_num);
         std::vector<std::future<std::vector<MethodBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &method_set = dex_method_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, pool, BATCH_SIZE, find_fist_flag);
+                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, pool, BATCH_SIZE, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -334,6 +336,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                (void) query_context.RequestEarlyExit();
                 pool.skip_unexec_tasks();
                 break;
             }
@@ -398,14 +401,14 @@ DexKit::FindField(const schema::FindField *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        bool find_fist_flag = false;
+        QueryContext query_context(QueryKind::FindField);
         ThreadPool pool(_thread_num);
         std::vector<std::future<std::vector<FieldBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &field_set = dex_field_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindField(query, class_set, field_set, packageTrie, pool, BATCH_SIZE, find_fist_flag);
+                auto res = dex_item->FindField(query, class_set, field_set, packageTrie, pool, BATCH_SIZE, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -417,6 +420,7 @@ DexKit::FindField(const schema::FindField *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                (void) query_context.RequestEarlyExit();
                 pool.skip_unexec_tasks();
                 break;
             }

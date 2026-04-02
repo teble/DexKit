@@ -29,6 +29,7 @@
 #include <future>
 #include <functional>
 #include <stdexcept>
+#include <atomic>
 
 #include "ThreadVariable.h"
 
@@ -41,8 +42,7 @@ public:
     -> std::future<typename std::invoke_result<F, Args...>::type>;
 
     void skip_unexec_tasks() {
-        std::unique_lock lock(this->queue_mutex);
-        _skip_unexec_tasks = true;
+        _skip_unexec_tasks.store(true, std::memory_order_release);
     }
 
     ~ThreadPool();
@@ -58,7 +58,7 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
-    bool _skip_unexec_tasks = false;
+    std::atomic<bool> _skip_unexec_tasks = false;
     std::vector<std::thread::id> _thread_ids;
 };
 
@@ -103,7 +103,7 @@ auto ThreadPool::enqueue(F &&f, Args &&... args)
 
     auto task = std::make_shared<std::packaged_task<return_type()> >(
             [f = std::forward<F>(f), args = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
-                if (this->_skip_unexec_tasks) {
+                if (this->_skip_unexec_tasks.load(std::memory_order_acquire)) {
                     if constexpr (std::is_same_v<return_type, void>) return;
                     return return_type();
                 }

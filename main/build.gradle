@@ -48,6 +48,25 @@ afterEvaluate {
             }
         }
     }
+    tasks.register("runSharedBridgeBenchmark", JavaExec) {
+        group = "application"
+        description = "Runs the DexKitBridge concurrency benchmark (shared or isolated bridge mode)"
+        dependsOn(tasks.jar)
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass.set("SharedBridgeBenchmarkKt")
+        jvmArgs(args)
+        workingDir = rootProject.projectDir
+        systemProperties(
+                System.getProperties().findAll { entry ->
+                    entry.key.toString().startsWith("bench.")
+                }
+        )
+        environment(
+                System.getenv().findAll { entry ->
+                    entry.key.toString().startsWith("DEXKIT_BENCH_")
+                }
+        )
+    }
     tasks.jar.dependsOn(tasks.cmakeBuild)
     tasks.run.dependsOn(tasks.jar)
 }

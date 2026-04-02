@@ -240,7 +240,9 @@ DexKit::FindClass(const schema::FindClass *query) {
 
     if (fast_search_dex == nullptr) {
         QueryContext query_context(QueryKind::FindClass);
-        ThreadPool pool(_thread_num);
+        ThreadPool pool(_thread_num, [&query_context]() {
+            return query_context.ShouldStop();
+        });
         std::vector<std::future<std::vector<ClassBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
@@ -257,8 +259,6 @@ DexKit::FindClass(const schema::FindClass *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
-                (void) query_context.RequestEarlyExit();
-                pool.skip_unexec_tasks();
                 break;
             }
         }
@@ -318,7 +318,9 @@ DexKit::FindMethod(const schema::FindMethod *query) {
 
     if (fast_search_dex == nullptr) {
         QueryContext query_context(QueryKind::FindMethod);
-        ThreadPool pool(_thread_num);
+        ThreadPool pool(_thread_num, [&query_context]() {
+            return query_context.ShouldStop();
+        });
         std::vector<std::future<std::vector<MethodBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
@@ -336,8 +338,6 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
-                (void) query_context.RequestEarlyExit();
-                pool.skip_unexec_tasks();
                 break;
             }
         }
@@ -402,7 +402,9 @@ DexKit::FindField(const schema::FindField *query) {
 
     if (fast_search_dex == nullptr) {
         QueryContext query_context(QueryKind::FindField);
-        ThreadPool pool(_thread_num);
+        ThreadPool pool(_thread_num, [&query_context]() {
+            return query_context.ShouldStop();
+        });
         std::vector<std::future<std::vector<FieldBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
@@ -420,8 +422,6 @@ DexKit::FindField(const schema::FindField *query) {
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
-                (void) query_context.RequestEarlyExit();
-                pool.skip_unexec_tasks();
                 break;
             }
         }
@@ -475,12 +475,20 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
 
     InitDexCache(kUsingString);
 
-    ThreadPool pool(_thread_num);
+    QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
+    ThreadPool pool(_thread_num, [&query_context]() {
+        return query_context.ShouldStop();
+    });
     std::vector<std::future<std::vector<BatchFindClassItemBean>>> futures;
     for (auto &dex_item: dex_items) {
         auto &class_map = dex_class_map[dex_item->GetDexId()];
-        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_map, &packageTrie]() {
-            return dex_item->BatchFindClassUsingStrings(query, acTrie, keywords_map, match_type_map, class_map, packageTrie);
+        query_context.MarkTaskSubmitted();
+        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_map, &packageTrie,
+                                        &query_context]() {
+            auto result = dex_item->BatchFindClassUsingStrings(query, acTrie, keywords_map, match_type_map, class_map,
+                                                               packageTrie, query_context);
+            query_context.MarkTaskCompleted();
+            return result;
         }));
     }
 
@@ -550,13 +558,21 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
 
     InitDexCache(kUsingString);
 
-    ThreadPool pool(_thread_num);
+    QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
+    ThreadPool pool(_thread_num, [&query_context]() {
+        return query_context.ShouldStop();
+    });
     std::vector<std::future<std::vector<BatchFindMethodItemBean>>> futures;
     for (auto &dex_item: dex_items) {
         auto &class_set = dex_class_map[dex_item->GetDexId()];
         auto &method_set = dex_method_map[dex_item->GetDexId()];
-        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_set, &method_set, &packageTrie]() {
-            return dex_item->BatchFindMethodUsingStrings(query, acTrie, keywords_map, match_type_map, class_set, method_set, packageTrie);
+        query_context.MarkTaskSubmitted();
+        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_set, &method_set,
+                                        &packageTrie, &query_context]() {
+            auto result = dex_item->BatchFindMethodUsingStrings(query, acTrie, keywords_map, match_type_map, class_set,
+                                                                method_set, packageTrie, query_context);
+            query_context.MarkTaskCompleted();
+            return result;
         }));
     }
 

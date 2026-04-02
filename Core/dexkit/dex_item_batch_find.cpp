@@ -28,11 +28,13 @@ DexItem::BatchFindClassUsingStrings(
         std::map<std::string_view, std::set<std::string_view>> &keywords_map,
         phmap::flat_hash_map<std::string_view, schema::StringMatchType> &match_type_map,
         std::set<uint32_t> &in_class_set,
-        trie::PackageTrie &packageTrie
+        trie::PackageTrie &packageTrie,
+        QueryContext &query_context
 ) {
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
+        if (query_context.ShouldStop()) break;
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {
@@ -106,11 +108,13 @@ DexItem::BatchFindMethodUsingStrings(
         phmap::flat_hash_map<std::string_view, schema::StringMatchType> &match_type_map,
         std::set<uint32_t> &in_class_set,
         std::set<uint32_t> &in_method_set,
-        trie::PackageTrie &packageTrie
+        trie::PackageTrie &packageTrie,
+        QueryContext &query_context
 ) {
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
+        if (query_context.ShouldStop()) break;
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {

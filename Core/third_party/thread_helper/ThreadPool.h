@@ -35,15 +35,11 @@
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t);
+    explicit ThreadPool(size_t, std::function<bool()> should_skip_task = {});
 
     template<class F, class... Args>
     auto enqueue(F &&f, Args &&... args)
     -> std::future<typename std::invoke_result<F, Args...>::type>;
-
-    void skip_unexec_tasks() {
-        _skip_unexec_tasks.store(true, std::memory_order_release);
-    }
 
     ~ThreadPool();
 
@@ -58,13 +54,13 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
-    std::atomic<bool> _skip_unexec_tasks = false;
+    std::function<bool()> should_skip_task;
     std::vector<std::thread::id> _thread_ids;
 };
 
 // the constructor just launches some amount of workers
-inline ThreadPool::ThreadPool(size_t threads)
-        : stop(false) {
+inline ThreadPool::ThreadPool(size_t threads, std::function<bool()> should_skip_task)
+        : stop(false), should_skip_task(std::move(should_skip_task)) {
     for (size_t i = 0; i < threads; ++i)
         workers.emplace_back(
                 [this, threads] {
@@ -103,7 +99,7 @@ auto ThreadPool::enqueue(F &&f, Args &&... args)
 
     auto task = std::make_shared<std::packaged_task<return_type()> >(
             [f = std::forward<F>(f), args = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
-                if (this->_skip_unexec_tasks.load(std::memory_order_acquire)) {
+                if (this->should_skip_task && this->should_skip_task()) {
                     if constexpr (std::is_same_v<return_type, void>) return;
                     return return_type();
                 }

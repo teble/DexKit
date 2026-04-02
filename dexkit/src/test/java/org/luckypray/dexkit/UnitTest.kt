@@ -343,4 +343,74 @@ class UnitTest {
             }
         }
     }
+
+    @Test
+    fun testConcurrentBatchFindClassUsingStringsOnSharedBridge() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.batchFindClassUsingStrings {
+                                searchPackages("org.luckypray.dexkit.demo")
+                                groups(
+                                    mapOf(
+                                        "main_activity" to listOf("onClick: playButton"),
+                                        "play_activity" to listOf("onClick: rollButton")
+                                    )
+                                )
+                            }
+                            assert(result["main_activity"]?.size == 1)
+                            assert(result["play_activity"]?.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @Test
+    fun testConcurrentBatchFindMethodUsingStringsOnSharedBridge() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.batchFindMethodUsingStrings {
+                                searchPackages("org.luckypray.dexkit.demo")
+                                groups(
+                                    mapOf(
+                                        "main_on_click" to listOf("onClick: playButton"),
+                                        "play_on_click" to listOf("onClick: rollButton")
+                                    )
+                                )
+                            }
+                            assert(result["main_on_click"]?.size == 1)
+                            assert(result["play_on_click"]?.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
 }

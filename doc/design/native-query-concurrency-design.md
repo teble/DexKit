@@ -651,13 +651,25 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 3. `findFirst` 早停不再使用裸 `bool`
    - 已改为 `QueryContext` 中的原子 `early_exit`
 
-4. `ThreadPool::_skip_unexec_tasks` 已改为原子标记
+4. find 路径的待执行任务跳过协议已绑定到 `QueryContext`
+   - `ThreadPool` 新增 `should_skip_task` 谓词入口
+   - `findClass` / `findMethod` / `findField` 已通过 `query_context.ShouldStop()` 驱动队列中未执行任务的快速跳过
+   - find 路径不再依赖单独的 `skip_unexec_tasks` 状态
+
+5. `QueryContext` 当前已开始记录最小 metrics
+   - `submitted_tasks`
+   - `completed_tasks`
+
+6. batch query 已接入 `QueryContext`
+   - `BatchFindClassUsingStrings`
+   - `BatchFindMethodUsingStrings`
+   - 当前已统一到相同的任务提交 / 完成计数与 `should_skip_task` 协议
 
 当前限制：
 
 - 外部 cancel 还没有正式暴露到 API
-- batch query 还没有接入 `QueryContext`
 - metrics 还没有对外输出
+- matcher 临时缓存仍主要依赖 `ThreadVariable`
 
 ### 11.11 下一步建议实现顺序
 

@@ -139,7 +139,8 @@ public:
             std::map<std::string_view, std::set<std::string_view>> &keywords_map,
             phmap::flat_hash_map<std::string_view, schema::StringMatchType> &match_type_map,
             std::set<uint32_t> &in_class_set,
-            trie::PackageTrie &packageTrie
+            trie::PackageTrie &packageTrie,
+            QueryContext &query_context
     );
     std::vector<BatchFindMethodItemBean> BatchFindMethodUsingStrings(
             const schema::BatchFindMethodUsingStrings *query,
@@ -148,7 +149,8 @@ public:
             phmap::flat_hash_map<std::string_view, schema::StringMatchType> &match_type_map,
             std::set<uint32_t> &in_class_set,
             std::set<uint32_t> &in_method_set,
-            trie::PackageTrie &packageTrie
+            trie::PackageTrie &packageTrie,
+            QueryContext &query_context
     );
 
     ClassBean GetClassBean(uint32_t type_idx);

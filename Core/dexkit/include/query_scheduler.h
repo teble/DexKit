@@ -80,6 +80,11 @@ public:
         return snapshot;
     }
 
+    void ResetMetrics() {
+        std::lock_guard lock(mutex_);
+        metrics_ = {};
+    }
+
     void ActivateQuery(uint64_t query_id) {
         std::vector<DispatchTask> dispatch_tasks;
         {

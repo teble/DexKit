@@ -200,6 +200,14 @@ public:
         return snapshot;
     }
 
+    void PublishSnapshotToCurrentThread() const {
+        last_query_metrics_snapshot_ = SnapshotMetrics();
+    }
+
+    [[nodiscard]] static QueryMetricsSnapshot LastQueryMetricsSnapshot() {
+        return last_query_metrics_snapshot_;
+    }
+
     [[nodiscard]] ScopedBinding BindToCurrentThread() {
         return ScopedBinding(*this);
     }
@@ -242,6 +250,7 @@ private:
     phmap::flat_hash_map<QueryCacheKey, std::shared_ptr<void>, QueryCacheKeyHash> query_cache_;
 
     inline static std::atomic<uint64_t> next_query_id_ = 1;
+    inline static thread_local QueryMetricsSnapshot last_query_metrics_snapshot_{};
     inline static thread_local QueryContext *current_ = nullptr;
 };
 

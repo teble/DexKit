@@ -53,6 +53,10 @@ static void MarkQuerySubmissionComplete(IQueryExecutor *executor) {
     }
 }
 
+static void PublishLastQueryMetrics(const QueryContext &query_context) {
+    query_context.PublishSnapshotToCurrentThread();
+}
+
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
@@ -99,6 +103,18 @@ QuerySchedulerMetricsSnapshot DexKit::GetQuerySchedulerMetricsSnapshot() const {
         return {};
     }
     return shared_query_scheduler_->GetMetricsSnapshot();
+}
+
+void DexKit::ResetQuerySchedulerMetrics() const {
+    std::lock_guard lock(query_executor_mutex);
+    if (!shared_query_scheduler_) {
+        return;
+    }
+    shared_query_scheduler_->ResetMetrics();
+}
+
+QueryMetricsSnapshot DexKit::GetLastQueryMetricsSnapshot() {
+    return QueryContext::LastQueryMetricsSnapshot();
 }
 
 Error DexKit::InitFullCache() {
@@ -496,6 +512,7 @@ DexKit::FindClass(const schema::FindClass *query) {
     }
     auto array_holder = schema::CreateClassMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    PublishLastQueryMetrics(query_context);
     return builder;
 }
 
@@ -590,6 +607,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     }
     auto array_holder = schema::CreateMethodMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    PublishLastQueryMetrics(query_context);
     return builder;
 }
 
@@ -684,6 +702,7 @@ DexKit::FindField(const schema::FindField *query) {
     }
     auto array_holder = schema::CreateFieldMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    PublishLastQueryMetrics(query_context);
     return builder;
 }
 
@@ -758,6 +777,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
     }
     auto array_holder = schema::CreateBatchClassMetaArrayHolder(*fbb, fbb->CreateVector(offsets));
     fbb->Finish(array_holder);
+    PublishLastQueryMetrics(query_context);
     return fbb;
 }
 
@@ -839,6 +859,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
     }
     auto array_holder = schema::CreateBatchMethodMetaArrayHolder(*fbb, fbb->CreateVector(offsets));
     fbb->Finish(array_holder);
+    PublishLastQueryMetrics(query_context);
     return fbb;
 }
 

@@ -138,6 +138,17 @@ class DexKitBridge : Closeable {
         return SchedulerMetricsSnapshot.fromNative(nativeGetSchedulerMetrics(safeToken))
     }
 
+    @DexKitExperimentalApi
+    fun getLastQueryMetricsSnapshot(): QueryMetricsSnapshot {
+        return QueryMetricsSnapshot.fromNative(nativeGetLastQueryMetrics(safeToken))
+    }
+
+    @DexKitExperimentalApi
+    @Synchronized
+    fun resetSchedulerMetrics() {
+        nativeResetSchedulerMetrics(safeToken)
+    }
+
     /**
      * Get all parsed dex counts.
      * ----------------
@@ -432,7 +443,7 @@ class DexKitBridge : Closeable {
     /**
      * find method by [FindMethod]'s [FlatBufferBuilder]
      */
-//    @Synchronized
+    @Synchronized
     private fun findMethod(encodeBytes: ByteArray): MethodDataList {
         val res = nativeFindMethod(safeToken, encodeBytes)
         val holder = InnerMethodMetaArrayHolder.getRootAsMethodMetaArrayHolder(ByteBuffer.wrap(res))
@@ -703,6 +714,12 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeGetSchedulerMetrics(nativePtr: Long): LongArray
+
+        @JvmStatic
+        private external fun nativeGetLastQueryMetrics(nativePtr: Long): LongArray
+
+        @JvmStatic
+        private external fun nativeResetSchedulerMetrics(nativePtr: Long)
 
         @JvmStatic
         private external fun nativeInitFullCache(nativePtr: Long)

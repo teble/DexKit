@@ -353,6 +353,41 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeGetSchedulerMetrics(JNIEnv *env, jc
     return ret;
 }
 
+DEXKIT_JNI jlongArray
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetLastQueryMetrics(JNIEnv *env, jclass clazz,
+                                                                 jlong native_ptr
+) {
+    constexpr jsize kQueryMetricCount = 8;
+    jlong values[kQueryMetricCount] = {};
+    if (native_ptr) {
+        auto snapshot = dexkit::DexKit::GetLastQueryMetricsSnapshot();
+        values[0] = static_cast<jlong>(snapshot.submitted_tasks);
+        values[1] = static_cast<jlong>(snapshot.dispatched_tasks);
+        values[2] = static_cast<jlong>(snapshot.base_dispatched_tasks);
+        values[3] = static_cast<jlong>(snapshot.bonus_dispatched_tasks);
+        values[4] = static_cast<jlong>(snapshot.completed_tasks);
+        values[5] = static_cast<jlong>(snapshot.max_in_flight);
+        values[6] = static_cast<jlong>(snapshot.max_query_share_count);
+        values[7] = static_cast<jlong>(snapshot.first_dispatch_delay_ns);
+    }
+    auto ret = env->NewLongArray(kQueryMetricCount);
+    if (ret != nullptr) {
+        env->SetLongArrayRegion(ret, 0, kQueryMetricCount, values);
+    }
+    return ret;
+}
+
+DEXKIT_JNI void
+Java_org_luckypray_dexkit_DexKitBridge_nativeResetSchedulerMetrics(JNIEnv *env, jclass clazz,
+                                                                   jlong native_ptr
+) {
+    if (!native_ptr) {
+        return;
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    dexkit->ResetQuerySchedulerMetrics();
+}
+
 DEXKIT_JNI void
 Java_org_luckypray_dexkit_DexKitBridge_nativeInitFullCache(JNIEnv *env, jclass clazz,
                                                            jlong native_ptr

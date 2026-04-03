@@ -67,6 +67,8 @@ public:
     void SetQueryExecutorMode(QueryExecutorMode mode);
     void SetMaxConcurrentQueries(uint32_t max_concurrent_queries);
     [[nodiscard]] QuerySchedulerMetricsSnapshot GetQuerySchedulerMetricsSnapshot() const;
+    void ResetQuerySchedulerMetrics() const;
+    [[nodiscard]] static QueryMetricsSnapshot GetLastQueryMetricsSnapshot();
     Error InitFullCache();
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);

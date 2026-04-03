@@ -145,6 +145,7 @@ void DexItem::InitBaseCache() {
     method_descriptors.resize(reader.MethodIds().size());
     method_access_flags.resize(reader.MethodIds().size());
     method_codes.resize(reader.MethodIds().size());
+    lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(reader.MethodIds().size());
     field_descriptors.resize(reader.FieldIds().size());
     field_access_flags.resize(reader.FieldIds().size());
 
@@ -290,24 +291,20 @@ void DexItem::WaitInitCache(uint32_t init_flags) const {
 }
 
 void DexItem::InitCache(uint32_t init_flags) {
-    auto ready_flags = dex_flag.load(std::memory_order_acquire);
-    if ((ready_flags & init_flags) == init_flags) {
-        return;
-    }
     bool need_foreach_method = false;
-    bool need_op_seq = init_flags & kOpSequence && (ready_flags & kOpSequence) == 0;
-    bool need_method_using_string = init_flags & kUsingString && (ready_flags & kUsingString) == 0;
-    bool need_method_using_field = init_flags & kMethodUsingField && (ready_flags & kMethodUsingField) == 0;
-    bool need_method_invoking = init_flags & kMethodInvoking && (ready_flags & kMethodInvoking) == 0;
-    bool need_method_caller = init_flags & kCallerMethod && (ready_flags & kCallerMethod) == 0;
-    bool need_field_rw_method = init_flags & kRwFieldMethod && (ready_flags & kRwFieldMethod) == 0;
-    bool need_class_annotation = init_flags & kClassAnnotation && (ready_flags & kClassAnnotation) == 0;
-    bool need_field_annotation = init_flags & kFieldAnnotation && (ready_flags & kFieldAnnotation) == 0;
-    bool need_method_annotation = init_flags & kMethodAnnotation && (ready_flags & kMethodAnnotation) == 0;
-    bool need_param_annotation = init_flags & kParamAnnotation && (ready_flags & kParamAnnotation) == 0;
+    bool need_op_seq = (init_flags & kOpSequence) != 0;
+    bool need_method_using_string = (init_flags & kUsingString) != 0;
+    bool need_method_using_field = (init_flags & kMethodUsingField) != 0;
+    bool need_method_invoking = (init_flags & kMethodInvoking) != 0;
+    bool need_method_caller = (init_flags & kCallerMethod) != 0;
+    bool need_field_rw_method = (init_flags & kRwFieldMethod) != 0;
+    bool need_class_annotation = (init_flags & kClassAnnotation) != 0;
+    bool need_field_annotation = (init_flags & kFieldAnnotation) != 0;
+    bool need_method_annotation = (init_flags & kMethodAnnotation) != 0;
+    bool need_param_annotation = (init_flags & kParamAnnotation) != 0;
     bool need_annotation = need_class_annotation || need_field_annotation || need_method_annotation || need_param_annotation;
     // only used for full cache
-    bool need_method_using_number = init_flags & kUsingNumber && (ready_flags & kUsingNumber) == 0;
+    bool need_method_using_number = (init_flags & kUsingNumber) != 0;
 
     if (need_op_seq) {
         method_opcode_seq.resize(reader.MethodIds().size(), std::nullopt);
@@ -547,12 +544,8 @@ void DexItem::WaitPutCrossRef(uint32_t put_cross_flag) const {
 
 void DexItem::PutCrossRef(uint32_t put_cross_flag) {
     DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
-    auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
-    if ((ready_flags & put_cross_flag) == put_cross_flag) {
-        return;
-    }
-    bool need_caller_cross = put_cross_flag & kCallerMethod && (ready_flags & kCallerMethod) == 0;
-    bool need_rw_field_cross = put_cross_flag & kRwFieldMethod && (ready_flags & kRwFieldMethod) == 0;
+    bool need_caller_cross = (put_cross_flag & kCallerMethod) != 0;
+    bool need_rw_field_cross = (put_cross_flag & kRwFieldMethod) != 0;
 
     for (int type_idx = 0; type_idx < type_names.size(); ++type_idx) {
         if (!this->type_def_flag[type_idx] && type_names[type_idx][0] != '[') {
@@ -580,6 +573,13 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
+                    if (!method_caller_ids[curr_method_idx].empty()) {
+                        pending_aggregate_method_work_items.emplace_back(PendingAggregateMethodWorkItem{
+                                .source_method_idx = curr_method_idx,
+                                .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
+                                .target_method_idx = origin_method_idx
+                        });
+                    }
                     ++cur_i;
                 }
             }
@@ -597,6 +597,13 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
+                    if (!field_get_method_ids[curr_field_idx].empty() || !field_put_method_ids[curr_field_idx].empty()) {
+                        pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
+                                .source_field_idx = curr_field_idx,
+                                .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
+                                .target_field_idx = origin_field_idx
+                        });
+                    }
                     ++cur_i;
                 }
             }
@@ -1205,10 +1212,7 @@ void PushEncodeNumber(dex::InstructionFormat op_format, uint8_t op, const uint16
     }
 }
 
-std::vector<EncodeNumber> DexItem::GetUsingNumbersFromCode(uint32_t method_idx) {
-    if (dex_flag.load(std::memory_order_acquire) & kUsingNumber) {
-        return method_using_numbers[method_idx];
-    }
+std::vector<EncodeNumber> DexItem::ParseUsingNumbersFromCode(uint32_t method_idx) {
     auto code = method_codes[method_idx];
     if (code == nullptr) {
         return {};
@@ -1224,7 +1228,38 @@ std::vector<EncodeNumber> DexItem::GetUsingNumbersFromCode(uint32_t method_idx) 
         PushEncodeNumber(op_format, op, ptr, &using_numbers);
         p += width;
     }
-    return std::move(using_numbers);
+    return using_numbers;
+}
+
+const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
+    if ((dex_flag.load(std::memory_order_acquire) & kUsingNumber) != 0) {
+        return method_using_numbers[method_idx];
+    }
+
+    auto &slot = lazy_using_numbers_slots[method_idx];
+    auto state = slot.state.load(std::memory_order_acquire);
+    if (state == static_cast<uint8_t>(LazyUsingNumbersState::Ready)) {
+        return *slot.data;
+    }
+
+    uint8_t expected = static_cast<uint8_t>(LazyUsingNumbersState::Empty);
+    if (slot.state.compare_exchange_strong(expected,
+                                           static_cast<uint8_t>(LazyUsingNumbersState::Building),
+                                           std::memory_order_acq_rel,
+                                           std::memory_order_acquire)) {
+        slot.data = std::make_unique<const std::vector<EncodeNumber>>(ParseUsingNumbersFromCode(method_idx));
+        slot.state.store(static_cast<uint8_t>(LazyUsingNumbersState::Ready), std::memory_order_release);
+        auto stripe = method_idx % lazy_using_numbers_wait_cvs->size();
+        (*lazy_using_numbers_wait_cvs)[stripe].notify_all();
+        return *slot.data;
+    }
+
+    auto stripe = method_idx % lazy_using_numbers_wait_mutexes->size();
+    std::unique_lock lock((*lazy_using_numbers_wait_mutexes)[stripe]);
+    (*lazy_using_numbers_wait_cvs)[stripe].wait(lock, [&slot] {
+        return slot.state.load(std::memory_order_acquire) == static_cast<uint8_t>(LazyUsingNumbersState::Ready);
+    });
+    return *slot.data;
 }
 
 bool DexItem::CheckAllTypeNamesDeclared(std::vector<std::string_view> &types) {

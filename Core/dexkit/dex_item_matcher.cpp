@@ -1180,7 +1180,7 @@ bool DexItem::IsUsingNumbersMatched(uint32_t method_idx, const schema::MethodMat
     if (matcher->using_numbers() == nullptr) {
         return true;
     }
-    auto using_numbers = this->GetUsingNumbersFromCode(method_idx);
+    const auto &using_numbers = this->GetUsingNumbers(method_idx);
     if (matcher->using_numbers()->size() > using_numbers.size()) {
         return false;
     }

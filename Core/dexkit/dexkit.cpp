@@ -1084,56 +1084,174 @@ void DexKit::WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const {
 
 void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
     DEXKIT_CHECK((aggregate_flags & ~(kCallerMethod | kRwFieldMethod)) == 0);
-    auto ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
-    if ((ready_flags & aggregate_flags) == aggregate_flags) {
-        return;
-    }
 
-    if ((aggregate_flags & kCallerMethod) != 0 && (ready_flags & kCallerMethod) == 0) {
-        for (auto &source_dex: dex_items) {
-            for (uint32_t method_idx = 0; method_idx < source_dex->reader.MethodIds().size(); ++method_idx) {
-                auto &cross_info = source_dex->method_cross_info[method_idx];
-                if (!cross_info.has_value()) {
-                    continue;
-                }
-                auto &source_callers = source_dex->method_caller_ids[method_idx];
-                if (source_callers.empty()) {
-                    continue;
-                }
-                auto &[target_dex_id, target_method_idx] = cross_info.value();
-                auto &target_callers = dex_items[target_dex_id]->method_caller_ids[target_method_idx];
+    if ((aggregate_flags & kCallerMethod) != 0) {
+        struct MethodAggregateWorkItem {
+            uint16_t source_dex_id;
+            uint32_t source_method_idx;
+            uint32_t target_method_idx;
+        };
+
+        std::vector<std::vector<MethodAggregateWorkItem>> work_items(dex_items.size());
+        std::vector<phmap::flat_hash_map<uint32_t, size_t>> reserve_counts(dex_items.size());
+
+        for (uint16_t source_dex_id = 0; source_dex_id < dex_items.size(); ++source_dex_id) {
+            auto &source_dex = dex_items[source_dex_id];
+            for (const auto &pending_item: source_dex->pending_aggregate_method_work_items) {
+                auto &source_callers = source_dex->method_caller_ids[pending_item.source_method_idx];
+                DEXKIT_CHECK(!source_callers.empty());
+                work_items[pending_item.target_dex_id].push_back(MethodAggregateWorkItem{
+                        .source_dex_id = source_dex_id,
+                        .source_method_idx = pending_item.source_method_idx,
+                        .target_method_idx = pending_item.target_method_idx
+                });
+                reserve_counts[pending_item.target_dex_id][pending_item.target_method_idx] += source_callers.size();
+            }
+        }
+
+        auto aggregate_target_methods = [this, &work_items, &reserve_counts](uint16_t target_dex_id) {
+            auto *target_dex = dex_items[target_dex_id].get();
+            for (const auto &[target_method_idx, extra_count]: reserve_counts[target_dex_id]) {
+                auto &target_callers = target_dex->method_caller_ids[target_method_idx];
+                target_callers.reserve(target_callers.size() + extra_count);
+            }
+            for (const auto &work_item: work_items[target_dex_id]) {
+                auto *source_dex = dex_items[work_item.source_dex_id].get();
+                auto &source_callers = source_dex->method_caller_ids[work_item.source_method_idx];
+                auto &target_callers = target_dex->method_caller_ids[work_item.target_method_idx];
                 target_callers.insert(target_callers.end(), source_callers.begin(), source_callers.end());
                 source_callers.clear();
                 source_callers.shrink_to_fit();
             }
+        };
+
+        size_t target_count = 0;
+        for (const auto &target_work_items: work_items) {
+            if (!target_work_items.empty()) {
+                ++target_count;
+            }
+        }
+        if (target_count > 1 && _thread_num > 1) {
+            ThreadPool pool(std::min((size_t) _thread_num, target_count));
+            std::vector<std::future<void>> futures;
+            futures.reserve(target_count);
+            for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
+                if (work_items[target_dex_id].empty()) {
+                    continue;
+                }
+                futures.emplace_back(pool.enqueue([aggregate_target_methods, target_dex_id]() {
+                    aggregate_target_methods(target_dex_id);
+                }));
+            }
+            for (auto &future: futures) {
+                future.get();
+            }
+        } else {
+            for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
+                if (work_items[target_dex_id].empty()) {
+                    continue;
+                }
+                aggregate_target_methods(target_dex_id);
+            }
+        }
+
+        for (auto &source_dex: dex_items) {
+            source_dex->pending_aggregate_method_work_items.clear();
+            source_dex->pending_aggregate_method_work_items.shrink_to_fit();
         }
     }
 
-    if ((aggregate_flags & kRwFieldMethod) != 0 && (ready_flags & kRwFieldMethod) == 0) {
-        for (auto &source_dex: dex_items) {
-            for (uint32_t field_idx = 0; field_idx < source_dex->reader.FieldIds().size(); ++field_idx) {
-                auto &cross_info = source_dex->field_cross_info[field_idx];
-                if (!cross_info.has_value()) {
-                    continue;
-                }
-                auto &[target_dex_id, target_field_idx] = cross_info.value();
+    if ((aggregate_flags & kRwFieldMethod) != 0) {
+        struct FieldAggregateWorkItem {
+            uint16_t source_dex_id;
+            uint32_t source_field_idx;
+            uint32_t target_field_idx;
+        };
 
-                auto &source_get_methods = source_dex->field_get_method_ids[field_idx];
+        std::vector<std::vector<FieldAggregateWorkItem>> work_items(dex_items.size());
+        std::vector<phmap::flat_hash_map<uint32_t, size_t>> get_reserve_counts(dex_items.size());
+        std::vector<phmap::flat_hash_map<uint32_t, size_t>> put_reserve_counts(dex_items.size());
+
+        for (uint16_t source_dex_id = 0; source_dex_id < dex_items.size(); ++source_dex_id) {
+            auto &source_dex = dex_items[source_dex_id];
+            for (const auto &pending_item: source_dex->pending_aggregate_field_work_items) {
+                auto &source_get_methods = source_dex->field_get_method_ids[pending_item.source_field_idx];
+                auto &source_put_methods = source_dex->field_put_method_ids[pending_item.source_field_idx];
+                DEXKIT_CHECK(!source_get_methods.empty() || !source_put_methods.empty());
+                work_items[pending_item.target_dex_id].push_back(FieldAggregateWorkItem{
+                        .source_dex_id = source_dex_id,
+                        .source_field_idx = pending_item.source_field_idx,
+                        .target_field_idx = pending_item.target_field_idx
+                });
+                get_reserve_counts[pending_item.target_dex_id][pending_item.target_field_idx] += source_get_methods.size();
+                put_reserve_counts[pending_item.target_dex_id][pending_item.target_field_idx] += source_put_methods.size();
+            }
+        }
+
+        auto aggregate_target_fields = [this, &work_items, &get_reserve_counts, &put_reserve_counts](uint16_t target_dex_id) {
+            auto *target_dex = dex_items[target_dex_id].get();
+            for (const auto &[target_field_idx, get_extra_count]: get_reserve_counts[target_dex_id]) {
+                auto &target_get_methods = target_dex->field_get_method_ids[target_field_idx];
+                target_get_methods.reserve(target_get_methods.size() + get_extra_count);
+            }
+            for (const auto &[target_field_idx, put_extra_count]: put_reserve_counts[target_dex_id]) {
+                auto &target_put_methods = target_dex->field_put_method_ids[target_field_idx];
+                target_put_methods.reserve(target_put_methods.size() + put_extra_count);
+            }
+            for (const auto &work_item: work_items[target_dex_id]) {
+                auto *source_dex = dex_items[work_item.source_dex_id].get();
+
+                auto &source_get_methods = source_dex->field_get_method_ids[work_item.source_field_idx];
                 if (!source_get_methods.empty()) {
-                    auto &target_get_methods = dex_items[target_dex_id]->field_get_method_ids[target_field_idx];
+                    auto &target_get_methods = target_dex->field_get_method_ids[work_item.target_field_idx];
                     target_get_methods.insert(target_get_methods.end(), source_get_methods.begin(), source_get_methods.end());
                     source_get_methods.clear();
                     source_get_methods.shrink_to_fit();
                 }
 
-                auto &source_put_methods = source_dex->field_put_method_ids[field_idx];
+                auto &source_put_methods = source_dex->field_put_method_ids[work_item.source_field_idx];
                 if (!source_put_methods.empty()) {
-                    auto &target_put_methods = dex_items[target_dex_id]->field_put_method_ids[target_field_idx];
+                    auto &target_put_methods = target_dex->field_put_method_ids[work_item.target_field_idx];
                     target_put_methods.insert(target_put_methods.end(), source_put_methods.begin(), source_put_methods.end());
                     source_put_methods.clear();
                     source_put_methods.shrink_to_fit();
                 }
             }
+        };
+
+        size_t target_count = 0;
+        for (const auto &target_work_items: work_items) {
+            if (!target_work_items.empty()) {
+                ++target_count;
+            }
+        }
+        if (target_count > 1 && _thread_num > 1) {
+            ThreadPool pool(std::min((size_t) _thread_num, target_count));
+            std::vector<std::future<void>> futures;
+            futures.reserve(target_count);
+            for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
+                if (work_items[target_dex_id].empty()) {
+                    continue;
+                }
+                futures.emplace_back(pool.enqueue([aggregate_target_fields, target_dex_id]() {
+                    aggregate_target_fields(target_dex_id);
+                }));
+            }
+            for (auto &future: futures) {
+                future.get();
+            }
+        } else {
+            for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
+                if (work_items[target_dex_id].empty()) {
+                    continue;
+                }
+                aggregate_target_fields(target_dex_id);
+            }
+        }
+
+        for (auto &source_dex: dex_items) {
+            source_dex->pending_aggregate_field_work_items.clear();
+            source_dex->pending_aggregate_field_work_items.shrink_to_fit();
         }
     }
 }

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <array>
 #include <string_view>
 #include <vector>
 #include <condition_variable>
@@ -202,7 +203,8 @@ private:
     std::vector<uint8_t> GetOpSeqFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetUsingStringsFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetInvokeMethodsFromCode(uint32_t method_idx);
-    std::vector<EncodeNumber> GetUsingNumbersFromCode(uint32_t method_idx);
+    std::vector<EncodeNumber> ParseUsingNumbersFromCode(uint32_t method_idx);
+    const std::vector<EncodeNumber> &GetUsingNumbers(uint32_t method_idx);
 
     static bool IsStringMatched(std::string_view str, const schema::StringMatcher *matcher);
     static bool IsAccessFlagsMatched(uint32_t access_flags, const schema::AccessFlagsMatcher *matcher);
@@ -250,6 +252,29 @@ private:
 
 private:
     friend class DexKit;
+
+    struct PendingAggregateMethodWorkItem {
+        uint32_t source_method_idx;
+        uint16_t target_dex_id;
+        uint32_t target_method_idx;
+    };
+
+    struct PendingAggregateFieldWorkItem {
+        uint32_t source_field_idx;
+        uint16_t target_dex_id;
+        uint32_t target_field_idx;
+    };
+
+    enum class LazyUsingNumbersState : uint8_t {
+        Empty = 0,
+        Building = 1,
+        Ready = 2,
+    };
+
+    struct LazyUsingNumbersSlot {
+        std::atomic<uint8_t> state{static_cast<uint8_t>(LazyUsingNumbersState::Empty)};
+        std::unique_ptr<const std::vector<EncodeNumber>> data;
+    };
 
     DexKit *dexkit;
     std::shared_ptr<MemMap> _image;
@@ -309,14 +334,21 @@ private:
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;
 
     std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
+    std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
+    std::unique_ptr<std::array<std::mutex, 64>> lazy_using_numbers_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
+    std::unique_ptr<std::array<std::condition_variable, 64>> lazy_using_numbers_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
     std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
     std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
-    // direct/local reverse edges collected from this dex during InitCache;
-    // cross-dex contributions are published separately by DexKit after PutCrossRef
+    // local reverse edges are collected during InitCache;
+    // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_get_method_ids;
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;
+    // one-shot aggregate worklists: pre-resolved source->target bindings that also
+    // carry reverse-edge payload, so BuildCrossRefAggregates can skip re-reading cross_info
+    std::vector<PendingAggregateMethodWorkItem> pending_aggregate_method_work_items;
+    std::vector<PendingAggregateFieldWorkItem> pending_aggregate_field_work_items;
 };
 
 } // namespace dexkit

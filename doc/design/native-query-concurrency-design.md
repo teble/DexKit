@@ -721,6 +721,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - `DexItem` 为 `InitCache` / `PutCrossRef` 新增了显式的 begin / finish / wait 协调点
    - `dex_flag` / `dex_cross_flag` 已改为原子 ready-bit
    - 当前策略是：**同一 `DexItem` 上同一时刻只允许一个 cache/cross-ref 构建者，其他调用方等待 ready**
+   - 当前实现中，真正执行构建的 `InitCache()` / `PutCrossRef()` / `BuildCrossRefAggregates()` 已开始假设自己收到的是 `Begin*()` 协调后返回的 claimed flags，不再在函数内部重复做同样的 ready-check
    - 这一步先解决“重复初始化 / 重复 cross-ref 构建”的状态边界问题，尚未引入更细粒度的 feature 并发执行
 
 9. `PutCrossRef()` 已完成“稳定基础索引”与“一次性 cross-ref 工作集”的拆分
@@ -739,6 +740,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - `DexKit` 现在只保留 aggregate ready-bit / 协调状态，不再长期持有运行时 `cross_dex_*` 查询索引
    - 这样运行期查询重新只读取 `DexItem` 内最终索引，不再为 callers / field get-put methods 动态拼装额外 vector
    - 这也意味着“跨 dex 结果发布”虽然仍由 `DexKit` 统一调度，但最终数据落点已经重新回到 `DexItem`
+   - 当前 `BuildCrossRefAggregates()` 已开始按 **target DexItem 分区** 并行执行：每个 task 独占一个 target dex 的最终索引写入权
+   - 因此 task 内对最终 `vector` 做 `reserve + insert` 是安全的，不会出现多个线程同时向同一个目标索引 `push_back / insert`
+   - `PutCrossRef()` 现在还会顺手记录预解析的 pending aggregate work item：只把“真正命中 cross-info 且携带反向边载荷”的 source 成员加入 aggregate worklist，并直接带上 target dex / target idx
+   - 因而 `BuildCrossRefAggregates()` 不再需要全量扫描所有 method / field，也不必再次回查 `cross_info`；前置阶段已经收敛为“扫描命中的 pending work item + 按 target 统计 reserve”
 
 11. `DexKit` 查询入口已开始接入 admission + warm-up barrier
    - `Find*` / `BatchFind*` / 元数据读取入口现在会先走 DexKit 级执行准入
@@ -746,21 +751,29 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - 等当前活跃 query 数归零后，统一执行一次 warm-up
    - warm-up 完成后，等待中的 query 再进入并发只读执行
    - 这意味着：当前代码正在从“依赖内层细粒度防御”逐步收敛到“外层 phase barrier 保证”
+   - 但 `using_numbers` 仍保留为**例外路径**：它不进入 bridge 级全量 warm-up barrier，而继续作为 method matcher 的末位条件按需处理
+   - 原因是 `using_numbers` 的全量预热成本和常驻内存都偏高，不适合因为单个 query 命中就把整个 dex 的 number cache 全部铺开
+   - 当前实现已把它收敛成 **per-method 稀疏懒缓存**：slot 数组在 init 阶段一次性定长，真正的 number vector 只在命中某个 method 时才构建
+   - 每个 method slot 用原子状态 `Empty -> Building -> Ready` 协调；builder 资格通过 CAS 抢占，因此不会有两个线程同时发布同一个 method 的 using-numbers 缓存
+   - 等待路径采用条带化 `mutex/cv`，只在 miss 且发生竞争时参与阻塞；ready fast path 仍然只是原子读 + 只读访问
+   - 这样既避免了重复 query 不断重解析 opcode/code item，又不会把 `using_numbers` 混入当前的“大范围共享索引 warm-up”体系
 
 当前限制：
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
 - matcher 迁移还处于第一批，`ThreadVariable` 兼容路径尚未删除
-- `BuildCrossRefAggregates()` 目前还是 DexKit 级单 builder、全量扫描式聚合，后续还可以继续做并行化/增量化优化
+- `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
+- 目前仍保留少量“单项元数据接口按需直读 dex code / annotation”的 fallback 路径，例如 opcode / using-string / invoke / annotation 等访问器；这些路径是为了避免单次元数据读取强制触发整类全量 warm-up，暂不纳入本轮 query 热路径收敛范围
+- `using_numbers` 已经转为稀疏懒缓存，但当前仍是 DexItem 级 capability 特例；后续若出现更多“构建昂贵但命中稀疏”的 method 特征，再考虑抽象成统一的 lazy feature slot 框架
 
 ### 11.11 下一步建议实现顺序
 
 1. 继续把 cancel / early-exit 协议统一到 `QueryContext`
 2. 逐步迁移 matcher 临时缓存
 3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
-4. 评估 `BuildCrossRefAggregates()` 的并行化 / 增量化空间，避免后续成为 shared-pool 时代的新串行瓶颈
+4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
 5. 在状态边界进一步收紧后，再进入 `IQueryExecutor` / `SharedPoolExecutor` 抽象
 
 ## 12. 验收维度

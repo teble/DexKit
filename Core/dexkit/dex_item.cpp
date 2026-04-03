@@ -95,6 +95,7 @@ void DexItem::InitBaseCache() {
     }
 
     class_field_ids.resize(reader.TypeIds().size());
+    pending_cross_ref_field_ids.resize(reader.TypeIds().size());
     int field_idx = 0;
     for (auto &field: reader.FieldIds()) {
         if (field.class_idx == element_type_idx) {
@@ -140,6 +141,7 @@ void DexItem::InitBaseCache() {
     class_access_flags.resize(reader.TypeIds().size());
     class_interface_ids.resize(reader.TypeIds().size());
     class_method_ids.resize(reader.TypeIds().size());
+    pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     method_descriptors.resize(reader.MethodIds().size());
     method_access_flags.resize(reader.MethodIds().size());
     method_codes.resize(reader.MethodIds().size());
@@ -226,10 +228,16 @@ void DexItem::InitBaseCache() {
         }
         std::sort(methods.begin(), methods.end());
     }
+    for (uint32_t type_idx = 0; type_idx < type_def_flag.size(); ++type_idx) {
+        if (!type_def_flag[type_idx]) {
+            std::swap(pending_cross_ref_field_ids[type_idx], class_field_ids[type_idx]);
+        }
+    }
+
     auto method_idx = 0;
     for (auto &method_def: reader.MethodIds()) {
         if (!type_def_flag[method_def.class_idx]) {
-            class_method_ids[method_def.class_idx].emplace_back(method_idx);
+            pending_cross_ref_method_ids[method_def.class_idx].emplace_back(method_idx);
         }
         ++method_idx;
     }
@@ -560,8 +568,7 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
             std::lock_guard lock(mutex);
 
             if (need_caller_cross) {
-                std::vector<uint32_t> method_ids;
-                std::swap(method_ids, this->class_method_ids[type_idx]);
+                const auto &method_ids = this->pending_cross_ref_method_ids[type_idx];
 
                 auto &origin_method_ids = origin_dex->class_method_ids[origin_type_idx];
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_method_ids.size() && cur_i < method_ids.size(); ++ori_i) {
@@ -573,16 +580,12 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
-                    auto &origin_caller_id = origin_dex->method_caller_ids[origin_method_idx];
-                    auto &curr_caller_id = this->method_caller_ids[curr_method_idx];
-                    origin_caller_id.insert(origin_caller_id.end(), curr_caller_id.begin(), curr_caller_id.end());
                     ++cur_i;
                 }
             }
 
             if (need_rw_field_cross) {
-                std::vector<uint32_t> field_ids;
-                std::swap(field_ids, this->class_field_ids[type_idx]);
+                const auto &field_ids = this->pending_cross_ref_field_ids[type_idx];
 
                 auto &origin_field_ids = origin_dex->class_field_ids[origin_type_idx];
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_field_ids.size() && cur_i < field_ids.size(); ++ori_i) {
@@ -594,18 +597,19 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
-                    auto &origin_get_method_id = origin_dex->field_get_method_ids[origin_field_idx];
-                    auto &curr_get_method_id = this->field_get_method_ids[curr_field_idx];
-                    origin_get_method_id.insert(origin_get_method_id.end(), curr_get_method_id.begin(),
-                                                curr_get_method_id.end());
-                    auto &origin_put_method_id = origin_dex->field_put_method_ids[origin_field_idx];
-                    auto &curr_put_method_id = this->field_put_method_ids[curr_field_idx];
-                    origin_put_method_id.insert(origin_put_method_id.end(), curr_put_method_id.begin(),
-                                                curr_put_method_id.end());
                     ++cur_i;
                 }
             }
         }
+    }
+
+    if (need_caller_cross) {
+        pending_cross_ref_method_ids.clear();
+        pending_cross_ref_method_ids.shrink_to_fit();
+    }
+    if (need_rw_field_cross) {
+        pending_cross_ref_field_ids.clear();
+        pending_cross_ref_field_ids.shrink_to_fit();
     }
 }
 
@@ -959,8 +963,9 @@ DexItem::GetMethodOpCodes(uint32_t method_idx) {
 }
 
 std::vector<MethodBean> DexItem::GetCallMethods(uint32_t method_idx) {
-    auto &method_caller = this->method_caller_ids[method_idx];
+    const auto &method_caller = this->method_caller_ids[method_idx];
     std::vector<MethodBean> beans;
+    beans.reserve(method_caller.size());
     for (auto &[ori_dex_id, caller_id]: method_caller) {
         if (ori_dex_id == this->dex_id) {
             beans.emplace_back(GetMethodBean(caller_id));
@@ -1017,8 +1022,9 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
-    auto &method_ids = this->field_get_method_ids[field_idx];
+    const auto &method_ids = this->field_get_method_ids[field_idx];
     std::vector<MethodBean> beans;
+    beans.reserve(method_ids.size());
     for (auto &[ori_dex_id, method_id]: method_ids) {
         if (ori_dex_id == this->dex_id) {
             beans.emplace_back(GetMethodBean(method_id));
@@ -1031,8 +1037,9 @@ std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
-    auto &method_ids = this->field_put_method_ids[field_idx];
+    const auto &method_ids = this->field_put_method_ids[field_idx];
     std::vector<MethodBean> beans;
+    beans.reserve(method_ids.size());
     for (auto &[ori_dex_id, method_id]: method_ids) {
         if (ori_dex_id == this->dex_id) {
             beans.emplace_back(GetMethodBean(method_id));

@@ -34,6 +34,12 @@ bool comp(std::unique_ptr<DexItem> &a, std::unique_ptr<DexItem> &b) {
     return a->GetDexId() < b->GetDexId();
 }
 
+DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
+    if (owner_ != nullptr) {
+        owner_->LeaveQueryExecution();
+    }
+}
+
 DexKit::DexKit(std::string_view apk_path, int unzip_thread_num) {
     if (unzip_thread_num > 0) {
         _thread_num = unzip_thread_num;
@@ -48,8 +54,104 @@ void DexKit::SetThreadNum(int num) {
 }
 
 Error DexKit::InitFullCache() {
-    InitDexCache(UINT32_MAX);
+    auto execution_guard = EnterQueryExecution(UINT32_MAX);
     return Error::SUCCESS;
+}
+
+DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
+    std::unique_lock lock(query_execution_mutex);
+    auto track_warmup_request = [this, required_flags]() {
+        if (required_flags != 0) {
+            pending_warmup_flags |= required_flags;
+        }
+    };
+
+    if (NeedWarmUp(required_flags)) {
+        track_warmup_request();
+    }
+
+    while (true) {
+        if (warmup_inflight) {
+            query_execution_cv.wait(lock, [this] {
+                return !warmup_inflight;
+            });
+            if (NeedWarmUp(required_flags)) {
+                track_warmup_request();
+            }
+            continue;
+        }
+
+        if (pending_warmup_flags != 0) {
+            if (active_query_count == 0) {
+                auto warmup_flags = pending_warmup_flags;
+                pending_warmup_flags = 0;
+                warmup_inflight = true;
+                lock.unlock();
+                InitDexCache(warmup_flags);
+                lock.lock();
+                warmup_inflight = false;
+                query_execution_cv.notify_all();
+                if (NeedWarmUp(required_flags)) {
+                    track_warmup_request();
+                }
+                continue;
+            }
+            query_execution_cv.wait(lock, [this] {
+                return warmup_inflight || active_query_count == 0;
+            });
+            if (NeedWarmUp(required_flags)) {
+                track_warmup_request();
+            }
+            continue;
+        }
+
+        if (!NeedWarmUp(required_flags)) {
+            ++active_query_count;
+            return QueryExecutionGuard(this);
+        }
+
+        track_warmup_request();
+    }
+}
+
+void DexKit::LeaveQueryExecution() {
+    std::lock_guard lock(query_execution_mutex);
+    DEXKIT_CHECK(active_query_count > 0);
+    --active_query_count;
+    if (active_query_count == 0) {
+        query_execution_cv.notify_all();
+    }
+}
+
+bool DexKit::NeedWarmUp(uint32_t init_flags) const {
+    if (init_flags == 0) {
+        return false;
+    }
+
+    uint32_t cross_ref_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+    uint32_t cache_flags = init_flags & ~cross_ref_flags;
+
+    if (cache_flags != 0) {
+        for (const auto &dex_item: dex_items) {
+            if (dex_item->NeedInitCache(cache_flags)) {
+                return true;
+            }
+        }
+    }
+
+    if (cross_ref_flags != 0) {
+        for (const auto &dex_item: dex_items) {
+            if (dex_item->NeedPutCrossRef(cross_ref_flags)) {
+                return true;
+            }
+        }
+        auto aggregate_ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+        if ((aggregate_ready_flags & cross_ref_flags) != cross_ref_flags) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static inline std::vector<uint32_t> ParseLogicalDexOffsets(const std::shared_ptr<MemMap> &image) {
@@ -216,7 +318,7 @@ DexKit::FindClass(const schema::FindClass *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    InitDexCache(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -292,7 +394,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    InitDexCache(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -377,7 +479,7 @@ DexKit::FindField(const schema::FindField *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    InitDexCache(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -449,6 +551,7 @@ DexKit::FindField(const schema::FindField *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *query) {
+    auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
         for (auto encode_idx: *query->in_classes()) {
@@ -475,9 +578,6 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             find_result_map[matchers->Get(j)->union_key()->string_view()] = {};
         }
     }
-
-    InitDexCache(kUsingString);
-
     QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
     ThreadPool pool(_thread_num, [&query_context]() {
         return query_context.ShouldStop();
@@ -526,6 +626,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *query) {
+    auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
     if (query->in_classes()) {
@@ -558,9 +659,6 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             find_result_map[matchers->Get(j)->union_key()->string_view()] = {};
         }
     }
-
-    InitDexCache(kUsingString);
-
     QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
     ThreadPool pool(_thread_num, [&query_context]() {
         return query_context.ShouldStop();
@@ -610,6 +708,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetClassData(const std::string_view descriptor) {
+    auto execution_guard = EnterQueryExecution(0);
     auto [dex, type_id] = this->GetClassDeclaredPair(descriptor);
     if (dex == nullptr) {
         return nullptr;
@@ -623,6 +722,7 @@ DexKit::GetClassData(const std::string_view descriptor) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetMethodData(const std::string_view descriptor) {
+    auto execution_guard = EnterQueryExecution(0);
     auto class_descriptor = descriptor.substr(0, descriptor.find("->"));
     auto [dex, type_id] = this->GetClassDeclaredPair(class_descriptor);
     if (dex == nullptr) {
@@ -640,6 +740,7 @@ DexKit::GetMethodData(const std::string_view descriptor) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetFieldData(const std::string_view descriptor) {
+    auto execution_guard = EnterQueryExecution(0);
     auto class_descriptor = descriptor.substr(0, descriptor.find("->"));
     auto [dex, type_id] = this->GetClassDeclaredPair(class_descriptor);
     if (dex == nullptr) {
@@ -657,6 +758,7 @@ DexKit::GetFieldData(const std::string_view descriptor) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetClassByIds(const std::vector<int64_t> &encode_ids) {
+    auto execution_guard = EnterQueryExecution(0);
     std::vector<ClassBean> result;
     for (auto encode_id: encode_ids) {
         auto dex_id = encode_id >> 32;
@@ -678,6 +780,7 @@ DexKit::GetClassByIds(const std::vector<int64_t> &encode_ids) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetMethodByIds(const std::vector<int64_t> &encode_ids) {
+    auto execution_guard = EnterQueryExecution(0);
     std::vector<MethodBean> result;
     for (auto encode_id: encode_ids) {
         auto dex_id = encode_id >> 32;
@@ -699,6 +802,7 @@ DexKit::GetMethodByIds(const std::vector<int64_t> &encode_ids) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetFieldByIds(const std::vector<int64_t> &encode_ids) {
+    auto execution_guard = EnterQueryExecution(0);
     std::vector<FieldBean> result;
     for (auto encode_id: encode_ids) {
         auto dex_id = encode_id >> 32;
@@ -720,6 +824,7 @@ DexKit::GetFieldByIds(const std::vector<int64_t> &encode_ids) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetClassAnnotations(int64_t encode_class_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_class_id >> 32;
     auto class_id = encode_class_id & UINT32_MAX;
     auto result = dex_items[dex_id]->GetClassAnnotationBeans(class_id);
@@ -738,6 +843,7 @@ DexKit::GetClassAnnotations(int64_t encode_class_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetFieldAnnotations(int64_t encode_field_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_field_id >> 32;
     auto field_id = encode_field_id & UINT32_MAX;
     auto result = dex_items[dex_id]->GetFieldAnnotationBeans(field_id);
@@ -756,6 +862,7 @@ DexKit::GetFieldAnnotations(int64_t encode_field_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetMethodAnnotations(int64_t encode_method_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     auto result = dex_items[dex_id]->GetMethodAnnotationBeans(method_id);
@@ -774,6 +881,7 @@ DexKit::GetMethodAnnotations(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetParameterAnnotations(int64_t encode_method_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     auto result = dex_items[dex_id]->GetParameterAnnotationBeans(method_id);
@@ -798,6 +906,7 @@ DexKit::GetParameterAnnotations(int64_t encode_method_id) {
 
 std::optional<std::vector<std::optional<std::string_view>>>
 DexKit::GetParameterNames(int64_t encode_method_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     return dex_items[dex_id]->GetParameterNames(method_id);
@@ -805,6 +914,7 @@ DexKit::GetParameterNames(int64_t encode_method_id) {
 
 std::vector<uint8_t>
 DexKit::GetMethodOpCodes(int64_t encode_method_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     return dex_items[dex_id]->GetMethodOpCodes(method_id);
@@ -812,7 +922,7 @@ DexKit::GetMethodOpCodes(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetCallMethods(int64_t encode_method_id) {
-    InitDexCache(kCallerMethod | kMethodInvoking);
+    auto execution_guard = EnterQueryExecution(kCallerMethod | kMethodInvoking);
 
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
@@ -832,7 +942,7 @@ DexKit::GetCallMethods(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetInvokeMethods(int64_t encode_method_id) {
-    InitDexCache(kCallerMethod | kMethodInvoking);
+    auto execution_guard = EnterQueryExecution(kCallerMethod | kMethodInvoking);
 
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
@@ -852,6 +962,7 @@ DexKit::GetInvokeMethods(int64_t encode_method_id) {
 
 std::vector<std::string_view>
 DexKit::GetUsingStrings(int64_t encode_method_id) {
+    auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     return dex_items[dex_id]->GetUsingStrings(method_id);
@@ -859,7 +970,7 @@ DexKit::GetUsingStrings(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetUsingFields(int64_t encode_method_id) {
-    InitDexCache(kRwFieldMethod | kMethodUsingField);
+    auto execution_guard = EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
 
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
@@ -879,7 +990,7 @@ DexKit::GetUsingFields(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FieldGetMethods(int64_t encode_field_id) {
-    InitDexCache(kRwFieldMethod | kMethodUsingField);
+    auto execution_guard = EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
 
     auto dex_id = encode_field_id >> 32;
     auto field_id = encode_field_id & UINT32_MAX;
@@ -899,7 +1010,7 @@ DexKit::FieldGetMethods(int64_t encode_field_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FieldPutMethods(int64_t encode_field_id) {
-    InitDexCache(kRwFieldMethod | kMethodUsingField);
+    auto execution_guard = EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
 
     auto dex_id = encode_field_id >> 32;
     auto field_id = encode_field_id & UINT32_MAX;
@@ -933,6 +1044,98 @@ DexItem *DexKit::GetDexItem(uint16_t dex_id) {
 void DexKit::PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint32_t type_idx) {
     std::lock_guard lock(this->_put_class_mutex);
     this->class_declare_dex_map[class_name] = {dex_id, type_idx};
+}
+
+uint32_t DexKit::BeginBuildCrossRefAggregates(uint32_t aggregate_flags) {
+    DEXKIT_CHECK((aggregate_flags & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    std::unique_lock lock(cross_ref_aggregate_state_mutex);
+    while (true) {
+        auto ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+        auto missing_flags = aggregate_flags & ~ready_flags;
+        if (missing_flags == 0) {
+            return 0;
+        }
+        if (cross_ref_aggregate_inflight_flags == 0) {
+            cross_ref_aggregate_inflight_flags = missing_flags;
+            return missing_flags;
+        }
+        cross_ref_aggregate_state_cv.wait(lock, [this] {
+            return cross_ref_aggregate_inflight_flags == 0;
+        });
+    }
+}
+
+void DexKit::FinishBuildCrossRefAggregates(uint32_t aggregate_flags) {
+    {
+        std::lock_guard lock(cross_ref_aggregate_state_mutex);
+        cross_ref_aggregate_flag.fetch_or(aggregate_flags, std::memory_order_release);
+        cross_ref_aggregate_inflight_flags &= ~aggregate_flags;
+    }
+    cross_ref_aggregate_state_cv.notify_all();
+}
+
+void DexKit::WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const {
+    std::unique_lock lock(cross_ref_aggregate_state_mutex);
+    cross_ref_aggregate_state_cv.wait(lock, [this, aggregate_flags] {
+        auto ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+        return (ready_flags & aggregate_flags) == aggregate_flags;
+    });
+}
+
+void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
+    DEXKIT_CHECK((aggregate_flags & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    auto ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+    if ((ready_flags & aggregate_flags) == aggregate_flags) {
+        return;
+    }
+
+    if ((aggregate_flags & kCallerMethod) != 0 && (ready_flags & kCallerMethod) == 0) {
+        for (auto &source_dex: dex_items) {
+            for (uint32_t method_idx = 0; method_idx < source_dex->reader.MethodIds().size(); ++method_idx) {
+                auto &cross_info = source_dex->method_cross_info[method_idx];
+                if (!cross_info.has_value()) {
+                    continue;
+                }
+                auto &source_callers = source_dex->method_caller_ids[method_idx];
+                if (source_callers.empty()) {
+                    continue;
+                }
+                auto &[target_dex_id, target_method_idx] = cross_info.value();
+                auto &target_callers = dex_items[target_dex_id]->method_caller_ids[target_method_idx];
+                target_callers.insert(target_callers.end(), source_callers.begin(), source_callers.end());
+                source_callers.clear();
+                source_callers.shrink_to_fit();
+            }
+        }
+    }
+
+    if ((aggregate_flags & kRwFieldMethod) != 0 && (ready_flags & kRwFieldMethod) == 0) {
+        for (auto &source_dex: dex_items) {
+            for (uint32_t field_idx = 0; field_idx < source_dex->reader.FieldIds().size(); ++field_idx) {
+                auto &cross_info = source_dex->field_cross_info[field_idx];
+                if (!cross_info.has_value()) {
+                    continue;
+                }
+                auto &[target_dex_id, target_field_idx] = cross_info.value();
+
+                auto &source_get_methods = source_dex->field_get_method_ids[field_idx];
+                if (!source_get_methods.empty()) {
+                    auto &target_get_methods = dex_items[target_dex_id]->field_get_method_ids[target_field_idx];
+                    target_get_methods.insert(target_get_methods.end(), source_get_methods.begin(), source_get_methods.end());
+                    source_get_methods.clear();
+                    source_get_methods.shrink_to_fit();
+                }
+
+                auto &source_put_methods = source_dex->field_put_method_ids[field_idx];
+                if (!source_put_methods.empty()) {
+                    auto &target_put_methods = dex_items[target_dex_id]->field_put_method_ids[target_field_idx];
+                    target_put_methods.insert(target_put_methods.end(), source_put_methods.begin(), source_put_methods.end());
+                    source_put_methods.clear();
+                    source_put_methods.shrink_to_fit();
+                }
+            }
+        }
+    }
 }
 
 void DexKit::InitDexCache(uint32_t init_flags) {
@@ -983,6 +1186,13 @@ void DexKit::InitDexCache(uint32_t init_flags) {
     for (auto &dex_item: dex_items) {
         dex_item->WaitPutCrossRef(cross_ref_flags);
     }
+
+    auto aggregate_flags = BeginBuildCrossRefAggregates(cross_ref_flags);
+    if (aggregate_flags != 0) {
+        BuildCrossRefAggregates(aggregate_flags);
+        FinishBuildCrossRefAggregates(aggregate_flags);
+    }
+    WaitBuildCrossRefAggregates(cross_ref_flags);
 }
 
 void DexKit::BuildPackagesMatchTrie(

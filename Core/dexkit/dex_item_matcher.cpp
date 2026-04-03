@@ -1414,7 +1414,7 @@ bool DexItem::IsFieldGetMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
-    const auto ids = this->field_get_method_ids[field_idx];
+    const auto &ids = this->field_get_method_ids[field_idx];
     if (matcher->method_count()) {
         if (ids.size() < matcher->method_count()->min() || ids.size() > matcher->method_count()->max()) {
             return false;
@@ -1459,7 +1459,7 @@ bool DexItem::IsFieldPutMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
-    const auto ids = this->field_put_method_ids[field_idx];
+    const auto &ids = this->field_put_method_ids[field_idx];
     if (matcher->method_count()) {
         if (ids.size() < matcher->method_count()->min() || ids.size() > matcher->method_count()->max()) {
             return false;

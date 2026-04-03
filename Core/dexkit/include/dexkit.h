@@ -24,6 +24,7 @@
 #include <thread>
 #include <vector>
 #include <atomic>
+#include <condition_variable>
 
 #include "flatbuffers/flatbuffers.h"
 #include "zip_archive.h"
@@ -40,6 +41,21 @@ class DexItem;
 
 class DexKit {
 public:
+    class QueryExecutionGuard {
+    public:
+        explicit QueryExecutionGuard(DexKit *owner) : owner_(owner) {}
+        QueryExecutionGuard(const QueryExecutionGuard &) = delete;
+        QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
+        QueryExecutionGuard(QueryExecutionGuard &&other) noexcept : owner_(other.owner_) {
+            other.owner_ = nullptr;
+        }
+        QueryExecutionGuard &operator=(QueryExecutionGuard &&other) = delete;
+        ~QueryExecutionGuard();
+
+    private:
+        DexKit *owner_ = nullptr;
+    };
+
 
     explicit DexKit() = default;
     explicit DexKit(std::string_view apk_path, int unzip_thread_num = 0);
@@ -87,13 +103,29 @@ public:
 private:
     std::mutex _mutex;
     std::shared_mutex _put_class_mutex;
+    mutable std::mutex query_execution_mutex;
+    mutable std::condition_variable query_execution_cv;
+    uint32_t active_query_count = 0;
+    uint32_t pending_warmup_flags = 0;
+    bool warmup_inflight = false;
     std::atomic<uint32_t> dex_cnt = 0;
     uint32_t _thread_num = std::thread::hardware_concurrency();
     std::vector<std::shared_ptr<MemMap>> images;
     std::vector<std::unique_ptr<DexItem>> dex_items;
     phmap::flat_hash_map<std::string_view, std::pair<uint16_t /*dex_id*/, uint32_t /*type_idx*/>> class_declare_dex_map;
+    std::atomic<uint32_t> cross_ref_aggregate_flag = 0;
+    mutable std::mutex cross_ref_aggregate_state_mutex;
+    mutable std::condition_variable cross_ref_aggregate_state_cv;
+    uint32_t cross_ref_aggregate_inflight_flags = 0;
 
     void InitDexCache(uint32_t init_flags);
+    [[nodiscard]] QueryExecutionGuard EnterQueryExecution(uint32_t required_flags);
+    void LeaveQueryExecution();
+    [[nodiscard]] bool NeedWarmUp(uint32_t init_flags) const;
+    uint32_t BeginBuildCrossRefAggregates(uint32_t aggregate_flags);
+    void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
+    void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;
+    void BuildCrossRefAggregates(uint32_t aggregate_flags);
 
     static void BuildPackagesMatchTrie(
             const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *search_packages,

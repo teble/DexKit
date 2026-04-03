@@ -164,6 +164,31 @@ Java/Kotlin caller threads
  cancel  early-exit metrics
 ```
 
+### 5.1 当前收敛策略：query admission + batch warm-up barrier
+
+在 shared worker pool / `QueryScheduler` 最终落地前，当前更适合采用一个**过渡但可证明正确**的执行模型：
+
+- query 进入 native 后先做 `analyze`
+- `analyze` 得到本次 query 的 `need_flags`
+- 若所需 cache / cross-ref 全部 ready，则作为**只读 query**直接并发执行
+- 若存在 missing flags，则该 query 不立即开跑，而是把 `need_flags` 记入 pending warm-up 集合
+- 一旦出现 pending warm-up，**暂停新的 query 准入**
+- 等当前运行中的 query 全部结束后，统一执行一次 warm-up / `InitDexCache(union_flags)`
+- warm-up 完成后，再放行这批等待 query 继续并发只读执行
+
+它的核心思想是：
+
+- **构建阶段独占**
+- **查询阶段并发只读**
+
+这样做的收益是：
+
+1. 不必一开始就把所有 lazy cache / cross-ref 构建路径都改造成真并发 writer
+2. `analyze` 已经能够提前给出 `need_flags`，天然适合做 admission barrier
+3. 可以显著降低“不同 query 同时触发不同 cache 构建”时的状态竞争复杂度
+4. 后续即使继续引入 shared pool，这个 barrier 仍然可以作为 query admission 层保留
+5. 未来很多热路径中的 ready-bit 防御判断，都可以逐步上移到 admission phase
+
 ## 6. 关键改造点
 
 ### 6.1 从 per-query ThreadPool 改为 per-instance shared pool
@@ -698,19 +723,45 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - 当前策略是：**同一 `DexItem` 上同一时刻只允许一个 cache/cross-ref 构建者，其他调用方等待 ready**
    - 这一步先解决“重复初始化 / 重复 cross-ref 构建”的状态边界问题，尚未引入更细粒度的 feature 并发执行
 
+9. `PutCrossRef()` 已完成“稳定基础索引”与“一次性 cross-ref 工作集”的拆分
+   - `class_method_ids` / `class_field_ids` 现在只保留当前 dex 内定义类的稳定基础成员索引
+   - init 阶段识别出的“类声明不在当前 dex 中”的 method / field，会落入 `pending_cross_ref_method_ids` / `pending_cross_ref_field_ids`
+   - `PutCrossRef()` 只消费 `pending_*` 工作集，不再原地破坏基础列表
+   - 这样既避免了与 using-strings / matcher 等只读查询共享基础列表时的写冲突，又保留了 cross-ref 完成后释放一次性工作集内存的能力
+   - 在当前阶段，cross-info 的发布仍然由 `dex_cross_flag` 作为 ready-bit 完成边界
+   - 随着 admission barrier 接入，查询热路径已开始从“读取前再看 ready-bit”收敛为“外层先保证 ready，再直接读取 cross-info”
+
+10. cross-ref 反向结果容器已收敛为“本 dex 本地结果 + DexKit 聚合发布”
+   - `PutCrossRef()` 不再直接向其他 `DexItem` 的 `method_caller_ids` / `field_get_method_ids` / `field_put_method_ids` 追加写入
+   - `DexItem` 内这三类容器现在只保留“当前 dex 直接解析出的本地反向边”
+   - `DexKit::InitDexCache()` 在全部 `DexItem::PutCrossRef()` ready 之后，新增统一的 aggregate phase
+   - aggregate phase 会把外部 dex unresolved 成员的本地反向边，按 `method_cross_info` / `field_cross_info` 直接回灌到目标 `DexItem` 的最终只读索引
+   - `DexKit` 现在只保留 aggregate ready-bit / 协调状态，不再长期持有运行时 `cross_dex_*` 查询索引
+   - 这样运行期查询重新只读取 `DexItem` 内最终索引，不再为 callers / field get-put methods 动态拼装额外 vector
+   - 这也意味着“跨 dex 结果发布”虽然仍由 `DexKit` 统一调度，但最终数据落点已经重新回到 `DexItem`
+
+11. `DexKit` 查询入口已开始接入 admission + warm-up barrier
+   - `Find*` / `BatchFind*` / 元数据读取入口现在会先走 DexKit 级执行准入
+   - 若 `need_flags` 缺失，则先把 flags 记入 pending warm-up，再阻塞新 query 准入
+   - 等当前活跃 query 数归零后，统一执行一次 warm-up
+   - warm-up 完成后，等待中的 query 再进入并发只读执行
+   - 这意味着：当前代码正在从“依赖内层细粒度防御”逐步收敛到“外层 phase barrier 保证”
+
 当前限制：
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
 - matcher 迁移还处于第一批，`ThreadVariable` 兼容路径尚未删除
-- `PutCrossRef()` 对 `class_method_ids` / `class_field_ids` 的发布仍是共享写路径，后续仍需要更明确的读写边界与发布语义
+- `BuildCrossRefAggregates()` 目前还是 DexKit 级单 builder、全量扫描式聚合，后续还可以继续做并行化/增量化优化
+- `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
 
 ### 11.11 下一步建议实现顺序
 
 1. 继续把 cancel / early-exit 协议统一到 `QueryContext`
 2. 逐步迁移 matcher 临时缓存
-3. 继续细化 cache / cross-ref 的 feature 状态机与发布语义
-4. 然后再进入 `IQueryExecutor` / `SharedPoolExecutor` 抽象
+3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
+4. 评估 `BuildCrossRefAggregates()` 的并行化 / 增量化空间，避免后续成为 shared-pool 时代的新串行瓶颈
+5. 在状态边界进一步收紧后，再进入 `IQueryExecutor` / `SharedPoolExecutor` 抽象
 
 ## 12. 验收维度
 

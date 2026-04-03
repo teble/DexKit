@@ -249,6 +249,8 @@ private:
     bool IsFieldPutMethodsMatched(uint32_t field_idx, const schema::MethodsMatcher *matcher);
 
 private:
+    friend class DexKit;
+
     DexKit *dexkit;
     std::shared_ptr<MemMap> _image;
     dex::Reader reader;
@@ -285,10 +287,14 @@ private:
     std::vector<uint32_t /*access_flag*/> class_access_flags;
     std::vector<std::vector<uint32_t>> class_interface_ids;
     std::vector<std::optional<std::string>> method_descriptors;
+    // stable base member indexes; after init only members declared in this dex stay here
     std::vector<std::vector<uint32_t /*method_id*/>> class_method_ids;
+    // one-shot worklists for cross-ref against members whose declaring class is outside this dex
+    std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
     std::vector<std::optional<std::string>> field_descriptors;
     std::vector<std::vector<uint32_t /*field_id*/>> class_field_ids;
+    std::vector<std::vector<uint32_t /*field_id*/>> pending_cross_ref_field_ids;
     std::vector<uint32_t /*access_flag*/> field_access_flags;
     std::vector<const dex::Code *> method_codes;
     // method parameter types
@@ -306,7 +312,8 @@ private:
     std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
     std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
-    // maybe cross dex
+    // direct/local reverse edges collected from this dex during InitCache;
+    // cross-dex contributions are published separately by DexKit after PutCrossRef
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_get_method_ids;
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;

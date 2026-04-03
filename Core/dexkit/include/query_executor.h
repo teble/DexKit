@@ -42,6 +42,7 @@ class IQueryExecutor {
 public:
     virtual ~IQueryExecutor() = default;
     virtual void Submit(std::function<void()> task) = 0;
+    virtual void OnSubmissionComplete() = 0;
     [[nodiscard]] virtual bool ShouldSkipTask() const = 0;
     [[nodiscard]] virtual std::function<bool()> GetShouldSkipTaskFn() const = 0;
 };
@@ -56,6 +57,8 @@ public:
             task();
         });
     }
+
+    void OnSubmissionComplete() override {}
 
     [[nodiscard]] bool ShouldSkipTask() const override {
         return should_skip_task_ && should_skip_task_();
@@ -75,20 +78,30 @@ public:
     explicit SharedThreadPoolQueryExecutor(
             std::shared_ptr<QueryScheduler> scheduler,
             uint64_t query_id,
+            QueryPriority query_priority,
             std::function<bool()> should_skip_task = {}
     )
             : should_skip_task_(std::move(should_skip_task)),
               scheduler_(std::move(scheduler)),
               query_id_(query_id) {
-        scheduler_->AttachQuery(query_id_);
+        scheduler_->AttachQuery(query_id_, query_priority);
     }
 
     ~SharedThreadPoolQueryExecutor() override {
+        OnSubmissionComplete();
         scheduler_->DetachQuery(query_id_);
     }
 
     void Submit(std::function<void()> task) override {
         scheduler_->Submit(query_id_, std::move(task));
+    }
+
+    void OnSubmissionComplete() override {
+        if (submission_completed_) {
+            return;
+        }
+        submission_completed_ = true;
+        scheduler_->ActivateQuery(query_id_);
     }
 
     [[nodiscard]] bool ShouldSkipTask() const override {
@@ -103,6 +116,7 @@ private:
     std::function<bool()> should_skip_task_;
     std::shared_ptr<QueryScheduler> scheduler_;
     uint64_t query_id_ = 0;
+    bool submission_completed_ = false;
 };
 
 template<typename F>

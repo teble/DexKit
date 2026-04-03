@@ -40,6 +40,11 @@ enum class QueryKind : uint8_t {
     BatchFindMethodUsingStrings,
 };
 
+enum class QueryPriority : uint8_t {
+    Normal = 0,
+    LatencySensitive = 1,
+};
+
 struct QueryMetrics {
     std::chrono::steady_clock::time_point created_at = std::chrono::steady_clock::now();
     std::atomic<uint32_t> submitted_tasks = 0;
@@ -103,6 +108,14 @@ public:
         return kind_;
     }
 
+    void SetQueryPriority(QueryPriority priority) {
+        priority_ = priority;
+    }
+
+    [[nodiscard]] QueryPriority GetQueryPriority() const {
+        return priority_;
+    }
+
     void Cancel() {
         cancelled_.store(true, std::memory_order_release);
     }
@@ -163,6 +176,7 @@ private:
 
     QueryKind kind_;
     uint64_t query_id_;
+    QueryPriority priority_ = QueryPriority::Normal;
     std::atomic<bool> cancelled_ = false;
     std::atomic<bool> early_exit_ = false;
     QueryMetrics metrics_{};

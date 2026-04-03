@@ -411,6 +411,76 @@ class UnitTest {
         }
     }
 
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testMixedFindFirstAndRegularQueriesOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(4)
+            try {
+                val futures = listOf(
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 2)
+                        }
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 2)
+                        }
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                findFirst = true
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 1)
+                        }
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                findFirst = true
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 1)
+                        }
+                    }
+                )
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
     @Test
     fun testConcurrentBatchFindClassUsingStringsOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
@@ -450,6 +520,44 @@ class UnitTest {
     fun testConcurrentBatchFindMethodUsingStringsOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.batchFindMethodUsingStrings {
+                                searchPackages("org.luckypray.dexkit.demo")
+                                groups(
+                                    mapOf(
+                                        "main_on_click" to listOf("onClick: playButton"),
+                                        "play_on_click" to listOf("onClick: rollButton")
+                                    )
+                                )
+                            }
+                            assert(result["main_on_click"]?.size == 1)
+                            assert(result["play_on_click"]?.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testConcurrentBatchFindMethodUsingStringsOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
             val workers = 4
             val iterationsPerWorker = 8
             val start = CountDownLatch(1)

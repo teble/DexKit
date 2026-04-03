@@ -47,6 +47,12 @@ static void DrainRemainingFutures(std::vector<std::future<T>> &futures, size_t s
     }
 }
 
+static void MarkQuerySubmissionComplete(IQueryExecutor *executor) {
+    if (executor != nullptr) {
+        executor->OnSubmissionComplete();
+    }
+}
+
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
@@ -214,6 +220,7 @@ std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_
         return std::make_unique<SharedThreadPoolQueryExecutor>(
                 GetOrCreateSharedQueryScheduler(thread_num),
                 query_context.GetQueryId(),
+                query_context.GetQueryPriority(),
                 std::move(should_skip_task)
         );
     }
@@ -420,6 +427,9 @@ DexKit::FindClass(const schema::FindClass *query) {
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
     QueryContext query_context(QueryKind::FindClass);
+    if (query->find_first()) {
+        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
+    }
     std::vector<ClassBean> result;
 
     // fast search declared class
@@ -449,6 +459,7 @@ DexKit::FindClass(const schema::FindClass *query) {
                 }
             }
         }
+        MarkQuerySubmissionComplete(executor.get());
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -501,6 +512,9 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
     QueryContext query_context(QueryKind::FindMethod);
+    if (query->find_first()) {
+        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
+    }
     std::vector<MethodBean> result;
 
     // fast search declared class
@@ -534,6 +548,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
                 }
             }
         }
+        MarkQuerySubmissionComplete(executor.get());
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -591,6 +606,9 @@ DexKit::FindField(const schema::FindField *query) {
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
     QueryContext query_context(QueryKind::FindField);
+    if (query->find_first()) {
+        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
+    }
     std::vector<FieldBean> result;
 
     // fast search declared class
@@ -624,6 +642,7 @@ DexKit::FindField(const schema::FindField *query) {
                 }
             }
         }
+        MarkQuerySubmissionComplete(executor.get());
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -702,6 +721,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             return result;
         }));
     }
+    MarkQuerySubmissionComplete(executor.get());
 
     // fetch and merge result
     for (auto &f: futures) {
@@ -782,6 +802,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             return result;
         }));
     }
+    MarkQuerySubmissionComplete(executor.get());
 
     // fetch and merge result
     for (auto &f: futures) {

@@ -342,6 +342,18 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - 同时根据当前活跃 query 数动态限制单个 query 的 in-flight task 数
       - 当实例内只有 1 个活跃 query 时，它仍可占满全部 worker
     - 当前还没有更高层的 query budget / priority / 饥饿保护，只是先把最基本的 task flooding 问题收敛掉
+    - 本轮又补上了一个更明确的 **submission-complete activation** 阶段：
+      - `IQueryExecutor` 新增 `OnSubmissionComplete()`
+      - `SharedThreadPoolQueryExecutor` 会先把 task 只放入 query 私有 pending 队列
+      - `FindClass` / `FindMethod` / `FindField` / `BatchFind*` 在完成本轮 task 提交后，才显式激活该 query
+      - `QueryScheduler` 只对已激活 query 计算 budget / in-flight 配额并开始分发
+      - 这样 shared-pool 的调度边界从“submit 时顺手 dispatch”进一步收敛为“先完成一轮提交，再进入统一调度”
+    - 在 activation 基础上，本轮继续补了一个更明确的 **share-count fairness** 收敛：
+      - scheduler 现在会把“已开始 submission、但尚未 activation 的 query”也纳入 share-count 估算
+      - 因而第一个已激活 query 在 dispatch 首轮 budget / in-flight 限额时，会为这些“正在提交中的 query”预留份额
+      - 这一步不能把先发优势完全消除，但可以把问题从“先完成提交就直接占满全部 worker”收敛到“最多只在更早的 pre-submission 窗口内存在优势”
+    - 同时已补一条 shared-scheduler batch 并发回归：
+      - `testConcurrentBatchFindMethodUsingStringsOnSharedScheduler()`
 
 ### 4.3 Init / cross-ref / admission barrier
 
@@ -402,7 +414,8 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
-- shared-pool 模式下还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前只有基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
+- shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness，但还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
+- 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
 - matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-local 收敛；后续主要是继续观察是否还有值得进一步抽象的临时容器
 - `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
@@ -412,7 +425,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 6. 下一步建议实现顺序
 
-1. 把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
+1. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
 2. 继续把 cancel / early-exit 协议统一到 `QueryContext`
 3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
 4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间

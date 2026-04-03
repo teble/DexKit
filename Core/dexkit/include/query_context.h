@@ -27,6 +27,7 @@
 #include <memory>
 #include <mutex>
 #include <utility>
+#include <vector>
 
 #include "parallel_hashmap/phmap.h"
 
@@ -66,6 +67,17 @@ struct QueryMetricsSnapshot {
     uint32_t max_in_flight = 0;
     uint32_t max_query_share_count = 0;
     int64_t first_dispatch_delay_ns = -1;
+};
+
+struct QueryMetricsRecord {
+    QueryKind kind = QueryKind::FindClass;
+    QueryPriority priority = QueryPriority::Normal;
+    QueryMetricsSnapshot metrics{};
+};
+
+struct QueryMetricsHistorySnapshot {
+    uint64_t dropped_records = 0;
+    std::vector<QueryMetricsRecord> records;
 };
 
 struct QueryCacheKey {

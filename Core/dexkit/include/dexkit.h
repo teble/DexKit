@@ -23,6 +23,7 @@
 #include <string_view>
 #include <thread>
 #include <vector>
+#include <deque>
 #include <atomic>
 #include <condition_variable>
 #include <memory>
@@ -69,6 +70,8 @@ public:
     [[nodiscard]] QuerySchedulerMetricsSnapshot GetQuerySchedulerMetricsSnapshot() const;
     void ResetQuerySchedulerMetrics() const;
     [[nodiscard]] static QueryMetricsSnapshot GetLastQueryMetricsSnapshot();
+    [[nodiscard]] QueryMetricsHistorySnapshot GetQueryMetricsHistorySnapshot() const;
+    void ResetQueryMetricsHistory();
     Error InitFullCache();
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);
@@ -123,6 +126,9 @@ private:
     mutable std::shared_ptr<ThreadPool> shared_query_pool_;
     mutable std::shared_ptr<QueryScheduler> shared_query_scheduler_;
     mutable uint32_t shared_query_pool_thread_num_ = 0;
+    mutable std::mutex query_metrics_history_mutex;
+    mutable std::deque<QueryMetricsRecord> query_metrics_history_;
+    uint64_t dropped_query_metrics_history_records_ = 0;
     std::vector<std::shared_ptr<MemMap>> images;
     std::vector<std::unique_ptr<DexItem>> dex_items;
     phmap::flat_hash_map<std::string_view, std::pair<uint16_t /*dex_id*/, uint32_t /*type_idx*/>> class_declare_dex_map;
@@ -138,10 +144,13 @@ private:
     [[nodiscard]] std::shared_ptr<ThreadPool> GetOrCreateSharedQueryPool(uint32_t thread_num) const;
     [[nodiscard]] std::shared_ptr<QueryScheduler> GetOrCreateSharedQueryScheduler(uint32_t thread_num) const;
     [[nodiscard]] std::unique_ptr<IQueryExecutor> CreateQueryExecutor(QueryContext &query_context) const;
+    void RecordQueryMetrics(const QueryContext &query_context);
     uint32_t BeginBuildCrossRefAggregates(uint32_t aggregate_flags);
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
     void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;
     void BuildCrossRefAggregates(uint32_t aggregate_flags);
+
+    static constexpr size_t kQueryMetricsHistoryCapacity = 256;
 
     static void BuildPackagesMatchTrie(
             const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *search_packages,

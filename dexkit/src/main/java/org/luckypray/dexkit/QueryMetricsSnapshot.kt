@@ -20,15 +20,22 @@ data class QueryMetricsSnapshot(
             require(values.size == NATIVE_SIZE) {
                 "Unexpected query metrics size: ${values.size}"
             }
+            return fromNative(values, 0)
+        }
+
+        fun fromNative(values: LongArray, offset: Int): QueryMetricsSnapshot {
+            require(offset >= 0 && values.size >= offset + NATIVE_SIZE) {
+                "Unexpected query metrics slice: size=${values.size}, offset=$offset"
+            }
             return QueryMetricsSnapshot(
-                submittedTasks = values[0],
-                dispatchedTasks = values[1],
-                baseDispatchedTasks = values[2],
-                bonusDispatchedTasks = values[3],
-                completedTasks = values[4],
-                maxInFlight = values[5],
-                maxQueryShareCount = values[6],
-                firstDispatchDelayNs = values[7],
+                submittedTasks = values[offset],
+                dispatchedTasks = values[offset + 1],
+                baseDispatchedTasks = values[offset + 2],
+                bonusDispatchedTasks = values[offset + 3],
+                completedTasks = values[offset + 4],
+                maxInFlight = values[offset + 5],
+                maxQueryShareCount = values[offset + 6],
+                firstDispatchDelayNs = values[offset + 7],
             )
         }
     }

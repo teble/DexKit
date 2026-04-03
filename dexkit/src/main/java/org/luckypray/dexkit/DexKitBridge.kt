@@ -145,8 +145,20 @@ class DexKitBridge : Closeable {
 
     @DexKitExperimentalApi
     @Synchronized
+    fun getQueryMetricsHistorySnapshot(): QueryMetricsHistorySnapshot {
+        return QueryMetricsHistorySnapshot.fromNative(nativeGetQueryMetricsHistory(safeToken))
+    }
+
+    @DexKitExperimentalApi
+    @Synchronized
     fun resetSchedulerMetrics() {
         nativeResetSchedulerMetrics(safeToken)
+    }
+
+    @DexKitExperimentalApi
+    @Synchronized
+    fun resetQueryMetricsHistory() {
+        nativeResetQueryMetricsHistory(safeToken)
     }
 
     /**
@@ -719,7 +731,13 @@ class DexKitBridge : Closeable {
         private external fun nativeGetLastQueryMetrics(nativePtr: Long): LongArray
 
         @JvmStatic
+        private external fun nativeGetQueryMetricsHistory(nativePtr: Long): LongArray
+
+        @JvmStatic
         private external fun nativeResetSchedulerMetrics(nativePtr: Long)
+
+        @JvmStatic
+        private external fun nativeResetQueryMetricsHistory(nativePtr: Long)
 
         @JvmStatic
         private external fun nativeInitFullCache(nativePtr: Long)

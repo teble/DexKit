@@ -635,6 +635,81 @@ class UnitTest {
         }
     }
 
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testQueryMetricsHistorySnapshotOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+
+            val regularResult = parallelBridge.findMethod {
+                excludePackages("org.luckypray.dexkit.demo.hook")
+                matcher {
+                    usingNumbers(114514)
+                }
+            }
+            assert(regularResult.size == 2)
+
+            val firstResult = parallelBridge.findMethod {
+                findFirst = true
+                excludePackages("org.luckypray.dexkit.demo.hook")
+                matcher {
+                    usingNumbers(114514)
+                }
+            }
+            assert(firstResult.size == 1)
+
+            val history = parallelBridge.getQueryMetricsHistorySnapshot()
+            println(history)
+            assert(history.droppedRecords == 0L)
+            assert(history.records.size == 2)
+
+            val firstRecord = history.records[0]
+            assert(firstRecord.kind == QueryMetricsKind.FIND_METHOD)
+            assert(firstRecord.priority == QueryMetricsPriority.NORMAL)
+
+            val secondRecord = history.records[1]
+            assert(secondRecord.kind == QueryMetricsKind.FIND_METHOD)
+            assert(secondRecord.priority == QueryMetricsPriority.LATENCY_SENSITIVE)
+
+            history.records.forEach { record ->
+                assert(record.metrics.submittedTasks > 0)
+                assert(record.metrics.dispatchedTasks > 0)
+                assert(record.metrics.completedTasks == record.metrics.submittedTasks)
+                assert(record.metrics.baseDispatchedTasks + record.metrics.bonusDispatchedTasks == record.metrics.dispatchedTasks)
+            }
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testQueryMetricsHistoryResetOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+
+            val result = parallelBridge.findMethod {
+                excludePackages("org.luckypray.dexkit.demo.hook")
+                matcher {
+                    usingNumbers(114514)
+                }
+            }
+            assert(result.size == 2)
+
+            val beforeReset = parallelBridge.getQueryMetricsHistorySnapshot()
+            assert(beforeReset.droppedRecords == 0L)
+            assert(beforeReset.records.size == 1)
+
+            parallelBridge.resetQueryMetricsHistory()
+
+            val afterReset = parallelBridge.getQueryMetricsHistorySnapshot()
+            assert(afterReset.droppedRecords == 0L)
+            assert(afterReset.records.isEmpty())
+        }
+    }
+
     @Test
     fun testConcurrentBatchFindClassUsingStringsOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->

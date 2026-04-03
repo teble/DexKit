@@ -389,6 +389,14 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - JVM：`DexKitBridge.getLastQueryMetricsSnapshot()`
       - 这样 benchmark 可以在每次 query 返回后立即抓取该调用线程对应的 query-local metrics，而不会与其他并发调用互相覆盖
       - 当前 `runSharedBridgeBenchmark` 已开始汇总这些 snapshot，并输出 per-query 平均任务数、首个 dispatch 延迟分位值、单 query 观测到的 `max_in_flight` / `max_query_share_count` 分布
+    - 在 last-snapshot 之外，本轮继续补上了 **per-instance query metrics history 导出**
+      - native：`DexKit::GetQueryMetricsHistorySnapshot()` / `ResetQueryMetricsHistory()`
+      - JVM：`DexKitBridge.getQueryMetricsHistorySnapshot()` / `resetQueryMetricsHistory()`
+      - 采用 DexKit 实例级有界 history buffer（当前容量 256），记录 `QueryKind + QueryPriority + QueryMetricsSnapshot`
+      - 当 history 超出容量时会累计 `droppedRecords`，便于 benchmark / 单测识别样本截断
+      - 当前已补齐 shared-scheduler 单测，验证 regular query 与 `findFirst` 的 kind/priority 分类，以及 reset 行为
+      - 本轮继续把这套 history/classification 接到了 `runSharedBridgeBenchmark`
+      - benchmark 现在会在 warm-up 后重置 history，并输出按 `kind + priority` 分组的 record 数、任务均值、base/bonus dispatch 计数与延迟/并发峰值
     - 同时已补一条 shared-scheduler batch 并发回归：
       - `testConcurrentBatchFindMethodUsingStringsOnSharedScheduler()`
 
@@ -449,7 +457,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 ## 5. 当前限制
 
 - 外部 cancel 还没有正式暴露到 API
-- 当前 scheduler 级 snapshot 与 query-local last-snapshot 都已可观测；但 query-local 仍是“每线程最近一次 query”模型，还没有更通用的历史缓冲/流式导出接口
+- 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；但仍缺少更通用的流式导出与 buffer 容量配置
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
 - shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness，但还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
@@ -467,4 +475,4 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 2. 继续把 cancel / early-exit 协议统一到 `QueryContext`
 3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
 4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
-5. 在 benchmark 已接入 scheduler + query-local metrics 的基础上，继续评估是否需要引入更通用的 query metrics 历史缓冲/分类导出，便于和 `@Synchronized` / `LegacyPerQuery` 做更细粒度对照
+5. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验

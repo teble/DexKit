@@ -132,6 +132,7 @@ DexItem::FindClass(
         uint32_t end,
         QueryContext &query_context
 ) {
+    auto query_binding = query_context.BindToCurrentThread();
 
     std::vector<uint32_t> find_result;
     for (auto i = start; i < end; ++i) {
@@ -171,6 +172,7 @@ DexItem::FindMethod(
         uint32_t end,
         QueryContext &query_context
 ) {
+    auto query_binding = query_context.BindToCurrentThread();
 
     std::vector<uint32_t> find_result;
     for (auto method_idx = start; method_idx < end; ++method_idx) {
@@ -212,6 +214,7 @@ DexItem::FindField(
         uint32_t end,
         QueryContext &query_context
 ) {
+    auto query_binding = query_context.BindToCurrentThread();
 
     std::vector<uint32_t> find_result;
     for (auto field_idx = start; field_idx < end; ++field_idx) {

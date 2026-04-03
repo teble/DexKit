@@ -665,11 +665,21 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - `BatchFindMethodUsingStrings`
    - 当前已统一到相同的任务提交 / 完成计数与 `should_skip_task` 协议
 
+7. matcher 临时缓存已开始迁入 query 生命周期
+   - `QueryContext` 新增 query-local cache 容器与线程绑定能力
+   - `dex_item_find.cpp` / `dex_item_batch_find.cpp` 在任务执行期间会绑定当前 `QueryContext`
+   - `dex_item_matcher.cpp` 中首批热点缓存已优先走 `QueryContext`
+     - using-strings 关键词 trie / map / keyword-set
+     - 注解 / 接口 / 字段 / 方法 matcher 向量展开结果
+     - type-name matcher 规格化结果
+     - opcode / using-fields / using-numbers 预处理结果
+   - 当前仍保留“无 `QueryContext` 时回退到 `ThreadVariable`”的兼容路径
+
 当前限制：
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
-- matcher 临时缓存仍主要依赖 `ThreadVariable`
+- matcher 迁移还处于第一批，`ThreadVariable` 兼容路径尚未删除
 
 ### 11.11 下一步建议实现顺序
 

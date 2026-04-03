@@ -222,6 +222,7 @@ DexKit::FindClass(const schema::FindClass *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
+    QueryContext query_context(QueryKind::FindClass);
     std::vector<ClassBean> result;
 
     // fast search declared class
@@ -232,6 +233,7 @@ DexKit::FindClass(const schema::FindClass *query) {
             auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
             if (dex) {
                 fast_search_dex = dex;
+                auto query_binding = query_context.BindToCurrentThread();
                 auto res = dex->FindClass(query, packageTrie, type_idx);
                 result.insert(result.end(), res.begin(), res.end());
             }
@@ -239,7 +241,6 @@ DexKit::FindClass(const schema::FindClass *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        QueryContext query_context(QueryKind::FindClass);
         ThreadPool pool(_thread_num, [&query_context]() {
             return query_context.ShouldStop();
         });
@@ -297,6 +298,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
+    QueryContext query_context(QueryKind::FindMethod);
     std::vector<MethodBean> result;
 
     // fast search declared class
@@ -309,6 +311,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
                 auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
                 if (dex) {
                     fast_search_dex = dex;
+                    auto query_binding = query_context.BindToCurrentThread();
                     auto res = dex->FindMethod(query, packageTrie, type_idx);
                     result.insert(result.end(), res.begin(), res.end());
                 }
@@ -317,7 +320,6 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        QueryContext query_context(QueryKind::FindMethod);
         ThreadPool pool(_thread_num, [&query_context]() {
             return query_context.ShouldStop();
         });
@@ -381,6 +383,7 @@ DexKit::FindField(const schema::FindField *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
+    QueryContext query_context(QueryKind::FindField);
     std::vector<FieldBean> result;
 
     // fast search declared class
@@ -393,6 +396,7 @@ DexKit::FindField(const schema::FindField *query) {
                 auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
                 if (dex) {
                     fast_search_dex = dex;
+                    auto query_binding = query_context.BindToCurrentThread();
                     auto res = dex->FindField(query, packageTrie, type_idx);
                     result.insert(result.end(), res.begin(), res.end());
                 }
@@ -401,7 +405,6 @@ DexKit::FindField(const schema::FindField *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        QueryContext query_context(QueryKind::FindField);
         ThreadPool pool(_thread_num, [&query_context]() {
             return query_context.ShouldStop();
         });

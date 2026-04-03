@@ -23,6 +23,12 @@
 #include <atomic>
 #include <chrono>
 #include <cstdint>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <utility>
+
+#include "parallel_hashmap/phmap.h"
 
 namespace dexkit {
 
@@ -40,8 +46,53 @@ struct QueryMetrics {
     std::atomic<uint32_t> completed_tasks = 0;
 };
 
+struct QueryCacheKey {
+    uint8_t scope = 0;
+    std::uintptr_t key = 0;
+
+    [[nodiscard]] bool operator==(const QueryCacheKey &other) const {
+        return scope == other.scope && key == other.key;
+    }
+};
+
+struct QueryCacheKeyHash {
+    [[nodiscard]] size_t operator()(const QueryCacheKey &value) const {
+        auto h1 = std::hash<uint8_t>{}(value.scope);
+        auto h2 = std::hash<std::uintptr_t>{}(value.key);
+        return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6U) + (h1 >> 2U));
+    }
+};
+
 class QueryContext {
 public:
+    class ScopedBinding {
+    public:
+        explicit ScopedBinding(QueryContext &query_context)
+                : previous_(current_), current_query_(&query_context) {
+            current_ = &query_context;
+        }
+
+        ScopedBinding(const ScopedBinding &) = delete;
+        ScopedBinding &operator=(const ScopedBinding &) = delete;
+
+        ScopedBinding(ScopedBinding &&other) noexcept
+                : previous_(other.previous_), current_query_(other.current_query_) {
+            other.current_query_ = nullptr;
+        }
+
+        ScopedBinding &operator=(ScopedBinding &&other) = delete;
+
+        ~ScopedBinding() {
+            if (current_query_ != nullptr) {
+                current_ = previous_;
+            }
+        }
+
+    private:
+        QueryContext *previous_ = nullptr;
+        QueryContext *current_query_ = nullptr;
+    };
+
     explicit QueryContext(QueryKind kind) : kind_(kind), query_id_(NextQueryId()) {}
 
     [[nodiscard]] uint64_t GetQueryId() const {
@@ -84,6 +135,27 @@ public:
         return metrics_;
     }
 
+    [[nodiscard]] ScopedBinding BindToCurrentThread() {
+        return ScopedBinding(*this);
+    }
+
+    [[nodiscard]] static QueryContext *Current() {
+        return current_;
+    }
+
+    template<typename T, typename Factory>
+    std::shared_ptr<T> GetOrCreateCache(uint8_t scope, std::uintptr_t key, Factory &&factory) {
+        auto cache_key = QueryCacheKey{scope, key};
+        std::lock_guard lock(cache_mutex_);
+        if (query_cache_.contains(cache_key)) {
+            auto &cached = query_cache_[cache_key];
+            return std::shared_ptr<T>(cached, reinterpret_cast<T *>(cached.get()));
+        }
+        auto value = std::make_shared<T>(std::forward<Factory>(factory)());
+        query_cache_[cache_key] = value;
+        return value;
+    }
+
 private:
     static uint64_t NextQueryId() {
         return next_query_id_.fetch_add(1, std::memory_order_relaxed);
@@ -94,8 +166,11 @@ private:
     std::atomic<bool> cancelled_ = false;
     std::atomic<bool> early_exit_ = false;
     QueryMetrics metrics_{};
+    std::mutex cache_mutex_;
+    phmap::flat_hash_map<QueryCacheKey, std::shared_ptr<void>, QueryCacheKeyHash> query_cache_;
 
     inline static std::atomic<uint64_t> next_query_id_ = 1;
+    inline static thread_local QueryContext *current_ = nullptr;
 };
 
 } // namespace dexkit

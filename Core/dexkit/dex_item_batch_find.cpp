@@ -31,6 +31,7 @@ DexItem::BatchFindClassUsingStrings(
         trie::PackageTrie &packageTrie,
         QueryContext &query_context
 ) {
+    auto query_binding = query_context.BindToCurrentThread();
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
@@ -111,6 +112,7 @@ DexItem::BatchFindMethodUsingStrings(
         trie::PackageTrie &packageTrie,
         QueryContext &query_context
 ) {
+    auto query_binding = query_context.BindToCurrentThread();
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {

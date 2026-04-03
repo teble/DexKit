@@ -6,6 +6,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 
 class UnitTest {
@@ -14,6 +15,23 @@ class UnitTest {
 
         private val demoApkPath: String
         private var bridge: DexKitBridge
+        private val tokenField = DexKitBridge::class.java.getDeclaredField("token").apply {
+            isAccessible = true
+        }
+        private val nativeGetMethodUsingStringsMethod = DexKitBridge::class.java.getDeclaredMethod(
+            "nativeGetMethodUsingStrings",
+            Long::class.javaPrimitiveType!!,
+            Long::class.javaPrimitiveType!!
+        ).apply {
+            isAccessible = true
+        }
+        private val nativeGetMethodOpCodesMethod = DexKitBridge::class.java.getDeclaredMethod(
+            "nativeGetMethodOpCodes",
+            Long::class.javaPrimitiveType!!,
+            Long::class.javaPrimitiveType!!
+        ).apply {
+            isAccessible = true
+        }
 
         init {
             loadLibrary("dexkit")
@@ -22,6 +40,19 @@ class UnitTest {
             demoApkPath = demoApk.absolutePath
             bridge = DexKitBridge.create(demoApk.absolutePath)
         }
+    }
+
+    private fun getBridgeToken(target: DexKitBridge): Long {
+        return tokenField.getLong(target)
+    }
+
+    private fun nativeGetMethodUsingStrings(token: Long, encodeId: Long): List<String> {
+        @Suppress("UNCHECKED_CAST")
+        return (nativeGetMethodUsingStringsMethod.invoke(null, token, encodeId) as Array<String>).toList()
+    }
+
+    private fun nativeGetMethodOpCodes(token: Long, encodeId: Long): List<Int> {
+        return (nativeGetMethodOpCodesMethod.invoke(null, token, encodeId) as IntArray).toList()
     }
 
     @Test
@@ -403,6 +434,79 @@ class UnitTest {
                             }
                             assert(result["main_on_click"]?.size == 1)
                             assert(result["play_on_click"]?.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @Test
+    fun testConcurrentNativeGetMethodUsingStringsWithoutBridgeSynchronization() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            val method = parallelBridge.getMethodData("Lorg/luckypray/dexkit/demo/PlayActivity;->onCreate(Landroid/os/Bundle;)V")
+            assert(method != null)
+            val encodeId = method!!.getEncodeId()
+            val token = getBridgeToken(parallelBridge)
+            val workers = 6
+            val iterationsPerWorker = 16
+            val start = CountDownLatch(1)
+            val baseline = AtomicReference<List<String>?>(null)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = nativeGetMethodUsingStrings(token, encodeId)
+                            assert(result.size == 2)
+                            assert(result.containsAll(listOf("onCreate", "PlayActivity")))
+                            val current = baseline.get()
+                            if (current == null) {
+                                baseline.compareAndSet(null, result)
+                            } else {
+                                assert(result == current)
+                            }
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @Test
+    fun testConcurrentNativeGetMethodOpCodesWithoutBridgeSynchronization() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            val method = parallelBridge.getMethodData("Lorg/luckypray/dexkit/demo/MainActivity;->onClick(Landroid/view/View;)V")
+            assert(method != null)
+            val encodeId = method!!.getEncodeId()
+            val token = getBridgeToken(parallelBridge)
+            val workers = 6
+            val iterationsPerWorker = 16
+            val start = CountDownLatch(1)
+            val baseline = AtomicReference<List<Int>?>(null)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = nativeGetMethodOpCodes(token, encodeId)
+                            assert(result.isNotEmpty())
+                            val current = baseline.get()
+                            if (current == null) {
+                                baseline.compareAndSet(null, result)
+                            } else {
+                                assert(result == current)
+                            }
                         }
                     }
                 }

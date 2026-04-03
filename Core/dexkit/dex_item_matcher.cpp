@@ -144,14 +144,9 @@ enum class MatcherCacheScope : uint8_t {
 
 template<typename T, typename Factory>
 static std::shared_ptr<T> GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &&factory) {
-    if (auto *query_context = QueryContext::Current()) {
-        return query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
-    }
-    auto cached = ThreadVariable::GetThreadVariable<T>(key);
-    if (cached != nullptr) {
-        return cached;
-    }
-    return ThreadVariable::SetThreadVariable<T>(key, std::forward<Factory>(factory)());
+    auto *query_context = QueryContext::Current();
+    DEXKIT_CHECK(query_context != nullptr);
+    return query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
 }
 
 bool DexItem::IsStringMatched(std::string_view str, const schema::StringMatcher *matcher) {

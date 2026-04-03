@@ -36,7 +36,6 @@
 #include "schema/querys_generated.h"
 #include "schema/results_generated.h"
 #include "acdat/Builder.h"
-#include "ThreadVariable.h"
 #include "ThreadPool.h"
 #include "mmap.h"
 #include "package_trie.h"
@@ -203,6 +202,8 @@ private:
     std::vector<uint8_t> GetOpSeqFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetUsingStringsFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetInvokeMethodsFromCode(uint32_t method_idx);
+    const std::vector<uint8_t> &GetLazyMethodOpCodes(uint32_t method_idx);
+    const std::vector<uint32_t> &GetLazyMethodUsingStringIds(uint32_t method_idx);
     std::vector<EncodeNumber> ParseUsingNumbersFromCode(uint32_t method_idx);
     const std::vector<EncodeNumber> &GetUsingNumbers(uint32_t method_idx);
 
@@ -265,14 +266,24 @@ private:
         uint32_t target_field_idx;
     };
 
-    enum class LazyUsingNumbersState : uint8_t {
+    enum class LazyMethodFeatureState : uint8_t {
         Empty = 0,
         Building = 1,
         Ready = 2,
     };
 
+    struct LazyMethodOpCodesSlot {
+        std::atomic<uint8_t> state{static_cast<uint8_t>(LazyMethodFeatureState::Empty)};
+        std::unique_ptr<const std::vector<uint8_t>> data;
+    };
+
+    struct LazyMethodUsingStringsSlot {
+        std::atomic<uint8_t> state{static_cast<uint8_t>(LazyMethodFeatureState::Empty)};
+        std::unique_ptr<const std::vector<uint32_t>> data;
+    };
+
     struct LazyUsingNumbersSlot {
-        std::atomic<uint8_t> state{static_cast<uint8_t>(LazyUsingNumbersState::Empty)};
+        std::atomic<uint8_t> state{static_cast<uint8_t>(LazyMethodFeatureState::Empty)};
         std::unique_ptr<const std::vector<EncodeNumber>> data;
     };
 
@@ -324,6 +335,7 @@ private:
     std::vector<const dex::Code *> method_codes;
     // method parameter types
     std::vector<const dex::TypeList *> proto_type_list;
+    std::unique_ptr<LazyMethodOpCodesSlot[]> lazy_method_opcode_slots;
     std::vector<std::optional<std::vector<uint8_t /*opcode*/>>> method_opcode_seq;
     std::vector<ir::AnnotationSet *> class_annotations;
     std::vector<ir::AnnotationSet *> method_annotations;
@@ -333,11 +345,12 @@ private:
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> method_cross_info;
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;
 
+    std::unique_ptr<LazyMethodUsingStringsSlot[]> lazy_method_using_string_slots;
+    std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
     std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
     std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
-    std::unique_ptr<std::array<std::mutex, 64>> lazy_using_numbers_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
-    std::unique_ptr<std::array<std::condition_variable, 64>> lazy_using_numbers_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
-    std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
+    std::unique_ptr<std::array<std::mutex, 64>> lazy_method_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
+    std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
     std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
     // local reverse edges are collected during InitCache;

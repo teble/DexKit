@@ -714,7 +714,8 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
      - 注解 / 接口 / 字段 / 方法 matcher 向量展开结果
      - type-name matcher 规格化结果
      - opcode / using-fields / using-numbers 预处理结果
-   - 当前仍保留“无 `QueryContext` 时回退到 `ThreadVariable`”的兼容路径
+   - `dex_item_matcher.cpp` 中的 matcher 预处理缓存现已统一要求存在 `QueryContext`，不再回退到 `ThreadVariable`
+   - 这意味着 matcher 临时缓存的生命周期边界已进一步收敛到 query 级别，而不再依赖 worker thread 级残留状态
 
 8. `InitDexCache()` 已开始从“全局静态锁 + 裸位标记”收敛为实例内协调
    - 去掉了 `DexKit::InitDexCache()` 的静态全局互斥
@@ -751,6 +752,12 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - 等当前活跃 query 数归零后，统一执行一次 warm-up
    - warm-up 完成后，等待中的 query 再进入并发只读执行
    - 这意味着：当前代码正在从“依赖内层细粒度防御”逐步收敛到“外层 phase barrier 保证”
+   - 对于本身已经声明明确 `need_flags` 的元数据访问器（如 callers / invoke / field get-put / using-fields），内层 accessor 也已开始去掉 fallback，改为直接依赖外层 barrier 并通过断言暴露误用
+   - 对于仍不想升级成 bridge 级全量 warm-up 的元数据读取路径，当前开始做更轻量的 **per-method 稀疏懒缓存**
+     - `GetMethodOpCodes()`：未 ready `kOpSequence` 时，不再每次都重扫 code item，而是按 method 懒构建一次 opcode 序列
+     - `GetUsingStrings()`：未 ready `kUsingString` 时，不再每次都重扫 code item，而是按 method 懒构建一次 string-id 列表
+     - 这两条路径与 `using_numbers` 一样，builder 资格通过 CAS 抢占，miss 冲突时只在条带化 `mutex/cv` 上等待
+     - 一旦未来同类能力升级成全量 ready-bit，accessor 会优先读取 full-cache，不受稀疏懒缓存影响
    - 但 `using_numbers` 仍保留为**例外路径**：它不进入 bridge 级全量 warm-up barrier，而继续作为 method matcher 的末位条件按需处理
    - 原因是 `using_numbers` 的全量预热成本和常驻内存都偏高，不适合因为单个 query 命中就把整个 dex 的 number cache 全部铺开
    - 当前实现已把它收敛成 **per-method 稀疏懒缓存**：slot 数组在 init 阶段一次性定长，真正的 number vector 只在命中某个 method 时才构建
@@ -762,10 +769,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
-- matcher 迁移还处于第一批，`ThreadVariable` 兼容路径尚未删除
+- matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-local 收敛；后续主要是继续观察是否还有值得进一步抽象的临时容器
 - `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
-- 目前仍保留少量“单项元数据接口按需直读 dex code / annotation”的 fallback 路径，例如 opcode / using-string / invoke / annotation 等访问器；这些路径是为了避免单次元数据读取强制触发整类全量 warm-up，暂不纳入本轮 query 热路径收敛范围
+- 目前仍保留少量“单项元数据接口按需直读 dex code / annotation”的 fallback 路径；其中 opcode / using-string 已收敛为 per-method 稀疏懒缓存，annotation 访问器则仍保持纯按需直读，以避免单次元数据读取强制触发整类全量 warm-up
 - `using_numbers` 已经转为稀疏懒缓存，但当前仍是 DexItem 级 capability 特例；后续若出现更多“构建昂贵但命中稀疏”的 method 特征，再考虑抽象成统一的 lazy feature slot 框架
 
 ### 11.11 下一步建议实现顺序

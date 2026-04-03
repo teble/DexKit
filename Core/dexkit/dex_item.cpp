@@ -142,15 +142,19 @@ void DexItem::InitBaseCache() {
     class_interface_ids.resize(reader.TypeIds().size());
     class_method_ids.resize(reader.TypeIds().size());
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
-    method_descriptors.resize(reader.MethodIds().size());
-    method_access_flags.resize(reader.MethodIds().size());
-    method_codes.resize(reader.MethodIds().size());
-    lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(reader.MethodIds().size());
-    field_descriptors.resize(reader.FieldIds().size());
-    field_access_flags.resize(reader.FieldIds().size());
+    const auto method_count = reader.MethodIds().size();
+    const auto field_count = reader.FieldIds().size();
+    method_descriptors.resize(method_count);
+    method_access_flags.resize(method_count);
+    method_codes.resize(method_count);
+    lazy_method_opcode_slots = std::make_unique<LazyMethodOpCodesSlot[]>(method_count);
+    lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
+    lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
+    field_descriptors.resize(field_count);
+    field_access_flags.resize(field_count);
 
-    method_cross_info.resize(reader.MethodIds().size());
-    field_cross_info.resize(reader.FieldIds().size());
+    method_cross_info.resize(method_count);
+    field_cross_info.resize(field_count);
 
     auto class_def_idx = 0;
     for (auto &class_def: reader.ClassDefs()) {
@@ -791,7 +795,7 @@ AnnotationEncodeArrayBean DexItem::GetAnnotationEncodeArrayBean(ir::EncodedArray
 
 std::vector<AnnotationBean>
 DexItem::GetClassAnnotationBeans(uint32_t class_idx) {
-    if (this->class_annotations.empty()) {
+    if ((dex_flag.load(std::memory_order_acquire) & kClassAnnotation) == 0) {
         auto class_def = reader.ClassDefs()[type_def_idx[class_idx]];
         auto annotationsDirectory = reader.ExtractAnnotations(class_def.annotations_off);
         if (!annotationsDirectory) return {};
@@ -818,7 +822,7 @@ DexItem::GetClassAnnotationBeans(uint32_t class_idx) {
 
 std::vector<AnnotationBean>
 DexItem::GetMethodAnnotationBeans(uint32_t method_idx) {
-    if (this->method_annotations.empty()) {
+    if ((dex_flag.load(std::memory_order_acquire) & kMethodAnnotation) == 0) {
         auto method_def = reader.MethodIds()[method_idx];
         auto class_def = reader.ClassDefs()[type_def_idx[method_def.class_idx]];
         auto annotationsDirectory = reader.ExtractAnnotations(class_def.annotations_off);
@@ -854,7 +858,7 @@ DexItem::GetMethodAnnotationBeans(uint32_t method_idx) {
 
 std::vector<AnnotationBean>
 DexItem::GetFieldAnnotationBeans(uint32_t field_idx) {
-    if (field_annotations.empty()) {
+    if ((dex_flag.load(std::memory_order_acquire) & kFieldAnnotation) == 0) {
         auto field_def = reader.FieldIds()[field_idx];
         auto class_def = reader.ClassDefs()[type_def_idx[field_def.class_idx]];
         auto annotationsDirectory = reader.ExtractAnnotations(class_def.annotations_off);
@@ -890,7 +894,7 @@ DexItem::GetFieldAnnotationBeans(uint32_t field_idx) {
 
 std::vector<std::vector<AnnotationBean>>
 DexItem::GetParameterAnnotationBeans(uint32_t method_idx) {
-    if (method_parameter_annotations.empty()) {
+    if ((dex_flag.load(std::memory_order_acquire) & kParamAnnotation) == 0) {
         auto method_def = reader.MethodIds()[method_idx];
         auto class_def = reader.ClassDefs()[type_def_idx[method_def.class_idx]];
         auto annotationsDirectory = reader.ExtractAnnotations(class_def.annotations_off);
@@ -962,14 +966,15 @@ DexItem::GetParameterNames(uint32_t method_idx) {
 
 std::vector<uint8_t>
 DexItem::GetMethodOpCodes(uint32_t method_idx) {
-    if (method_opcode_seq.empty()) {
-        return GetOpSeqFromCode(method_idx);
+    if ((dex_flag.load(std::memory_order_acquire) & kOpSequence) != 0) {
+        const auto &op_seq = method_opcode_seq[method_idx];
+        return op_seq.has_value() ? op_seq.value() : std::vector<uint8_t>();
     }
-    auto &op_seq = method_opcode_seq[method_idx];
-    return op_seq.has_value() ? op_seq.value() : std::vector<uint8_t>();
+    return GetLazyMethodOpCodes(method_idx);
 }
 
 std::vector<MethodBean> DexItem::GetCallMethods(uint32_t method_idx) {
+    DEXKIT_CHECK(!method_caller_ids.empty());
     const auto &method_caller = this->method_caller_ids[method_idx];
     std::vector<MethodBean> beans;
     beans.reserve(method_caller.size());
@@ -985,40 +990,36 @@ std::vector<MethodBean> DexItem::GetCallMethods(uint32_t method_idx) {
 }
 
 std::vector<MethodBean> DexItem::GetInvokeMethods(uint32_t method_idx) {
+    DEXKIT_CHECK(!method_invoking_ids.empty());
+    const auto &method_invoking = this->method_invoking_ids[method_idx];
     std::vector<MethodBean> beans;
-    if (method_invoking_ids.empty()) {
-        auto method_invoking = GetInvokeMethodsFromCode(method_idx);
-        for (auto invoking_id: method_invoking) {
-            beans.emplace_back(GetMethodBean(invoking_id));
-        }
-    } else {
-        auto &method_invoking = this->method_invoking_ids[method_idx];
-        for (auto invoking_id: method_invoking) {
-            beans.emplace_back(GetMethodBean(invoking_id));
-        }
+    beans.reserve(method_invoking.size());
+    for (auto invoking_id: method_invoking) {
+        beans.emplace_back(GetMethodBean(invoking_id));
     }
     return beans;
 }
 
 std::vector<std::string_view> DexItem::GetUsingStrings(uint32_t method_idx) {
     std::vector<std::string_view> using_strings;
-    if (method_using_string_ids.empty()) {
-        auto method_using_strings = GetUsingStringsFromCode(method_idx);
-        for (auto string_id: method_using_strings) {
-            using_strings.emplace_back(this->strings[string_id]);
-        }
+    const std::vector<uint32_t> *method_using_strings = nullptr;
+    if ((dex_flag.load(std::memory_order_acquire) & kUsingString) != 0) {
+        method_using_strings = &method_using_string_ids[method_idx];
     } else {
-        auto &method_using_strings = method_using_string_ids[method_idx];
-        for (auto string_id: method_using_strings) {
-            using_strings.emplace_back(this->strings[string_id]);
-        }
+        method_using_strings = &GetLazyMethodUsingStringIds(method_idx);
+    }
+    using_strings.reserve(method_using_strings->size());
+    for (auto string_id: *method_using_strings) {
+        using_strings.emplace_back(this->strings[string_id]);
     }
     return using_strings;
 }
 
 std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
-    auto &method_using_fields = this->method_using_field_ids[method_idx];
+    DEXKIT_CHECK(!method_using_field_ids.empty());
+    const auto &method_using_fields = this->method_using_field_ids[method_idx];
     std::vector<UsingFieldBean> using_fields;
+    using_fields.reserve(method_using_fields.size());
     for (auto [method_id, is_getting]: method_using_fields) {
         UsingFieldBean bean;
         bean.field = GetFieldBean(method_id);
@@ -1029,6 +1030,7 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
+    DEXKIT_CHECK(!field_get_method_ids.empty());
     const auto &method_ids = this->field_get_method_ids[field_idx];
     std::vector<MethodBean> beans;
     beans.reserve(method_ids.size());
@@ -1044,6 +1046,7 @@ std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
+    DEXKIT_CHECK(!field_put_method_ids.empty());
     const auto &method_ids = this->field_put_method_ids[field_idx];
     std::vector<MethodBean> beans;
     beans.reserve(method_ids.size());
@@ -1138,6 +1141,60 @@ std::vector<uint32_t> DexItem::GetUsingStringsFromCode(uint32_t method_idx) {
         p += width;
     }
     return std::move(using_strings);
+}
+
+const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
+    auto &slot = lazy_method_opcode_slots[method_idx];
+    auto state = slot.state.load(std::memory_order_acquire);
+    if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
+        return *slot.data;
+    }
+
+    uint8_t expected = static_cast<uint8_t>(LazyMethodFeatureState::Empty);
+    if (slot.state.compare_exchange_strong(expected,
+                                           static_cast<uint8_t>(LazyMethodFeatureState::Building),
+                                           std::memory_order_acq_rel,
+                                           std::memory_order_acquire)) {
+        slot.data = std::make_unique<const std::vector<uint8_t>>(GetOpSeqFromCode(method_idx));
+        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        (*lazy_method_wait_cvs)[stripe].notify_all();
+        return *slot.data;
+    }
+
+    auto stripe = method_idx % lazy_method_wait_mutexes->size();
+    std::unique_lock lock((*lazy_method_wait_mutexes)[stripe]);
+    (*lazy_method_wait_cvs)[stripe].wait(lock, [&slot] {
+        return slot.state.load(std::memory_order_acquire) == static_cast<uint8_t>(LazyMethodFeatureState::Ready);
+    });
+    return *slot.data;
+}
+
+const std::vector<uint32_t> &DexItem::GetLazyMethodUsingStringIds(uint32_t method_idx) {
+    auto &slot = lazy_method_using_string_slots[method_idx];
+    auto state = slot.state.load(std::memory_order_acquire);
+    if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
+        return *slot.data;
+    }
+
+    uint8_t expected = static_cast<uint8_t>(LazyMethodFeatureState::Empty);
+    if (slot.state.compare_exchange_strong(expected,
+                                           static_cast<uint8_t>(LazyMethodFeatureState::Building),
+                                           std::memory_order_acq_rel,
+                                           std::memory_order_acquire)) {
+        slot.data = std::make_unique<const std::vector<uint32_t>>(GetUsingStringsFromCode(method_idx));
+        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        (*lazy_method_wait_cvs)[stripe].notify_all();
+        return *slot.data;
+    }
+
+    auto stripe = method_idx % lazy_method_wait_mutexes->size();
+    std::unique_lock lock((*lazy_method_wait_mutexes)[stripe]);
+    (*lazy_method_wait_cvs)[stripe].wait(lock, [&slot] {
+        return slot.state.load(std::memory_order_acquire) == static_cast<uint8_t>(LazyMethodFeatureState::Ready);
+    });
+    return *slot.data;
 }
 
 std::vector<uint32_t> DexItem::GetInvokeMethodsFromCode(uint32_t method_idx) {
@@ -1238,26 +1295,26 @@ const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
 
     auto &slot = lazy_using_numbers_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
-    if (state == static_cast<uint8_t>(LazyUsingNumbersState::Ready)) {
+    if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
         return *slot.data;
     }
 
-    uint8_t expected = static_cast<uint8_t>(LazyUsingNumbersState::Empty);
+    uint8_t expected = static_cast<uint8_t>(LazyMethodFeatureState::Empty);
     if (slot.state.compare_exchange_strong(expected,
-                                           static_cast<uint8_t>(LazyUsingNumbersState::Building),
+                                           static_cast<uint8_t>(LazyMethodFeatureState::Building),
                                            std::memory_order_acq_rel,
                                            std::memory_order_acquire)) {
         slot.data = std::make_unique<const std::vector<EncodeNumber>>(ParseUsingNumbersFromCode(method_idx));
-        slot.state.store(static_cast<uint8_t>(LazyUsingNumbersState::Ready), std::memory_order_release);
-        auto stripe = method_idx % lazy_using_numbers_wait_cvs->size();
-        (*lazy_using_numbers_wait_cvs)[stripe].notify_all();
+        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        (*lazy_method_wait_cvs)[stripe].notify_all();
         return *slot.data;
     }
 
-    auto stripe = method_idx % lazy_using_numbers_wait_mutexes->size();
-    std::unique_lock lock((*lazy_using_numbers_wait_mutexes)[stripe]);
-    (*lazy_using_numbers_wait_cvs)[stripe].wait(lock, [&slot] {
-        return slot.state.load(std::memory_order_acquire) == static_cast<uint8_t>(LazyUsingNumbersState::Ready);
+    auto stripe = method_idx % lazy_method_wait_mutexes->size();
+    std::unique_lock lock((*lazy_method_wait_mutexes)[stripe]);
+    (*lazy_method_wait_cvs)[stripe].wait(lock, [&slot] {
+        return slot.state.load(std::memory_order_acquire) == static_cast<uint8_t>(LazyMethodFeatureState::Ready);
     });
     return *slot.data;
 }

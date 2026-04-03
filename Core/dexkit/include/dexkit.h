@@ -65,6 +65,7 @@ public:
 
     void SetThreadNum(int num);
     void SetQueryExecutorMode(QueryExecutorMode mode);
+    void SetMaxConcurrentQueries(uint32_t max_concurrent_queries);
     Error InitFullCache();
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);
@@ -115,7 +116,9 @@ private:
     std::atomic<uint32_t> dex_cnt = 0;
     std::atomic<uint32_t> _thread_num = std::thread::hardware_concurrency();
     std::atomic<QueryExecutorMode> query_executor_mode_ = QueryExecutorMode::LegacyPerQuery;
+    std::atomic<uint32_t> max_concurrent_queries_ = 0;
     mutable std::shared_ptr<ThreadPool> shared_query_pool_;
+    mutable std::shared_ptr<QueryScheduler> shared_query_scheduler_;
     mutable uint32_t shared_query_pool_thread_num_ = 0;
     std::vector<std::shared_ptr<MemMap>> images;
     std::vector<std::unique_ptr<DexItem>> dex_items;
@@ -130,6 +133,7 @@ private:
     void LeaveQueryExecution();
     [[nodiscard]] bool NeedWarmUp(uint32_t init_flags) const;
     [[nodiscard]] std::shared_ptr<ThreadPool> GetOrCreateSharedQueryPool(uint32_t thread_num) const;
+    [[nodiscard]] std::shared_ptr<QueryScheduler> GetOrCreateSharedQueryScheduler(uint32_t thread_num) const;
     [[nodiscard]] std::unique_ptr<IQueryExecutor> CreateQueryExecutor(QueryContext &query_context) const;
     uint32_t BeginBuildCrossRefAggregates(uint32_t aggregate_flags);
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);

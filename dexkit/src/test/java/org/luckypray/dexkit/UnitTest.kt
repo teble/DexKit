@@ -1,6 +1,7 @@
 package org.luckypray.dexkit
 
 import org.junit.Test
+import org.luckypray.dexkit.annotations.DexKitExperimentalApi
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.util.concurrent.CountDownLatch
@@ -347,6 +348,41 @@ class UnitTest {
     fun testConcurrentFindFirstMethodOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)
+            val workers = 4
+            val iterationsPerWorker = 8
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(workers)
+            try {
+                val futures = (0 until workers).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(iterationsPerWorker) {
+                            val result = parallelBridge.findMethod {
+                                findFirst = true
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 1)
+                        }
+                    }
+                }
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testConcurrentFindFirstMethodOnSharedBridgeWithSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
             val workers = 4
             val iterationsPerWorker = 8
             val start = CountDownLatch(1)

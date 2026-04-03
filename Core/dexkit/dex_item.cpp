@@ -1155,9 +1155,13 @@ const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
                                            static_cast<uint8_t>(LazyMethodFeatureState::Building),
                                            std::memory_order_acq_rel,
                                            std::memory_order_acquire)) {
-        slot.data = std::make_unique<const std::vector<uint8_t>>(GetOpSeqFromCode(method_idx));
-        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
-        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        auto built_data = std::make_unique<const std::vector<uint8_t>>(GetOpSeqFromCode(method_idx));
+        auto stripe = method_idx % lazy_method_wait_mutexes->size();
+        {
+            std::lock_guard lock((*lazy_method_wait_mutexes)[stripe]);
+            slot.data = std::move(built_data);
+            slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        }
         (*lazy_method_wait_cvs)[stripe].notify_all();
         return *slot.data;
     }
@@ -1182,9 +1186,13 @@ const std::vector<uint32_t> &DexItem::GetLazyMethodUsingStringIds(uint32_t metho
                                            static_cast<uint8_t>(LazyMethodFeatureState::Building),
                                            std::memory_order_acq_rel,
                                            std::memory_order_acquire)) {
-        slot.data = std::make_unique<const std::vector<uint32_t>>(GetUsingStringsFromCode(method_idx));
-        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
-        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        auto built_data = std::make_unique<const std::vector<uint32_t>>(GetUsingStringsFromCode(method_idx));
+        auto stripe = method_idx % lazy_method_wait_mutexes->size();
+        {
+            std::lock_guard lock((*lazy_method_wait_mutexes)[stripe]);
+            slot.data = std::move(built_data);
+            slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        }
         (*lazy_method_wait_cvs)[stripe].notify_all();
         return *slot.data;
     }
@@ -1304,9 +1312,13 @@ const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
                                            static_cast<uint8_t>(LazyMethodFeatureState::Building),
                                            std::memory_order_acq_rel,
                                            std::memory_order_acquire)) {
-        slot.data = std::make_unique<const std::vector<EncodeNumber>>(ParseUsingNumbersFromCode(method_idx));
-        slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
-        auto stripe = method_idx % lazy_method_wait_cvs->size();
+        auto built_data = std::make_unique<const std::vector<EncodeNumber>>(ParseUsingNumbersFromCode(method_idx));
+        auto stripe = method_idx % lazy_method_wait_mutexes->size();
+        {
+            std::lock_guard lock((*lazy_method_wait_mutexes)[stripe]);
+            slot.data = std::move(built_data);
+            slot.state.store(static_cast<uint8_t>(LazyMethodFeatureState::Ready), std::memory_order_release);
+        }
         (*lazy_method_wait_cvs)[stripe].notify_all();
         return *slot.data;
     }

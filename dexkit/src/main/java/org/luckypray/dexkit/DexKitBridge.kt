@@ -125,6 +125,13 @@ class DexKitBridge : Closeable {
         nativeSetSchedulerMode(safeToken, mode.nativeValue)
     }
 
+    @DexKitExperimentalApi
+    @Synchronized
+    fun setMaxConcurrentQueries(maxConcurrentQueries: Int) {
+        require(maxConcurrentQueries >= 0) { "maxConcurrentQueries must be >= 0" }
+        nativeSetMaxConcurrentQueries(safeToken, maxConcurrentQueries)
+    }
+
     /**
      * Get all parsed dex counts.
      * ----------------
@@ -684,6 +691,9 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeSetSchedulerMode(nativePtr: Long, mode: Int)
+
+        @JvmStatic
+        private external fun nativeSetMaxConcurrentQueries(nativePtr: Long, maxConcurrentQueries: Int)
 
         @JvmStatic
         private external fun nativeInitFullCache(nativePtr: Long)

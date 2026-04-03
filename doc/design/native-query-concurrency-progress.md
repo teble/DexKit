@@ -1,6 +1,6 @@
 # Native Query 并发改造进度
 
-> 当前阶段：Phase 2（进行中）  
+> 当前阶段：Phase 4（MVP 推进中）  
 > 对应计划：`doc/design/native-query-concurrency-design.md`  
 > 相关专项记录：`doc/design/using-numbers-storage-notes.md`
 
@@ -9,9 +9,11 @@
 当前状态更准确地说是：
 
 - **Phase 1：核心正确性与状态边界收敛，已基本完成**
-- **Phase 2：执行模型抽象，已开始并在推进中**
+- **Phase 2：执行模型抽象，已基本完成**
+- **Phase 3：共享线程池 MVP，已基本落地**
+- **Phase 4：`QueryScheduler` MVP，已开始推进**
 
-当前已经进入 Phase 2 的依据：
+当前已经进入 Phase 4 起步阶段的依据：
 
 - 已新增统一执行接口：`IQueryExecutor`
 - 已有当前实现：`ThreadPoolQueryExecutor`
@@ -21,13 +23,18 @@
 - 已提供 native/JVM 实验切换入口：
   - native：`DexKit::SetQueryExecutorMode(...)`
   - JVM：`DexKitBridge.setSchedulerMode(SchedulerMode)`
-- benchmark 已支持 `DEXKIT_BENCH_SCHEDULER_MODE`
+- 已补充 shared-pool 模式下的基础 admission cap：
+  - native：`DexKit::SetMaxConcurrentQueries(...)`
+  - JVM：`DexKitBridge.setMaxConcurrentQueries(Int)`
+- benchmark 已支持 `DEXKIT_BENCH_SCHEDULER_MODE` / `DEXKIT_BENCH_MAX_CONCURRENT_QUERIES`
+- shared-pool 已不再只是“公共线程池直连”：
+  - 已开始通过最小版 `QueryScheduler` 做 query 级排队与轮转分发
+  - 单 query 仍可占满全部 worker，多 query 时会施加动态 in-flight 限额
 
-但 Phase 2 还未完成，因为以下内容还没落地：
+但 Phase 4 还远未完成，因为以下内容还没落地：
 
-- `maxConcurrentQueries` 一类的 admission / budget 配置
-- 真正的 `QueryScheduler`
 - shared-pool 下的公平性、限额与更细粒度观测
+- 更明确的 budget / priority / starvation guard 语义
 
 ## 2. Phase 0：基线与观测
 
@@ -54,6 +61,7 @@ $env:DEXKIT_BENCH_PRESET='LARGE_APK'
 $env:DEXKIT_BENCH_APK='D:\Project\Android\WeWa\repack\origin\origin_random_2.26.1.76.apk'
 $env:DEXKIT_BENCH_BRIDGE_MODE='SHARED'
 $env:DEXKIT_BENCH_SCHEDULER_MODE='SharedPool'
+$env:DEXKIT_BENCH_MAX_CONCURRENT_QUERIES='2'
 $env:DEXKIT_BENCH_NATIVE_THREADS='8'
 $env:DEXKIT_BENCH_WORKERS='4'
 $env:DEXKIT_BENCH_ITERATIONS='2'
@@ -69,6 +77,7 @@ $env:DEXKIT_BENCH_PRESET='LARGE_APK'
 $env:DEXKIT_BENCH_APK='D:\Project\Android\WeWa\repack\origin\origin_random_2.26.1.76.apk'
 $env:DEXKIT_BENCH_BRIDGE_MODE='ISOLATED'
 $env:DEXKIT_BENCH_SCHEDULER_MODE='SharedPool'
+$env:DEXKIT_BENCH_MAX_CONCURRENT_QUERIES='2'
 $env:DEXKIT_BENCH_NATIVE_THREADS='8'
 $env:DEXKIT_BENCH_WORKERS='4'
 $env:DEXKIT_BENCH_ITERATIONS='2'
@@ -81,6 +90,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 - `bridgeMode` / `bridgeCount`
 - `schedulerMode`
+- `maxConcurrentQueries`
 - `elapsedMs`
 - `p50Ms` / `p95Ms` / `p99Ms`
 - `peakJvmThreads`
@@ -319,13 +329,19 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - 同时顺手把 `_thread_num` 收敛为原子读写，避免执行模型切换阶段再引入新的运行时配置竞争
 
 9. Phase 2 的“双实现 + 切换入口”已经具备最小可运行骨架
-   - native 侧已新增 `QueryExecutorMode`
-   - 默认仍然是 `LegacyPerQuery`
-   - `SharedPool` 模式下，`DexKit` 实例会惰性创建并复用实例级共享 `ThreadPool`
-   - `setThreadNum()` 现在会重置共享池引用，后续 query 再按新的线程数懒创建
-   - JVM 侧已新增实验 API：`DexKitBridge.setSchedulerMode(SchedulerMode)`
-   - benchmark 已可通过 `DEXKIT_BENCH_SCHEDULER_MODE='SharedPool'` 直接压测 shared-pool 骨架
-   - 当前 shared-pool 还只是“共享 worker 池”这一步，尚未引入 query budget / 公平调度 / `maxConcurrentQueries`
+    - native 侧已新增 `QueryExecutorMode`
+    - 默认仍然是 `LegacyPerQuery`
+    - `SharedPool` 模式下，`DexKit` 实例会惰性创建并复用实例级共享 `ThreadPool`
+    - `setThreadNum()` 现在会重置共享池引用，后续 query 再按新的线程数懒创建
+    - JVM 侧已新增实验 API：`DexKitBridge.setSchedulerMode(SchedulerMode)`
+    - shared-pool 模式下已新增基础 admission cap：`DexKitBridge.setMaxConcurrentQueries(...)`
+    - benchmark 已可通过 `DEXKIT_BENCH_SCHEDULER_MODE='SharedPool'` 与 `DEXKIT_BENCH_MAX_CONCURRENT_QUERIES` 直接压测 shared-pool 骨架
+    - shared-pool 已开始从“共享 worker 池”收敛到“最小版 QueryScheduler 骨架”
+      - 每个 query 拥有自己的 pending task 队列
+      - 调度器按 query 轮转分发 task，而不是让单个 query 直接把公共 `ThreadPool` 队列打满
+      - 同时根据当前活跃 query 数动态限制单个 query 的 in-flight task 数
+      - 当实例内只有 1 个活跃 query 时，它仍可占满全部 worker
+    - 当前还没有更高层的 query budget / priority / 饥饿保护，只是先把最基本的 task flooding 问题收敛掉
 
 ### 4.3 Init / cross-ref / admission barrier
 
@@ -373,16 +389,20 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - 但 `using_numbers` 仍保留为**例外路径**：它不进入 bridge 级全量 warm-up barrier，而继续作为 method matcher 的末位条件按需处理
    - 原因是 `using_numbers` 的全量预热成本和常驻内存都偏高，不适合因为单个 query 命中就把整个 dex 的 number cache 全部铺开
    - 当前实现已把它收敛成 **per-method 稀疏懒缓存**：slot 数组在 init 阶段一次性定长，真正的 number vector 只在命中某个 method 时才构建
-   - 每个 method slot 用原子状态 `Empty -> Building -> Ready` 协调；builder 资格通过 CAS 抢占，因此不会有两个线程同时发布同一个 method 的 using-numbers 缓存
-   - 等待路径采用条带化 `mutex/cv`，只在 miss 且发生竞争时参与阻塞；ready fast path 仍然只是原子读 + 只读访问
-   - 这样既避免了重复 query 不断重解析 opcode/code item，又不会把 `using_numbers` 混入当前的“大范围共享索引 warm-up”体系
+    - 每个 method slot 用原子状态 `Empty -> Building -> Ready` 协调；builder 资格通过 CAS 抢占，因此不会有两个线程同时发布同一个 method 的 using-numbers 缓存
+    - 等待路径采用条带化 `mutex/cv`，只在 miss 且发生竞争时参与阻塞；ready fast path 仍然只是原子读 + 只读访问
+    - 这样既避免了重复 query 不断重解析 opcode/code item，又不会把 `using_numbers` 混入当前的“大范围共享索引 warm-up”体系
+    - `findFirst` 路径也额外补了生命周期收敛：
+      - 一旦某个 future 命中提前结束，剩余 future 仍会在返回前被 drain
+      - 这样可以保证 `QueryContext` / executor / scheduler 绑定对象不会在后台 task 尚未退出时提前析构
+      - 与此同时，lazy opcode / using-string / using-number 的 `Ready + notify` 发布顺序也已收敛到同一条带锁下，避免并发 miss 时出现丢唤醒
 
 ## 5. 当前限制
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
-- `SharedPool` 目前只是执行器层面的共享线程池，还不是完整的 `QueryScheduler`
-- shared-pool 模式下还没有 `maxConcurrentQueries`、公平调度、query budget 等策略
+- `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
+- shared-pool 模式下还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前只有基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
 - matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-local 收敛；后续主要是继续观察是否还有值得进一步抽象的临时容器
 - `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
@@ -392,9 +412,8 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 6. 下一步建议实现顺序
 
-1. 在 shared-pool 骨架之上补 `maxConcurrentQueries` / budget 入口
-2. 引入最小版 `QueryScheduler`，避免多个 query 直接把共享池当成“无策略公共队列”
-3. 继续把 cancel / early-exit 协议统一到 `QueryContext`
-4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
-5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
-6. 逐步补齐 shared-pool / scheduler 指标输出，便于和 `@Synchronized` / `LegacyPerQuery` 做稳定对照
+1. 把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
+2. 继续把 cancel / early-exit 协议统一到 `QueryContext`
+3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
+4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
+5. 逐步补齐 shared-pool / scheduler 指标输出，便于和 `@Synchronized` / `LegacyPerQuery` 做稳定对照

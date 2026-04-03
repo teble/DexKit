@@ -40,6 +40,13 @@ static uint32_t NormalizeThreadNum(uint32_t thread_num) {
     return std::max<uint32_t>(1U, thread_num);
 }
 
+template<typename T>
+static void DrainRemainingFutures(std::vector<std::future<T>> &futures, size_t start_index) {
+    for (size_t i = start_index; i < futures.size(); ++i) {
+        (void) futures[i].get();
+    }
+}
+
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
@@ -59,6 +66,7 @@ void DexKit::SetThreadNum(int num) {
     auto thread_num = NormalizeThreadNum(num > 0 ? static_cast<uint32_t>(num) : 1U);
     _thread_num.store(thread_num, std::memory_order_release);
     std::lock_guard lock(query_executor_mutex);
+    shared_query_scheduler_.reset();
     shared_query_pool_.reset();
     shared_query_pool_thread_num_ = 0;
 }
@@ -67,9 +75,16 @@ void DexKit::SetQueryExecutorMode(QueryExecutorMode mode) {
     query_executor_mode_.store(mode, std::memory_order_release);
     if (mode != QueryExecutorMode::SharedPool) {
         std::lock_guard lock(query_executor_mutex);
+        shared_query_scheduler_.reset();
         shared_query_pool_.reset();
         shared_query_pool_thread_num_ = 0;
     }
+    query_execution_cv.notify_all();
+}
+
+void DexKit::SetMaxConcurrentQueries(uint32_t max_concurrent_queries) {
+    max_concurrent_queries_.store(max_concurrent_queries, std::memory_order_release);
+    query_execution_cv.notify_all();
 }
 
 Error DexKit::InitFullCache() {
@@ -124,6 +139,24 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
             continue;
         }
 
+        auto query_executor_mode = query_executor_mode_.load(std::memory_order_acquire);
+        auto max_concurrent_queries = max_concurrent_queries_.load(std::memory_order_acquire);
+        if (query_executor_mode == QueryExecutorMode::SharedPool &&
+            max_concurrent_queries > 0 &&
+            active_query_count >= max_concurrent_queries) {
+            query_execution_cv.wait(lock, [this, max_concurrent_queries] {
+                return warmup_inflight ||
+                       pending_warmup_flags != 0 ||
+                       active_query_count < max_concurrent_queries ||
+                       query_executor_mode_.load(std::memory_order_acquire) != QueryExecutorMode::SharedPool ||
+                       max_concurrent_queries_.load(std::memory_order_acquire) != max_concurrent_queries;
+            });
+            if (NeedWarmUp(required_flags)) {
+                track_warmup_request();
+            }
+            continue;
+        }
+
         if (!NeedWarmUp(required_flags)) {
             ++active_query_count;
             return QueryExecutionGuard(this);
@@ -137,9 +170,7 @@ void DexKit::LeaveQueryExecution() {
     std::lock_guard lock(query_execution_mutex);
     DEXKIT_CHECK(active_query_count > 0);
     --active_query_count;
-    if (active_query_count == 0) {
-        query_execution_cv.notify_all();
-    }
+    query_execution_cv.notify_all();
 }
 
 bool DexKit::NeedWarmUp(uint32_t init_flags) const {
@@ -181,7 +212,8 @@ std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_
 
     if (query_executor_mode_.load(std::memory_order_acquire) == QueryExecutorMode::SharedPool) {
         return std::make_unique<SharedThreadPoolQueryExecutor>(
-                GetOrCreateSharedQueryPool(thread_num),
+                GetOrCreateSharedQueryScheduler(thread_num),
+                query_context.GetQueryId(),
                 std::move(should_skip_task)
         );
     }
@@ -193,10 +225,25 @@ std::shared_ptr<ThreadPool> DexKit::GetOrCreateSharedQueryPool(uint32_t thread_n
     auto normalized_thread_num = NormalizeThreadNum(thread_num);
     std::lock_guard lock(query_executor_mutex);
     if (!shared_query_pool_ || shared_query_pool_thread_num_ != normalized_thread_num) {
+        shared_query_scheduler_.reset();
         shared_query_pool_ = std::make_shared<ThreadPool>(normalized_thread_num);
         shared_query_pool_thread_num_ = normalized_thread_num;
     }
     return shared_query_pool_;
+}
+
+std::shared_ptr<QueryScheduler> DexKit::GetOrCreateSharedQueryScheduler(uint32_t thread_num) const {
+    auto normalized_thread_num = NormalizeThreadNum(thread_num);
+    std::lock_guard lock(query_executor_mutex);
+    if (!shared_query_pool_ || shared_query_pool_thread_num_ != normalized_thread_num) {
+        shared_query_scheduler_.reset();
+        shared_query_pool_ = std::make_shared<ThreadPool>(normalized_thread_num);
+        shared_query_pool_thread_num_ = normalized_thread_num;
+    }
+    if (!shared_query_scheduler_) {
+        shared_query_scheduler_ = std::make_shared<QueryScheduler>(shared_query_pool_, normalized_thread_num);
+    }
+    return shared_query_scheduler_;
 }
 
 static inline std::vector<uint32_t> ParseLogicalDexOffsets(const std::shared_ptr<MemMap> &image) {
@@ -403,13 +450,20 @@ DexKit::FindClass(const schema::FindClass *query) {
             }
         }
 
-        for (auto &f: futures) {
-            auto vec = f.get();
+        bool should_drain_pending_futures = false;
+        size_t future_index = 0;
+        for (; future_index < futures.size(); ++future_index) {
+            auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                should_drain_pending_futures = true;
+                ++future_index;
                 break;
             }
+        }
+        if (should_drain_pending_futures) {
+            DrainRemainingFutures(futures, future_index);
         }
     }
 
@@ -481,13 +535,20 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             }
         }
 
-        for (auto &f: futures) {
-            auto vec = f.get();
+        bool should_drain_pending_futures = false;
+        size_t future_index = 0;
+        for (; future_index < futures.size(); ++future_index) {
+            auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                should_drain_pending_futures = true;
+                ++future_index;
                 break;
             }
+        }
+        if (should_drain_pending_futures) {
+            DrainRemainingFutures(futures, future_index);
         }
     }
 
@@ -564,13 +625,20 @@ DexKit::FindField(const schema::FindField *query) {
             }
         }
 
-        for (auto &f: futures) {
-            auto vec = f.get();
+        bool should_drain_pending_futures = false;
+        size_t future_index = 0;
+        for (; future_index < futures.size(); ++future_index) {
+            auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
             if (query->find_first()) {
+                should_drain_pending_futures = true;
+                ++future_index;
                 break;
             }
+        }
+        if (should_drain_pending_futures) {
+            DrainRemainingFutures(futures, future_index);
         }
     }
 

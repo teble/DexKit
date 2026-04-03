@@ -29,6 +29,7 @@
 #include <utility>
 
 #include "ThreadPool.h"
+#include "query_scheduler.h"
 
 namespace dexkit {
 
@@ -42,6 +43,7 @@ public:
     virtual ~IQueryExecutor() = default;
     virtual void Submit(std::function<void()> task) = 0;
     [[nodiscard]] virtual bool ShouldSkipTask() const = 0;
+    [[nodiscard]] virtual std::function<bool()> GetShouldSkipTaskFn() const = 0;
 };
 
 class ThreadPoolQueryExecutor final : public IQueryExecutor {
@@ -59,6 +61,10 @@ public:
         return should_skip_task_ && should_skip_task_();
     }
 
+    [[nodiscard]] std::function<bool()> GetShouldSkipTaskFn() const override {
+        return should_skip_task_;
+    }
+
 private:
     std::function<bool()> should_skip_task_;
     ThreadPool pool_;
@@ -66,22 +72,37 @@ private:
 
 class SharedThreadPoolQueryExecutor final : public IQueryExecutor {
 public:
-    explicit SharedThreadPoolQueryExecutor(std::shared_ptr<ThreadPool> pool, std::function<bool()> should_skip_task = {})
-            : should_skip_task_(std::move(should_skip_task)), pool_(std::move(pool)) {}
+    explicit SharedThreadPoolQueryExecutor(
+            std::shared_ptr<QueryScheduler> scheduler,
+            uint64_t query_id,
+            std::function<bool()> should_skip_task = {}
+    )
+            : should_skip_task_(std::move(should_skip_task)),
+              scheduler_(std::move(scheduler)),
+              query_id_(query_id) {
+        scheduler_->AttachQuery(query_id_);
+    }
+
+    ~SharedThreadPoolQueryExecutor() override {
+        scheduler_->DetachQuery(query_id_);
+    }
 
     void Submit(std::function<void()> task) override {
-        pool_->enqueue([task = std::move(task)]() mutable {
-            task();
-        });
+        scheduler_->Submit(query_id_, std::move(task));
     }
 
     [[nodiscard]] bool ShouldSkipTask() const override {
         return should_skip_task_ && should_skip_task_();
     }
 
+    [[nodiscard]] std::function<bool()> GetShouldSkipTaskFn() const override {
+        return should_skip_task_;
+    }
+
 private:
     std::function<bool()> should_skip_task_;
-    std::shared_ptr<ThreadPool> pool_;
+    std::shared_ptr<QueryScheduler> scheduler_;
+    uint64_t query_id_ = 0;
 };
 
 template<typename F>
@@ -90,8 +111,9 @@ auto SubmitQueryTask(IQueryExecutor &executor, F &&task)
     using ReturnType = std::invoke_result_t<std::decay_t<F>>;
     auto promise = std::make_shared<std::promise<ReturnType>>();
     auto future = promise->get_future();
-    executor.Submit([task = std::decay_t<F>(std::forward<F>(task)), promise, &executor]() mutable {
-        if (executor.ShouldSkipTask()) {
+    auto should_skip_task = executor.GetShouldSkipTaskFn();
+    executor.Submit([task = std::decay_t<F>(std::forward<F>(task)), promise, should_skip_task = std::move(should_skip_task)]() mutable {
+        if (should_skip_task && should_skip_task()) {
             if constexpr (std::is_void_v<ReturnType>) {
                 promise->set_value();
             } else {

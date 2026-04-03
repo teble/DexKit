@@ -27,7 +27,7 @@ DexItem::FindClass(
         const schema::FindClass *query,
         const std::set<uint32_t> &in_class_set,
         trie::PackageTrie &packageTrie,
-        ThreadPool &pool,
+        IQueryExecutor &executor,
         uint32_t slice_size,
         QueryContext &query_context
 ) {
@@ -42,7 +42,7 @@ DexItem::FindClass(
     futures.reserve(split_count);
     for (auto i = 0; i < split_count; ++i) {
         query_context.MarkTaskSubmitted();
-        futures.emplace_back(pool.enqueue(
+        futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &packageTrie, i, slice_size, &query_context] {
                     auto result = FindClass(query, in_class_set, packageTrie, i * slice_size,
                                             std::min((i + 1) * slice_size, (uint32_t) this->reader.ClassDefs().size()),
@@ -61,7 +61,7 @@ DexItem::FindMethod(
         const std::set<uint32_t> &in_class_set,
         const std::set<uint32_t> &in_method_set,
         trie::PackageTrie &packageTrie,
-        ThreadPool &pool,
+        IQueryExecutor &executor,
         uint32_t slice_size,
         QueryContext &query_context
 ) {
@@ -76,7 +76,7 @@ DexItem::FindMethod(
     futures.reserve(split_count);
     for (auto i = 0; i < split_count; ++i) {
         query_context.MarkTaskSubmitted();
-        futures.emplace_back(pool.enqueue(
+        futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &in_method_set, &packageTrie, i, slice_size, &query_context] {
                     auto result = FindMethod(query, in_class_set, in_method_set, packageTrie, i * slice_size,
                                              std::min((i + 1) * slice_size, (uint32_t) this->reader.MethodIds().size()),
@@ -95,7 +95,7 @@ DexItem::FindField(
         const std::set<uint32_t> &in_class_set,
         const std::set<uint32_t> &in_field_set,
         trie::PackageTrie &packageTrie,
-        ThreadPool &pool,
+        IQueryExecutor &executor,
         uint32_t slice_size,
         QueryContext &query_context
 ) {
@@ -110,7 +110,7 @@ DexItem::FindField(
     futures.reserve(split_count);
     for (auto i = 0; i < split_count; ++i) {
         query_context.MarkTaskSubmitted();
-        futures.emplace_back(pool.enqueue(
+        futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &in_field_set, &packageTrie, i, slice_size, &query_context] {
                     auto result = FindField(query, in_class_set, in_field_set, packageTrie, i * slice_size,
                                             std::min((i + 1) * slice_size, (uint32_t) this->reader.FieldIds().size()),

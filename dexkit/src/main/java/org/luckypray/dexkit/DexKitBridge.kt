@@ -24,6 +24,7 @@
 package org.luckypray.dexkit
 
 import com.google.flatbuffers.FlatBufferBuilder
+import org.luckypray.dexkit.annotations.DexKitExperimentalApi
 import org.luckypray.dexkit.query.BatchFindClassUsingStrings
 import org.luckypray.dexkit.query.BatchFindMethodUsingStrings
 import org.luckypray.dexkit.query.FindClass
@@ -116,6 +117,12 @@ class DexKitBridge : Closeable {
     @Synchronized
     fun setThreadNum(num: Int) {
         nativeSetThreadNum(safeToken, num)
+    }
+
+    @DexKitExperimentalApi
+    @Synchronized
+    fun setSchedulerMode(mode: SchedulerMode) {
+        nativeSetSchedulerMode(safeToken, mode.nativeValue)
     }
 
     /**
@@ -674,6 +681,9 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeSetThreadNum(nativePtr: Long, threadNum: Int)
+
+        @JvmStatic
+        private external fun nativeSetSchedulerMode(nativePtr: Long, mode: Int)
 
         @JvmStatic
         private external fun nativeInitFullCache(nativePtr: Long)

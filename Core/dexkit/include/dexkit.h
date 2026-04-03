@@ -25,6 +25,7 @@
 #include <vector>
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 
 #include "flatbuffers/flatbuffers.h"
 #include "zip_archive.h"
@@ -32,6 +33,7 @@
 #include "dex_item.h"
 #include "package_trie.h"
 #include "analyze.h"
+#include "query_executor.h"
 
 #define BATCH_SIZE 5000
 
@@ -62,6 +64,7 @@ public:
     ~DexKit() = default;
 
     void SetThreadNum(int num);
+    void SetQueryExecutorMode(QueryExecutorMode mode);
     Error InitFullCache();
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);
@@ -105,11 +108,15 @@ private:
     std::shared_mutex _put_class_mutex;
     mutable std::mutex query_execution_mutex;
     mutable std::condition_variable query_execution_cv;
+    mutable std::mutex query_executor_mutex;
     uint32_t active_query_count = 0;
     uint32_t pending_warmup_flags = 0;
     bool warmup_inflight = false;
     std::atomic<uint32_t> dex_cnt = 0;
-    uint32_t _thread_num = std::thread::hardware_concurrency();
+    std::atomic<uint32_t> _thread_num = std::thread::hardware_concurrency();
+    std::atomic<QueryExecutorMode> query_executor_mode_ = QueryExecutorMode::LegacyPerQuery;
+    mutable std::shared_ptr<ThreadPool> shared_query_pool_;
+    mutable uint32_t shared_query_pool_thread_num_ = 0;
     std::vector<std::shared_ptr<MemMap>> images;
     std::vector<std::unique_ptr<DexItem>> dex_items;
     phmap::flat_hash_map<std::string_view, std::pair<uint16_t /*dex_id*/, uint32_t /*type_idx*/>> class_declare_dex_map;
@@ -122,6 +129,8 @@ private:
     [[nodiscard]] QueryExecutionGuard EnterQueryExecution(uint32_t required_flags);
     void LeaveQueryExecution();
     [[nodiscard]] bool NeedWarmUp(uint32_t init_flags) const;
+    [[nodiscard]] std::shared_ptr<ThreadPool> GetOrCreateSharedQueryPool(uint32_t thread_num) const;
+    [[nodiscard]] std::unique_ptr<IQueryExecutor> CreateQueryExecutor(QueryContext &query_context) const;
     uint32_t BeginBuildCrossRefAggregates(uint32_t aggregate_flags);
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
     void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;

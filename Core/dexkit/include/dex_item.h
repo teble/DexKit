@@ -36,7 +36,7 @@
 #include "schema/querys_generated.h"
 #include "schema/results_generated.h"
 #include "acdat/Builder.h"
-#include "ThreadPool.h"
+#include "query_executor.h"
 #include "mmap.h"
 #include "package_trie.h"
 #include "query_context.h"
@@ -69,7 +69,7 @@ public:
             const schema::FindClass *query,
             const std::set<uint32_t> &in_class_set,
             trie::PackageTrie &packageTrie,
-            ThreadPool &pool,
+            IQueryExecutor &executor,
             uint32_t split_num,
             QueryContext &query_context
     );
@@ -79,7 +79,7 @@ public:
             const std::set<uint32_t> &in_class_set,
             const std::set<uint32_t> &in_method_set,
             trie::PackageTrie &packageTrie,
-            ThreadPool &pool,
+            IQueryExecutor &executor,
             uint32_t split_num,
             QueryContext &query_context
     );
@@ -89,7 +89,7 @@ public:
             const std::set<uint32_t> &in_class_set,
             const std::set<uint32_t> &in_field_set,
             trie::PackageTrie &packageTrie,
-            ThreadPool &pool,
+            IQueryExecutor &executor,
             uint32_t split_num,
             QueryContext &query_context
     );

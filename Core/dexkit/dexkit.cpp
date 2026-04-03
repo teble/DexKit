@@ -21,6 +21,8 @@
 #include "include/dexkit.h"
 #include "include/query_context.h"
 
+#include <algorithm>
+
 #include "zip_archive.h"
 #include "ThreadPool.h"
 #include "schema/querys_generated.h"
@@ -34,6 +36,10 @@ bool comp(std::unique_ptr<DexItem> &a, std::unique_ptr<DexItem> &b) {
     return a->GetDexId() < b->GetDexId();
 }
 
+static uint32_t NormalizeThreadNum(uint32_t thread_num) {
+    return std::max<uint32_t>(1U, thread_num);
+}
+
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
@@ -42,7 +48,7 @@ DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
 
 DexKit::DexKit(std::string_view apk_path, int unzip_thread_num) {
     if (unzip_thread_num > 0) {
-        _thread_num = unzip_thread_num;
+        _thread_num.store(NormalizeThreadNum(static_cast<uint32_t>(unzip_thread_num)), std::memory_order_release);
     }
     std::lock_guard lock(_mutex);
     AddZipPath(apk_path, unzip_thread_num);
@@ -50,7 +56,20 @@ DexKit::DexKit(std::string_view apk_path, int unzip_thread_num) {
 }
 
 void DexKit::SetThreadNum(int num) {
-    _thread_num = num;
+    auto thread_num = NormalizeThreadNum(num > 0 ? static_cast<uint32_t>(num) : 1U);
+    _thread_num.store(thread_num, std::memory_order_release);
+    std::lock_guard lock(query_executor_mutex);
+    shared_query_pool_.reset();
+    shared_query_pool_thread_num_ = 0;
+}
+
+void DexKit::SetQueryExecutorMode(QueryExecutorMode mode) {
+    query_executor_mode_.store(mode, std::memory_order_release);
+    if (mode != QueryExecutorMode::SharedPool) {
+        std::lock_guard lock(query_executor_mutex);
+        shared_query_pool_.reset();
+        shared_query_pool_thread_num_ = 0;
+    }
 }
 
 Error DexKit::InitFullCache() {
@@ -154,6 +173,32 @@ bool DexKit::NeedWarmUp(uint32_t init_flags) const {
     return false;
 }
 
+std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_context) const {
+    auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
+    auto should_skip_task = [&query_context]() {
+        return query_context.ShouldStop();
+    };
+
+    if (query_executor_mode_.load(std::memory_order_acquire) == QueryExecutorMode::SharedPool) {
+        return std::make_unique<SharedThreadPoolQueryExecutor>(
+                GetOrCreateSharedQueryPool(thread_num),
+                std::move(should_skip_task)
+        );
+    }
+
+    return std::make_unique<ThreadPoolQueryExecutor>(thread_num, std::move(should_skip_task));
+}
+
+std::shared_ptr<ThreadPool> DexKit::GetOrCreateSharedQueryPool(uint32_t thread_num) const {
+    auto normalized_thread_num = NormalizeThreadNum(thread_num);
+    std::lock_guard lock(query_executor_mutex);
+    if (!shared_query_pool_ || shared_query_pool_thread_num_ != normalized_thread_num) {
+        shared_query_pool_ = std::make_shared<ThreadPool>(normalized_thread_num);
+        shared_query_pool_thread_num_ = normalized_thread_num;
+    }
+    return shared_query_pool_;
+}
+
 static inline std::vector<uint32_t> ParseLogicalDexOffsets(const std::shared_ptr<MemMap> &image) {
     if (!image) return {};
     std::vector<uint32_t> offs;
@@ -208,7 +253,7 @@ Error DexKit::AddImage(std::vector<std::unique_ptr<MemMap>> dex_images) {
     const auto old_item_size = dex_items.size();
     dex_items.resize(old_item_size + add_items.size());
     {
-        ThreadPool pool(_thread_num);
+        ThreadPool pool(NormalizeThreadNum(_thread_num.load(std::memory_order_acquire)));
         auto index = old_item_size;
         for (auto &[image, offset]: add_items) {
             pool.enqueue([this, &image, index, offset]() {
@@ -241,7 +286,10 @@ Error DexKit::AddZipPath(std::string_view apk_path, int unzip_thread_num) {
     const auto new_size = old_size + image_pairs.size();
     images.resize(new_size);
     {
-        ThreadPool pool(unzip_thread_num == 0 ? _thread_num : unzip_thread_num);
+        auto thread_num = unzip_thread_num == 0
+                          ? NormalizeThreadNum(_thread_num.load(std::memory_order_acquire))
+                          : NormalizeThreadNum(static_cast<uint32_t>(unzip_thread_num));
+        ThreadPool pool(thread_num);
         for (auto &dex_pair: image_pairs) {
             pool.enqueue([this, &dex_pair, old_size, &zip_file]() {
                 auto dex_image = zip_file->GetUncompressData(*dex_pair.second);
@@ -263,7 +311,7 @@ Error DexKit::AddZipPath(std::string_view apk_path, int unzip_thread_num) {
     const auto old_item_size = dex_items.size();
     dex_items.resize(old_item_size + add_items.size());
     {
-        ThreadPool pool(_thread_num);
+        ThreadPool pool(NormalizeThreadNum(_thread_num.load(std::memory_order_acquire)));
         auto index = old_item_size;
         for (auto &[image, offset]: add_items) {
             pool.enqueue([this, &image, index, offset]() {
@@ -343,14 +391,12 @@ DexKit::FindClass(const schema::FindClass *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        ThreadPool pool(_thread_num, [&query_context]() {
-            return query_context.ShouldStop();
-        });
+        auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<ClassBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindClass(query, class_set, packageTrie, pool, BATCH_SIZE / 2, query_context);
+                auto res = dex_item->FindClass(query, class_set, packageTrie, *executor, BATCH_SIZE / 2, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -422,15 +468,13 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        ThreadPool pool(_thread_num, [&query_context]() {
-            return query_context.ShouldStop();
-        });
+        auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<MethodBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &method_set = dex_method_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, pool, BATCH_SIZE, query_context);
+                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, *executor, BATCH_SIZE, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -507,15 +551,13 @@ DexKit::FindField(const schema::FindField *query) {
     }
 
     if (fast_search_dex == nullptr) {
-        ThreadPool pool(_thread_num, [&query_context]() {
-            return query_context.ShouldStop();
-        });
+        auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<FieldBean>>> futures;
         for (auto &dex_item: dex_items) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &field_set = dex_field_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindField(query, class_set, field_set, packageTrie, pool, BATCH_SIZE, query_context);
+                auto res = dex_item->FindField(query, class_set, field_set, packageTrie, *executor, BATCH_SIZE, query_context);
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -579,15 +621,13 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
         }
     }
     QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
-    ThreadPool pool(_thread_num, [&query_context]() {
-        return query_context.ShouldStop();
-    });
+    auto executor = CreateQueryExecutor(query_context);
     std::vector<std::future<std::vector<BatchFindClassItemBean>>> futures;
     for (auto &dex_item: dex_items) {
         auto &class_map = dex_class_map[dex_item->GetDexId()];
         query_context.MarkTaskSubmitted();
-        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_map, &packageTrie,
-                                        &query_context]() {
+        futures.push_back(SubmitQueryTask(*executor, [&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_map, &packageTrie,
+                                                      &query_context]() {
             auto result = dex_item->BatchFindClassUsingStrings(query, acTrie, keywords_map, match_type_map, class_map,
                                                                packageTrie, query_context);
             query_context.MarkTaskCompleted();
@@ -660,16 +700,14 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
         }
     }
     QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
-    ThreadPool pool(_thread_num, [&query_context]() {
-        return query_context.ShouldStop();
-    });
+    auto executor = CreateQueryExecutor(query_context);
     std::vector<std::future<std::vector<BatchFindMethodItemBean>>> futures;
     for (auto &dex_item: dex_items) {
         auto &class_set = dex_class_map[dex_item->GetDexId()];
         auto &method_set = dex_method_map[dex_item->GetDexId()];
         query_context.MarkTaskSubmitted();
-        futures.push_back(pool.enqueue([&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_set, &method_set,
-                                        &packageTrie, &query_context]() {
+        futures.push_back(SubmitQueryTask(*executor, [&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_set, &method_set,
+                                                      &packageTrie, &query_context]() {
             auto result = dex_item->BatchFindMethodUsingStrings(query, acTrie, keywords_map, match_type_map, class_set,
                                                                 method_set, packageTrie, query_context);
             query_context.MarkTaskCompleted();
@@ -1084,6 +1122,7 @@ void DexKit::WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const {
 
 void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
     DEXKIT_CHECK((aggregate_flags & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
 
     if ((aggregate_flags & kCallerMethod) != 0) {
         struct MethodAggregateWorkItem {
@@ -1131,8 +1170,8 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
                 ++target_count;
             }
         }
-        if (target_count > 1 && _thread_num > 1) {
-            ThreadPool pool(std::min((size_t) _thread_num, target_count));
+        if (target_count > 1 && thread_num > 1) {
+            ThreadPool pool(std::min(static_cast<size_t>(thread_num), target_count));
             std::vector<std::future<void>> futures;
             futures.reserve(target_count);
             for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
@@ -1225,8 +1264,8 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
                 ++target_count;
             }
         }
-        if (target_count > 1 && _thread_num > 1) {
-            ThreadPool pool(std::min((size_t) _thread_num, target_count));
+        if (target_count > 1 && thread_num > 1) {
+            ThreadPool pool(std::min(static_cast<size_t>(thread_num), target_count));
             std::vector<std::future<void>> futures;
             futures.reserve(target_count);
             for (uint16_t target_dex_id = 0; target_dex_id < work_items.size(); ++target_dex_id) {
@@ -1258,6 +1297,7 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
 
 void DexKit::InitDexCache(uint32_t init_flags) {
     uint32_t cross_ref_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+    auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
     std::vector<std::pair<DexItem *, uint32_t>> init_jobs;
     init_jobs.reserve(dex_items.size());
     for (auto &dex_item: dex_items) {
@@ -1268,7 +1308,7 @@ void DexKit::InitDexCache(uint32_t init_flags) {
     }
 
     if (!init_jobs.empty()) {
-        ThreadPool pool(std::min((int) _thread_num, (int) init_jobs.size()));
+        ThreadPool pool(std::min(static_cast<size_t>(thread_num), init_jobs.size()));
         for (auto &[dex_item, claimed_flags]: init_jobs) {
             pool.enqueue([dex_item, claimed_flags]() {
                 dex_item->InitCache(claimed_flags);
@@ -1293,7 +1333,7 @@ void DexKit::InitDexCache(uint32_t init_flags) {
         }
     }
     if (!cross_ref_jobs.empty()) {
-        ThreadPool pool(std::min((int) _thread_num, (int) cross_ref_jobs.size()));
+        ThreadPool pool(std::min(static_cast<size_t>(thread_num), cross_ref_jobs.size()));
         for (auto &[dex_item, claimed_flags]: cross_ref_jobs) {
             pool.enqueue([dex_item, claimed_flags]() {
                 dex_item->PutCrossRef(claimed_flags);

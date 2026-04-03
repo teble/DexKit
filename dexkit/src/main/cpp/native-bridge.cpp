@@ -289,6 +289,27 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeSetThreadNum(JNIEnv *env, jclass cl
 }
 
 DEXKIT_JNI void
+Java_org_luckypray_dexkit_DexKitBridge_nativeSetSchedulerMode(JNIEnv *env, jclass clazz,
+                                                              jlong native_ptr, jint mode
+) {
+    if (!native_ptr) {
+        return;
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    switch (mode) {
+        case 0:
+            dexkit->SetQueryExecutorMode(dexkit::QueryExecutorMode::LegacyPerQuery);
+            return;
+        case 1:
+            dexkit->SetQueryExecutorMode(dexkit::QueryExecutorMode::SharedPool);
+            return;
+        default:
+            throwException(env, "Unknown scheduler mode");
+            return;
+    }
+}
+
+DEXKIT_JNI void
 Java_org_luckypray_dexkit_DexKitBridge_nativeInitFullCache(JNIEnv *env, jclass clazz,
                                                            jlong native_ptr
 ) {

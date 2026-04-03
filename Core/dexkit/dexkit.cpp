@@ -936,36 +936,52 @@ void DexKit::PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint
 }
 
 void DexKit::InitDexCache(uint32_t init_flags) {
-    static std::mutex init_mutex;
-    std::lock_guard lock(init_mutex);
-
-    bool need_init = false;
-    bool need_put_cross_ref = false;
     uint32_t cross_ref_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+    std::vector<std::pair<DexItem *, uint32_t>> init_jobs;
+    init_jobs.reserve(dex_items.size());
     for (auto &dex_item: dex_items) {
-        if (dex_item->NeedInitCache(init_flags)) {
-            need_init = true;
-        }
-        if (dex_item->NeedPutCrossRef(cross_ref_flags)) {
-            need_put_cross_ref = true;
+        auto claimed_flags = dex_item->BeginInitCache(init_flags);
+        if (claimed_flags != 0) {
+            init_jobs.emplace_back(dex_item.get(), claimed_flags);
         }
     }
 
-    if (need_init) {
-        ThreadPool pool(std::min((int) _thread_num, (int) dex_items.size()));
-        for (auto &dex_item: dex_items) {
-            pool.enqueue([&init_flags, &dex_item]() {
-                dex_item->InitCache(init_flags);
+    if (!init_jobs.empty()) {
+        ThreadPool pool(std::min((int) _thread_num, (int) init_jobs.size()));
+        for (auto &[dex_item, claimed_flags]: init_jobs) {
+            pool.enqueue([dex_item, claimed_flags]() {
+                dex_item->InitCache(claimed_flags);
+                dex_item->FinishInitCache(claimed_flags);
             });
         }
     }
-    if (need_put_cross_ref) {
-        ThreadPool pool(std::min((int) _thread_num, (int) dex_items.size()));
-        for (auto &dex_item: dex_items) {
-            pool.enqueue([&cross_ref_flags, &dex_item]() {
-                dex_item->PutCrossRef(cross_ref_flags);
+    for (auto &dex_item: dex_items) {
+        dex_item->WaitInitCache(init_flags);
+    }
+
+    if (cross_ref_flags == 0) {
+        return;
+    }
+
+    std::vector<std::pair<DexItem *, uint32_t>> cross_ref_jobs;
+    cross_ref_jobs.reserve(dex_items.size());
+    for (auto &dex_item: dex_items) {
+        auto claimed_flags = dex_item->BeginPutCrossRef(cross_ref_flags);
+        if (claimed_flags != 0) {
+            cross_ref_jobs.emplace_back(dex_item.get(), claimed_flags);
+        }
+    }
+    if (!cross_ref_jobs.empty()) {
+        ThreadPool pool(std::min((int) _thread_num, (int) cross_ref_jobs.size()));
+        for (auto &[dex_item, claimed_flags]: cross_ref_jobs) {
+            pool.enqueue([dex_item, claimed_flags]() {
+                dex_item->PutCrossRef(claimed_flags);
+                dex_item->FinishPutCrossRef(claimed_flags);
             });
         }
+    }
+    for (auto &dex_item: dex_items) {
+        dex_item->WaitPutCrossRef(cross_ref_flags);
     }
 }
 

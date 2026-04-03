@@ -243,27 +243,63 @@ void DexItem::InitBaseCache() {
 }
 
 bool DexItem::NeedInitCache(uint32_t need_flag) const {
-    return (dex_flag & need_flag) != need_flag;
+    return (dex_flag.load(std::memory_order_acquire) & need_flag) != need_flag;
+}
+
+uint32_t DexItem::BeginInitCache(uint32_t init_flags) {
+    std::unique_lock lock(init_cache_state_mutex);
+    while (true) {
+        auto ready_flags = dex_flag.load(std::memory_order_acquire);
+        auto missing_flags = init_flags & ~ready_flags;
+        if (missing_flags == 0) {
+            return 0;
+        }
+        if (init_cache_inflight_flags == 0) {
+            init_cache_inflight_flags = missing_flags;
+            return missing_flags;
+        }
+        init_cache_state_cv.wait(lock, [this] {
+            return init_cache_inflight_flags == 0;
+        });
+    }
+}
+
+void DexItem::FinishInitCache(uint32_t init_flags) {
+    {
+        std::lock_guard lock(init_cache_state_mutex);
+        dex_flag.fetch_or(init_flags, std::memory_order_release);
+        init_cache_inflight_flags &= ~init_flags;
+    }
+    init_cache_state_cv.notify_all();
+}
+
+void DexItem::WaitInitCache(uint32_t init_flags) const {
+    std::unique_lock lock(init_cache_state_mutex);
+    init_cache_state_cv.wait(lock, [this, init_flags] {
+        auto ready_flags = dex_flag.load(std::memory_order_acquire);
+        return (ready_flags & init_flags) == init_flags;
+    });
 }
 
 void DexItem::InitCache(uint32_t init_flags) {
-    if ((dex_flag & init_flags) == init_flags) {
+    auto ready_flags = dex_flag.load(std::memory_order_acquire);
+    if ((ready_flags & init_flags) == init_flags) {
         return;
     }
     bool need_foreach_method = false;
-    bool need_op_seq = init_flags & kOpSequence && (dex_flag & kOpSequence) == 0;
-    bool need_method_using_string = init_flags & kUsingString && (dex_flag & kUsingString) == 0;
-    bool need_method_using_field = init_flags & kMethodUsingField && (dex_flag & kMethodUsingField) == 0;
-    bool need_method_invoking = init_flags & kMethodInvoking && (dex_flag & kMethodInvoking) == 0;
-    bool need_method_caller = init_flags & kCallerMethod && (dex_flag & kCallerMethod) == 0;
-    bool need_field_rw_method = init_flags & kRwFieldMethod && (dex_flag & kRwFieldMethod) == 0;
-    bool need_class_annotation = init_flags & kClassAnnotation && (dex_flag & kClassAnnotation) == 0;
-    bool need_field_annotation = init_flags & kFieldAnnotation && (dex_flag & kFieldAnnotation) == 0;
-    bool need_method_annotation = init_flags & kMethodAnnotation && (dex_flag & kMethodAnnotation) == 0;
-    bool need_param_annotation = init_flags & kParamAnnotation && (dex_flag & kParamAnnotation) == 0;
+    bool need_op_seq = init_flags & kOpSequence && (ready_flags & kOpSequence) == 0;
+    bool need_method_using_string = init_flags & kUsingString && (ready_flags & kUsingString) == 0;
+    bool need_method_using_field = init_flags & kMethodUsingField && (ready_flags & kMethodUsingField) == 0;
+    bool need_method_invoking = init_flags & kMethodInvoking && (ready_flags & kMethodInvoking) == 0;
+    bool need_method_caller = init_flags & kCallerMethod && (ready_flags & kCallerMethod) == 0;
+    bool need_field_rw_method = init_flags & kRwFieldMethod && (ready_flags & kRwFieldMethod) == 0;
+    bool need_class_annotation = init_flags & kClassAnnotation && (ready_flags & kClassAnnotation) == 0;
+    bool need_field_annotation = init_flags & kFieldAnnotation && (ready_flags & kFieldAnnotation) == 0;
+    bool need_method_annotation = init_flags & kMethodAnnotation && (ready_flags & kMethodAnnotation) == 0;
+    bool need_param_annotation = init_flags & kParamAnnotation && (ready_flags & kParamAnnotation) == 0;
     bool need_annotation = need_class_annotation || need_field_annotation || need_method_annotation || need_param_annotation;
     // only used for full cache
-    bool need_method_using_number = init_flags & kUsingNumber && (dex_flag & kUsingNumber) == 0;
+    bool need_method_using_number = init_flags & kUsingNumber && (ready_flags & kUsingNumber) == 0;
 
     if (need_op_seq) {
         method_opcode_seq.resize(reader.MethodIds().size(), std::nullopt);
@@ -458,21 +494,57 @@ void DexItem::InitCache(uint32_t init_flags) {
             }
         }
     }
-    dex_flag |= init_flags;
 }
 
 bool DexItem::NeedPutCrossRef(uint32_t need_cross_flag) const {
     DEXKIT_CHECK((need_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
-    return (dex_cross_flag & need_cross_flag) != need_cross_flag;
+    return (dex_cross_flag.load(std::memory_order_acquire) & need_cross_flag) != need_cross_flag;
+}
+
+uint32_t DexItem::BeginPutCrossRef(uint32_t put_cross_flag) {
+    DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    std::unique_lock lock(cross_ref_state_mutex);
+    while (true) {
+        auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
+        auto missing_flags = put_cross_flag & ~ready_flags;
+        if (missing_flags == 0) {
+            return 0;
+        }
+        if (cross_ref_inflight_flags == 0) {
+            cross_ref_inflight_flags = missing_flags;
+            return missing_flags;
+        }
+        cross_ref_state_cv.wait(lock, [this] {
+            return cross_ref_inflight_flags == 0;
+        });
+    }
+}
+
+void DexItem::FinishPutCrossRef(uint32_t put_cross_flag) {
+    {
+        std::lock_guard lock(cross_ref_state_mutex);
+        dex_cross_flag.fetch_or(put_cross_flag, std::memory_order_release);
+        cross_ref_inflight_flags &= ~put_cross_flag;
+    }
+    cross_ref_state_cv.notify_all();
+}
+
+void DexItem::WaitPutCrossRef(uint32_t put_cross_flag) const {
+    std::unique_lock lock(cross_ref_state_mutex);
+    cross_ref_state_cv.wait(lock, [this, put_cross_flag] {
+        auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
+        return (ready_flags & put_cross_flag) == put_cross_flag;
+    });
 }
 
 void DexItem::PutCrossRef(uint32_t put_cross_flag) {
     DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
-    if ((dex_cross_flag & put_cross_flag) == put_cross_flag) {
+    auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
+    if ((ready_flags & put_cross_flag) == put_cross_flag) {
         return;
     }
-    bool need_caller_cross = put_cross_flag & kCallerMethod && (dex_cross_flag & kCallerMethod) == 0;
-    bool need_rw_field_cross = put_cross_flag & kRwFieldMethod && (dex_cross_flag & kRwFieldMethod) == 0;
+    bool need_caller_cross = put_cross_flag & kCallerMethod && (ready_flags & kCallerMethod) == 0;
+    bool need_rw_field_cross = put_cross_flag & kRwFieldMethod && (ready_flags & kRwFieldMethod) == 0;
 
     for (int type_idx = 0; type_idx < type_names.size(); ++type_idx) {
         if (!this->type_def_flag[type_idx] && type_names[type_idx][0] != '[') {
@@ -535,7 +607,6 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
             }
         }
     }
-    dex_cross_flag |= put_cross_flag;
 }
 
 std::mutex &DexItem::GetTypeDefMutex(uint32_t type_idx) {
@@ -1128,7 +1199,7 @@ void PushEncodeNumber(dex::InstructionFormat op_format, uint8_t op, const uint16
 }
 
 std::vector<EncodeNumber> DexItem::GetUsingNumbersFromCode(uint32_t method_idx) {
-    if (dex_flag & kUsingNumber) {
+    if (dex_flag.load(std::memory_order_acquire) & kUsingNumber) {
         return method_using_numbers[method_idx];
     }
     auto code = method_codes[method_idx];

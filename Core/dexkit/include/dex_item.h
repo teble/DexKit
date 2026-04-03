@@ -22,6 +22,7 @@
 
 #include <string_view>
 #include <vector>
+#include <condition_variable>
 
 #include "beans.h"
 #include "common.h"
@@ -183,6 +184,12 @@ public:
     void PutCrossRef(uint32_t put_cross_flag);
     [[nodiscard]] bool NeedInitCache(uint32_t need_flag) const;
     void InitCache(uint32_t init_flags);
+    uint32_t BeginInitCache(uint32_t init_flags);
+    void FinishInitCache(uint32_t init_flags);
+    void WaitInitCache(uint32_t init_flags) const;
+    uint32_t BeginPutCrossRef(uint32_t put_cross_flag);
+    void FinishPutCrossRef(uint32_t put_cross_flag);
+    void WaitPutCrossRef(uint32_t put_cross_flag) const;
 
 private:
 
@@ -246,9 +253,15 @@ private:
     std::shared_ptr<MemMap> _image;
     dex::Reader reader;
 
-    uint32_t dex_cross_flag = 0;
-    uint32_t dex_flag = 0;
+    std::atomic<uint32_t> dex_cross_flag = 0;
+    std::atomic<uint32_t> dex_flag = 0;
     uint32_t dex_id;
+    mutable std::mutex init_cache_state_mutex;
+    mutable std::condition_variable init_cache_state_cv;
+    uint32_t init_cache_inflight_flags = 0;
+    mutable std::mutex cross_ref_state_mutex;
+    mutable std::condition_variable cross_ref_state_cv;
+    uint32_t cross_ref_inflight_flags = 0;
 
     uint32_t empty_string_id = dex::kNoIndex;
     uint32_t annotation_target_class_id = dex::kNoIndex;

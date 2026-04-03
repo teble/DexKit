@@ -35,7 +35,7 @@
 
 1. 支持多个线程同时调用同一个 `DexKitBridge`
 2. 避免“外层并发 × 内层并发”导致的线程数失控
-3. 保持单个重查询延迟尽量接近当前实现
+3. 保持单个 query 在**无竞争**时能吃满实例总 worker，延迟尽量接近当前实现
 4. 提升多 query 场景下的总体吞吐和稳定性
 5. 为 `DexKitCacheBridge`、桌面长生命周期实例、后续批量查询调度提供统一并发基础
 
@@ -109,11 +109,19 @@ matcher 预处理结果当前大量依赖：
 
 同一个 native `DexKit` 实例的总 worker 数必须受统一调度限制，不能再由 query 数量直接决定。
 
-### 4.3 基础索引尽量只读共享
+### 4.3 单活跃 query 必须独占可用资源
+
+当同一实例内只有 1 个活跃 query 时：
+
+- 它必须可以占满实例全部 worker
+- 不应被公平调度或默认配额额外限流
+- shared-pool 模型应尽量退化为“该 query 独占资源”的执行效果
+
+### 4.4 基础索引尽量只读共享
 
 一旦完成构建，应尽量转化为只读共享数据，减少后续 query 的共享写路径。
 
-### 4.4 query 状态显式化
+### 4.5 query 状态显式化
 
 每个 query 应拥有独立上下文，至少管理：
 
@@ -123,7 +131,7 @@ matcher 预处理结果当前大量依赖：
 - query-local result buffer
 - metrics
 
-### 4.5 先证明安全，再追求吞吐
+### 4.6 先证明安全，再追求吞吐
 
 Phase 1 先解决 correctness 与状态边界；  
 Phase 2/3 再切执行模型；  
@@ -167,6 +175,8 @@ Java/Kotlin caller threads
 - `DexKit` 初始化时创建共享 worker pool
 - 所有 query 的切片任务都投递到同一池
 - `threadNum` 表示实例总并行度，而不是单 query 并行度
+- 若只有 1 个活跃 query，它必须可以吃满全部 worker
+- scheduler / executor 需要提供 single-query fast path，避免在无竞争时引入不必要的调度损耗
 
 ### 6.2 引入 `QueryContext`
 
@@ -232,6 +242,12 @@ Java/Kotlin caller threads
 
 - 没有额外调度开销
 - 所有 native worker 都服务同一个 query
+
+因此，native 并发 query 方案若要可接受，至少必须满足以下硬约束：
+
+- **当实例内只有 1 个活跃 query 时，该 query 必须能够占满实例全部 worker**
+- **无竞争场景下，shared-pool 执行效果应尽量退化为当前 `@Synchronized` 基线**
+- **公平调度、query 配额等机制只应在多 query 同时活跃时发挥作用**
 
 ### 7.2 多个并发查询
 
@@ -377,7 +393,7 @@ bridge.setThreadNum(8)
 
 **建议验收指标**
 
-- 单 query 回退 < 5% ~ 10%
+- 无竞争单 query 回退 < 5%，理想情况下接近噪声级
 - 4 并发场景总吞吐有明确提升
 - 8 并发场景最坏耗时显著优于当前 unsynchronized 思路
 - 压测无 crash、无结果不一致
@@ -675,17 +691,25 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
      - opcode / using-fields / using-numbers 预处理结果
    - 当前仍保留“无 `QueryContext` 时回退到 `ThreadVariable`”的兼容路径
 
+8. `InitDexCache()` 已开始从“全局静态锁 + 裸位标记”收敛为实例内协调
+   - 去掉了 `DexKit::InitDexCache()` 的静态全局互斥
+   - `DexItem` 为 `InitCache` / `PutCrossRef` 新增了显式的 begin / finish / wait 协调点
+   - `dex_flag` / `dex_cross_flag` 已改为原子 ready-bit
+   - 当前策略是：**同一 `DexItem` 上同一时刻只允许一个 cache/cross-ref 构建者，其他调用方等待 ready**
+   - 这一步先解决“重复初始化 / 重复 cross-ref 构建”的状态边界问题，尚未引入更细粒度的 feature 并发执行
+
 当前限制：
 
 - 外部 cancel 还没有正式暴露到 API
 - metrics 还没有对外输出
 - matcher 迁移还处于第一批，`ThreadVariable` 兼容路径尚未删除
+- `PutCrossRef()` 对 `class_method_ids` / `class_field_ids` 的发布仍是共享写路径，后续仍需要更明确的读写边界与发布语义
 
 ### 11.11 下一步建议实现顺序
 
 1. 继续把 cancel / early-exit 协议统一到 `QueryContext`
 2. 逐步迁移 matcher 临时缓存
-3. 设计实例级 cache init coordinator
+3. 继续细化 cache / cross-ref 的 feature 状态机与发布语义
 4. 然后再进入 `IQueryExecutor` / `SharedPoolExecutor` 抽象
 
 ## 12. 验收维度

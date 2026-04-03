@@ -35,17 +35,49 @@
 
 namespace dexkit {
 
+struct QuerySchedulerMetricsSnapshot {
+    size_t share_count_syncs = 0;
+    size_t share_count_changes = 0;
+    size_t budget_rebalances = 0;
+    size_t runnable_queue_rebuilds = 0;
+    size_t refill_rounds = 0;
+    size_t dispatched_tasks = 0;
+    size_t base_dispatched_tasks = 0;
+    size_t bonus_dispatched_tasks = 0;
+    size_t max_total_in_flight = 0;
+    size_t max_visible_query_share_count = 0;
+    size_t max_runnable_queue_size = 0;
+};
+
 class QueryScheduler final : public std::enable_shared_from_this<QueryScheduler> {
 public:
     QueryScheduler(std::shared_ptr<ThreadPool> pool, size_t worker_count)
             : pool_(std::move(pool)), worker_count_(std::max<size_t>(1, worker_count)) {}
 
-    void AttachQuery(uint64_t query_id, QueryPriority priority) {
+    void AttachQuery(uint64_t query_id, QueryPriority priority, QueryContext *query_context) {
         std::lock_guard lock(mutex_);
         auto &slot = query_slots_[query_id];
         slot.query_id = query_id;
         slot.priority = priority;
+        slot.query_context = query_context;
         slot.attached = true;
+    }
+
+    [[nodiscard]] QuerySchedulerMetricsSnapshot GetMetricsSnapshot() const {
+        std::lock_guard lock(mutex_);
+        QuerySchedulerMetricsSnapshot snapshot;
+        snapshot.share_count_syncs = metrics_.share_count_syncs;
+        snapshot.share_count_changes = metrics_.share_count_changes;
+        snapshot.budget_rebalances = metrics_.budget_rebalances;
+        snapshot.runnable_queue_rebuilds = metrics_.runnable_queue_rebuilds;
+        snapshot.refill_rounds = metrics_.refill_rounds;
+        snapshot.dispatched_tasks = metrics_.dispatched_tasks;
+        snapshot.base_dispatched_tasks = metrics_.base_dispatched_tasks;
+        snapshot.bonus_dispatched_tasks = metrics_.bonus_dispatched_tasks;
+        snapshot.max_total_in_flight = metrics_.max_total_in_flight;
+        snapshot.max_visible_query_share_count = metrics_.max_visible_query_share_count;
+        snapshot.max_runnable_queue_size = metrics_.max_runnable_queue_size;
+        return snapshot;
     }
 
     void ActivateQuery(uint64_t query_id) {
@@ -58,8 +90,9 @@ public:
             if (!slot.activated) {
                 slot.activated = true;
             }
-            if (!slot.pending_tasks.empty() && slot.dispatch_budget == 0) {
-                slot.dispatch_budget = ComputeDispatchBudgetLocked(slot, QueryShareCountLocked());
+            auto query_share_count = SyncQueryShareCountLocked();
+            if (!slot.pending_tasks.empty() && slot.TotalDispatchBudget() == 0) {
+                AssignDispatchBudgetsLocked(slot, query_share_count);
             }
             TryEnqueueRunnableLocked(slot);
             DispatchReadyTasksLocked(dispatch_tasks);
@@ -76,6 +109,8 @@ public:
                 return;
             }
             it->second.attached = false;
+            it->second.query_context = nullptr;
+            (void) SyncQueryShareCountLocked();
             TryEraseSlotLocked(it);
             DispatchReadyTasksLocked(dispatch_tasks);
         }
@@ -90,10 +125,11 @@ public:
             slot.query_id = query_id;
             slot.attached = true;
             slot.submission_started = true;
+            auto query_share_count = SyncQueryShareCountLocked();
             auto was_idle = slot.pending_tasks.empty() && slot.in_flight == 0;
             slot.pending_tasks.emplace_back(std::move(task));
-            if (slot.activated && was_idle && slot.dispatch_budget == 0) {
-                slot.dispatch_budget = ComputeDispatchBudgetLocked(slot, QueryShareCountLocked());
+            if (slot.activated && was_idle && slot.TotalDispatchBudget() == 0) {
+                AssignDispatchBudgetsLocked(slot, query_share_count);
             }
             TryEnqueueRunnableLocked(slot);
             DispatchReadyTasksLocked(dispatch_tasks);
@@ -104,14 +140,34 @@ public:
 private:
     struct QuerySlot {
         uint64_t query_id = 0;
+        QueryContext *query_context = nullptr;
         QueryPriority priority = QueryPriority::Normal;
         bool attached = true;
         bool activated = false;
         bool submission_started = false;
         bool queued = false;
         size_t in_flight = 0;
-        size_t dispatch_budget = 0;
+        size_t base_dispatch_budget = 0;
+        size_t bonus_dispatch_budget = 0;
         std::deque<std::function<void()>> pending_tasks;
+
+        [[nodiscard]] size_t TotalDispatchBudget() const {
+            return base_dispatch_budget + bonus_dispatch_budget;
+        }
+    };
+
+    struct QuerySchedulerMetricsState {
+        size_t share_count_syncs = 0;
+        size_t share_count_changes = 0;
+        size_t budget_rebalances = 0;
+        size_t runnable_queue_rebuilds = 0;
+        size_t refill_rounds = 0;
+        size_t dispatched_tasks = 0;
+        size_t base_dispatched_tasks = 0;
+        size_t bonus_dispatched_tasks = 0;
+        size_t max_total_in_flight = 0;
+        size_t max_visible_query_share_count = 0;
+        size_t max_runnable_queue_size = 0;
     };
 
     struct DispatchTask {
@@ -168,24 +224,92 @@ private:
         return std::max<size_t>(1, VisibleQueryShareCountLocked());
     }
 
+    void UpdateMaxMetric(size_t &target, size_t value) {
+        if (target < value) {
+            target = value;
+        }
+    }
+
+    void UpdateMaxRunnableQueueSizeLocked() {
+        UpdateMaxMetric(
+                metrics_.max_runnable_queue_size,
+                latency_sensitive_runnable_queries_.size() +
+                normal_runnable_queries_.size() +
+                latency_sensitive_bonus_runnable_queries_.size()
+        );
+    }
+
+    [[nodiscard]] std::pair<size_t, size_t> ComputeDispatchBudgetCapsLocked(const QuerySlot &slot, size_t query_share_count) const {
+        if (query_share_count <= 1) {
+            return {worker_count_, 0};
+        }
+
+        auto base_budget = QueryInFlightLimitForActiveQueryCount(query_share_count);
+        auto bonus_budget = static_cast<size_t>(slot.priority == QueryPriority::LatencySensitive && base_budget < worker_count_);
+        return {base_budget, bonus_budget};
+    }
+
+    void AssignDispatchBudgetsLocked(QuerySlot &slot, size_t query_share_count) {
+        auto [base_budget, bonus_budget] = ComputeDispatchBudgetCapsLocked(slot, query_share_count);
+        slot.base_dispatch_budget = base_budget;
+        slot.bonus_dispatch_budget = bonus_budget;
+    }
+
+    void RebalanceDispatchBudgetsLocked(size_t query_share_count) {
+        ++metrics_.budget_rebalances;
+        for (auto &[query_id, slot]: query_slots_) {
+            (void) query_id;
+            if (!slot.activated) {
+                continue;
+            }
+            auto [max_base_budget, max_bonus_budget] = ComputeDispatchBudgetCapsLocked(slot, query_share_count);
+            if (slot.base_dispatch_budget > max_base_budget) {
+                slot.base_dispatch_budget = max_base_budget;
+            }
+            if (slot.bonus_dispatch_budget > max_bonus_budget) {
+                slot.bonus_dispatch_budget = max_bonus_budget;
+            }
+        }
+    }
+
+    void RebuildRunnableQueuesLocked() {
+        latency_sensitive_runnable_queries_.clear();
+        normal_runnable_queries_.clear();
+        latency_sensitive_bonus_runnable_queries_.clear();
+        for (auto &[query_id, slot]: query_slots_) {
+            (void) query_id;
+            slot.queued = false;
+        }
+        for (auto &[query_id, slot]: query_slots_) {
+            (void) query_id;
+            TryEnqueueRunnableLocked(slot);
+        }
+        ++metrics_.runnable_queue_rebuilds;
+        UpdateMaxRunnableQueueSizeLocked();
+    }
+
+    [[nodiscard]] size_t SyncQueryShareCountLocked() {
+        ++metrics_.share_count_syncs;
+        auto query_share_count = QueryShareCountLocked();
+        UpdateMaxMetric(metrics_.max_visible_query_share_count, query_share_count);
+        if (query_share_count == last_query_share_count_) {
+            return query_share_count;
+        }
+        last_query_share_count_ = query_share_count;
+        ++metrics_.share_count_changes;
+        RebalanceDispatchBudgetsLocked(query_share_count);
+        RebuildRunnableQueuesLocked();
+        return query_share_count;
+    }
+
     [[nodiscard]] size_t QueryInFlightLimitLocked() const {
         return QueryInFlightLimitForActiveQueryCount(QueryShareCountLocked());
     }
 
-    [[nodiscard]] size_t ComputeDispatchBudgetLocked(const QuerySlot &slot, size_t active_query_count) const {
-        if (active_query_count <= 1) {
-            return worker_count_;
-        }
-
-        auto base_budget = QueryInFlightLimitForActiveQueryCount(active_query_count);
-        if (slot.priority == QueryPriority::LatencySensitive) {
-            return std::min(worker_count_, base_budget + 1);
-        }
-        return base_budget;
-    }
-
     [[nodiscard]] bool HasRunnableQueriesLocked() const {
-        return !latency_sensitive_runnable_queries_.empty() || !normal_runnable_queries_.empty();
+        return !latency_sensitive_runnable_queries_.empty() ||
+               !normal_runnable_queries_.empty() ||
+               !latency_sensitive_bonus_runnable_queries_.empty();
     }
 
     [[nodiscard]] uint64_t PopRunnableQueryLocked() {
@@ -194,21 +318,34 @@ private:
             latency_sensitive_runnable_queries_.pop_front();
             return query_id;
         }
-        auto query_id = normal_runnable_queries_.front();
-        normal_runnable_queries_.pop_front();
+        if (!normal_runnable_queries_.empty()) {
+            auto query_id = normal_runnable_queries_.front();
+            normal_runnable_queries_.pop_front();
+            return query_id;
+        }
+        auto query_id = latency_sensitive_bonus_runnable_queries_.front();
+        latency_sensitive_bonus_runnable_queries_.pop_front();
         return query_id;
     }
 
     void PushRunnableQueryLocked(const QuerySlot &slot) {
-        if (slot.priority == QueryPriority::LatencySensitive) {
-            latency_sensitive_runnable_queries_.push_back(slot.query_id);
+        if (slot.base_dispatch_budget != 0) {
+            if (slot.priority == QueryPriority::LatencySensitive) {
+                latency_sensitive_runnable_queries_.push_back(slot.query_id);
+                UpdateMaxRunnableQueueSizeLocked();
+                return;
+            }
+            normal_runnable_queries_.push_back(slot.query_id);
+            UpdateMaxRunnableQueueSizeLocked();
             return;
         }
-        normal_runnable_queries_.push_back(slot.query_id);
+        latency_sensitive_bonus_runnable_queries_.push_back(slot.query_id);
+        UpdateMaxRunnableQueueSizeLocked();
     }
 
     bool RefillDispatchBudgetsLocked() {
-        auto query_share_count = QueryShareCountLocked();
+        ++metrics_.refill_rounds;
+        auto query_share_count = SyncQueryShareCountLocked();
         auto query_in_flight_limit = QueryInFlightLimitForActiveQueryCount(query_share_count);
         bool refilled = false;
 
@@ -223,10 +360,10 @@ private:
             if (slot.in_flight >= query_in_flight_limit) {
                 continue;
             }
-            if (slot.dispatch_budget == 0) {
-                slot.dispatch_budget = ComputeDispatchBudgetLocked(slot, query_share_count);
+            if (slot.TotalDispatchBudget() == 0) {
+                AssignDispatchBudgetsLocked(slot, query_share_count);
             }
-            if (slot.dispatch_budget == 0 || slot.queued) {
+            if (slot.TotalDispatchBudget() == 0 || slot.queued) {
                 continue;
             }
             slot.queued = true;
@@ -247,7 +384,7 @@ private:
         if (slot.in_flight >= QueryInFlightLimitLocked()) {
             return;
         }
-        if (slot.dispatch_budget == 0) {
+        if (slot.TotalDispatchBudget() == 0) {
             return;
         }
         slot.queued = true;
@@ -287,7 +424,7 @@ private:
             slot.queued = false;
 
             auto query_in_flight_limit = QueryInFlightLimitLocked();
-            if (slot.pending_tasks.empty() || slot.in_flight >= query_in_flight_limit || slot.dispatch_budget == 0) {
+            if (slot.pending_tasks.empty() || slot.in_flight >= query_in_flight_limit || slot.TotalDispatchBudget() == 0) {
                 TryEnqueueRunnableLocked(slot);
                 TryEraseSlotLocked(it);
                 continue;
@@ -295,9 +432,29 @@ private:
 
             auto task = std::move(slot.pending_tasks.front());
             slot.pending_tasks.pop_front();
-            --slot.dispatch_budget;
+            auto query_share_count = QueryShareCountLocked();
+            auto used_bonus_dispatch = slot.base_dispatch_budget == 0;
+            if (!used_bonus_dispatch) {
+                --slot.base_dispatch_budget;
+            } else {
+                --slot.bonus_dispatch_budget;
+            }
             ++slot.in_flight;
             ++total_in_flight_;
+            ++metrics_.dispatched_tasks;
+            if (used_bonus_dispatch) {
+                ++metrics_.bonus_dispatched_tasks;
+            } else {
+                ++metrics_.base_dispatched_tasks;
+            }
+            UpdateMaxMetric(metrics_.max_total_in_flight, total_in_flight_);
+            if (slot.query_context != nullptr) {
+                slot.query_context->MarkTaskDispatched(
+                        used_bonus_dispatch,
+                        static_cast<uint32_t>(slot.in_flight),
+                        static_cast<uint32_t>(query_share_count)
+                );
+            }
             TryEnqueueRunnableLocked(slot);
 
             dispatch_tasks.push_back(DispatchTask{query_id, std::move(task)});
@@ -332,6 +489,7 @@ private:
                 if (slot.in_flight > 0) {
                     --slot.in_flight;
                 }
+                (void) SyncQueryShareCountLocked();
                 TryEnqueueRunnableLocked(slot);
                 TryEraseSlotLocked(it);
             }
@@ -343,10 +501,13 @@ private:
 
     std::shared_ptr<ThreadPool> pool_;
     size_t worker_count_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     QuerySlotMap query_slots_;
     std::deque<uint64_t> latency_sensitive_runnable_queries_;
     std::deque<uint64_t> normal_runnable_queries_;
+    std::deque<uint64_t> latency_sensitive_bonus_runnable_queries_;
+    QuerySchedulerMetricsState metrics_;
+    size_t last_query_share_count_ = 1;
     size_t total_in_flight_ = 0;
 };
 

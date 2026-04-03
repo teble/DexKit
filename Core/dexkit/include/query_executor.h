@@ -78,13 +78,14 @@ public:
     explicit SharedThreadPoolQueryExecutor(
             std::shared_ptr<QueryScheduler> scheduler,
             uint64_t query_id,
+            QueryContext &query_context,
             QueryPriority query_priority,
             std::function<bool()> should_skip_task = {}
     )
             : should_skip_task_(std::move(should_skip_task)),
               scheduler_(std::move(scheduler)),
               query_id_(query_id) {
-        scheduler_->AttachQuery(query_id_, query_priority);
+        scheduler_->AttachQuery(query_id_, query_priority, &query_context);
     }
 
     ~SharedThreadPoolQueryExecutor() override {

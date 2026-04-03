@@ -48,7 +48,24 @@ enum class QueryPriority : uint8_t {
 struct QueryMetrics {
     std::chrono::steady_clock::time_point created_at = std::chrono::steady_clock::now();
     std::atomic<uint32_t> submitted_tasks = 0;
+    std::atomic<uint32_t> dispatched_tasks = 0;
+    std::atomic<uint32_t> base_dispatched_tasks = 0;
+    std::atomic<uint32_t> bonus_dispatched_tasks = 0;
     std::atomic<uint32_t> completed_tasks = 0;
+    std::atomic<uint32_t> max_in_flight = 0;
+    std::atomic<uint32_t> max_query_share_count = 0;
+    std::atomic<int64_t> first_dispatch_delay_ns = -1;
+};
+
+struct QueryMetricsSnapshot {
+    uint32_t submitted_tasks = 0;
+    uint32_t dispatched_tasks = 0;
+    uint32_t base_dispatched_tasks = 0;
+    uint32_t bonus_dispatched_tasks = 0;
+    uint32_t completed_tasks = 0;
+    uint32_t max_in_flight = 0;
+    uint32_t max_query_share_count = 0;
+    int64_t first_dispatch_delay_ns = -1;
 };
 
 struct QueryCacheKey {
@@ -144,8 +161,43 @@ public:
         metrics_.completed_tasks.fetch_add(1, std::memory_order_relaxed);
     }
 
+    void MarkTaskDispatched(bool used_bonus_dispatch, uint32_t query_in_flight, uint32_t query_share_count) {
+        metrics_.dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
+        if (used_bonus_dispatch) {
+            metrics_.bonus_dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
+        } else {
+            metrics_.base_dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
+        }
+        UpdateMax(metrics_.max_in_flight, query_in_flight);
+        UpdateMax(metrics_.max_query_share_count, query_share_count);
+
+        int64_t expected = -1;
+        auto first_dispatch_delay_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now() - metrics_.created_at
+        ).count();
+        (void) metrics_.first_dispatch_delay_ns.compare_exchange_strong(
+                expected,
+                first_dispatch_delay_ns,
+                std::memory_order_acq_rel,
+                std::memory_order_relaxed
+        );
+    }
+
     [[nodiscard]] const QueryMetrics &GetMetrics() const {
         return metrics_;
+    }
+
+    [[nodiscard]] QueryMetricsSnapshot SnapshotMetrics() const {
+        QueryMetricsSnapshot snapshot;
+        snapshot.submitted_tasks = metrics_.submitted_tasks.load(std::memory_order_relaxed);
+        snapshot.dispatched_tasks = metrics_.dispatched_tasks.load(std::memory_order_relaxed);
+        snapshot.base_dispatched_tasks = metrics_.base_dispatched_tasks.load(std::memory_order_relaxed);
+        snapshot.bonus_dispatched_tasks = metrics_.bonus_dispatched_tasks.load(std::memory_order_relaxed);
+        snapshot.completed_tasks = metrics_.completed_tasks.load(std::memory_order_relaxed);
+        snapshot.max_in_flight = metrics_.max_in_flight.load(std::memory_order_relaxed);
+        snapshot.max_query_share_count = metrics_.max_query_share_count.load(std::memory_order_relaxed);
+        snapshot.first_dispatch_delay_ns = metrics_.first_dispatch_delay_ns.load(std::memory_order_relaxed);
+        return snapshot;
     }
 
     [[nodiscard]] ScopedBinding BindToCurrentThread() {
@@ -170,6 +222,12 @@ public:
     }
 
 private:
+    static void UpdateMax(std::atomic<uint32_t> &target, uint32_t value) {
+        auto current = target.load(std::memory_order_relaxed);
+        while (current < value &&
+               !target.compare_exchange_weak(current, value, std::memory_order_relaxed, std::memory_order_relaxed)) {}
+    }
+
     static uint64_t NextQueryId() {
         return next_query_id_.fetch_add(1, std::memory_order_relaxed);
     }

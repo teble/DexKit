@@ -481,6 +481,59 @@ class UnitTest {
         }
     }
 
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testSharedSchedulerMetricsSnapshot() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(4)
+            try {
+                val futures = listOf(
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 2)
+                        }
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(8) {
+                            val result = parallelBridge.findMethod {
+                                findFirst = true
+                                excludePackages("org.luckypray.dexkit.demo.hook")
+                                matcher {
+                                    usingNumbers(114514)
+                                }
+                            }
+                            assert(result.size == 1)
+                        }
+                    }
+                )
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+
+            val metrics = parallelBridge.getSchedulerMetricsSnapshot()
+            println(metrics)
+            assert(metrics.dispatchedTasks > 0)
+            assert(metrics.baseDispatchedTasks + metrics.bonusDispatchedTasks == metrics.dispatchedTasks)
+            assert(metrics.maxTotalInFlight > 0)
+            assert(metrics.maxVisibleQueryShareCount > 0)
+            assert(metrics.shareCountSyncs > 0)
+        }
+    }
+
     @Test
     fun testConcurrentBatchFindClassUsingStringsOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->

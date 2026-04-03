@@ -93,6 +93,14 @@ void DexKit::SetMaxConcurrentQueries(uint32_t max_concurrent_queries) {
     query_execution_cv.notify_all();
 }
 
+QuerySchedulerMetricsSnapshot DexKit::GetQuerySchedulerMetricsSnapshot() const {
+    std::lock_guard lock(query_executor_mutex);
+    if (!shared_query_scheduler_) {
+        return {};
+    }
+    return shared_query_scheduler_->GetMetricsSnapshot();
+}
+
 Error DexKit::InitFullCache() {
     auto execution_guard = EnterQueryExecution(UINT32_MAX);
     return Error::SUCCESS;
@@ -220,6 +228,7 @@ std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_
         return std::make_unique<SharedThreadPoolQueryExecutor>(
                 GetOrCreateSharedQueryScheduler(thread_num),
                 query_context.GetQueryId(),
+                query_context,
                 query_context.GetQueryPriority(),
                 std::move(should_skip_task)
         );

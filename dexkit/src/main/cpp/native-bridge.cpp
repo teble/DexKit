@@ -325,6 +325,34 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeSetMaxConcurrentQueries(JNIEnv *env
     dexkit->SetMaxConcurrentQueries(static_cast<uint32_t>(max_concurrent_queries));
 }
 
+DEXKIT_JNI jlongArray
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetSchedulerMetrics(JNIEnv *env, jclass clazz,
+                                                                 jlong native_ptr
+) {
+    constexpr jsize kSchedulerMetricCount = 11;
+    jlong values[kSchedulerMetricCount] = {};
+    if (native_ptr) {
+        auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+        auto snapshot = dexkit->GetQuerySchedulerMetricsSnapshot();
+        values[0] = static_cast<jlong>(snapshot.share_count_syncs);
+        values[1] = static_cast<jlong>(snapshot.share_count_changes);
+        values[2] = static_cast<jlong>(snapshot.budget_rebalances);
+        values[3] = static_cast<jlong>(snapshot.runnable_queue_rebuilds);
+        values[4] = static_cast<jlong>(snapshot.refill_rounds);
+        values[5] = static_cast<jlong>(snapshot.dispatched_tasks);
+        values[6] = static_cast<jlong>(snapshot.base_dispatched_tasks);
+        values[7] = static_cast<jlong>(snapshot.bonus_dispatched_tasks);
+        values[8] = static_cast<jlong>(snapshot.max_total_in_flight);
+        values[9] = static_cast<jlong>(snapshot.max_visible_query_share_count);
+        values[10] = static_cast<jlong>(snapshot.max_runnable_queue_size);
+    }
+    auto ret = env->NewLongArray(kSchedulerMetricCount);
+    if (ret != nullptr) {
+        env->SetLongArrayRegion(ret, 0, kSchedulerMetricCount, values);
+    }
+    return ret;
+}
+
 DEXKIT_JNI void
 Java_org_luckypray_dexkit_DexKitBridge_nativeInitFullCache(JNIEnv *env, jclass clazz,
                                                            jlong native_ptr

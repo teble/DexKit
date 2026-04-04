@@ -380,7 +380,7 @@ bool DexItem::IsAnnotationsMatched(const ir::AnnotationSet *annotationSet, const
             return vec;
         });
 
-        auto annotation_matches = *ptr;
+        auto &annotation_matches = *ptr;
         if (annotation_matches.size() > annotation_set_size) {
             return false;
         }
@@ -483,7 +483,7 @@ bool DexItem::IsAnnotationEncodeArrayMatcher(const std::vector<ir::EncodedValue 
             return values;
         });
 
-        auto values = *ptr;
+        auto &values = *ptr;
         Hungarian<ir::EncodedValue *, std::pair<schema::AnnotationEncodeValueMatcher, const void *>> hungarian(encodedValues, values, IsAnnotationEncodeValueMatched);
         int count = hungarian.solve();
         if (count != matcher->values()->size()) {
@@ -539,7 +539,7 @@ bool DexItem::IsAnnotationElementsMatched(const std::vector<ir::AnnotationElemen
             return matchers;
         });
 
-        auto matchers = *ptr;
+        auto &matchers = *ptr;
         Hungarian<ir::AnnotationElement *, const schema::AnnotationElementMatcher *> hungarian(annotationElement, matchers, IsAnnotationElementMatched);
         auto count = hungarian.solve();
         if (count != matcher->elements()->size()) {
@@ -629,7 +629,7 @@ bool DexItem::IsTypeNameMatched(uint32_t type_idx, const schema::StringMatcher *
         return std::make_pair(match_name, static_cast<uint8_t>(array_count));
     });
 
-    auto match_pair = *ptr;
+    auto &match_pair = *ptr;
     auto &match_type_name = match_pair.first;
     auto &match_array_count = match_pair.second;
     bool condition;
@@ -793,7 +793,7 @@ bool DexItem::IsInterfacesMatched(uint32_t type_idx, const schema::InterfacesMat
             return vec;
         });
 
-        auto interface_matchers = *ptr;
+        auto &interface_matchers = *ptr;
         Hungarian<uint32_t, const schema::ClassMatcher *> hungarian(interfaces, interface_matchers, IsClassMatched);
         auto count = hungarian.solve();
         if (count != interface_matchers.size()) {
@@ -849,7 +849,7 @@ bool DexItem::IsFieldsMatched(uint32_t type_idx, const schema::FieldsMatcher *ma
             return vec;
         });
 
-        auto field_matchers = *ptr;
+        auto &field_matchers = *ptr;
         Hungarian<uint32_t, const schema::FieldMatcher *> hungarian(fields, field_matchers, IsFieldMatched);
         auto count = hungarian.solve();
         if (count != field_matchers.size()) {
@@ -892,7 +892,7 @@ bool DexItem::IsMethodsMatched(uint32_t type_idx, const schema::MethodsMatcher *
             return vec;
         });
 
-        auto method_matchers = *ptr;
+        auto &method_matchers = *ptr;
         Hungarian<uint32_t, const schema::MethodMatcher *> hungarian(methods, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
@@ -1038,7 +1038,7 @@ bool DexItem::IsOpCodesMatched(uint32_t method_idx, const schema::OpCodesMatcher
             return vec;
         });
 
-        auto matcher_opcodes = *ptr;
+        auto &matcher_opcodes = *ptr;
         if (matcher_opcodes.size() > op_code_size) {
             return false;
         }
@@ -1162,7 +1162,7 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
         return using_vec;
     });
 
-    auto using_field_matchers = *ptr;
+    auto &using_field_matchers = *ptr;
     Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
     auto count = hungarian.solve();
     if (count != using_field_matchers.size()) {
@@ -1245,7 +1245,7 @@ bool DexItem::IsUsingNumbersMatched(uint32_t method_idx, const schema::MethodMat
         return GetLongValue(number) == GetLongValue(matcher);
     };
 
-    auto numbers = *ptr;
+    auto &numbers = *ptr;
     Hungarian<EncodeNumber, EncodeNumber> hungarian(using_numbers, numbers, IsNumberMatched);
     auto count = hungarian.solve();
     if (count != numbers.size()) {
@@ -1283,7 +1283,7 @@ bool DexItem::IsInvokingMethodsMatched(uint32_t method_idx, const schema::Method
             return vec;
         });
 
-        auto method_matchers = *ptr;
+        auto &method_matchers = *ptr;
         Hungarian<uint32_t, const schema::MethodMatcher *> hungarian(invoking_methods, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
@@ -1330,7 +1330,7 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
             return vec;
         });
 
-        auto method_matchers = *ptr;
+        auto &method_matchers = *ptr;
         Hungarian<std::pair<uint16_t, uint32_t>, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
@@ -1437,7 +1437,7 @@ bool DexItem::IsFieldGetMethodsMatched(uint32_t field_idx, const schema::Methods
             return vec;
         });
 
-        auto method_matchers = *ptr;
+        auto &method_matchers = *ptr;
         Hungarian<std::pair<uint16_t, uint32_t>, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
@@ -1482,7 +1482,7 @@ bool DexItem::IsFieldPutMethodsMatched(uint32_t field_idx, const schema::Methods
             return vec;
         });
 
-        auto method_matchers = *ptr;
+        auto &method_matchers = *ptr;
         Hungarian<std::pair<uint16_t, uint32_t>, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {

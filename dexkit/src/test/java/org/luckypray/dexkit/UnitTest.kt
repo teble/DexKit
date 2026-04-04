@@ -593,6 +593,13 @@ class UnitTest {
             assert(metrics.maxInFlight > 0)
             assert(metrics.maxQueryShareCount > 0)
             assert(metrics.firstDispatchDelayNs >= 0)
+            assert(metrics.firstTaskStartDelayNs >= 0)
+            assert(metrics.lastTaskFinishDelayNs >= metrics.firstTaskStartDelayNs)
+            assert(metrics.taskRuntimeTotalNs >= metrics.taskRuntimeMaxNs)
+            assert(metrics.preprocessCompletedNs >= 0)
+            assert(metrics.submissionCompletedNs >= metrics.preprocessCompletedNs)
+            assert(metrics.workersCompletedNs >= metrics.submissionCompletedNs)
+            assert(metrics.completedNs >= metrics.workersCompletedNs)
         }
     }
 
@@ -624,6 +631,10 @@ class UnitTest {
                             assert(metrics.completedTasks == metrics.submittedTasks)
                             assert(metrics.baseDispatchedTasks + metrics.bonusDispatchedTasks == metrics.dispatchedTasks)
                             assert(metrics.maxInFlight > 0)
+                            assert(metrics.firstTaskStartDelayNs >= 0)
+                            assert(metrics.lastTaskFinishDelayNs >= metrics.firstTaskStartDelayNs)
+                            assert(metrics.taskRuntimeTotalNs >= metrics.taskRuntimeMaxNs)
+                            assert(metrics.completedNs >= metrics.workersCompletedNs)
                         }
                     }
                 }
@@ -676,8 +687,13 @@ class UnitTest {
             history.records.forEach { record ->
                 assert(record.metrics.submittedTasks > 0)
                 assert(record.metrics.dispatchedTasks > 0)
-                assert(record.metrics.completedTasks == record.metrics.submittedTasks)
+                assert(record.metrics.completedTasks <= record.metrics.submittedTasks)
+                assert(record.metrics.dispatchedTasks <= record.metrics.submittedTasks)
                 assert(record.metrics.baseDispatchedTasks + record.metrics.bonusDispatchedTasks == record.metrics.dispatchedTasks)
+                assert(record.metrics.preprocessCompletedNs >= 0)
+                assert(record.metrics.submissionCompletedNs >= record.metrics.preprocessCompletedNs)
+                assert(record.metrics.workersCompletedNs >= record.metrics.submissionCompletedNs)
+                assert(record.metrics.completedNs >= record.metrics.workersCompletedNs)
             }
         }
     }

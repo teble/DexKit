@@ -36,7 +36,7 @@
 #include "analyze.h"
 #include "query_executor.h"
 
-#define BATCH_SIZE 5000
+#define BATCH_SIZE 1000
 
 namespace dexkit {
 

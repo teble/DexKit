@@ -56,6 +56,14 @@ struct QueryMetrics {
     std::atomic<uint32_t> max_in_flight = 0;
     std::atomic<uint32_t> max_query_share_count = 0;
     std::atomic<int64_t> first_dispatch_delay_ns = -1;
+    std::atomic<int64_t> first_task_start_delay_ns = -1;
+    std::atomic<int64_t> last_task_finish_delay_ns = -1;
+    std::atomic<int64_t> task_runtime_total_ns = 0;
+    std::atomic<int64_t> task_runtime_max_ns = 0;
+    std::atomic<int64_t> preprocess_completed_ns = -1;
+    std::atomic<int64_t> submission_completed_ns = -1;
+    std::atomic<int64_t> workers_completed_ns = -1;
+    std::atomic<int64_t> completed_ns = -1;
 };
 
 struct QueryMetricsSnapshot {
@@ -67,6 +75,14 @@ struct QueryMetricsSnapshot {
     uint32_t max_in_flight = 0;
     uint32_t max_query_share_count = 0;
     int64_t first_dispatch_delay_ns = -1;
+    int64_t first_task_start_delay_ns = -1;
+    int64_t last_task_finish_delay_ns = -1;
+    int64_t task_runtime_total_ns = 0;
+    int64_t task_runtime_max_ns = 0;
+    int64_t preprocess_completed_ns = -1;
+    int64_t submission_completed_ns = -1;
+    int64_t workers_completed_ns = -1;
+    int64_t completed_ns = -1;
 };
 
 struct QueryMetricsRecord {
@@ -99,6 +115,34 @@ struct QueryCacheKeyHash {
 
 class QueryContext {
 public:
+    class TaskExecutionScope {
+    public:
+        explicit TaskExecutionScope(QueryContext &query_context)
+                : query_context_(&query_context), start_time_(std::chrono::steady_clock::now()) {
+            query_context_->MarkTaskExecutionStarted(start_time_);
+        }
+
+        TaskExecutionScope(const TaskExecutionScope &) = delete;
+        TaskExecutionScope &operator=(const TaskExecutionScope &) = delete;
+
+        TaskExecutionScope(TaskExecutionScope &&other) noexcept
+                : query_context_(other.query_context_), start_time_(other.start_time_) {
+            other.query_context_ = nullptr;
+        }
+
+        TaskExecutionScope &operator=(TaskExecutionScope &&other) = delete;
+
+        ~TaskExecutionScope() {
+            if (query_context_ != nullptr) {
+                query_context_->MarkTaskExecutionFinished(start_time_, std::chrono::steady_clock::now());
+            }
+        }
+
+    private:
+        QueryContext *query_context_ = nullptr;
+        std::chrono::steady_clock::time_point start_time_{};
+    };
+
     class ScopedBinding {
     public:
         explicit ScopedBinding(QueryContext &query_context)
@@ -173,6 +217,22 @@ public:
         metrics_.completed_tasks.fetch_add(1, std::memory_order_relaxed);
     }
 
+    void MarkPreprocessCompleted() {
+        StoreTimestampIfUnset(metrics_.preprocess_completed_ns, RelativeNowNs());
+    }
+
+    void MarkSubmissionCompleted() {
+        StoreTimestampIfUnset(metrics_.submission_completed_ns, RelativeNowNs());
+    }
+
+    void MarkWorkersCompleted() {
+        StoreTimestampIfUnset(metrics_.workers_completed_ns, RelativeNowNs());
+    }
+
+    void MarkCompleted() {
+        StoreTimestampIfUnset(metrics_.completed_ns, RelativeNowNs());
+    }
+
     void MarkTaskDispatched(bool used_bonus_dispatch, uint32_t query_in_flight, uint32_t query_share_count) {
         metrics_.dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
         if (used_bonus_dispatch) {
@@ -209,6 +269,14 @@ public:
         snapshot.max_in_flight = metrics_.max_in_flight.load(std::memory_order_relaxed);
         snapshot.max_query_share_count = metrics_.max_query_share_count.load(std::memory_order_relaxed);
         snapshot.first_dispatch_delay_ns = metrics_.first_dispatch_delay_ns.load(std::memory_order_relaxed);
+        snapshot.first_task_start_delay_ns = metrics_.first_task_start_delay_ns.load(std::memory_order_relaxed);
+        snapshot.last_task_finish_delay_ns = metrics_.last_task_finish_delay_ns.load(std::memory_order_relaxed);
+        snapshot.task_runtime_total_ns = metrics_.task_runtime_total_ns.load(std::memory_order_relaxed);
+        snapshot.task_runtime_max_ns = metrics_.task_runtime_max_ns.load(std::memory_order_relaxed);
+        snapshot.preprocess_completed_ns = metrics_.preprocess_completed_ns.load(std::memory_order_relaxed);
+        snapshot.submission_completed_ns = metrics_.submission_completed_ns.load(std::memory_order_relaxed);
+        snapshot.workers_completed_ns = metrics_.workers_completed_ns.load(std::memory_order_relaxed);
+        snapshot.completed_ns = metrics_.completed_ns.load(std::memory_order_relaxed);
         return snapshot;
     }
 
@@ -218,6 +286,10 @@ public:
 
     [[nodiscard]] static QueryMetricsSnapshot LastQueryMetricsSnapshot() {
         return last_query_metrics_snapshot_;
+    }
+
+    [[nodiscard]] TaskExecutionScope TrackTaskExecution() {
+        return TaskExecutionScope(*this);
     }
 
     [[nodiscard]] ScopedBinding BindToCurrentThread() {
@@ -242,10 +314,54 @@ public:
     }
 
 private:
+    [[nodiscard]] int64_t RelativeNs(std::chrono::steady_clock::time_point time_point) const {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(time_point - metrics_.created_at).count();
+    }
+
+    [[nodiscard]] int64_t RelativeNowNs() const {
+        return RelativeNs(std::chrono::steady_clock::now());
+    }
+
+    void MarkTaskExecutionStarted(std::chrono::steady_clock::time_point start_time) {
+        UpdateMinOrSet(metrics_.first_task_start_delay_ns, RelativeNs(start_time));
+    }
+
+    void MarkTaskExecutionFinished(
+            std::chrono::steady_clock::time_point start_time,
+            std::chrono::steady_clock::time_point finish_time
+    ) {
+        auto runtime_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(finish_time - start_time).count();
+        metrics_.task_runtime_total_ns.fetch_add(runtime_ns, std::memory_order_relaxed);
+        UpdateMax(metrics_.task_runtime_max_ns, runtime_ns);
+        UpdateMax(metrics_.last_task_finish_delay_ns, RelativeNs(finish_time));
+    }
+
     static void UpdateMax(std::atomic<uint32_t> &target, uint32_t value) {
         auto current = target.load(std::memory_order_relaxed);
         while (current < value &&
                !target.compare_exchange_weak(current, value, std::memory_order_relaxed, std::memory_order_relaxed)) {}
+    }
+
+    static void UpdateMax(std::atomic<int64_t> &target, int64_t value) {
+        auto current = target.load(std::memory_order_relaxed);
+        while (current < value &&
+               !target.compare_exchange_weak(current, value, std::memory_order_relaxed, std::memory_order_relaxed)) {}
+    }
+
+    static void UpdateMinOrSet(std::atomic<int64_t> &target, int64_t value) {
+        auto current = target.load(std::memory_order_relaxed);
+        while ((current < 0 || value < current) &&
+               !target.compare_exchange_weak(current, value, std::memory_order_relaxed, std::memory_order_relaxed)) {}
+    }
+
+    static void StoreTimestampIfUnset(std::atomic<int64_t> &target, int64_t value) {
+        auto expected = static_cast<int64_t>(-1);
+        (void) target.compare_exchange_strong(
+                expected,
+                value,
+                std::memory_order_acq_rel,
+                std::memory_order_relaxed
+        );
     }
 
     static uint64_t NextQueryId() {

@@ -12,9 +12,17 @@ data class QueryMetricsSnapshot(
     val maxInFlight: Long,
     val maxQueryShareCount: Long,
     val firstDispatchDelayNs: Long,
+    val firstTaskStartDelayNs: Long,
+    val lastTaskFinishDelayNs: Long,
+    val taskRuntimeTotalNs: Long,
+    val taskRuntimeMaxNs: Long,
+    val preprocessCompletedNs: Long,
+    val submissionCompletedNs: Long,
+    val workersCompletedNs: Long,
+    val completedNs: Long,
 ) {
     internal companion object {
-        const val NATIVE_SIZE = 8
+        const val NATIVE_SIZE = 16
 
         fun fromNative(values: LongArray): QueryMetricsSnapshot {
             require(values.size == NATIVE_SIZE) {
@@ -36,6 +44,14 @@ data class QueryMetricsSnapshot(
                 maxInFlight = values[offset + 5],
                 maxQueryShareCount = values[offset + 6],
                 firstDispatchDelayNs = values[offset + 7],
+                firstTaskStartDelayNs = values[offset + 8],
+                lastTaskFinishDelayNs = values[offset + 9],
+                taskRuntimeTotalNs = values[offset + 10],
+                taskRuntimeMaxNs = values[offset + 11],
+                preprocessCompletedNs = values[offset + 12],
+                submissionCompletedNs = values[offset + 13],
+                workersCompletedNs = values[offset + 14],
+                completedNs = values[offset + 15],
             )
         }
     }

@@ -44,6 +44,7 @@ DexItem::FindClass(
         query_context.MarkTaskSubmitted();
         futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &packageTrie, i, slice_size, &query_context] {
+                    auto task_scope = query_context.TrackTaskExecution();
                     auto result = FindClass(query, in_class_set, packageTrie, i * slice_size,
                                             std::min((i + 1) * slice_size, (uint32_t) this->reader.ClassDefs().size()),
                                             query_context);
@@ -78,6 +79,7 @@ DexItem::FindMethod(
         query_context.MarkTaskSubmitted();
         futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &in_method_set, &packageTrie, i, slice_size, &query_context] {
+                    auto task_scope = query_context.TrackTaskExecution();
                     auto result = FindMethod(query, in_class_set, in_method_set, packageTrie, i * slice_size,
                                              std::min((i + 1) * slice_size, (uint32_t) this->reader.MethodIds().size()),
                                              query_context);
@@ -112,6 +114,7 @@ DexItem::FindField(
         query_context.MarkTaskSubmitted();
         futures.emplace_back(SubmitQueryTask(executor,
                 [this, query, &in_class_set, &in_field_set, &packageTrie, i, slice_size, &query_context] {
+                    auto task_scope = query_context.TrackTaskExecution();
                     auto result = FindField(query, in_class_set, in_field_set, packageTrie, i * slice_size,
                                             std::min((i + 1) * slice_size, (uint32_t) this->reader.FieldIds().size()),
                                             query_context);

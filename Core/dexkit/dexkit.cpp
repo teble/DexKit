@@ -466,6 +466,7 @@ int DexKit::GetDexNum() const {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindClass(const schema::FindClass *query) {
+    QueryContext query_context(QueryKind::FindClass);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
         for (auto encode_idx: *query->in_classes()) {
@@ -479,7 +480,6 @@ DexKit::FindClass(const schema::FindClass *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    QueryContext query_context(QueryKind::FindClass);
     if (query->find_first()) {
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
@@ -500,6 +500,8 @@ DexKit::FindClass(const schema::FindClass *query) {
         }
     }
 
+    query_context.MarkPreprocessCompleted();
+
     if (fast_search_dex == nullptr) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<ClassBean>>> futures;
@@ -513,6 +515,7 @@ DexKit::FindClass(const schema::FindClass *query) {
             }
         }
         MarkQuerySubmissionComplete(executor.get());
+        query_context.MarkSubmissionCompleted();
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -529,6 +532,10 @@ DexKit::FindClass(const schema::FindClass *query) {
         if (should_drain_pending_futures) {
             DrainRemainingFutures(futures, future_index);
         }
+        query_context.MarkWorkersCompleted();
+    } else {
+        query_context.MarkSubmissionCompleted();
+        query_context.MarkWorkersCompleted();
     }
 
     auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
@@ -540,6 +547,7 @@ DexKit::FindClass(const schema::FindClass *query) {
     }
     auto array_holder = schema::CreateClassMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    query_context.MarkCompleted();
     PublishLastQueryMetrics(query_context);
     RecordQueryMetrics(query_context);
     return builder;
@@ -547,6 +555,7 @@ DexKit::FindClass(const schema::FindClass *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindMethod(const schema::FindMethod *query) {
+    QueryContext query_context(QueryKind::FindMethod);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
     if (query->in_classes()) {
@@ -566,7 +575,6 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    QueryContext query_context(QueryKind::FindMethod);
     if (query->find_first()) {
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
@@ -590,6 +598,8 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         }
     }
 
+    query_context.MarkPreprocessCompleted();
+
     if (fast_search_dex == nullptr) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<MethodBean>>> futures;
@@ -604,6 +614,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             }
         }
         MarkQuerySubmissionComplete(executor.get());
+        query_context.MarkSubmissionCompleted();
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -620,6 +631,10 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         if (should_drain_pending_futures) {
             DrainRemainingFutures(futures, future_index);
         }
+        query_context.MarkWorkersCompleted();
+    } else {
+        query_context.MarkSubmissionCompleted();
+        query_context.MarkWorkersCompleted();
     }
 
     auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
@@ -636,6 +651,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     }
     auto array_holder = schema::CreateMethodMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    query_context.MarkCompleted();
     PublishLastQueryMetrics(query_context);
     RecordQueryMetrics(query_context);
     return builder;
@@ -643,6 +659,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindField(const schema::FindField *query) {
+    QueryContext query_context(QueryKind::FindField);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_field_map;
     if (query->in_classes()) {
@@ -662,7 +679,6 @@ DexKit::FindField(const schema::FindField *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    QueryContext query_context(QueryKind::FindField);
     if (query->find_first()) {
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
@@ -686,6 +702,8 @@ DexKit::FindField(const schema::FindField *query) {
         }
     }
 
+    query_context.MarkPreprocessCompleted();
+
     if (fast_search_dex == nullptr) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<FieldBean>>> futures;
@@ -700,6 +718,7 @@ DexKit::FindField(const schema::FindField *query) {
             }
         }
         MarkQuerySubmissionComplete(executor.get());
+        query_context.MarkSubmissionCompleted();
 
         bool should_drain_pending_futures = false;
         size_t future_index = 0;
@@ -716,6 +735,10 @@ DexKit::FindField(const schema::FindField *query) {
         if (should_drain_pending_futures) {
             DrainRemainingFutures(futures, future_index);
         }
+        query_context.MarkWorkersCompleted();
+    } else {
+        query_context.MarkSubmissionCompleted();
+        query_context.MarkWorkersCompleted();
     }
 
     auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
@@ -732,6 +755,7 @@ DexKit::FindField(const schema::FindField *query) {
     }
     auto array_holder = schema::CreateFieldMetaArrayHolder(*builder, builder->CreateVector(offsets));
     builder->Finish(array_holder);
+    query_context.MarkCompleted();
     PublishLastQueryMetrics(query_context);
     RecordQueryMetrics(query_context);
     return builder;
@@ -739,6 +763,7 @@ DexKit::FindField(const schema::FindField *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *query) {
+    QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
     auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
@@ -766,7 +791,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             find_result_map[matchers->Get(j)->union_key()->string_view()] = {};
         }
     }
-    QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
+    query_context.MarkPreprocessCompleted();
     auto executor = CreateQueryExecutor(query_context);
     std::vector<std::future<std::vector<BatchFindClassItemBean>>> futures;
     for (auto &dex_item: dex_items) {
@@ -774,6 +799,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
         query_context.MarkTaskSubmitted();
         futures.push_back(SubmitQueryTask(*executor, [&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_map, &packageTrie,
                                                       &query_context]() {
+            auto task_scope = query_context.TrackTaskExecution();
             auto result = dex_item->BatchFindClassUsingStrings(query, acTrie, keywords_map, match_type_map, class_map,
                                                                packageTrie, query_context);
             query_context.MarkTaskCompleted();
@@ -781,6 +807,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
         }));
     }
     MarkQuerySubmissionComplete(executor.get());
+    query_context.MarkSubmissionCompleted();
 
     // fetch and merge result
     for (auto &f: futures) {
@@ -790,6 +817,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             beans.insert(beans.end(), item.classes.begin(), item.classes.end());
         }
     }
+    query_context.MarkWorkersCompleted();
 
     std::vector<BatchFindClassItemBean> result;
     for (auto &[key, value]: find_result_map) {
@@ -808,6 +836,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
     }
     auto array_holder = schema::CreateBatchClassMetaArrayHolder(*fbb, fbb->CreateVector(offsets));
     fbb->Finish(array_holder);
+    query_context.MarkCompleted();
     PublishLastQueryMetrics(query_context);
     RecordQueryMetrics(query_context);
     return fbb;
@@ -815,6 +844,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *query) {
+    QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
     auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
@@ -848,7 +878,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             find_result_map[matchers->Get(j)->union_key()->string_view()] = {};
         }
     }
-    QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
+    query_context.MarkPreprocessCompleted();
     auto executor = CreateQueryExecutor(query_context);
     std::vector<std::future<std::vector<BatchFindMethodItemBean>>> futures;
     for (auto &dex_item: dex_items) {
@@ -857,6 +887,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
         query_context.MarkTaskSubmitted();
         futures.push_back(SubmitQueryTask(*executor, [&dex_item, &query, &acTrie, &keywords_map, &match_type_map, &class_set, &method_set,
                                                       &packageTrie, &query_context]() {
+            auto task_scope = query_context.TrackTaskExecution();
             auto result = dex_item->BatchFindMethodUsingStrings(query, acTrie, keywords_map, match_type_map, class_set,
                                                                 method_set, packageTrie, query_context);
             query_context.MarkTaskCompleted();
@@ -864,6 +895,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
         }));
     }
     MarkQuerySubmissionComplete(executor.get());
+    query_context.MarkSubmissionCompleted();
 
     // fetch and merge result
     for (auto &f: futures) {
@@ -873,6 +905,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             beans.insert(beans.end(), item.methods.begin(), item.methods.end());
         }
     }
+    query_context.MarkWorkersCompleted();
 
     std::vector<BatchFindMethodItemBean> result;
     for (auto &[key, value]: find_result_map) {
@@ -891,6 +924,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
     }
     auto array_holder = schema::CreateBatchMethodMetaArrayHolder(*fbb, fbb->CreateVector(offsets));
     fbb->Finish(array_holder);
+    query_context.MarkCompleted();
     PublishLastQueryMetrics(query_context);
     RecordQueryMetrics(query_context);
     return fbb;

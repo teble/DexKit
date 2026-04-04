@@ -455,7 +455,7 @@ class DexKitBridge : Closeable {
     /**
      * find method by [FindMethod]'s [FlatBufferBuilder]
      */
-    @Synchronized
+//    @Synchronized
     private fun findMethod(encodeBytes: ByteArray): MethodDataList {
         val res = nativeFindMethod(safeToken, encodeBytes)
         val holder = InnerMethodMetaArrayHolder.getRootAsMethodMetaArrayHolder(ByteBuffer.wrap(res))

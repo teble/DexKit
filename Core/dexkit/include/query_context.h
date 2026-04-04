@@ -117,6 +117,8 @@ class QueryContext {
 public:
     class TaskExecutionScope {
     public:
+        TaskExecutionScope() = default;
+
         explicit TaskExecutionScope(QueryContext &query_context)
                 : query_context_(&query_context), start_time_(std::chrono::steady_clock::now()) {
             query_context_->MarkTaskExecutionStarted(start_time_);
@@ -171,7 +173,8 @@ public:
         QueryContext *current_query_ = nullptr;
     };
 
-    explicit QueryContext(QueryKind kind) : kind_(kind), query_id_(NextQueryId()) {}
+    explicit QueryContext(QueryKind kind, bool metrics_enabled = false)
+            : kind_(kind), query_id_(NextQueryId()), metrics_enabled_(metrics_enabled) {}
 
     [[nodiscard]] uint64_t GetQueryId() const {
         return query_id_;
@@ -209,31 +212,42 @@ public:
         return IsCancelled() || ShouldEarlyExit();
     }
 
+    [[nodiscard]] bool AreMetricsEnabled() const {
+        return metrics_enabled_;
+    }
+
     void MarkTaskSubmitted() {
+        if (!metrics_enabled_) return;
         metrics_.submitted_tasks.fetch_add(1, std::memory_order_relaxed);
     }
 
     void MarkTaskCompleted() {
+        if (!metrics_enabled_) return;
         metrics_.completed_tasks.fetch_add(1, std::memory_order_relaxed);
     }
 
     void MarkPreprocessCompleted() {
+        if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.preprocess_completed_ns, RelativeNowNs());
     }
 
     void MarkSubmissionCompleted() {
+        if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.submission_completed_ns, RelativeNowNs());
     }
 
     void MarkWorkersCompleted() {
+        if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.workers_completed_ns, RelativeNowNs());
     }
 
     void MarkCompleted() {
+        if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.completed_ns, RelativeNowNs());
     }
 
     void MarkTaskDispatched(bool used_bonus_dispatch, uint32_t query_in_flight, uint32_t query_share_count) {
+        if (!metrics_enabled_) return;
         metrics_.dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
         if (used_bonus_dispatch) {
             metrics_.bonus_dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
@@ -260,6 +274,9 @@ public:
     }
 
     [[nodiscard]] QueryMetricsSnapshot SnapshotMetrics() const {
+        if (!metrics_enabled_) {
+            return {};
+        }
         QueryMetricsSnapshot snapshot;
         snapshot.submitted_tasks = metrics_.submitted_tasks.load(std::memory_order_relaxed);
         snapshot.dispatched_tasks = metrics_.dispatched_tasks.load(std::memory_order_relaxed);
@@ -289,6 +306,9 @@ public:
     }
 
     [[nodiscard]] TaskExecutionScope TrackTaskExecution() {
+        if (!metrics_enabled_) {
+            return {};
+        }
         return TaskExecutionScope(*this);
     }
 
@@ -372,6 +392,7 @@ private:
     QueryKind kind_;
     uint64_t query_id_;
     QueryPriority priority_ = QueryPriority::Normal;
+    bool metrics_enabled_ = false;
     std::atomic<bool> cancelled_ = false;
     std::atomic<bool> early_exit_ = false;
     QueryMetrics metrics_{};

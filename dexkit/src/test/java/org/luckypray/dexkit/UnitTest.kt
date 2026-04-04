@@ -575,6 +575,7 @@ class UnitTest {
             parallelBridge.setThreadNum(2)
             parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
             parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
 
             val result = parallelBridge.findMethod {
                 excludePackages("org.luckypray.dexkit.demo.hook")
@@ -610,6 +611,7 @@ class UnitTest {
             parallelBridge.setThreadNum(2)
             parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
             parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
             val workers = 2
             val start = CountDownLatch(1)
             val executor = Executors.newFixedThreadPool(workers)
@@ -653,6 +655,7 @@ class UnitTest {
             parallelBridge.setThreadNum(2)
             parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
             parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
 
             val regularResult = parallelBridge.findMethod {
                 excludePackages("org.luckypray.dexkit.demo.hook")
@@ -705,6 +708,7 @@ class UnitTest {
             parallelBridge.setThreadNum(2)
             parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
             parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
 
             val result = parallelBridge.findMethod {
                 excludePackages("org.luckypray.dexkit.demo.hook")

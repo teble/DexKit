@@ -167,7 +167,10 @@ phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> &GetMatcherTh
 struct MatcherThreadLocalQueryCache {
     struct Entry {
         QueryCacheKey key;
-        std::weak_ptr<void> value;
+        // QueryContext owns the actual cache object lifetime.
+        // The per-thread matcher fast path only memoizes the raw address for the
+        // current query to avoid shared_ptr refcount traffic on every cache hit.
+        void *value = nullptr;
     };
 
     uint64_t query_id = 0;
@@ -180,23 +183,17 @@ struct MatcherThreadLocalQueryCache {
         }
     }
 
-    [[nodiscard]] std::shared_ptr<void> Find(const QueryCacheKey &cache_key) {
-        for (auto it = entries.begin(); it != entries.end(); ++it) {
-            if (!(it->key == cache_key)) {
+    [[nodiscard]] void *Find(const QueryCacheKey &cache_key) const {
+        for (const auto &entry: entries) {
+            if (!(entry.key == cache_key)) {
                 continue;
             }
-            auto cached = it->value.lock();
-            if (cached) {
-                return cached;
-            }
-            *it = std::move(entries.back());
-            entries.pop_back();
-            return nullptr;
+            return entry.value;
         }
         return nullptr;
     }
 
-    void Put(const QueryCacheKey &cache_key, const std::shared_ptr<void> &value) {
+    void Put(const QueryCacheKey &cache_key, void *value) {
         for (auto &entry: entries) {
             if (entry.key == cache_key) {
                 entry.value = value;
@@ -223,7 +220,7 @@ static MatcherThreadLocalQueryCache &GetMatcherThreadLocalQueryCache() {
 }
 
 template<typename T, typename Factory>
-static std::shared_ptr<T> GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &&factory) {
+static T *GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &&factory) {
     auto *query_context = QueryContext::Current();
     DEXKIT_CHECK(query_context != nullptr);
     auto &query_cache = GetMatcherThreadLocalQueryCache();
@@ -231,13 +228,16 @@ static std::shared_ptr<T> GetMatcherCache(MatcherCacheScope scope, std::uintptr_
 
     auto cache_key = QueryCacheKey{static_cast<uint8_t>(scope), key};
     auto cached = query_cache.Find(cache_key);
-    if (cached) {
-        return std::shared_ptr<T>(cached, reinterpret_cast<T *>(cached.get()));
+    if (cached != nullptr) {
+        return reinterpret_cast<T *>(cached);
     }
 
     auto value = query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
-    query_cache.Put(cache_key, value);
-    return value;
+    auto *ptr = value.get();
+    // Safe because QueryContext owns the cache object until the query ends, and
+    // Rebind(query_id) clears any stale per-thread entries before reuse.
+    query_cache.Put(cache_key, ptr);
+    return ptr;
 }
 
 void RegisterMatcherThreadLocalCache(

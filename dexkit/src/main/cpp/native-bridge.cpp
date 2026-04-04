@@ -325,6 +325,18 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeSetMaxConcurrentQueries(JNIEnv *env
     dexkit->SetMaxConcurrentQueries(static_cast<uint32_t>(max_concurrent_queries));
 }
 
+DEXKIT_JNI void
+Java_org_luckypray_dexkit_DexKitBridge_nativeSetQueryMetricsEnabled(JNIEnv *env, jclass clazz,
+                                                                    jlong native_ptr,
+                                                                    jboolean enabled
+) {
+    if (!native_ptr) {
+        return;
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    dexkit->SetQueryMetricsEnabled(enabled == JNI_TRUE);
+}
+
 DEXKIT_JNI jlongArray
 Java_org_luckypray_dexkit_DexKitBridge_nativeGetSchedulerMetrics(JNIEnv *env, jclass clazz,
                                                                  jlong native_ptr

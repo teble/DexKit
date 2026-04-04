@@ -97,6 +97,15 @@ void DexKit::SetMaxConcurrentQueries(uint32_t max_concurrent_queries) {
     query_execution_cv.notify_all();
 }
 
+void DexKit::SetQueryMetricsEnabled(bool enabled) {
+    query_metrics_enabled_.store(enabled, std::memory_order_release);
+    if (!enabled) {
+        std::lock_guard lock(query_metrics_history_mutex);
+        query_metrics_history_.clear();
+        dropped_query_metrics_history_records_ = 0;
+    }
+}
+
 QuerySchedulerMetricsSnapshot DexKit::GetQuerySchedulerMetricsSnapshot() const {
     std::lock_guard lock(query_executor_mutex);
     if (!shared_query_scheduler_) {
@@ -249,6 +258,9 @@ bool DexKit::NeedWarmUp(uint32_t init_flags) const {
 }
 
 void DexKit::RecordQueryMetrics(const QueryContext &query_context) {
+    if (!query_context.AreMetricsEnabled()) {
+        return;
+    }
     QueryMetricsRecord record;
     record.kind = query_context.GetKind();
     record.priority = query_context.GetQueryPriority();
@@ -466,7 +478,10 @@ int DexKit::GetDexNum() const {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindClass(const schema::FindClass *query) {
-    QueryContext query_context(QueryKind::FindClass);
+    QueryContext query_context(
+            QueryKind::FindClass,
+            query_metrics_enabled_.load(std::memory_order_acquire)
+    );
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
         for (auto encode_idx: *query->in_classes()) {
@@ -555,7 +570,10 @@ DexKit::FindClass(const schema::FindClass *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindMethod(const schema::FindMethod *query) {
-    QueryContext query_context(QueryKind::FindMethod);
+    QueryContext query_context(
+            QueryKind::FindMethod,
+            query_metrics_enabled_.load(std::memory_order_acquire)
+    );
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
     if (query->in_classes()) {
@@ -659,7 +677,10 @@ DexKit::FindMethod(const schema::FindMethod *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::FindField(const schema::FindField *query) {
-    QueryContext query_context(QueryKind::FindField);
+    QueryContext query_context(
+            QueryKind::FindField,
+            query_metrics_enabled_.load(std::memory_order_acquire)
+    );
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_field_map;
     if (query->in_classes()) {
@@ -763,7 +784,10 @@ DexKit::FindField(const schema::FindField *query) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *query) {
-    QueryContext query_context(QueryKind::BatchFindClassUsingStrings);
+    QueryContext query_context(
+            QueryKind::BatchFindClassUsingStrings,
+            query_metrics_enabled_.load(std::memory_order_acquire)
+    );
     auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
@@ -844,7 +868,10 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *query) {
-    QueryContext query_context(QueryKind::BatchFindMethodUsingStrings);
+    QueryContext query_context(
+            QueryKind::BatchFindMethodUsingStrings,
+            query_metrics_enabled_.load(std::memory_order_acquire)
+    );
     auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;

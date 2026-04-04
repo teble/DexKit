@@ -521,3 +521,68 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
 5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
 6. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验
+
+## 更新 2026-04-04 - matcher TLS 析构回归
+
+- 现象：在 matcher cache 正式化之后，Windows 复现中 `find` 变快了，但 `close()` / release 时间回退到了数秒级。
+- 根因：共享 worker pool 持有了一个“非平凡”的 C++ `thread_local` matcher cache 对象；worker 线程退出时，TLS 析构成本被计入了 `ThreadPool` 的销毁流程，因此 `worker.join()` 变成了表面上的主要瓶颈。
+- 修复：
+  - TLS 中只保留轻量指针；
+  - 真正的 matcher cache 对象注册到 native registry；
+  - 先 `join()` worker 线程，再在 `ThreadPool::~ThreadPool()` 中显式销毁已注册的 matcher cache。
+- 结果：当前 `Main.kt` 复现中，release 时间已从数秒恢复到约 `48~50 ms`，同时不再把 matcher cache 的生命周期重新绑定到 worker 线程生命周期上。
+
+## 更新 2026-04-04 - 单 query 与 master 的剩余差距
+
+- 对重复串行 query 负载来说，当前实现仍然存在明显优化空间。
+- 当时的分支测量结果（`LARGE_APK`, `workers=1`, `iterations=100`, `nativeThreads=8`）：
+  - `SharedPool`: `elapsedMs=1603`
+  - `LegacyPerQuery`: `elapsedMs=1634`
+- 这说明当前分支相对 `master` 的串行性能差距，并不主要是 `QueryScheduler` 导致的；即使完全绕开 shared scheduling，同类 workload 仍然比 `master` 慢。
+- 当时最可疑的热路径包括：
+  1. 扫描循环里逐项执行的 `QueryContext.ShouldStop()` 原子检查，即使 `findFirst == false` 也照样执行；
+  2. 每个 task 的 query metrics 记账逻辑（`MarkTaskSubmitted/Completed`、`TrackTaskExecution`）；
+  3. matcher cache 命中成本（`QueryContext` 持有 + worker 本地 weak cache 查找 / aliasing）。
+- 当时的优先建议：
+  1. 给非 `findFirst` query 增加更便宜、甚至接近零成本的 stop-check fast path；
+  2. 让 query metrics 变为可选，或至少减轻热路径负担；
+  3. 继续降低 matcher cache hit 开销，或把安全的纯 matcher 预处理上提为可复用的只读缓存。
+
+## 更新 2026-04-04 - matcher cache 所有权 fast path 恢复
+
+- 后续 A/B 表明，之前的串行回退并不主要来自 `QueryScheduler` 或 task 提交链路本身。
+- 更热的成本其实在 matcher 的线程本地 fast path：每个 per-thread per-query entry 里保存 `weak_ptr<void>`，会让每次命中都多一次 `lock()` / 过期清理路径。
+- 这一轮调整：
+  - 保持“matcher TLS registry 显式销毁”的修复不变；
+  - 把 matcher TLS entry 从 `std::weak_ptr<void>` 改回拥有所有权的 `std::shared_ptr<void>`；
+  - 保留 `query_id` 的 rebind / clear 语义，保证 entry 仍然严格限定在 query 作用域内，不会泄漏到其他 query。
+- 在同一份 Windows 复现上的复测结果：
+  - `Main.kt` 本地复现：`find use time ~= 1281 ms`，`release use time ~= 44 ms`
+  - 结构化 benchmark（`LARGE_APK`, `workers=1`, `iterations=100`, `nativeThreads=8`）：
+    - `SharedPool`: `elapsedMs=1334`
+    - `LegacyPerQuery`: `elapsedMs=1418`
+- 结论：
+  - 显式 registry teardown 已经解决了 multi-second release 回归；
+  - 恢复拥有所有权的 matcher cache entry 后，串行 repeated-query 的损失被明显收回了一部分；
+  - 在相同串行 workload 下，`SharedPool` 已经可测地快于 `LegacyPerQuery`，因此剩余与 `master` 的差距，更可能还在 matcher / query 热路径记账逻辑，而不是 scheduler 外壳本身。
+
+## 更新 2026-04-04 - matcher TLS 原始指针 fast path
+
+- 继续做热路径审计后发现：即使前面已经恢复为 `shared_ptr` 持有，matcher TLS cache 命中时仍然要反复付出 `shared_ptr` 引用计数成本：
+  - TLS entry 保存的是 `shared_ptr<void>`
+  - `GetMatcherCache()` 每次命中都会重新构造一个 aliasing `shared_ptr<T>`
+  - 对重复、matcher 密集型扫描来说，这部分成本依然偏高
+- 因此进一步调整为：
+  - matcher cache 对象的真实所有权仍然只归 `QueryContext`；
+  - per-thread per-query 的 matcher TLS entry 只保存原始地址；
+  - 继续保留 `Rebind(query_id)`，在 query 边界切换时清空过期 entry，确保原始指针不会活得比所属 query 更久。
+- 结果：
+  - `Main.kt` Windows 复现：`find use time ~= 647 ms`，`release use time ~= 43 ms`
+  - 在 query metrics 仍然开启的结构化 benchmark 下（`LARGE_APK`, `workers=1`, `iterations=100`, `nativeThreads=8`）：
+    - `SharedPool`: `elapsedMs=882`
+    - `LegacyPerQuery`: `elapsedMs=986`
+  - 同时，query metrics 采集现在也已改成 JVM 侧显式 opt-in（`DexKitBridge.setQueryMetricsEnabled(true)`）；默认普通查询不再无条件承担完整 metrics 成本，只有诊断场景才开启。
+- 结论：
+  - 当时剩余的串行热成本，已经不是 scheduler 外壳本身，也不再主要是 query metrics；
+  - 更大的瓶颈是 matcher TLS fast path 上残余的 cache-hit ownership 成本；
+  - 去掉这部分成本后，`SharedPool` 与 `LegacyPerQuery` 都出现了明显提升，单 query repeated workload 与更早基线之间的差距也进一步收敛。

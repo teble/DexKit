@@ -33,6 +33,8 @@
 
 namespace dexkit {
 
+class ThreadPoolQueryExecutor;
+
 enum class QueryExecutorMode : uint8_t {
     LegacyPerQuery = 0,
     SharedPool = 1,
@@ -45,12 +47,13 @@ public:
     virtual void OnSubmissionComplete() = 0;
     [[nodiscard]] virtual bool ShouldSkipTask() const = 0;
     [[nodiscard]] virtual std::function<bool()> GetShouldSkipTaskFn() const = 0;
+    [[nodiscard]] virtual ThreadPoolQueryExecutor *GetThreadPoolQueryExecutor() { return nullptr; }
 };
 
 class ThreadPoolQueryExecutor final : public IQueryExecutor {
 public:
     explicit ThreadPoolQueryExecutor(size_t thread_num, std::function<bool()> should_skip_task = {})
-            : should_skip_task_(std::move(should_skip_task)), pool_(thread_num) {}
+            : should_skip_task_(should_skip_task), pool_(thread_num, should_skip_task_) {}
 
     void Submit(std::function<void()> task) override {
         pool_.enqueue([task = std::move(task)]() mutable {
@@ -66,6 +69,15 @@ public:
 
     [[nodiscard]] std::function<bool()> GetShouldSkipTaskFn() const override {
         return should_skip_task_;
+    }
+
+    [[nodiscard]] ThreadPoolQueryExecutor *GetThreadPoolQueryExecutor() override {
+        return this;
+    }
+
+    template<typename F>
+    auto Enqueue(F &&task) -> std::future<std::invoke_result_t<std::decay_t<F>>> {
+        return pool_.enqueue(std::forward<F>(task));
     }
 
 private:
@@ -120,37 +132,39 @@ private:
     bool submission_completed_ = false;
 };
 
+template<typename ReturnType, typename F>
+static auto BuildPackagedQueryTask(F &&task, std::function<bool()> should_skip_task) {
+    return [task = std::decay_t<F>(std::forward<F>(task)), should_skip_task = std::move(should_skip_task)]() mutable -> ReturnType {
+        if (should_skip_task && should_skip_task()) {
+            if constexpr (!std::is_void_v<ReturnType>) {
+                return ReturnType();
+            } else {
+                return;
+            }
+        }
+        if constexpr (std::is_void_v<ReturnType>) {
+            task();
+            return;
+        } else {
+            return task();
+        }
+    };
+}
+
 template<typename F>
 auto SubmitQueryTask(IQueryExecutor &executor, F &&task)
 -> std::future<std::invoke_result_t<std::decay_t<F>>> {
     using ReturnType = std::invoke_result_t<std::decay_t<F>>;
-    auto promise = std::make_shared<std::promise<ReturnType>>();
-    auto future = promise->get_future();
-    auto should_skip_task = executor.GetShouldSkipTaskFn();
-    executor.Submit([task = std::decay_t<F>(std::forward<F>(task)), promise, should_skip_task = std::move(should_skip_task)]() mutable {
-        if (should_skip_task && should_skip_task()) {
-            if constexpr (std::is_void_v<ReturnType>) {
-                promise->set_value();
-            } else {
-                promise->set_value(ReturnType());
-            }
-            return;
-        }
+    if (auto *thread_pool_executor = executor.GetThreadPoolQueryExecutor(); thread_pool_executor != nullptr) {
+        return thread_pool_executor->Enqueue(std::forward<F>(task));
+    }
 
-#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
-        try {
-#endif
-            if constexpr (std::is_void_v<ReturnType>) {
-                task();
-                promise->set_value();
-            } else {
-                promise->set_value(task());
-            }
-#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
-        } catch (...) {
-            promise->set_exception(std::current_exception());
-        }
-#endif
+    auto task_ptr = std::make_shared<std::packaged_task<ReturnType()>>(
+            BuildPackagedQueryTask<ReturnType>(std::forward<F>(task), executor.GetShouldSkipTaskFn())
+    );
+    auto future = task_ptr->get_future();
+    executor.Submit([task_ptr]() mutable {
+        (*task_ptr)();
     });
     return future;
 }

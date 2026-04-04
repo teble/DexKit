@@ -67,6 +67,7 @@ public:
     void SetThreadNum(int num);
     void SetQueryExecutorMode(QueryExecutorMode mode);
     void SetMaxConcurrentQueries(uint32_t max_concurrent_queries);
+    void SetQueryMetricsEnabled(bool enabled);
     [[nodiscard]] QuerySchedulerMetricsSnapshot GetQuerySchedulerMetricsSnapshot() const;
     void ResetQuerySchedulerMetrics() const;
     [[nodiscard]] static QueryMetricsSnapshot GetLastQueryMetricsSnapshot();
@@ -123,6 +124,7 @@ private:
     std::atomic<uint32_t> _thread_num = std::thread::hardware_concurrency();
     std::atomic<QueryExecutorMode> query_executor_mode_ = QueryExecutorMode::LegacyPerQuery;
     std::atomic<uint32_t> max_concurrent_queries_ = 0;
+    std::atomic<bool> query_metrics_enabled_ = false;
     mutable std::shared_ptr<ThreadPool> shared_query_pool_;
     mutable std::shared_ptr<QueryScheduler> shared_query_scheduler_;
     mutable uint32_t shared_query_pool_thread_num_ = 0;

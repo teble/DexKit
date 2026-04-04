@@ -134,6 +134,12 @@ class DexKitBridge : Closeable {
 
     @DexKitExperimentalApi
     @Synchronized
+    fun setQueryMetricsEnabled(enabled: Boolean) {
+        nativeSetQueryMetricsEnabled(safeToken, enabled)
+    }
+
+    @DexKitExperimentalApi
+    @Synchronized
     fun getSchedulerMetricsSnapshot(): SchedulerMetricsSnapshot {
         return SchedulerMetricsSnapshot.fromNative(nativeGetSchedulerMetrics(safeToken))
     }
@@ -723,6 +729,9 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeSetMaxConcurrentQueries(nativePtr: Long, maxConcurrentQueries: Int)
+
+        @JvmStatic
+        private external fun nativeSetQueryMetricsEnabled(nativePtr: Long, enabled: Boolean)
 
         @JvmStatic
         private external fun nativeGetSchedulerMetrics(nativePtr: Long): LongArray

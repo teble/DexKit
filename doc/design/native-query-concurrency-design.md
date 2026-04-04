@@ -250,6 +250,38 @@ Java/Kotlin caller threads
    - 一次构建
    - 多 query 复用
 
+#### 6.4.1 matcher 热路径缓存的默认收敛方向
+
+最新一轮单 query 回退诊断表明：**把 matcher 预处理缓存统一放到 `QueryContext` 的共享 map 中，并在热路径上通过互斥锁 `GetOrCreateCache(...)` 访问，会在“单 query + 多 worker”场景里引入明显锁竞争**。
+
+这类竞争的特点是：
+
+- 所有 worker 会高频访问同一批 matcher key
+- 命中后返回的对象通常很小，真正的 factory 构建成本不高
+- 因此互斥锁 / 哈希表访问成本会直接出现在热点路径中，并随着 worker 数增长而放大
+
+因此，matcher 热路径缓存的默认策略应进一步明确为：
+
+1. **边界仍然是 query-local**
+   - 结果只对当前 query 可见
+   - query 切换后应立即失效
+
+2. **实现优先使用 per-thread per-query fast path**
+   - 由当前 worker thread 持有 thread-local map
+   - 以 `QueryContext::Current()` 作为 query 边界
+   - 当绑定的 `QueryContext` 变化时清空 thread-local matcher cache
+
+3. **`QueryContext` 负责“定义边界”，不负责“承载每次热路径查表的共享锁”**
+   - `QueryContext` 继续管理 cancel / metrics / scheduler / snapshot 等 query 状态
+   - 但不应默认成为 matcher 热缓存的全局互斥注册表
+
+4. **只有确实值得共享的对象才升级为 query-shared / read-only shared**
+   - 需要具备明显构建成本
+   - 需要能够一次发布后长期只读复用
+   - 并且要证明共享后的锁成本低于重复构建/重复命中成本
+
+这条原则的目标不是回退到“线程生命周期缓存”，而是把缓存边界收敛为：**生命周期属于 query，快路径属于当前 worker**。
+
 ### 6.5 `findFirst` / cancel 统一原子化
 
 所有早停 / 取消语义都应统一接入 `QueryContext`：
@@ -415,10 +447,12 @@ bridge.setThreadNum(8)
 2. 调整 query 配额策略
 3. 评估小 query 优先 / `findFirst` 优先
 4. 降低 cache 初始化的大锁影响
+5. 审视 `QueryContext` / matcher 热路径中的锁与原子竞争
 
 **建议验收指标**
 
 - 无竞争单 query 回退 < 5%，理想情况下接近噪声级
+- 单 query 在同一 APK 上随 worker 增长不应出现系统性反向退化
 - 4 并发场景总吞吐有明确提升
 - 8 并发场景最坏耗时显著优于当前 unsynchronized 思路
 - 压测无 crash、无结果不一致
@@ -456,10 +490,7 @@ bridge.setThreadNum(8)
 
 - `doc/design/native-query-concurrency-progress.md`
 
-当前阶段可简记为：
-
-- **Phase 1 基本完成**
-- **Phase 2 进行中**
+当前阶段请始终以进度文档为准，不在本文重复维护。
 
 ## 11. 验收维度
 

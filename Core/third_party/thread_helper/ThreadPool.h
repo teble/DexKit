@@ -32,6 +32,7 @@
 #include <atomic>
 
 #include "ThreadVariable.h"
+#include "matcher_thread_cache_registry.h"
 
 class ThreadPool {
 public:
@@ -134,4 +135,5 @@ inline ThreadPool::~ThreadPool() {
     for (std::thread &worker: workers)
         worker.join();
     ThreadVariable::ClearThreadVariables(_thread_ids);
+    dexkit::ReleaseMatcherThreadLocalCaches(_thread_ids);
 }

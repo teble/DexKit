@@ -329,6 +329,9 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
      - opcode / using-fields / using-numbers 预处理结果
    - `dex_item_matcher.cpp` 中的 matcher 预处理缓存现已统一要求存在 `QueryContext`，不再回退到 `ThreadVariable`
    - 这意味着 matcher 临时缓存的生命周期边界已进一步收敛到 query 级别，而不再依赖 worker thread 级残留状态
+   - 但后续单 query 回退诊断也表明：**“query-local”不等于“必须走 `QueryContext` 共享 map”**
+   - 在“单 query + 多 worker”场景下，若热点 matcher cache 统一经由 `QueryContext` 共享 map + mutex 访问，会形成明显锁竞争
+   - 因而 matcher cache 的正式收敛方向已进一步调整为：`QueryContext` 负责提供 query 边界与线程绑定，实际热点 cache 优先采用 **per-thread per-query** fast path
 
 ### 4.2 Phase 2 已开始：执行模型抽象
 
@@ -454,6 +457,47 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - 这样可以保证 `QueryContext` / executor / scheduler 绑定对象不会在后台 task 尚未退出时提前析构
       - 与此同时，lazy opcode / using-string / using-number 的 `Ready + notify` 发布顺序也已收敛到同一条带锁下，避免并发 miss 时出现丢唤醒
 
+### 4.4 单 query 回退诊断 / matcher cache 收敛验证
+
+14. 已补齐一组更细的 query phase metrics，用于区分“预处理 / 提交 / worker 执行”三个阶段
+    - `first_task_start_delay_ns`
+    - `last_task_finish_delay_ns`
+    - `task_runtime_total_ns`
+    - `task_runtime_max_ns`
+    - `preprocess_completed_ns`
+    - `submission_completed_ns`
+    - `workers_completed_ns`
+    - `completed_ns`
+    - 这组指标当前已接到 native snapshot / JNI / JVM snapshot / 单测，用于后续对照“单 query 为什么会随着 worker 数升高而变慢”
+
+15. 基于上述指标，本轮做了一个**最小化 A/B 验证**
+    - 保持 `QueryContext`、scheduler、executor、早停协议与 metrics 原子逻辑不变
+    - 只把 `dex_item_matcher.cpp` 中的 matcher 热路径缓存从：
+      - `QueryContext::GetOrCreateCache(...)`（query-shared map + mutex）
+      - 切换为 `thread_local` 的 **per-thread per-query** cache
+    - 具体做法是：
+      - key 仍然是 `QueryCacheKey(scope, matcher-address)`
+      - fast path cache 挂在线程本地
+      - 当 `QueryContext::Current()` 变化时自动清空该线程上的 matcher cache
+    - 也就是说，这轮验证没有绕开新的并发框架，只是单独替换了 matcher cache 的共享方式
+
+16. 当前结论已经比较明确：**大幅回退的主因不是 `QueryContext` metrics 原子本身，而是 matcher 热路径上的共享 cache 锁竞争**
+    - 代表性本地结果（`BATCH_SIZE=1000`）：
+      - `nativeThreads=2`，10 次串行 query：约 `286 ms`
+      - `nativeThreads=2`，10 worker 并发各 1 次：约 `266 ms`
+      - `nativeThreads=32`，10 次串行 query：约 `70 ms`
+      - `nativeThreads=32`，10 worker 并发各 1 次：约 `60 ms`
+    - 与此前“串行 480~950 ms、并行 170 ms 左右”的巨大差距相比，A/B 后串行与并行差距已显著收敛
+    - 这说明先前出现的“单 query 线程越多越慢”，本质上更像是：
+      - 多个 worker 在同一 query 内高频争抢同一批 matcher cache key
+      - lock/mutex 成为热路径瓶颈
+      - worker 数越多，竞争越重，因此单 query 反而越慢
+    - 因而当前正式推荐的收敛方向是：
+      - matcher cache 的**生命周期边界**仍然属于 query
+      - 但 matcher cache 的**快路径所有权**应属于当前 worker/thread
+      - `QueryContext` 更适合作为 query 边界、取消协议、metrics、scheduler 绑定点，而不是 matcher 热缓存的共享互斥注册表
+    - 后续仍可继续观察 `ShouldStop()` 原子、metrics 原子、切片策略等次级成本，但它们不再是当前的首要矛盾
+
 ## 5. 当前限制
 
 - 外部 cancel 还没有正式暴露到 API
@@ -462,7 +506,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 - shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness，但还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
 - 当前 bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA
-- matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-local 收敛；后续主要是继续观察是否还有值得进一步抽象的临时容器
+- matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-boundary 收敛，并已额外验证出 `QueryContext` 共享 map 锁竞争是当前单 query 回退主因；但这套 **per-thread per-query** fast path 还需要进一步正式化，并清理/降级不再适合放在热路径上的共享 cache 注册接口
 - `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
 - 目前仍保留少量“单项元数据接口按需直读 dex code / annotation”的 fallback 路径；其中 opcode / using-string 已收敛为 per-method 稀疏懒缓存，annotation 访问器则仍保持纯按需直读，以避免单次元数据读取强制触发整类全量 warm-up
@@ -471,8 +515,9 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 6. 下一步建议实现顺序
 
-1. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
-2. 继续把 cancel / early-exit 协议统一到 `QueryContext`
-3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
-4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
-5. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验
+1. 将 matcher 热路径的 **per-thread per-query** cache 方案正式化，清理 `QueryContext::GetOrCreateCache()` 在 matcher 路径上的残留依赖，并先补齐对应 benchmark 回归
+2. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
+3. 继续把 cancel / early-exit 协议统一到 `QueryContext`
+4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
+5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
+6. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验

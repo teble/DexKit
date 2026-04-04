@@ -304,12 +304,13 @@ public:
     std::shared_ptr<T> GetOrCreateCache(uint8_t scope, std::uintptr_t key, Factory &&factory) {
         auto cache_key = QueryCacheKey{scope, key};
         std::lock_guard lock(cache_mutex_);
-        if (query_cache_.contains(cache_key)) {
-            auto &cached = query_cache_[cache_key];
+        auto it = query_cache_.find(cache_key);
+        if (it != query_cache_.end()) {
+            auto &cached = it->second;
             return std::shared_ptr<T>(cached, reinterpret_cast<T *>(cached.get()));
         }
         auto value = std::make_shared<T>(std::forward<Factory>(factory)());
-        query_cache_[cache_key] = value;
+        query_cache_.emplace(cache_key, value);
         return value;
     }
 

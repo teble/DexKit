@@ -19,7 +19,10 @@
 // <https://github.com/LuckyPray/DexKit/blob/master/LICENSE>.
 
 #include "dex_item.h"
+#include "matcher_thread_cache_registry.h"
 #include "utils/dex_descriptor_util.h"
+
+#include <mutex>
 
 namespace dexkit {
 
@@ -142,11 +145,133 @@ enum class MatcherCacheScope : uint8_t {
     UsingNumbers,
 };
 
+namespace {
+
+struct MatcherThreadLocalCacheSlot {
+    void *cache = nullptr;
+    void (*deleter)(void *) = nullptr;
+};
+
+std::mutex &GetMatcherThreadLocalCacheRegistryMutex() {
+    static std::mutex mutex;
+    return mutex;
+}
+
+phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> &GetMatcherThreadLocalCacheRegistry() {
+    static phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> registry;
+    return registry;
+}
+
+} // namespace
+
+struct MatcherThreadLocalQueryCache {
+    struct Entry {
+        QueryCacheKey key;
+        std::weak_ptr<void> value;
+    };
+
+    uint64_t query_id = 0;
+    std::vector<Entry> entries;
+
+    void Rebind(uint64_t current_query_id) {
+        if (query_id != current_query_id) {
+            entries.clear();
+            query_id = current_query_id;
+        }
+    }
+
+    [[nodiscard]] std::shared_ptr<void> Find(const QueryCacheKey &cache_key) {
+        for (auto it = entries.begin(); it != entries.end(); ++it) {
+            if (!(it->key == cache_key)) {
+                continue;
+            }
+            auto cached = it->value.lock();
+            if (cached) {
+                return cached;
+            }
+            *it = std::move(entries.back());
+            entries.pop_back();
+            return nullptr;
+        }
+        return nullptr;
+    }
+
+    void Put(const QueryCacheKey &cache_key, const std::shared_ptr<void> &value) {
+        for (auto &entry: entries) {
+            if (entry.key == cache_key) {
+                entry.value = value;
+                return;
+            }
+        }
+        entries.push_back(Entry{cache_key, value});
+    }
+};
+
+static MatcherThreadLocalQueryCache &GetMatcherThreadLocalQueryCache() {
+    thread_local MatcherThreadLocalQueryCache *cache = nullptr;
+    if (cache == nullptr) {
+        cache = new MatcherThreadLocalQueryCache();
+        RegisterMatcherThreadLocalCache(
+                std::this_thread::get_id(),
+                cache,
+                [](void *ptr) {
+                    delete reinterpret_cast<MatcherThreadLocalQueryCache *>(ptr);
+                }
+        );
+    }
+    return *cache;
+}
+
 template<typename T, typename Factory>
 static std::shared_ptr<T> GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &&factory) {
     auto *query_context = QueryContext::Current();
     DEXKIT_CHECK(query_context != nullptr);
-    return query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
+    auto &query_cache = GetMatcherThreadLocalQueryCache();
+    query_cache.Rebind(query_context->GetQueryId());
+
+    auto cache_key = QueryCacheKey{static_cast<uint8_t>(scope), key};
+    auto cached = query_cache.Find(cache_key);
+    if (cached) {
+        return std::shared_ptr<T>(cached, reinterpret_cast<T *>(cached.get()));
+    }
+
+    auto value = query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
+    query_cache.Put(cache_key, value);
+    return value;
+}
+
+void RegisterMatcherThreadLocalCache(
+        std::thread::id thread_id,
+        void *cache,
+        void (*deleter)(void *)
+) {
+    std::lock_guard lock(GetMatcherThreadLocalCacheRegistryMutex());
+    GetMatcherThreadLocalCacheRegistry()[thread_id] = MatcherThreadLocalCacheSlot{
+            .cache = cache,
+            .deleter = deleter,
+    };
+}
+
+void ReleaseMatcherThreadLocalCaches(const std::vector<std::thread::id> &thread_ids) {
+    std::vector<MatcherThreadLocalCacheSlot> slots;
+    {
+        std::lock_guard lock(GetMatcherThreadLocalCacheRegistryMutex());
+        auto &registry = GetMatcherThreadLocalCacheRegistry();
+        slots.reserve(thread_ids.size());
+        for (const auto &thread_id: thread_ids) {
+            auto it = registry.find(thread_id);
+            if (it == registry.end()) {
+                continue;
+            }
+            slots.push_back(it->second);
+            registry.erase(it);
+        }
+    }
+    for (const auto &slot: slots) {
+        if (slot.cache != nullptr && slot.deleter != nullptr) {
+            slot.deleter(slot.cache);
+        }
+    }
 }
 
 bool DexItem::IsStringMatched(std::string_view str, const schema::StringMatcher *matcher) {

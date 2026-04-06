@@ -596,6 +596,7 @@ class UnitTest {
             assert(metrics.maxInFlight > 0)
             assert(metrics.maxQueryShareCount > 0)
             assert(metrics.firstDispatchDelayNs >= 0)
+            assert(metrics.firstBonusDispatchDelayNs == -1L)
             assert(metrics.firstTaskStartDelayNs >= 0)
             assert(metrics.lastTaskFinishDelayNs >= metrics.firstTaskStartDelayNs)
             assert(metrics.taskRuntimeTotalNs >= metrics.taskRuntimeMaxNs)
@@ -635,6 +636,7 @@ class UnitTest {
                             assert(metrics.completedTasks == metrics.submittedTasks)
                             assert(metrics.baseDispatchedTasks + metrics.bonusDispatchedTasks == metrics.dispatchedTasks)
                             assert(metrics.maxInFlight > 0)
+                            assert(metrics.firstBonusDispatchDelayNs == -1L)
                             assert(metrics.firstTaskStartDelayNs >= 0)
                             assert(metrics.lastTaskFinishDelayNs >= metrics.firstTaskStartDelayNs)
                             assert(metrics.taskRuntimeTotalNs >= metrics.taskRuntimeMaxNs)
@@ -757,8 +759,82 @@ class UnitTest {
 
             assert(normal.metrics.baseDispatchedTasks > 0)
             assert(normal.metrics.bonusDispatchedTasks == 0L)
+            assert(normal.metrics.firstBonusDispatchDelayNs == -1L)
             assert(latencySensitive.metrics.baseDispatchedTasks > 0)
             assert(latencySensitive.metrics.bonusDispatchedTasks > 0)
+            assert(latencySensitive.metrics.firstBonusDispatchDelayNs >= latencySensitive.metrics.firstDispatchDelayNs)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testLatencySensitiveBonusDispatchStartsAfterNormalBaseDispatch() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+            parallelBridge.resetQueryMetricsHistory()
+            parallelBridge.resetSchedulerMetrics()
+
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(2)
+            try {
+                val futures = listOf(
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        val result = parallelBridge.findMethod {
+                            excludePackages("org.luckypray.dexkit.demo.hook")
+                            matcher {
+                                usingNumbers(114514)
+                            }
+                        }
+                        assert(result.size == 2)
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        val result = parallelBridge.findMethod {
+                            findFirst = true
+                            excludePackages("org.luckypray.dexkit.demo.hook")
+                            matcher {
+                                usingNumbers(114514)
+                            }
+                        }
+                        assert(result.size == 1)
+                    }
+                )
+                start.countDown()
+
+                var observedContention = false
+                repeat(200) {
+                    if (parallelBridge.getSchedulerMetricsSnapshot().maxVisibleQueryShareCount >= 2L) {
+                        observedContention = true
+                        return@repeat
+                    }
+                    Thread.sleep(10)
+                }
+                assert(observedContention)
+
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+
+            val history = parallelBridge.getQueryMetricsHistorySnapshot()
+            println(history)
+            assert(history.records.size == 2)
+
+            val recordsByPriority = history.records.associateBy { it.priority }
+            val normal = recordsByPriority[QueryMetricsPriority.NORMAL]
+                ?: error("Missing normal query metrics record")
+            val latencySensitive = recordsByPriority[QueryMetricsPriority.LATENCY_SENSITIVE]
+                ?: error("Missing latency-sensitive query metrics record")
+
+            assert(normal.metrics.firstDispatchDelayNs >= 0)
+            assert(normal.metrics.firstBonusDispatchDelayNs == -1L)
+            assert(latencySensitive.metrics.firstDispatchDelayNs >= 0)
+            assert(latencySensitive.metrics.firstBonusDispatchDelayNs >= latencySensitive.metrics.firstDispatchDelayNs)
+            assert(latencySensitive.metrics.firstBonusDispatchDelayNs >= normal.metrics.firstDispatchDelayNs)
         }
     }
 
@@ -830,6 +906,93 @@ class UnitTest {
             val latencySensitive = latencySensitiveRecords.single()
             assert(latencySensitive.metrics.baseDispatchedTasks > 0)
             assert(latencySensitive.metrics.bonusDispatchedTasks > 0)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testSharedSchedulerAdmissionOrderWithConcurrentCap() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(1)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(1)
+            parallelBridge.setQueryMetricsEnabled(true)
+            parallelBridge.resetQueryMetricsHistory()
+            parallelBridge.resetSchedulerMetrics()
+
+            val startFirst = CountDownLatch(1)
+            val startSecond = CountDownLatch(1)
+            val startThird = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(3)
+            try {
+                val first = executor.submit<Unit> {
+                    startFirst.await(10, TimeUnit.SECONDS)
+                    val result = parallelBridge.findClass {
+                        matcher {
+                            superClass("androidx.appcompat.app.AppCompatActivity")
+                        }
+                    }
+                    assert(result.size == 2)
+                }
+                val second = executor.submit<Unit> {
+                    startSecond.await(10, TimeUnit.SECONDS)
+                    val result = parallelBridge.findMethod {
+                        excludePackages("org.luckypray.dexkit.demo.hook")
+                        matcher {
+                            usingNumbers(114514)
+                        }
+                    }
+                    assert(result.size == 2)
+                }
+                val third = executor.submit<Unit> {
+                    startThird.await(10, TimeUnit.SECONDS)
+                    val result = parallelBridge.findMethod {
+                        findFirst = true
+                        excludePackages("org.luckypray.dexkit.demo.hook")
+                        matcher {
+                            usingNumbers(114514)
+                        }
+                    }
+                    assert(result.size == 1)
+                }
+
+                startFirst.countDown()
+                var observedFirstDispatch = false
+                repeat(200) {
+                    if (parallelBridge.getSchedulerMetricsSnapshot().dispatchedTasks > 0L) {
+                        observedFirstDispatch = true
+                        return@repeat
+                    }
+                    Thread.sleep(10)
+                }
+                assert(observedFirstDispatch)
+
+                startSecond.countDown()
+                Thread.sleep(20)
+                startThird.countDown()
+
+                first.get(60, TimeUnit.SECONDS)
+                second.get(60, TimeUnit.SECONDS)
+                third.get(60, TimeUnit.SECONDS)
+            } finally {
+                executor.shutdownNow()
+            }
+
+            val history = parallelBridge.getQueryMetricsHistorySnapshot()
+            println(history)
+            assert(history.records.size == 3)
+
+            val firstRecord = history.records[0]
+            assert(firstRecord.kind == QueryMetricsKind.FIND_CLASS)
+            assert(firstRecord.priority == QueryMetricsPriority.NORMAL)
+
+            val secondRecord = history.records[1]
+            assert(secondRecord.kind == QueryMetricsKind.FIND_METHOD)
+            assert(secondRecord.priority == QueryMetricsPriority.NORMAL)
+
+            val thirdRecord = history.records[2]
+            assert(thirdRecord.kind == QueryMetricsKind.FIND_METHOD)
+            assert(thirdRecord.priority == QueryMetricsPriority.LATENCY_SENSITIVE)
         }
     }
 

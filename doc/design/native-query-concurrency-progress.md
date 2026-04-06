@@ -352,6 +352,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
     - `setThreadNum()` 现在会重置共享池引用，后续 query 再按新的线程数懒创建
     - JVM 侧已新增实验 API：`DexKitBridge.setSchedulerMode(SchedulerMode)`
     - shared-pool 模式下已新增基础 admission cap：`DexKitBridge.setMaxConcurrentQueries(...)`
+    - 在 admission cap 基础上，本轮继续把“谁先获得 active query 名额”的语义收敛为 **FIFO admission queue**
+      - 共享池 + `maxConcurrentQueries` 命中上限时，不再只是多个等待 query 被 `notify_all()` 唤醒后竞争锁
+      - `EnterQueryExecution(...)` 现在会给等待中的 shared-pool query 分配 ticket，并按 ticket 顺序依次放行
+      - 这让 admission cap 自身也开始具备可预期的公平性，而不是只在进入 scheduler 之后才讨论公平调度
     - benchmark 已可通过 `DEXKIT_BENCH_SCHEDULER_MODE='SharedPool'` 与 `DEXKIT_BENCH_MAX_CONCURRENT_QUERIES` 直接压测 shared-pool 骨架
     - shared-pool 已开始从“共享 worker 池”收敛到“最小版 QueryScheduler 骨架”
       - 每个 query 拥有自己的 pending task 队列
@@ -379,9 +383,13 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - 同时 runnable queue 的“谁先排队”也进一步收敛为统一的 dispatch-age 顺序：不只 refill / rebuild，连 query 运行中途重新变为 runnable 的增量入队，也会按“更久未拿到对应 phase 份额者优先”插回队列
     - 同时已补上第一版 **native 内部 metrics 骨架**（暂不暴露公开 API）：
       - `QueryContext` 现已开始记录：`dispatched_tasks` / `base_dispatched_tasks` / `bonus_dispatched_tasks`
-      - 以及 `first_dispatch_delay_ns` / `max_in_flight` / `max_query_share_count`
+      - 以及 `first_dispatch_delay_ns` / `first_bonus_dispatch_delay_ns` / `max_in_flight` / `max_query_share_count`
       - `QueryScheduler` 现已开始记录：share-count sync/change、budget rebalance、queue rebuild、refill 次数、dispatch/base/bonus 次数、`max_total_in_flight`
       - 这些指标当前主要用于后续 benchmark / 调度回归前的内部观测准备
+    - 在 two-phase fairness 的基础上，本轮又把 scheduler 内部预算语义整理成了更明确的 **dispatch round policy**
+      - round policy 显式区分：`visible_query_share_count` / `query_in_flight_limit` / `base_dispatch_budget_cap`
+      - latency-sensitive 倾斜不再散落在多处分支判断里，而是统一表现为“base phase 之后可选 bonus phase”
+      - 这样后续若继续推进 starvation guard / priority SLA，会更容易在同一套 policy 结构上扩展
     - 在内部 metrics 骨架基础上，本轮进一步补上了 **scheduler snapshot 调试出口**
       - native：`DexKit::GetQuerySchedulerMetricsSnapshot()`
       - JVM：`DexKitBridge.getSchedulerMetricsSnapshot()`
@@ -511,6 +519,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 - 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；但仍缺少更通用的流式导出与 buffer 容量配置
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
 - shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness；并进一步收敛为**priority 只影响 bonus phase，base phase 对所有可见 query 一视同仁**，但还没有明确的 query budget、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
+- `maxConcurrentQueries` 这层 admission cap 已经从“竞争锁抢名额”收敛为 FIFO wait queue，但它仍然只是**谁先进入 active set** 的公平性；还没有和 scheduler 内部 budget/fairness 形成统一的端到端 SLA
 - 当前调度器在 refill / queue rebuild 以及运行中途的增量 runnable 入队时，都已经开始按“**更久未拿到对应 dispatch phase 份额的 query 优先**”排序 runnable 队列，避免 `unordered_map` 迭代顺序或事件到达顺序把公平性变成偶然结果
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
 - 当前 priority 语义仍然比较保守：bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA

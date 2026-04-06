@@ -120,6 +120,8 @@ private:
     uint32_t active_query_count = 0;
     uint32_t pending_warmup_flags = 0;
     bool warmup_inflight = false;
+    uint64_t next_shared_pool_admission_ticket_ = 1;
+    std::deque<uint64_t> shared_pool_admission_wait_queue_;
     std::atomic<uint32_t> dex_cnt = 0;
     std::atomic<uint32_t> _thread_num = std::thread::hardware_concurrency();
     std::atomic<QueryExecutorMode> query_executor_mode_ = QueryExecutorMode::LegacyPerQuery;

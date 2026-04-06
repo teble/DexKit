@@ -369,7 +369,7 @@ DEXKIT_JNI jlongArray
 Java_org_luckypray_dexkit_DexKitBridge_nativeGetLastQueryMetrics(JNIEnv *env, jclass clazz,
                                                                  jlong native_ptr
 ) {
-    constexpr jsize kQueryMetricCount = 16;
+    constexpr jsize kQueryMetricCount = 17;
     jlong values[kQueryMetricCount] = {};
     if (native_ptr) {
         auto snapshot = dexkit::DexKit::GetLastQueryMetricsSnapshot();
@@ -381,14 +381,15 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeGetLastQueryMetrics(JNIEnv *env, jc
         values[5] = static_cast<jlong>(snapshot.max_in_flight);
         values[6] = static_cast<jlong>(snapshot.max_query_share_count);
         values[7] = static_cast<jlong>(snapshot.first_dispatch_delay_ns);
-        values[8] = static_cast<jlong>(snapshot.first_task_start_delay_ns);
-        values[9] = static_cast<jlong>(snapshot.last_task_finish_delay_ns);
-        values[10] = static_cast<jlong>(snapshot.task_runtime_total_ns);
-        values[11] = static_cast<jlong>(snapshot.task_runtime_max_ns);
-        values[12] = static_cast<jlong>(snapshot.preprocess_completed_ns);
-        values[13] = static_cast<jlong>(snapshot.submission_completed_ns);
-        values[14] = static_cast<jlong>(snapshot.workers_completed_ns);
-        values[15] = static_cast<jlong>(snapshot.completed_ns);
+        values[8] = static_cast<jlong>(snapshot.first_bonus_dispatch_delay_ns);
+        values[9] = static_cast<jlong>(snapshot.first_task_start_delay_ns);
+        values[10] = static_cast<jlong>(snapshot.last_task_finish_delay_ns);
+        values[11] = static_cast<jlong>(snapshot.task_runtime_total_ns);
+        values[12] = static_cast<jlong>(snapshot.task_runtime_max_ns);
+        values[13] = static_cast<jlong>(snapshot.preprocess_completed_ns);
+        values[14] = static_cast<jlong>(snapshot.submission_completed_ns);
+        values[15] = static_cast<jlong>(snapshot.workers_completed_ns);
+        values[16] = static_cast<jlong>(snapshot.completed_ns);
     }
     auto ret = env->NewLongArray(kQueryMetricCount);
     if (ret != nullptr) {
@@ -401,7 +402,7 @@ DEXKIT_JNI jlongArray
 Java_org_luckypray_dexkit_DexKitBridge_nativeGetQueryMetricsHistory(JNIEnv *env, jclass clazz,
                                                                     jlong native_ptr
 ) {
-    constexpr jsize kQueryMetricCount = 16;
+    constexpr jsize kQueryMetricCount = 17;
     constexpr jsize kQueryMetricsHistoryHeaderSize = 2;
     constexpr jsize kQueryMetricsHistoryRecordStride = 2 + kQueryMetricCount;
 
@@ -425,6 +426,7 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeGetQueryMetricsHistory(JNIEnv *env,
             values[offset++] = static_cast<jlong>(record.metrics.max_in_flight);
             values[offset++] = static_cast<jlong>(record.metrics.max_query_share_count);
             values[offset++] = static_cast<jlong>(record.metrics.first_dispatch_delay_ns);
+            values[offset++] = static_cast<jlong>(record.metrics.first_bonus_dispatch_delay_ns);
             values[offset++] = static_cast<jlong>(record.metrics.first_task_start_delay_ns);
             values[offset++] = static_cast<jlong>(record.metrics.last_task_finish_delay_ns);
             values[offset++] = static_cast<jlong>(record.metrics.task_runtime_total_ns);

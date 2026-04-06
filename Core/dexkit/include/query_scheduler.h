@@ -184,6 +184,13 @@ private:
         std::function<void()> task;
     };
 
+    struct DispatchRoundPolicy {
+        size_t visible_query_share_count = 1;
+        size_t query_in_flight_limit = 1;
+        size_t base_dispatch_budget_cap = 1;
+        bool latency_sensitive_bonus_phase_enabled = false;
+    };
+
     using QuerySlotMap = std::unordered_map<uint64_t, QuerySlot>;
 
     class TaskCompletionGuard {
@@ -207,6 +214,23 @@ private:
 
     [[nodiscard]] size_t QueryInFlightLimitForActiveQueryCount(size_t active_query_count) const {
         return std::max<size_t>(1, (worker_count_ + active_query_count - 1) / active_query_count);
+    }
+
+    [[nodiscard]] DispatchRoundPolicy ComputeDispatchRoundPolicy(size_t visible_query_share_count) const {
+        DispatchRoundPolicy policy;
+        policy.visible_query_share_count = std::max<size_t>(1, visible_query_share_count);
+        policy.query_in_flight_limit = QueryInFlightLimitForActiveQueryCount(policy.visible_query_share_count);
+        if (policy.visible_query_share_count <= 1) {
+            policy.base_dispatch_budget_cap = worker_count_;
+            return policy;
+        }
+
+        // Base phase: every visible query first receives an equal share based on
+        // the current in-flight cap. Bonus phase: latency-sensitive queries may
+        // receive one extra share only after the common base phase is exhausted.
+        policy.base_dispatch_budget_cap = policy.query_in_flight_limit;
+        policy.latency_sensitive_bonus_phase_enabled = policy.base_dispatch_budget_cap < worker_count_;
+        return policy;
     }
 
     [[nodiscard]] size_t VisibleQueryShareCountLocked() const {
@@ -260,36 +284,31 @@ private:
         );
     }
 
-    [[nodiscard]] std::pair<size_t, size_t> ComputeDispatchBudgetCapsLocked(const QuerySlot &slot, size_t query_share_count) const {
-        if (query_share_count <= 1) {
-            return {worker_count_, 0};
+    [[nodiscard]] size_t BonusDispatchBudgetCap(const QuerySlot &slot, const DispatchRoundPolicy &policy) const {
+        if (!policy.latency_sensitive_bonus_phase_enabled) {
+            return 0;
         }
-
-        auto base_budget = QueryInFlightLimitForActiveQueryCount(query_share_count);
-        // Priority only affects the bonus phase. All visible queries first
-        // compete in the same base round, then latency-sensitive queries may
-        // receive one extra dispatch share if workers are still available.
-        auto bonus_budget = static_cast<size_t>(slot.priority == QueryPriority::LatencySensitive && base_budget < worker_count_);
-        return {base_budget, bonus_budget};
+        return static_cast<size_t>(slot.priority == QueryPriority::LatencySensitive);
     }
 
     void AssignDispatchBudgetsLocked(QuerySlot &slot, size_t query_share_count) {
-        auto [base_budget, bonus_budget] = ComputeDispatchBudgetCapsLocked(slot, query_share_count);
-        slot.base_dispatch_budget = base_budget;
-        slot.bonus_dispatch_budget = bonus_budget;
+        auto policy = ComputeDispatchRoundPolicy(query_share_count);
+        slot.base_dispatch_budget = policy.base_dispatch_budget_cap;
+        slot.bonus_dispatch_budget = BonusDispatchBudgetCap(slot, policy);
     }
 
     void RebalanceDispatchBudgetsLocked(size_t query_share_count) {
         ++metrics_.budget_rebalances;
+        auto policy = ComputeDispatchRoundPolicy(query_share_count);
         for (auto &[query_id, slot]: query_slots_) {
             (void) query_id;
             if (!slot.activated) {
                 continue;
             }
-            auto [max_base_budget, max_bonus_budget] = ComputeDispatchBudgetCapsLocked(slot, query_share_count);
-            if (slot.base_dispatch_budget > max_base_budget) {
-                slot.base_dispatch_budget = max_base_budget;
+            if (slot.base_dispatch_budget > policy.base_dispatch_budget_cap) {
+                slot.base_dispatch_budget = policy.base_dispatch_budget_cap;
             }
+            auto max_bonus_budget = BonusDispatchBudgetCap(slot, policy);
             if (slot.bonus_dispatch_budget > max_bonus_budget) {
                 slot.bonus_dispatch_budget = max_bonus_budget;
             }
@@ -323,7 +342,7 @@ private:
     }
 
     [[nodiscard]] size_t QueryInFlightLimitLocked() const {
-        return QueryInFlightLimitForActiveQueryCount(QueryShareCountLocked());
+        return ComputeDispatchRoundPolicy(QueryShareCountLocked()).query_in_flight_limit;
     }
 
     [[nodiscard]] bool HasRunnableQueriesLocked() const {
@@ -418,7 +437,8 @@ private:
     bool RefillDispatchBudgetsLocked() {
         ++metrics_.refill_rounds;
         auto query_share_count = SyncQueryShareCountLocked();
-        auto query_in_flight_limit = QueryInFlightLimitForActiveQueryCount(query_share_count);
+        auto policy = ComputeDispatchRoundPolicy(query_share_count);
+        auto query_in_flight_limit = policy.query_in_flight_limit;
 
         for (auto &[query_id, slot]: query_slots_) {
             (void) query_id;
@@ -432,7 +452,8 @@ private:
                 continue;
             }
             if (slot.TotalDispatchBudget() == 0) {
-                AssignDispatchBudgetsLocked(slot, query_share_count);
+                slot.base_dispatch_budget = policy.base_dispatch_budget_cap;
+                slot.bonus_dispatch_budget = BonusDispatchBudgetCap(slot, policy);
             }
         }
 

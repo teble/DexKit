@@ -147,10 +147,35 @@ Error DexKit::InitFullCache() {
 
 DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
     std::unique_lock lock(query_execution_mutex);
+    uint64_t shared_pool_admission_ticket = 0;
     auto track_warmup_request = [this, required_flags]() {
         if (required_flags != 0) {
             pending_warmup_flags |= required_flags;
         }
+    };
+    auto enqueue_shared_pool_admission_ticket = [this, &shared_pool_admission_ticket]() {
+        if (shared_pool_admission_ticket != 0) {
+            return;
+        }
+        shared_pool_admission_ticket = next_shared_pool_admission_ticket_++;
+        shared_pool_admission_wait_queue_.push_back(shared_pool_admission_ticket);
+    };
+    auto dequeue_shared_pool_admission_ticket = [this, &shared_pool_admission_ticket]() {
+        if (shared_pool_admission_ticket == 0) {
+            return false;
+        }
+        auto it = std::find(
+                shared_pool_admission_wait_queue_.begin(),
+                shared_pool_admission_wait_queue_.end(),
+                shared_pool_admission_ticket
+        );
+        if (it == shared_pool_admission_wait_queue_.end()) {
+            shared_pool_admission_ticket = 0;
+            return false;
+        }
+        shared_pool_admission_wait_queue_.erase(it);
+        shared_pool_admission_ticket = 0;
+        return true;
     };
 
     if (NeedWarmUp(required_flags)) {
@@ -194,24 +219,49 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
 
         auto query_executor_mode = query_executor_mode_.load(std::memory_order_acquire);
         auto max_concurrent_queries = max_concurrent_queries_.load(std::memory_order_acquire);
-        if (query_executor_mode == QueryExecutorMode::SharedPool &&
-            max_concurrent_queries > 0 &&
-            active_query_count >= max_concurrent_queries) {
-            query_execution_cv.wait(lock, [this, max_concurrent_queries] {
-                return warmup_inflight ||
-                       pending_warmup_flags != 0 ||
-                       active_query_count < max_concurrent_queries ||
-                       query_executor_mode_.load(std::memory_order_acquire) != QueryExecutorMode::SharedPool ||
-                       max_concurrent_queries_.load(std::memory_order_acquire) != max_concurrent_queries;
-            });
-            if (NeedWarmUp(required_flags)) {
-                track_warmup_request();
+        auto shared_pool_admission_enabled = query_executor_mode == QueryExecutorMode::SharedPool &&
+                                             max_concurrent_queries > 0;
+        if (!shared_pool_admission_enabled) {
+            if (dequeue_shared_pool_admission_ticket()) {
+                query_execution_cv.notify_all();
             }
-            continue;
+        } else if (shared_pool_admission_ticket != 0 ||
+                   active_query_count >= max_concurrent_queries ||
+                   !shared_pool_admission_wait_queue_.empty()) {
+            enqueue_shared_pool_admission_ticket();
+            auto is_ticket_turn = !shared_pool_admission_wait_queue_.empty() &&
+                                  shared_pool_admission_wait_queue_.front() == shared_pool_admission_ticket;
+            if (active_query_count >= max_concurrent_queries || !is_ticket_turn) {
+                auto admission_ticket = shared_pool_admission_ticket;
+                query_execution_cv.wait(lock, [this, max_concurrent_queries, admission_ticket] {
+                    auto current_query_executor_mode = query_executor_mode_.load(std::memory_order_acquire);
+                    auto current_max_concurrent_queries = max_concurrent_queries_.load(std::memory_order_acquire);
+                    auto is_ticket_turn = !shared_pool_admission_wait_queue_.empty() &&
+                                          shared_pool_admission_wait_queue_.front() == admission_ticket;
+                    auto ticket_can_enter = is_ticket_turn &&
+                                            active_query_count < current_max_concurrent_queries;
+                    return warmup_inflight ||
+                           pending_warmup_flags != 0 ||
+                           current_query_executor_mode != QueryExecutorMode::SharedPool ||
+                           current_max_concurrent_queries != max_concurrent_queries ||
+                           ticket_can_enter;
+                });
+                if (NeedWarmUp(required_flags)) {
+                    track_warmup_request();
+                }
+                continue;
+            }
         }
 
         if (!NeedWarmUp(required_flags)) {
             ++active_query_count;
+            if (shared_pool_admission_ticket != 0) {
+                DEXKIT_CHECK(!shared_pool_admission_wait_queue_.empty());
+                DEXKIT_CHECK(shared_pool_admission_wait_queue_.front() == shared_pool_admission_ticket);
+                shared_pool_admission_wait_queue_.pop_front();
+                shared_pool_admission_ticket = 0;
+                query_execution_cv.notify_all();
+            }
             return QueryExecutionGuard(this);
         }
 

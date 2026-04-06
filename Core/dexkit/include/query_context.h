@@ -56,6 +56,7 @@ struct QueryMetrics {
     std::atomic<uint32_t> max_in_flight = 0;
     std::atomic<uint32_t> max_query_share_count = 0;
     std::atomic<int64_t> first_dispatch_delay_ns = -1;
+    std::atomic<int64_t> first_bonus_dispatch_delay_ns = -1;
     std::atomic<int64_t> first_task_start_delay_ns = -1;
     std::atomic<int64_t> last_task_finish_delay_ns = -1;
     std::atomic<int64_t> task_runtime_total_ns = 0;
@@ -75,6 +76,7 @@ struct QueryMetricsSnapshot {
     uint32_t max_in_flight = 0;
     uint32_t max_query_share_count = 0;
     int64_t first_dispatch_delay_ns = -1;
+    int64_t first_bonus_dispatch_delay_ns = -1;
     int64_t first_task_start_delay_ns = -1;
     int64_t last_task_finish_delay_ns = -1;
     int64_t task_runtime_total_ns = 0;
@@ -271,6 +273,9 @@ public:
                 std::memory_order_acq_rel,
                 std::memory_order_relaxed
         );
+        if (used_bonus_dispatch) {
+            StoreTimestampIfUnset(metrics_.first_bonus_dispatch_delay_ns, first_dispatch_delay_ns);
+        }
     }
 
     [[nodiscard]] const QueryMetrics &GetMetrics() const {
@@ -290,6 +295,7 @@ public:
         snapshot.max_in_flight = metrics_.max_in_flight.load(std::memory_order_relaxed);
         snapshot.max_query_share_count = metrics_.max_query_share_count.load(std::memory_order_relaxed);
         snapshot.first_dispatch_delay_ns = metrics_.first_dispatch_delay_ns.load(std::memory_order_relaxed);
+        snapshot.first_bonus_dispatch_delay_ns = metrics_.first_bonus_dispatch_delay_ns.load(std::memory_order_relaxed);
         snapshot.first_task_start_delay_ns = metrics_.first_task_start_delay_ns.load(std::memory_order_relaxed);
         snapshot.last_task_finish_delay_ns = metrics_.last_task_finish_delay_ns.load(std::memory_order_relaxed);
         snapshot.task_runtime_total_ns = metrics_.task_runtime_total_ns.load(std::memory_order_relaxed);

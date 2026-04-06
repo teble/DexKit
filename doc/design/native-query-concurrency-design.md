@@ -336,6 +336,7 @@ bridge.setThreadNum(8)
 
 - `threadNum`：实例总 worker 数
 - `maxConcurrentQueries`：同一实例内同时活跃 query 上限
+  - 当达到上限时，新的 shared-pool query 应按 admission queue / FIFO 顺序进入 active set，而不是被 `notify_all()` 后无序竞争
 - `SchedulerMode`：串行保护 / 共享调度模式
 
 ## 9. 推进计划（执行版）
@@ -426,6 +427,7 @@ bridge.setThreadNum(8)
 
 1. 引入 `QueryScheduler`
 2. 支持入队、配额、公平调度
+   - 至少先把当前调度语义收敛为“所有可见 query 共享 base phase，latency-sensitive query 仅在 bonus phase 获得额外份额”
 3. 支持 `findFirst` 与内部早停协作
 4. 输出调度指标
 

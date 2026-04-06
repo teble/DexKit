@@ -572,76 +572,6 @@ class UnitTest {
 
     @OptIn(DexKitExperimentalApi::class)
     @Test
-    fun testCancelActiveQueriesWithoutRunningQuery() {
-        DexKitBridge.create(demoApkPath).use { parallelBridge ->
-            parallelBridge.setThreadNum(1)
-            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
-            parallelBridge.setMaxConcurrentQueries(1)
-            assert(parallelBridge.cancelActiveQueries() == 0)
-        }
-    }
-
-    @OptIn(DexKitExperimentalApi::class)
-    @Test
-    fun testCancelActiveFindMethodOnSharedScheduler() {
-        DexKitBridge.create(demoApkPath).use { parallelBridge ->
-            parallelBridge.setThreadNum(1)
-            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
-            parallelBridge.setMaxConcurrentQueries(1)
-            parallelBridge.setQueryMetricsEnabled(true)
-
-            var observedCancelledQuery = false
-            for (attempt in 0 until 5) {
-                parallelBridge.resetQueryMetricsHistory()
-                val start = CountDownLatch(1)
-                val executor = Executors.newSingleThreadExecutor()
-                val resultSize = AtomicReference(-1)
-                var cancelledCount = 0
-                try {
-                    val future = executor.submit<Unit> {
-                        start.await(10, TimeUnit.SECONDS)
-                        val result = parallelBridge.findMethod {
-                            excludePackages("org.luckypray.dexkit.demo.hook")
-                            matcher {
-                                usingNumbers(114514)
-                            }
-                        }
-                        resultSize.set(result.size)
-                    }
-                    start.countDown()
-                    repeat(200) {
-                        if (future.isDone) return@repeat
-                        cancelledCount = maxOf(cancelledCount, parallelBridge.cancelActiveQueries())
-                        if (cancelledCount > 0) {
-                            Thread.sleep(1)
-                            return@repeat
-                        }
-                        Thread.sleep(1)
-                    }
-                    future.get(60, TimeUnit.SECONDS)
-                } finally {
-                    executor.shutdownNow()
-                }
-
-                val history = parallelBridge.getQueryMetricsHistorySnapshot()
-                assert(history.records.size == 1)
-                val metrics = history.records.single().metrics
-                if (cancelledCount > 0 &&
-                    metrics.submittedTasks > 0 &&
-                    metrics.completedTasks < metrics.submittedTasks
-                ) {
-                    assert(resultSize.get() in 0..2)
-                    observedCancelledQuery = true
-                    break
-                }
-            }
-
-            assert(observedCancelledQuery)
-        }
-    }
-
-    @OptIn(DexKitExperimentalApi::class)
-    @Test
     fun testLastQueryMetricsSnapshotOnSharedScheduler() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)
@@ -827,6 +757,77 @@ class UnitTest {
 
             assert(normal.metrics.baseDispatchedTasks > 0)
             assert(normal.metrics.bonusDispatchedTasks == 0L)
+            assert(latencySensitive.metrics.baseDispatchedTasks > 0)
+            assert(latencySensitive.metrics.bonusDispatchedTasks > 0)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testThreeWayConcurrentQueryHistoryOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(3)
+            parallelBridge.setQueryMetricsEnabled(true)
+            parallelBridge.resetQueryMetricsHistory()
+
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(3)
+            try {
+                val futures = listOf(
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        val result = parallelBridge.findMethod {
+                            excludePackages("org.luckypray.dexkit.demo.hook")
+                            matcher {
+                                usingNumbers(114514)
+                            }
+                        }
+                        assert(result.size == 2)
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        val result = parallelBridge.findMethod {
+                            excludePackages("org.luckypray.dexkit.demo.hook")
+                            matcher {
+                                usingNumbers(114514)
+                            }
+                        }
+                        assert(result.size == 2)
+                    },
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        val result = parallelBridge.findMethod {
+                            findFirst = true
+                            excludePackages("org.luckypray.dexkit.demo.hook")
+                            matcher {
+                                usingNumbers(114514)
+                            }
+                        }
+                        assert(result.size == 1)
+                    }
+                )
+                start.countDown()
+                futures.forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+
+            val history = parallelBridge.getQueryMetricsHistorySnapshot()
+            println(history)
+            assert(history.records.size == 3)
+
+            val normalRecords = history.records.filter { it.priority == QueryMetricsPriority.NORMAL }
+            val latencySensitiveRecords = history.records.filter { it.priority == QueryMetricsPriority.LATENCY_SENSITIVE }
+
+            assert(normalRecords.size == 2)
+            assert(latencySensitiveRecords.size == 1)
+            normalRecords.forEach { record ->
+                assert(record.metrics.baseDispatchedTasks > 0)
+                assert(record.metrics.bonusDispatchedTasks == 0L)
+            }
+            val latencySensitive = latencySensitiveRecords.single()
             assert(latencySensitive.metrics.baseDispatchedTasks > 0)
             assert(latencySensitive.metrics.bonusDispatchedTasks > 0)
         }

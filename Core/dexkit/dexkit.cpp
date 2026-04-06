@@ -60,9 +60,6 @@ static void PublishLastQueryMetrics(const QueryContext &query_context) {
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
-        if (query_id_ != 0) {
-            owner_->UnregisterActiveQueryContext(query_id_);
-        }
     }
 }
 
@@ -109,17 +106,6 @@ void DexKit::SetQueryMetricsEnabled(bool enabled) {
     }
 }
 
-uint32_t DexKit::CancelActiveQueries() {
-    std::lock_guard lock(active_query_contexts_mutex);
-    for (auto &[query_id, query_context]: active_query_contexts_) {
-        (void) query_id;
-        if (query_context != nullptr) {
-            query_context->Cancel();
-        }
-    }
-    return static_cast<uint32_t>(active_query_contexts_.size());
-}
-
 QuerySchedulerMetricsSnapshot DexKit::GetQuerySchedulerMetricsSnapshot() const {
     std::lock_guard lock(query_executor_mutex);
     if (!shared_query_scheduler_) {
@@ -159,7 +145,7 @@ Error DexKit::InitFullCache() {
     return Error::SUCCESS;
 }
 
-DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags, QueryContext *query_context) {
+DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
     std::unique_lock lock(query_execution_mutex);
     auto track_warmup_request = [this, required_flags]() {
         if (required_flags != 0) {
@@ -226,10 +212,6 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags,
 
         if (!NeedWarmUp(required_flags)) {
             ++active_query_count;
-            if (query_context != nullptr) {
-                RegisterActiveQueryContext(*query_context);
-                return QueryExecutionGuard(this, query_context->GetQueryId());
-            }
             return QueryExecutionGuard(this);
         }
 
@@ -242,16 +224,6 @@ void DexKit::LeaveQueryExecution() {
     DEXKIT_CHECK(active_query_count > 0);
     --active_query_count;
     query_execution_cv.notify_all();
-}
-
-void DexKit::RegisterActiveQueryContext(QueryContext &query_context) {
-    std::lock_guard lock(active_query_contexts_mutex);
-    active_query_contexts_[query_context.GetQueryId()] = &query_context;
-}
-
-void DexKit::UnregisterActiveQueryContext(uint64_t query_id) {
-    std::lock_guard lock(active_query_contexts_mutex);
-    active_query_contexts_.erase(query_id);
 }
 
 bool DexKit::NeedWarmUp(uint32_t init_flags) const {
@@ -304,9 +276,12 @@ void DexKit::RecordQueryMetrics(const QueryContext &query_context) {
 
 std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_context) const {
     auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
-    auto should_skip_task = [&query_context]() {
-        return query_context.ShouldStop();
-    };
+    std::function<bool()> should_skip_task;
+    if (query_context.IsEarlyExitEnabled()) {
+        should_skip_task = [&query_context]() {
+            return query_context.ShouldStop();
+        };
+    }
 
     if (query_executor_mode_.load(std::memory_order_acquire) == QueryExecutorMode::SharedPool) {
         return std::make_unique<SharedThreadPoolQueryExecutor>(
@@ -517,13 +492,15 @@ DexKit::FindClass(const schema::FindClass *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    if (query->find_first()) {
+    auto find_first = query->find_first();
+    if (find_first) {
+        query_context.EnableEarlyExit();
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
     std::vector<ClassBean> result;
@@ -549,6 +526,7 @@ DexKit::FindClass(const schema::FindClass *query) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<ClassBean>>> futures;
         for (auto &dex_item: dex_items) {
+            if (find_first && executor->ShouldSkipTask()) break;
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
                 auto res = dex_item->FindClass(query, class_set, packageTrie, *executor, BATCH_SIZE / 2, query_context);
@@ -566,7 +544,7 @@ DexKit::FindClass(const schema::FindClass *query) {
             auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
-            if (query->find_first()) {
+            if (find_first) {
                 should_drain_pending_futures = true;
                 ++future_index;
                 break;
@@ -615,13 +593,15 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    if (query->find_first()) {
+    auto find_first = query->find_first();
+    if (find_first) {
+        query_context.EnableEarlyExit();
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
     std::vector<MethodBean> result;
@@ -650,6 +630,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<MethodBean>>> futures;
         for (auto &dex_item: dex_items) {
+            if (find_first && executor->ShouldSkipTask()) break;
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &method_set = dex_method_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
@@ -668,7 +649,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
-            if (query->find_first()) {
+            if (find_first) {
                 should_drain_pending_futures = true;
                 ++future_index;
                 break;
@@ -722,13 +703,15 @@ DexKit::FindField(const schema::FindField *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
 
     trie::PackageTrie packageTrie;
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    if (query->find_first()) {
+    auto find_first = query->find_first();
+    if (find_first) {
+        query_context.EnableEarlyExit();
         query_context.SetQueryPriority(QueryPriority::LatencySensitive);
     }
     std::vector<FieldBean> result;
@@ -757,6 +740,7 @@ DexKit::FindField(const schema::FindField *query) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<FieldBean>>> futures;
         for (auto &dex_item: dex_items) {
+            if (find_first && executor->ShouldSkipTask()) break;
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &field_set = dex_field_map[dex_item->GetDexId()];
             if (dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
@@ -775,7 +759,7 @@ DexKit::FindField(const schema::FindField *query) {
             auto vec = futures[future_index].get();
             if (vec.empty()) continue;
             result.insert(result.end(), vec.begin(), vec.end());
-            if (query->find_first()) {
+            if (find_first) {
                 should_drain_pending_futures = true;
                 ++future_index;
                 break;
@@ -816,7 +800,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             QueryKind::BatchFindClassUsingStrings,
             query_metrics_enabled_.load(std::memory_order_acquire)
     );
-    auto execution_guard = EnterQueryExecution(kUsingString, &query_context);
+    auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
         for (auto encode_idx: *query->in_classes()) {
@@ -900,7 +884,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             QueryKind::BatchFindMethodUsingStrings,
             query_metrics_enabled_.load(std::memory_order_acquire)
     );
-    auto execution_guard = EnterQueryExecution(kUsingString, &query_context);
+    auto execution_guard = EnterQueryExecution(kUsingString);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
     if (query->in_classes()) {

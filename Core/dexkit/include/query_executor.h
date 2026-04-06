@@ -159,9 +159,17 @@ auto SubmitQueryTask(IQueryExecutor &executor, F &&task)
         return thread_pool_executor->Enqueue(std::forward<F>(task));
     }
 
-    auto task_ptr = std::make_shared<std::packaged_task<ReturnType()>>(
-            BuildPackagedQueryTask<ReturnType>(std::forward<F>(task), executor.GetShouldSkipTaskFn())
-    );
+    auto should_skip_task = executor.GetShouldSkipTaskFn();
+    std::shared_ptr<std::packaged_task<ReturnType()>> task_ptr;
+    if (should_skip_task) {
+        task_ptr = std::make_shared<std::packaged_task<ReturnType()>>(
+                BuildPackagedQueryTask<ReturnType>(std::forward<F>(task), std::move(should_skip_task))
+        );
+    } else {
+        task_ptr = std::make_shared<std::packaged_task<ReturnType()>>(
+                std::decay_t<F>(std::forward<F>(task))
+        );
+    }
     auto future = task_ptr->get_future();
     executor.Submit([task_ptr]() mutable {
         (*task_ptr)();

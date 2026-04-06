@@ -296,7 +296,6 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 1. 新增 native `QueryContext` 骨架
    - 包含 `query_id`
-   - `cancelled`
    - `early_exit`
    - 简单 task metrics
 
@@ -309,6 +308,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - `ThreadPool` 新增 `should_skip_task` 谓词入口
    - `findClass` / `findMethod` / `findField` 已通过 `query_context.ShouldStop()` 驱动队列中未执行任务的快速跳过
    - find 路径不再依赖单独的 `skip_unexec_tasks` 状态
+   - 当前又进一步收敛为：**只有 `findFirst` query 才会安装 stop-check / skip-task 钩子**
+   - 普通 `find` / batch query 不再在热循环里无条件执行 `ShouldStop()` 原子读，从而减少非早停场景的热路径负担
+   - shared-pool 下的普通 query 现在也不再为每个 `packaged_task` 额外包一层空的 skip-check wrapper，继续削减非 `findFirst` 场景的任务封装开销
+   - legacy per-query 模式下，`findFirst` 也会在外层 dex / slice 提交阶段复用同一 stop hook，避免命中后继续无意义地生成后续任务
 
 5. `QueryContext` 当前已开始记录最小 metrics
    - `submitted_tasks`
@@ -373,6 +376,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - 每轮先给所有可见 query 发放 base budget
       - `findFirst` / latency-sensitive query 的额外倾斜，不再直接混在 base 阶段里，而是进入单独的 bonus phase
       - 因而普通 query 至少会先拿到本轮 base 份额，然后 latency-sensitive query 才会消费自己的额外 bonus 份额
+      - 同时 runnable queue 的“谁先排队”也进一步收敛为统一的 dispatch-age 顺序：不只 refill / rebuild，连 query 运行中途重新变为 runnable 的增量入队，也会按“更久未拿到对应 phase 份额者优先”插回队列
     - 同时已补上第一版 **native 内部 metrics 骨架**（暂不暴露公开 API）：
       - `QueryContext` 现已开始记录：`dispatched_tasks` / `base_dispatched_tasks` / `bonus_dispatched_tasks`
       - 以及 `first_dispatch_delay_ns` / `max_in_flight` / `max_query_share_count`
@@ -500,14 +504,14 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 5. 当前限制
 
-- 外部 cancel 已开始通过实验 API 暴露：
-  - JVM：`DexKitBridge.cancelActiveQueries()`
-  - native：`DexKit::CancelActiveQueries()`
-  - 当前语义是“取消当前实例上**已进入执行阶段**的 active query context”；对 admission / warm-up 等待阶段的中断语义仍待继续收敛
+- 当前实现把 cancel/early-exit 的**主要收敛目标**重新明确为：服务 `Find*` / `BatchFind*` 内部的 `findFirst` 早停与任务跳过协议
+  - `QueryContext.ShouldStop()` 当前主要承载 `early_exit`
+  - 不再继续把“外部显式 cancel”作为公共 API 能力推进
+  - `Get*` / `Field*` 这类 metadata 读取接口也不再作为可取消语义的扩展目标；它们仍然保持同步读取与简单 admission/warm-up 准入
 - 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；但仍缺少更通用的流式导出与 buffer 容量配置
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
 - shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness；并进一步收敛为**priority 只影响 bonus phase，base phase 对所有可见 query 一视同仁**，但还没有明确的 query budget、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
-- 当前调度器在 refill / queue rebuild 时，也已经开始按“**更久未拿到对应 dispatch phase 份额的 query 优先**”来重建 runnable 队列，避免 `unordered_map` 迭代顺序把 share-count 变化后的公平性变成偶然结果
+- 当前调度器在 refill / queue rebuild 以及运行中途的增量 runnable 入队时，都已经开始按“**更久未拿到对应 dispatch phase 份额的 query 优先**”排序 runnable 队列，避免 `unordered_map` 迭代顺序或事件到达顺序把公平性变成偶然结果
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
 - 当前 priority 语义仍然比较保守：bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA
 - matcher 热路径现已进一步收敛为 **per-thread per-query fast path + QueryContext 持有 matcher cache 所有权**：
@@ -524,7 +528,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 1. 补齐 matcher 所有权收敛后的 benchmark / 回归，对照单 query repeated workload 与 shared-scheduler 并发场景继续做热路径审计
 2. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
-3. 继续把 cancel / early-exit 协议统一到 `QueryContext`，尤其是 admission / warm-up 等待阶段的取消语义
+3. 继续把 `findFirst` / early-exit 协议统一到 `QueryContext`，但不再扩大公共 cancel API 或 metadata 读取接口上的可取消语义
 4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
 5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
 6. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验

@@ -35,7 +35,6 @@ DexItem::BatchFindClassUsingStrings(
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
-        if (query_context.ShouldStop()) break;
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {
@@ -116,7 +115,6 @@ DexItem::BatchFindMethodUsingStrings(
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
-        if (query_context.ShouldStop()) break;
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {

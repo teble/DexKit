@@ -303,7 +303,7 @@ private:
             (void) query_id;
             slot.queued = false;
         }
-        CollectAndEnqueueRunnableCandidatesLocked(QueryInFlightLimitLocked());
+        (void) CollectAndEnqueueRunnableCandidatesLocked(QueryInFlightLimitLocked());
         ++metrics_.runnable_queue_rebuilds;
         UpdateMaxRunnableQueueSizeLocked();
     }
@@ -349,6 +349,20 @@ private:
             return;
         }
         latency_sensitive_bonus_runnable_queries_.push_back(slot.query_id);
+        UpdateMaxRunnableQueueSizeLocked();
+    }
+
+    void InsertRunnableQueryOrderedLocked(const QuerySlot &slot) {
+        auto bonus_phase = slot.base_dispatch_budget == 0;
+        auto &queue = bonus_phase ? latency_sensitive_bonus_runnable_queries_ : base_runnable_queries_;
+        auto insert_it = queue.end();
+        for (auto it = queue.begin(); it != queue.end(); ++it) {
+            if (RunnableQueryLessLocked(slot.query_id, *it, bonus_phase)) {
+                insert_it = it;
+                break;
+            }
+        }
+        queue.insert(insert_it, slot.query_id);
         UpdateMaxRunnableQueueSizeLocked();
     }
 
@@ -430,7 +444,7 @@ private:
             return;
         }
         slot.queued = true;
-        PushRunnableQueryLocked(slot);
+        InsertRunnableQueryOrderedLocked(slot);
     }
 
     void TryEraseSlotLocked(QuerySlotMap::iterator it) {

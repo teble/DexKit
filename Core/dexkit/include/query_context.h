@@ -196,12 +196,12 @@ public:
         return priority_;
     }
 
-    void Cancel() {
-        cancelled_.store(true, std::memory_order_release);
+    void EnableEarlyExit() {
+        early_exit_enabled_.store(true, std::memory_order_relaxed);
     }
 
-    [[nodiscard]] bool IsCancelled() const {
-        return cancelled_.load(std::memory_order_acquire);
+    [[nodiscard]] bool IsEarlyExitEnabled() const {
+        return early_exit_enabled_.load(std::memory_order_relaxed);
     }
 
     [[nodiscard]] bool RequestEarlyExit() {
@@ -213,7 +213,7 @@ public:
     }
 
     [[nodiscard]] bool ShouldStop() const {
-        return IsCancelled() || ShouldEarlyExit();
+        return ShouldEarlyExit();
     }
 
     [[nodiscard]] bool AreMetricsEnabled() const {
@@ -420,7 +420,7 @@ private:
     uint64_t query_id_;
     QueryPriority priority_ = QueryPriority::Normal;
     bool metrics_enabled_ = false;
-    std::atomic<bool> cancelled_ = false;
+    std::atomic<bool> early_exit_enabled_ = false;
     std::atomic<bool> early_exit_ = false;
     QueryMetrics metrics_{};
     std::mutex matcher_cache_mutex_;

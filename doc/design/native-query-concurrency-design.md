@@ -82,7 +82,7 @@ matcher 预处理结果当前大量依赖：
 这在 per-query 线程池模型下还能工作；  
 一旦未来改成实例级共享线程池，这类缓存生命周期就会被拉长，边界会变得不清晰。
 
-### 3.4 `findFirst` / cancel 协议不够严格
+### 3.4 `findFirst` / 早停协议不够严格
 
 当前 `findFirst` 早停依赖裸 `bool` 协调，`ThreadPool` 的 `skip_unexec_tasks` 也依赖裸 `bool`。
 
@@ -126,7 +126,7 @@ matcher 预处理结果当前大量依赖：
 每个 query 应拥有独立上下文，至少管理：
 
 - `query_id`
-- cancel / early-exit 标记
+- early-exit / internal stop 标记
 - query-local matcher cache
 - query-local result buffer
 - metrics
@@ -161,7 +161,7 @@ Java/Kotlin caller threads
             v
         QueryContext
         /    |     \
- cancel  early-exit metrics
+ internal-stop  early-exit  metrics
 ```
 
 ### 5.1 当前收敛策略：query admission + batch warm-up barrier
@@ -211,7 +211,6 @@ Java/Kotlin caller threads
 
 - `query_id`
 - `kind`
-- `cancelled`
 - `early_exit`
 - `submitted_task_count`
 - `completed_task_count`
@@ -272,7 +271,7 @@ Java/Kotlin caller threads
    - 当绑定的 `QueryContext` 变化时清空 thread-local matcher cache
 
 3. **`QueryContext` 负责“定义边界”，不负责“承载每次热路径查表的共享锁”**
-   - `QueryContext` 继续管理 cancel / metrics / scheduler / snapshot 等 query 状态
+   - `QueryContext` 继续管理 early-exit / metrics / scheduler / snapshot 等 query 状态
    - 但不应默认成为 matcher 热缓存的全局互斥注册表
 
 4. **只有确实值得共享的对象才升级为 query-shared / read-only shared**
@@ -282,12 +281,13 @@ Java/Kotlin caller threads
 
 这条原则的目标不是回退到“线程生命周期缓存”，而是把缓存边界收敛为：**生命周期属于 query，快路径属于当前 worker**。
 
-### 6.5 `findFirst` / cancel 统一原子化
+### 6.5 `findFirst` / early-exit 统一原子化
 
-所有早停 / 取消语义都应统一接入 `QueryContext`：
+所有早停语义都应统一接入 `QueryContext`：
 
 - `early_exit`：`findFirst` 命中后的早停信号
-- `cancelled`：外部取消信号
+
+如后续确有调试或压测需求，再评估是否保留**仅内部使用**的 stop hook，而不是默认暴露公共 cancel API。
 
 避免继续用裸 `bool` 做跨线程协调。
 
@@ -369,7 +369,7 @@ bridge.setThreadNum(8)
 
 1. 盘点共享可变状态
 2. 引入 `QueryContext`
-3. 把 `findFirst` / cancel 路径原子化
+3. 把 `findFirst` / early-exit 路径原子化
 4. 迁移 matcher 临时缓存
 5. 为 cache 初始化建立清晰状态机
 
@@ -426,7 +426,7 @@ bridge.setThreadNum(8)
 
 1. 引入 `QueryScheduler`
 2. 支持入队、配额、公平调度
-3. 支持 cancel 与 `findFirst`
+3. 支持 `findFirst` 与内部早停协作
 4. 输出调度指标
 
 **出口条件**

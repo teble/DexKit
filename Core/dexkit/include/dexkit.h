@@ -46,17 +46,19 @@ class DexKit {
 public:
     class QueryExecutionGuard {
     public:
-        explicit QueryExecutionGuard(DexKit *owner) : owner_(owner) {}
+        explicit QueryExecutionGuard(DexKit *owner, uint64_t query_id = 0) : owner_(owner), query_id_(query_id) {}
         QueryExecutionGuard(const QueryExecutionGuard &) = delete;
         QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
-        QueryExecutionGuard(QueryExecutionGuard &&other) noexcept : owner_(other.owner_) {
+        QueryExecutionGuard(QueryExecutionGuard &&other) noexcept : owner_(other.owner_), query_id_(other.query_id_) {
             other.owner_ = nullptr;
+            other.query_id_ = 0;
         }
         QueryExecutionGuard &operator=(QueryExecutionGuard &&other) = delete;
         ~QueryExecutionGuard();
 
     private:
         DexKit *owner_ = nullptr;
+        uint64_t query_id_ = 0;
     };
 
 
@@ -68,6 +70,7 @@ public:
     void SetQueryExecutorMode(QueryExecutorMode mode);
     void SetMaxConcurrentQueries(uint32_t max_concurrent_queries);
     void SetQueryMetricsEnabled(bool enabled);
+    uint32_t CancelActiveQueries();
     [[nodiscard]] QuerySchedulerMetricsSnapshot GetQuerySchedulerMetricsSnapshot() const;
     void ResetQuerySchedulerMetrics() const;
     [[nodiscard]] static QueryMetricsSnapshot GetLastQueryMetricsSnapshot();
@@ -117,6 +120,7 @@ private:
     mutable std::mutex query_execution_mutex;
     mutable std::condition_variable query_execution_cv;
     mutable std::mutex query_executor_mutex;
+    mutable std::mutex active_query_contexts_mutex;
     uint32_t active_query_count = 0;
     uint32_t pending_warmup_flags = 0;
     bool warmup_inflight = false;
@@ -128,6 +132,7 @@ private:
     mutable std::shared_ptr<ThreadPool> shared_query_pool_;
     mutable std::shared_ptr<QueryScheduler> shared_query_scheduler_;
     mutable uint32_t shared_query_pool_thread_num_ = 0;
+    phmap::flat_hash_map<uint64_t, QueryContext *> active_query_contexts_;
     mutable std::mutex query_metrics_history_mutex;
     mutable std::deque<QueryMetricsRecord> query_metrics_history_;
     uint64_t dropped_query_metrics_history_records_ = 0;
@@ -140,8 +145,10 @@ private:
     uint32_t cross_ref_aggregate_inflight_flags = 0;
 
     void InitDexCache(uint32_t init_flags);
-    [[nodiscard]] QueryExecutionGuard EnterQueryExecution(uint32_t required_flags);
+    [[nodiscard]] QueryExecutionGuard EnterQueryExecution(uint32_t required_flags, QueryContext *query_context = nullptr);
     void LeaveQueryExecution();
+    void RegisterActiveQueryContext(QueryContext &query_context);
+    void UnregisterActiveQueryContext(uint64_t query_id);
     [[nodiscard]] bool NeedWarmUp(uint32_t init_flags) const;
     [[nodiscard]] std::shared_ptr<ThreadPool> GetOrCreateSharedQueryPool(uint32_t thread_num) const;
     [[nodiscard]] std::shared_ptr<QueryScheduler> GetOrCreateSharedQueryScheduler(uint32_t thread_num) const;

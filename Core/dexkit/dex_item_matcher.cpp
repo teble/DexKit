@@ -232,10 +232,9 @@ static T *GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &
         return reinterpret_cast<T *>(cached);
     }
 
-    auto value = query_context->GetOrCreateCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
-    auto *ptr = value.get();
-    // Safe because QueryContext owns the cache object until the query ends, and
-    // Rebind(query_id) clears any stale per-thread entries before reuse.
+    auto *ptr = query_context->GetOrCreateMatcherCache<T>(static_cast<uint8_t>(scope), key, std::forward<Factory>(factory));
+    // Safe because QueryContext owns the matcher cache object until the query
+    // ends, and Rebind(query_id) clears any stale per-thread entries before reuse.
     query_cache.Put(cache_key, ptr);
     return ptr;
 }

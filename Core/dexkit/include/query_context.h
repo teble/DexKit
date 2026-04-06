@@ -176,6 +176,10 @@ public:
     explicit QueryContext(QueryKind kind, bool metrics_enabled = false)
             : kind_(kind), query_id_(NextQueryId()), metrics_enabled_(metrics_enabled) {}
 
+    ~QueryContext() {
+        ClearMatcherCaches();
+    }
+
     [[nodiscard]] uint64_t GetQueryId() const {
         return query_id_;
     }
@@ -321,20 +325,43 @@ public:
     }
 
     template<typename T, typename Factory>
-    std::shared_ptr<T> GetOrCreateCache(uint8_t scope, std::uintptr_t key, Factory &&factory) {
+    T *GetOrCreateMatcherCache(uint8_t scope, std::uintptr_t key, Factory &&factory) {
         auto cache_key = QueryCacheKey{scope, key};
-        std::lock_guard lock(cache_mutex_);
-        auto it = query_cache_.find(cache_key);
-        if (it != query_cache_.end()) {
-            auto &cached = it->second;
-            return std::shared_ptr<T>(cached, reinterpret_cast<T *>(cached.get()));
+        std::lock_guard lock(matcher_cache_mutex_);
+        auto it = matcher_cache_.find(cache_key);
+        if (it != matcher_cache_.end()) {
+            return reinterpret_cast<T *>(it->second.value);
         }
-        auto value = std::make_shared<T>(std::forward<Factory>(factory)());
-        query_cache_.emplace(cache_key, value);
+        auto *value = new T(std::forward<Factory>(factory)());
+        matcher_cache_.emplace(cache_key, MatcherCacheOwnership{
+                .value = value,
+                .deleter = [](void *ptr) {
+                    delete reinterpret_cast<T *>(ptr);
+                },
+        });
         return value;
     }
 
 private:
+    struct MatcherCacheOwnership {
+        void *value = nullptr;
+        void (*deleter)(void *) = nullptr;
+    };
+
+    void ClearMatcherCaches() {
+        phmap::flat_hash_map<QueryCacheKey, MatcherCacheOwnership, QueryCacheKeyHash> caches;
+        {
+            std::lock_guard lock(matcher_cache_mutex_);
+            caches.swap(matcher_cache_);
+        }
+        for (auto &[cache_key, ownership]: caches) {
+            (void) cache_key;
+            if (ownership.value != nullptr && ownership.deleter != nullptr) {
+                ownership.deleter(ownership.value);
+            }
+        }
+    }
+
     [[nodiscard]] int64_t RelativeNs(std::chrono::steady_clock::time_point time_point) const {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(time_point - metrics_.created_at).count();
     }
@@ -396,8 +423,8 @@ private:
     std::atomic<bool> cancelled_ = false;
     std::atomic<bool> early_exit_ = false;
     QueryMetrics metrics_{};
-    std::mutex cache_mutex_;
-    phmap::flat_hash_map<QueryCacheKey, std::shared_ptr<void>, QueryCacheKeyHash> query_cache_;
+    std::mutex matcher_cache_mutex_;
+    phmap::flat_hash_map<QueryCacheKey, MatcherCacheOwnership, QueryCacheKeyHash> matcher_cache_;
 
     inline static std::atomic<uint64_t> next_query_id_ = 1;
     inline static thread_local QueryMetricsSnapshot last_query_metrics_snapshot_{};

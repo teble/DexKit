@@ -500,13 +500,20 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 5. 当前限制
 
-- 外部 cancel 还没有正式暴露到 API
+- 外部 cancel 已开始通过实验 API 暴露：
+  - JVM：`DexKitBridge.cancelActiveQueries()`
+  - native：`DexKit::CancelActiveQueries()`
+  - 当前语义是“取消当前实例上**已进入执行阶段**的 active query context”；对 admission / warm-up 等待阶段的中断语义仍待继续收敛
 - 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；但仍缺少更通用的流式导出与 buffer 容量配置
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
-- shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness，但还没有明确的 query budget、priority、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
+- shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness；并进一步收敛为**priority 只影响 bonus phase，base phase 对所有可见 query 一视同仁**，但还没有明确的 query budget、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
+- 当前调度器在 refill / queue rebuild 时，也已经开始按“**更久未拿到对应 dispatch phase 份额的 query 优先**”来重建 runnable 队列，避免 `unordered_map` 迭代顺序把 share-count 变化后的公平性变成偶然结果
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
-- 当前 bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA
-- matcher 迁移已经完成 `dex_item_matcher.cpp` 主路径的 query-boundary 收敛，并已额外验证出 `QueryContext` 共享 map 锁竞争是当前单 query 回退主因；但这套 **per-thread per-query** fast path 还需要进一步正式化，并清理/降级不再适合放在热路径上的共享 cache 注册接口
+- 当前 priority 语义仍然比较保守：bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA
+- matcher 热路径现已进一步收敛为 **per-thread per-query fast path + QueryContext 持有 matcher cache 所有权**：
+  - worker TLS 只缓存当前 query 的原始地址命中快路径
+  - `QueryContext` 不再通过通用共享 `map + shared_ptr` 承载 matcher miss 路径，而是改为专用 matcher ownership 容器负责 query 级生命周期回收
+  - 这意味着 matcher 路径上的“query 边界定义”和“热路径命中所有权”已经进一步分离；后续重点转为 benchmark 回归与剩余热路径审计，而不是继续依赖通用 `GetOrCreateCache(...)` 接口
 - `BuildCrossRefAggregates()` 前置阶段已经从“全量 method / field 扫描”收敛到“pending worklist 扫描”，后续仍可继续评估更进一步的增量化/复用空间
 - `method_cross_info` / `field_cross_info` 的第一批热路径 ready-check 已开始移除，但仍有部分非热路径/防御性判断待继续收敛
 - 目前仍保留少量“单项元数据接口按需直读 dex code / annotation”的 fallback 路径；其中 opcode / using-string 已收敛为 per-method 稀疏懒缓存，annotation 访问器则仍保持纯按需直读，以避免单次元数据读取强制触发整类全量 warm-up
@@ -515,9 +522,9 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 ## 6. 下一步建议实现顺序
 
-1. 将 matcher 热路径的 **per-thread per-query** cache 方案正式化，清理 `QueryContext::GetOrCreateCache()` 在 matcher 路径上的残留依赖，并先补齐对应 benchmark 回归
+1. 补齐 matcher 所有权收敛后的 benchmark / 回归，对照单 query repeated workload 与 shared-scheduler 并发场景继续做热路径审计
 2. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
-3. 继续把 cancel / early-exit 协议统一到 `QueryContext`
+3. 继续把 cancel / early-exit 协议统一到 `QueryContext`，尤其是 admission / warm-up 等待阶段的取消语义
 4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
 5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
 6. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验

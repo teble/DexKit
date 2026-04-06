@@ -60,6 +60,9 @@ static void PublishLastQueryMetrics(const QueryContext &query_context) {
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
     if (owner_ != nullptr) {
         owner_->LeaveQueryExecution();
+        if (query_id_ != 0) {
+            owner_->UnregisterActiveQueryContext(query_id_);
+        }
     }
 }
 
@@ -106,6 +109,17 @@ void DexKit::SetQueryMetricsEnabled(bool enabled) {
     }
 }
 
+uint32_t DexKit::CancelActiveQueries() {
+    std::lock_guard lock(active_query_contexts_mutex);
+    for (auto &[query_id, query_context]: active_query_contexts_) {
+        (void) query_id;
+        if (query_context != nullptr) {
+            query_context->Cancel();
+        }
+    }
+    return static_cast<uint32_t>(active_query_contexts_.size());
+}
+
 QuerySchedulerMetricsSnapshot DexKit::GetQuerySchedulerMetricsSnapshot() const {
     std::lock_guard lock(query_executor_mutex);
     if (!shared_query_scheduler_) {
@@ -145,7 +159,7 @@ Error DexKit::InitFullCache() {
     return Error::SUCCESS;
 }
 
-DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
+DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags, QueryContext *query_context) {
     std::unique_lock lock(query_execution_mutex);
     auto track_warmup_request = [this, required_flags]() {
         if (required_flags != 0) {
@@ -212,6 +226,10 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
 
         if (!NeedWarmUp(required_flags)) {
             ++active_query_count;
+            if (query_context != nullptr) {
+                RegisterActiveQueryContext(*query_context);
+                return QueryExecutionGuard(this, query_context->GetQueryId());
+            }
             return QueryExecutionGuard(this);
         }
 
@@ -224,6 +242,16 @@ void DexKit::LeaveQueryExecution() {
     DEXKIT_CHECK(active_query_count > 0);
     --active_query_count;
     query_execution_cv.notify_all();
+}
+
+void DexKit::RegisterActiveQueryContext(QueryContext &query_context) {
+    std::lock_guard lock(active_query_contexts_mutex);
+    active_query_contexts_[query_context.GetQueryId()] = &query_context;
+}
+
+void DexKit::UnregisterActiveQueryContext(uint64_t query_id) {
+    std::lock_guard lock(active_query_contexts_mutex);
+    active_query_contexts_.erase(query_id);
 }
 
 bool DexKit::NeedWarmUp(uint32_t init_flags) const {
@@ -489,7 +517,7 @@ DexKit::FindClass(const schema::FindClass *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -587,7 +615,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -694,7 +722,7 @@ DexKit::FindField(const schema::FindField *query) {
         }
     }
     auto analyze_ret = Analyze(query->matcher(), 1);
-    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags);
+    auto execution_guard = EnterQueryExecution(analyze_ret.need_flags, &query_context);
 
     trie::PackageTrie packageTrie;
     // build package match trie
@@ -788,7 +816,7 @@ DexKit::BatchFindClassUsingStrings(const schema::BatchFindClassUsingStrings *que
             QueryKind::BatchFindClassUsingStrings,
             query_metrics_enabled_.load(std::memory_order_acquire)
     );
-    auto execution_guard = EnterQueryExecution(kUsingString);
+    auto execution_guard = EnterQueryExecution(kUsingString, &query_context);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     if (query->in_classes()) {
         for (auto encode_idx: *query->in_classes()) {
@@ -872,7 +900,7 @@ DexKit::BatchFindMethodUsingStrings(const schema::BatchFindMethodUsingStrings *q
             QueryKind::BatchFindMethodUsingStrings,
             query_metrics_enabled_.load(std::memory_order_acquire)
     );
-    auto execution_guard = EnterQueryExecution(kUsingString);
+    auto execution_guard = EnterQueryExecution(kUsingString, &query_context);
     std::map<uint32_t, std::set<uint32_t>> dex_class_map;
     std::map<uint32_t, std::set<uint32_t>> dex_method_map;
     if (query->in_classes()) {

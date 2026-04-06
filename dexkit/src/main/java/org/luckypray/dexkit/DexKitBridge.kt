@@ -50,6 +50,7 @@ import java.nio.ByteBuffer
 
 class DexKitBridge : Closeable {
 
+    @Volatile
     private var token: Long = 0L
 
     private val safeToken: Long
@@ -136,6 +137,15 @@ class DexKitBridge : Closeable {
     @Synchronized
     fun setQueryMetricsEnabled(enabled: Boolean) {
         nativeSetQueryMetricsEnabled(safeToken, enabled)
+    }
+
+    /**
+     * Cancel all active native queries running on this bridge instance.
+     * Returns the number of query contexts that were signaled.
+     */
+    @DexKitExperimentalApi
+    fun cancelActiveQueries(): Int {
+        return nativeCancelActiveQueries(safeToken)
     }
 
     @DexKitExperimentalApi
@@ -732,6 +742,9 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeSetQueryMetricsEnabled(nativePtr: Long, enabled: Boolean)
+
+        @JvmStatic
+        private external fun nativeCancelActiveQueries(nativePtr: Long): Int
 
         @JvmStatic
         private external fun nativeGetSchedulerMetrics(nativePtr: Long): LongArray

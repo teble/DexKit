@@ -306,10 +306,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 
 4. find 路径的待执行任务跳过协议已绑定到 `QueryContext`
    - `ThreadPool` 新增 `should_skip_task` 谓词入口
-   - `findClass` / `findMethod` / `findField` 已通过 `query_context.ShouldStop()` 驱动队列中未执行任务的快速跳过
+   - `findClass` / `findMethod` / `findField` 已通过 `query_context.ShouldEarlyExit()` 驱动队列中未执行任务的快速跳过
    - find 路径不再依赖单独的 `skip_unexec_tasks` 状态
    - 当前又进一步收敛为：**只有 `findFirst` query 才会安装 stop-check / skip-task 钩子**
-   - 普通 `find` / batch query 不再在热循环里无条件执行 `ShouldStop()` 原子读，从而减少非早停场景的热路径负担
+   - 普通 `find` / batch query 不再在热循环里无条件执行 `ShouldEarlyExit()` 原子读，从而减少非早停场景的热路径负担
    - shared-pool 下的普通 query 现在也不再为每个 `packaged_task` 额外包一层空的 skip-check wrapper，继续削减非 `findFirst` 场景的任务封装开销
    - legacy per-query 模式下，`findFirst` 也会在外层 dex / slice 提交阶段复用同一 stop hook，避免命中后继续无意义地生成后续任务
 
@@ -508,21 +508,28 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
       - matcher cache 的**生命周期边界**仍然属于 query
       - 但 matcher cache 的**快路径所有权**应属于当前 worker/thread
       - `QueryContext` 更适合作为 query 边界、取消协议、metrics、scheduler 绑定点，而不是 matcher 热缓存的共享互斥注册表
-    - 后续仍可继续观察 `ShouldStop()` 原子、metrics 原子、切片策略等次级成本，但它们不再是当前的首要矛盾
+    - 后续仍可继续观察 `ShouldEarlyExit()` 原子、metrics 原子、切片策略等次级成本，但它们不再是当前的首要矛盾
 
 ## 5. 当前限制
 
+- 基于当前 shared-pool + scheduler 效果，**调度层能力先按现状收口**
+  - 暂不继续扩大 scheduler feature scope
+  - 暂不继续新增 scheduler / fairness 指标
+  - 后续若有工作，优先是 bugfix、回归验证，以及非调度热路径优化
 - 当前实现把 cancel/early-exit 的**主要收敛目标**重新明确为：服务 `Find*` / `BatchFind*` 内部的 `findFirst` 早停与任务跳过协议
-  - `QueryContext.ShouldStop()` 当前主要承载 `early_exit`
+  - `QueryContext.ShouldEarlyExit()` 当前主要承载 `early_exit`
+  - 精确 declared-class fast path 现在也改为复用同一套 `QueryContext` early-exit 协议，而不再直接读 `query->find_first()`
+  - 同时 exact class-name fast path 会先归一化为 descriptor 再查 declared-class map，避免常见 `org.example.Foo` 写法错过快路径
+  - exact declared-class fast path 现在也会继续尊重 `searchInClass` / `searchInMethod` / `searchInField` 作用域约束，避免快路径绕过 `in_*` 过滤导致的错误命中
   - 不再继续把“外部显式 cancel”作为公共 API 能力推进
   - `Get*` / `Field*` 这类 metadata 读取接口也不再作为可取消语义的扩展目标；它们仍然保持同步读取与简单 admission/warm-up 准入
-- 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；但仍缺少更通用的流式导出与 buffer 容量配置
+- 当前 scheduler 级 snapshot、query-local last-snapshot、实例级 history buffer 与 benchmark classification 输出都已可观测；更通用的流式导出与 buffer 容量配置**暂不继续推进**
 - `SharedPool` 已经有最小版 `QueryScheduler` 骨架，但还不是完整的 scheduler 产品形态
-- shared-pool 模式下虽然已经补了 submission-complete activation + share-count fairness + share-count change budget rebalance + two-phase round fairness；并进一步收敛为**priority 只影响 bonus phase，base phase 对所有可见 query 一视同仁**，但还没有明确的 query budget、公平性 SLA、饥饿保护等更高层策略；当前仍主要依赖基础轮转分发 + 动态 in-flight 限额 + `maxConcurrentQueries` 准入上限
-- `maxConcurrentQueries` 这层 admission cap 已经从“竞争锁抢名额”收敛为 FIFO wait queue，但它仍然只是**谁先进入 active set** 的公平性；还没有和 scheduler 内部 budget/fairness 形成统一的端到端 SLA
+- shared-pool 模式下虽然还没有继续扩展到更高层的 query budget / 公平性 SLA / 饥饿保护策略，但当前实现已经足够支撑本阶段目标；这些更高层语义**暂不继续推进**
+- `maxConcurrentQueries` 这层 admission cap 已经从“竞争锁抢名额”收敛为 FIFO wait queue；更完整的 admission-to-dispatch 端到端 SLA **暂不作为当前阶段目标**
 - 当前调度器在 refill / queue rebuild 以及运行中途的增量 runnable 入队时，都已经开始按“**更久未拿到对应 dispatch phase 份额的 query 优先**”排序 runnable 队列，避免 `unordered_map` 迭代顺序或事件到达顺序把公平性变成偶然结果
 - 当前实现已经能对“正在 submission、尚未 activation”的 query 预留一部分 share，但如果另一个 query 还没开始 submission，就仍可能存在更早阶段的先发优势
-- 当前 priority 语义仍然比较保守：bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”，但还没有形成可观测、可调参的 priority SLA
+- 当前 priority 语义仍然比较保守：bonus phase 只解决“latency-sensitive 额外份额不要压住普通 query 的 base 份额”；更激进的 priority SLA / 调参能力**暂不继续推进**
 - matcher 热路径现已进一步收敛为 **per-thread per-query fast path + QueryContext 持有 matcher cache 所有权**：
   - worker TLS 只缓存当前 query 的原始地址命中快路径
   - `QueryContext` 不再通过通用共享 `map + shared_ptr` 承载 matcher miss 路径，而是改为专用 matcher ownership 容器负责 query 级生命周期回收
@@ -536,11 +543,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
 ## 6. 下一步建议实现顺序
 
 1. 补齐 matcher 所有权收敛后的 benchmark / 回归，对照单 query repeated workload 与 shared-scheduler 并发场景继续做热路径审计
-2. 以 activation 阶段为基础，把当前“轮转分发 + 动态 in-flight 限额”继续扩展成更明确的 query budget / fairness 语义
-3. 继续把 `findFirst` / early-exit 协议统一到 `QueryContext`，但不再扩大公共 cancel API 或 metadata 读取接口上的可取消语义
-4. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
-5. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
-6. 基于已接好的 history/classification benchmark 输出，继续评估是否需要可配置 history 容量、流式导出或更细粒度的 fairness/priority 对照实验
+2. 继续把 `findFirst` / early-exit 协议统一到 `QueryContext`，但不再扩大公共 cancel API 或 metadata 读取接口上的可取消语义
+3. 基于 admission barrier 继续上移剩余 ready-check，收敛“内层防御式判断”
+4. 在已完成 target-dex 分区并行与 pending worklist 收敛的基础上，继续评估 `BuildCrossRefAggregates()` 更进一步的增量化/复用空间
+5. 对少量仍保留 fallback 的 metadata / sparse lazy feature 路径继续做热点审计
 
 ## 更新 2026-04-04 - matcher TLS 析构回归
 
@@ -560,7 +566,7 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
   - `LegacyPerQuery`: `elapsedMs=1634`
 - 这说明当前分支相对 `master` 的串行性能差距，并不主要是 `QueryScheduler` 导致的；即使完全绕开 shared scheduling，同类 workload 仍然比 `master` 慢。
 - 当时最可疑的热路径包括：
-  1. 扫描循环里逐项执行的 `QueryContext.ShouldStop()` 原子检查，即使 `findFirst == false` 也照样执行；
+  1. 扫描循环里逐项执行的 `QueryContext.ShouldEarlyExit()` 原子检查，即使 `findFirst == false` 也照样执行；
   2. 每个 task 的 query metrics 记账逻辑（`MarkTaskSubmitted/Completed`、`TrackTaskExecution`）；
   3. matcher cache 命中成本（`QueryContext` 持有 + worker 本地 weak cache 查找 / aliasing）。
 - 当时的优先建议：

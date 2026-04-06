@@ -442,12 +442,13 @@ bridge.setThreadNum(8)
 **目标**
 
 - 从“能跑”优化到“值得开启”
+- 当前收敛策略：**调度层先按 Phase 4 的现状收口**，后续优先处理非调度热路径，而不是继续扩大 scheduler 功能与指标范围
 
 **工作项**
 
 1. 调整切片粒度
-2. 调整 query 配额策略
-3. 评估小 query 优先 / `findFirst` 优先
+2. 继续优化 `findFirst` / early-exit 内部协议
+3. 继续上移 ready-check，收敛内层防御式判断
 4. 降低 cache 初始化的大锁影响
 5. 审视 `QueryContext` / matcher 热路径中的锁与原子竞争
 

@@ -27,6 +27,7 @@
 #include "ThreadPool.h"
 #include "schema/querys_generated.h"
 #include "schema/results_generated.h"
+#include "utils/dex_descriptor_util.h"
 
 #define WRITE_FILE_BLOCK_SIZE (1024 * 1024)
 
@@ -55,6 +56,27 @@ static void MarkQuerySubmissionComplete(IQueryExecutor *executor) {
 
 static void PublishLastQueryMetrics(const QueryContext &query_context) {
     query_context.PublishSnapshotToCurrentThread();
+}
+
+template<typename QueryType>
+static bool ConfigureFindFirstQuery(QueryContext &query_context, const QueryType *query) {
+    auto find_first = query->find_first();
+    if (!find_first) {
+        return false;
+    }
+    query_context.EnableEarlyExit();
+    query_context.SetQueryPriority(QueryPriority::LatencySensitive);
+    return true;
+}
+
+static std::string NormalizeDeclaredClassLookupName(std::string_view class_name) {
+    if (class_name.empty()) {
+        return {};
+    }
+    if (class_name.starts_with('L') || class_name.starts_with('[') || IsPrimitiveType(class_name)) {
+        return std::string(class_name);
+    }
+    return NameToDescriptor(class_name);
 }
 
 DexKit::QueryExecutionGuard::~QueryExecutionGuard() {
@@ -329,7 +351,7 @@ std::unique_ptr<IQueryExecutor> DexKit::CreateQueryExecutor(QueryContext &query_
     std::function<bool()> should_skip_task;
     if (query_context.IsEarlyExitEnabled()) {
         should_skip_task = [&query_context]() {
-            return query_context.ShouldStop();
+            return query_context.ShouldEarlyExit();
         };
     }
 
@@ -548,11 +570,7 @@ DexKit::FindClass(const schema::FindClass *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    auto find_first = query->find_first();
-    if (find_first) {
-        query_context.EnableEarlyExit();
-        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
-    }
+    auto find_first = ConfigureFindFirstQuery(query_context, query);
     std::vector<ClassBean> result;
 
     // fast search declared class
@@ -560,11 +578,12 @@ DexKit::FindClass(const schema::FindClass *query) {
     if (query->matcher()) {
         auto class_name = query->matcher()->class_name();
         if (class_name && class_name->match_type() == schema::StringMatchType::Equal && !class_name->ignore_case()) {
-            auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
+            auto declared_class_name = NormalizeDeclaredClassLookupName(class_name->value()->string_view());
+            auto [dex, type_idx] = GetClassDeclaredPair(declared_class_name);
             if (dex) {
                 fast_search_dex = dex;
-                auto query_binding = query_context.BindToCurrentThread();
-                auto res = dex->FindClass(query, packageTrie, type_idx);
+                auto &class_set = dex_class_map[dex->GetDexId()];
+                auto res = dex->FindClass(query, class_set, packageTrie, type_idx, query_context);
                 result.insert(result.end(), res.begin(), res.end());
             }
         }
@@ -649,11 +668,7 @@ DexKit::FindMethod(const schema::FindMethod *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    auto find_first = query->find_first();
-    if (find_first) {
-        query_context.EnableEarlyExit();
-        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
-    }
+    auto find_first = ConfigureFindFirstQuery(query_context, query);
     std::vector<MethodBean> result;
 
     // fast search declared class
@@ -663,11 +678,13 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         if (declaring_class) {
             auto class_name = declaring_class->class_name();
             if (class_name && class_name->match_type() == schema::StringMatchType::Equal && !class_name->ignore_case()) {
-                auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
+                auto declared_class_name = NormalizeDeclaredClassLookupName(class_name->value()->string_view());
+                auto [dex, type_idx] = GetClassDeclaredPair(declared_class_name);
                 if (dex) {
                     fast_search_dex = dex;
-                    auto query_binding = query_context.BindToCurrentThread();
-                    auto res = dex->FindMethod(query, packageTrie, type_idx);
+                    auto &class_set = dex_class_map[dex->GetDexId()];
+                    auto &method_set = dex_method_map[dex->GetDexId()];
+                    auto res = dex->FindMethod(query, class_set, method_set, packageTrie, type_idx, query_context);
                     result.insert(result.end(), res.begin(), res.end());
                 }
             }
@@ -759,11 +776,7 @@ DexKit::FindField(const schema::FindField *query) {
     // build package match trie
     BuildPackagesMatchTrie(query->search_packages(), query->exclude_packages(), query->ignore_packages_case(), packageTrie);
 
-    auto find_first = query->find_first();
-    if (find_first) {
-        query_context.EnableEarlyExit();
-        query_context.SetQueryPriority(QueryPriority::LatencySensitive);
-    }
+    auto find_first = ConfigureFindFirstQuery(query_context, query);
     std::vector<FieldBean> result;
 
     // fast search declared class
@@ -773,11 +786,13 @@ DexKit::FindField(const schema::FindField *query) {
         if (declaring_class) {
             auto class_name = declaring_class->class_name();
             if (class_name && class_name->match_type() == schema::StringMatchType::Equal && !class_name->ignore_case()) {
-                auto [dex, type_idx] = GetClassDeclaredPair(class_name->value()->string_view());
+                auto declared_class_name = NormalizeDeclaredClassLookupName(class_name->value()->string_view());
+                auto [dex, type_idx] = GetClassDeclaredPair(declared_class_name);
                 if (dex) {
                     fast_search_dex = dex;
-                    auto query_binding = query_context.BindToCurrentThread();
-                    auto res = dex->FindField(query, packageTrie, type_idx);
+                    auto &class_set = dex_class_map[dex->GetDexId()];
+                    auto &field_set = dex_field_map[dex->GetDexId()];
+                    auto res = dex->FindField(query, class_set, field_set, packageTrie, type_idx, query_context);
                     result.insert(result.end(), res.begin(), res.end());
                 }
             }

@@ -214,10 +214,6 @@ public:
         return early_exit_.load(std::memory_order_acquire);
     }
 
-    [[nodiscard]] bool ShouldStop() const {
-        return ShouldEarlyExit();
-    }
-
     [[nodiscard]] bool AreMetricsEnabled() const {
         return metrics_enabled_;
     }

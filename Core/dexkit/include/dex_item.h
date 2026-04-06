@@ -121,18 +121,26 @@ public:
     );
     std::vector<ClassBean> FindClass(
             const schema::FindClass *query,
+            const std::set<uint32_t> &in_class_set,
             trie::PackageTrie &packageTrie,
-            uint32_t class_idx
+            uint32_t type_idx,
+            QueryContext &query_context
     );
     std::vector<MethodBean> FindMethod(
             const schema::FindMethod *query,
+            const std::set<uint32_t> &in_class_set,
+            const std::set<uint32_t> &in_method_set,
             trie::PackageTrie &packageTrie,
-            uint32_t class_idx
+            uint32_t type_idx,
+            QueryContext &query_context
     );
     std::vector<FieldBean> FindField(
             const schema::FindField *query,
+            const std::set<uint32_t> &in_class_set,
+            const std::set<uint32_t> &in_field_set,
             trie::PackageTrie &packageTrie,
-            uint32_t class_idx
+            uint32_t type_idx,
+            QueryContext &query_context
     );
     std::vector<BatchFindClassItemBean> BatchFindClassUsingStrings(
             const schema::BatchFindClassUsingStrings *query,
@@ -312,6 +320,7 @@ private:
 
     // string constants, sorted by string value
     std::vector<std::string_view> strings;
+    // type descriptor
     std::vector<std::string_view> type_names;
     std::vector<uint8_t> type_name_array_count;
     phmap::flat_hash_map<std::string_view /*type_name*/, uint32_t /*type_id*/> type_ids_map;

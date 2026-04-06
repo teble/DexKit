@@ -609,6 +609,154 @@ class UnitTest {
 
     @OptIn(DexKitExperimentalApi::class)
     @Test
+    fun testFindFirstFastDeclaredClassPathOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+            parallelBridge.resetQueryMetricsHistory()
+            parallelBridge.resetSchedulerMetrics()
+
+            val result = parallelBridge.findMethod {
+                findFirst = true
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                    usingNumbers(114514)
+                }
+            }
+            assert(result.size == 1)
+
+            val metrics = parallelBridge.getLastQueryMetricsSnapshot()
+            println(metrics)
+            assert(metrics.submittedTasks == 0L)
+            assert(metrics.dispatchedTasks == 0L)
+            assert(metrics.completedTasks == 0L)
+            assert(metrics.firstDispatchDelayNs == -1L)
+            assert(metrics.firstBonusDispatchDelayNs == -1L)
+            assert(metrics.preprocessCompletedNs >= 0)
+            assert(metrics.submissionCompletedNs >= metrics.preprocessCompletedNs)
+            assert(metrics.workersCompletedNs >= metrics.submissionCompletedNs)
+            assert(metrics.completedNs >= metrics.workersCompletedNs)
+
+            val schedulerMetrics = parallelBridge.getSchedulerMetricsSnapshot()
+            assert(schedulerMetrics.dispatchedTasks == 0L)
+
+            val history = parallelBridge.getQueryMetricsHistorySnapshot()
+            assert(history.records.size == 1)
+            val record = history.records.single()
+            assert(record.priority == QueryMetricsPriority.LATENCY_SENSITIVE)
+            assert(record.metrics.submittedTasks == 0L)
+            assert(record.metrics.dispatchedTasks == 0L)
+            assert(record.metrics.firstDispatchDelayNs == -1L)
+            assert(record.metrics.firstBonusDispatchDelayNs == -1L)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testFindClassFastDeclaredPathRespectsSearchClassesOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+
+            val mainActivity = parallelBridge.getClassData("Lorg/luckypray/dexkit/demo/MainActivity;")
+            assert(mainActivity != null)
+
+            parallelBridge.resetSchedulerMetrics()
+
+            val result = parallelBridge.findClass {
+                findFirst = true
+                searchIn(listOf(mainActivity!!))
+                matcher {
+                    className("org.luckypray.dexkit.demo.PlayActivity")
+                }
+            }
+            assert(result.isEmpty())
+
+            val metrics = parallelBridge.getLastQueryMetricsSnapshot()
+            assert(metrics.submittedTasks == 0L)
+            assert(metrics.dispatchedTasks == 0L)
+            assert(parallelBridge.getSchedulerMetricsSnapshot().dispatchedTasks == 0L)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testFindMethodFastDeclaredPathRespectsSearchMethodsOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+
+            val allMethods = parallelBridge.findMethod {
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                }
+            }
+            assert(allMethods.size > 1)
+            val expectedMethod = allMethods.last()
+
+            parallelBridge.resetSchedulerMetrics()
+
+            val result = parallelBridge.findMethod {
+                findFirst = true
+                searchInMethod(listOf(expectedMethod))
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                }
+            }
+            assert(result.size == 1)
+            assert(result.single().getEncodeId() == expectedMethod.getEncodeId())
+
+            val metrics = parallelBridge.getLastQueryMetricsSnapshot()
+            assert(metrics.submittedTasks == 0L)
+            assert(metrics.dispatchedTasks == 0L)
+            assert(parallelBridge.getSchedulerMetricsSnapshot().dispatchedTasks == 0L)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
+    fun testFindFieldFastDeclaredPathRespectsSearchFieldsOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+
+            val allFields = parallelBridge.findField {
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                }
+            }
+            assert(allFields.size > 1)
+            val expectedField = allFields.last()
+
+            parallelBridge.resetSchedulerMetrics()
+
+            val result = parallelBridge.findField {
+                findFirst = true
+                searchInField(listOf(expectedField))
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                }
+            }
+            assert(result.size == 1)
+            assert(result.single().getEncodeId() == expectedField.getEncodeId())
+
+            val metrics = parallelBridge.getLastQueryMetricsSnapshot()
+            assert(metrics.submittedTasks == 0L)
+            assert(metrics.dispatchedTasks == 0L)
+            assert(parallelBridge.getSchedulerMetricsSnapshot().dispatchedTasks == 0L)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
     fun testLastQueryMetricsSnapshotIsThreadLocalOnSharedScheduler() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)

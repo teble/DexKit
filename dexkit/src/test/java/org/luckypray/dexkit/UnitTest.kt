@@ -3,6 +3,7 @@ package org.luckypray.dexkit
 import org.junit.Test
 import org.luckypray.dexkit.annotations.DexKitExperimentalApi
 import org.luckypray.dexkit.query.enums.StringMatchType
+import org.luckypray.dexkit.query.enums.UsingType
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -125,6 +126,22 @@ class UnitTest {
         assert(mainActivity.name == "org.luckypray.dexkit.demo.MainActivity")
         assert(mainActivity.superClass!!.name == "androidx.appcompat.app.AppCompatActivity")
         assert(mainActivity.interfaceCount == 1)
+    }
+
+    @Test
+    fun testGetClassAnnotationsOnColdBridge() {
+        DexKitBridge.create(demoApkPath).use { coldBridge ->
+            val res = coldBridge.getClassData("Lorg/luckypray/dexkit/demo/MainActivity;")
+            assert(res != null)
+            val annotations = res!!.annotations
+            assert(annotations.size == 1)
+            val router = annotations.first()
+            assert(router.typeName == "org.luckypray.dexkit.demo.annotations.Router")
+            assert(router.elements.size == 1)
+            val pathElement = router.elements.first()
+            assert(pathElement.name == "path")
+            assert(pathElement.value.stringValue() == "/main")
+        }
     }
 
     @Test
@@ -252,6 +269,69 @@ class UnitTest {
         }
         println(res)
         assert(res.size == 1)
+    }
+
+    @Test
+    fun testMethodUsingFieldsMatcher() {
+        val res = bridge.findMethod {
+            matcher {
+                declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                usingNumbers {
+                    add {
+                        intValue(114514)
+                    }
+                }
+                usingFields {
+                    add {
+                        declaredClass = "org.luckypray.dexkit.demo.PlayActivity"
+                        type = "android.os.Handler"
+                        usingType = UsingType.Any
+                    }
+                }
+            }
+        }
+        println(res)
+        assert(res.isNotEmpty())
+        assert(res.all { it.className == "org.luckypray.dexkit.demo.PlayActivity" })
+    }
+
+    @Test
+    fun testFieldReadMethodsMatcher() {
+        val res = bridge.findField {
+            matcher {
+                declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                type("android.os.Handler")
+                addReadMethod {
+                    usingNumbers {
+                        add {
+                            intValue(114514)
+                        }
+                    }
+                }
+            }
+        }
+        println(res)
+        assert(res.size == 1)
+        assert(res.first().className == "org.luckypray.dexkit.demo.PlayActivity")
+        assert(res.first().typeName == "android.os.Handler")
+    }
+
+    @Test
+    fun testFieldWriteMethodsMatcher() {
+        val res = bridge.findField {
+            matcher {
+                declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                type("android.widget.TextView")
+                addWriteMethod {
+                    name = "onCreate"
+                    paramTypes("android.os.Bundle")
+                }
+            }
+        }
+        println(res)
+        assert(res.size == 1)
+        assert(res.first().className == "org.luckypray.dexkit.demo.PlayActivity")
+        assert(res.first().typeName == "android.widget.TextView")
     }
 
     @Test

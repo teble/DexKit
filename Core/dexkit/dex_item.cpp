@@ -966,6 +966,8 @@ DexItem::GetParameterNames(uint32_t method_idx) {
 
 std::vector<uint8_t>
 DexItem::GetMethodOpCodes(uint32_t method_idx) {
+    // OpCodes stay as a per-method lazy exception: cold metadata reads should not force
+    // bridge-level kOpSequence warm-up for the whole DexKit instance.
     if ((dex_flag.load(std::memory_order_acquire) & kOpSequence) != 0) {
         const auto &op_seq = method_opcode_seq[method_idx];
         return op_seq.has_value() ? op_seq.value() : std::vector<uint8_t>();
@@ -1001,6 +1003,8 @@ std::vector<MethodBean> DexItem::GetInvokeMethods(uint32_t method_idx) {
 }
 
 std::vector<std::string_view> DexItem::GetUsingStrings(uint32_t method_idx) {
+    // Using-strings follows the same rule as opcodes: per-method lazy fallback is allowed
+    // for metadata getters, while matcher/query hot paths rely on the outer ready barrier.
     std::vector<std::string_view> using_strings;
     const std::vector<uint32_t> *method_using_strings = nullptr;
     if ((dex_flag.load(std::memory_order_acquire) & kUsingString) != 0) {
@@ -1016,6 +1020,8 @@ std::vector<std::string_view> DexItem::GetUsingStrings(uint32_t method_idx) {
 }
 
 std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
+    // Cross-ref accessors intentionally have no fallback: callers must enter through the
+    // DexKit barrier so these final shared indexes are already published.
     DEXKIT_CHECK(!method_using_field_ids.empty());
     const auto &method_using_fields = this->method_using_field_ids[method_idx];
     std::vector<UsingFieldBean> using_fields;
@@ -1301,6 +1307,8 @@ const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
         return method_using_numbers[method_idx];
     }
 
+    // Using-numbers remains a sparse per-method lazy cache because full warm-up cost and
+    // resident memory are too high for the typical "read one method's metadata" path.
     auto &slot = lazy_using_numbers_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {

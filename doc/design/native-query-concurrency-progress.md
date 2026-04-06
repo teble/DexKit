@@ -453,6 +453,10 @@ $env:DEXKIT_BENCH_EXPECT_RESULT_SIZE='1'
    - warm-up 完成后，等待中的 query 再进入并发只读执行
    - 这意味着：当前代码正在从“依赖内层细粒度防御”逐步收敛到“外层 phase barrier 保证”
    - 对于本身已经声明明确 `need_flags` 的元数据访问器（如 callers / invoke / field get-put / using-fields），内层 accessor 也已开始去掉 fallback，改为直接依赖外层 barrier 并通过断言暴露误用
+   - 同一收敛方向也继续扩展到 matcher 路径：`using_fields` / `invoking_methods` / `method_callers` / `field read-write methods` / annotation matchers 现在同样直接断言最终只读索引已 ready，而不再把“空容器”静默当成未命中
+   - annotation 元数据 getter 目前仍保留为 **按成员惰性解析** 例外路径：`GetClassAnnotations` / `GetFieldAnnotations` / `GetMethodAnnotations` / `GetParameterAnnotations` 不强制触发 bridge 级全量 warm-up，而是在未 ready 时按目标成员回退解析
+   - `EnterQueryExecution(...)` 的 warm-up 状态流也已进一步收敛：当前 query 自身是否仍缺 `required_flags` 会先缓存为局部状态，只在 warm-up 等待/完成这些真正可能改变 ready-bit 的边界上重新扫描，而不再在 admission wait / 每轮循环尾部重复执行 `NeedWarmUp(...)`
+   - 当前 ready / lazy 边界也已在代码内显式标注：`GetMethodOpCodes` / `GetUsingStrings` / `GetUsingNumbers` / annotation getters 属于 member-scoped lazy metadata path；callers / invokes / using-fields / field get-put 以及 annotation / cross-ref matcher 则继续视为 barrier-backed shared index
    - 对于仍不想升级成 bridge 级全量 warm-up 的元数据读取路径，当前开始做更轻量的 **per-method 稀疏懒缓存**
      - `GetMethodOpCodes()`：未 ready `kOpSequence` 时，不再每次都重扫 code item，而是按 method 懒构建一次 opcode 序列
      - `GetUsingStrings()`：未 ready `kUsingString` 时，不再每次都重扫 code item，而是按 method 懒构建一次 string-id 列表

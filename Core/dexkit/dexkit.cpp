@@ -170,8 +170,12 @@ Error DexKit::InitFullCache() {
 DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
     std::unique_lock lock(query_execution_mutex);
     uint64_t shared_pool_admission_ticket = 0;
-    auto track_warmup_request = [this, required_flags]() {
-        if (required_flags != 0) {
+    bool required_warmup_pending = false;
+    auto refresh_required_warmup_state = [this, required_flags, &required_warmup_pending]() {
+        required_warmup_pending = required_flags != 0 && NeedWarmUp(required_flags);
+    };
+    auto track_required_warmup_request = [this, required_flags, &required_warmup_pending]() {
+        if (required_warmup_pending) {
             pending_warmup_flags |= required_flags;
         }
     };
@@ -200,18 +204,16 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
         return true;
     };
 
-    if (NeedWarmUp(required_flags)) {
-        track_warmup_request();
-    }
+    refresh_required_warmup_state();
+    track_required_warmup_request();
 
     while (true) {
         if (warmup_inflight) {
             query_execution_cv.wait(lock, [this] {
                 return !warmup_inflight;
             });
-            if (NeedWarmUp(required_flags)) {
-                track_warmup_request();
-            }
+            refresh_required_warmup_state();
+            track_required_warmup_request();
             continue;
         }
 
@@ -225,17 +227,18 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
                 lock.lock();
                 warmup_inflight = false;
                 query_execution_cv.notify_all();
-                if (NeedWarmUp(required_flags)) {
-                    track_warmup_request();
-                }
-                continue;
+            } else {
+                query_execution_cv.wait(lock, [this] {
+                    return warmup_inflight || active_query_count == 0;
+                });
             }
-            query_execution_cv.wait(lock, [this] {
-                return warmup_inflight || active_query_count == 0;
-            });
-            if (NeedWarmUp(required_flags)) {
-                track_warmup_request();
-            }
+            refresh_required_warmup_state();
+            track_required_warmup_request();
+            continue;
+        }
+
+        if (required_warmup_pending) {
+            track_required_warmup_request();
             continue;
         }
 
@@ -268,26 +271,19 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
                            current_max_concurrent_queries != max_concurrent_queries ||
                            ticket_can_enter;
                 });
-                if (NeedWarmUp(required_flags)) {
-                    track_warmup_request();
-                }
                 continue;
             }
         }
 
-        if (!NeedWarmUp(required_flags)) {
-            ++active_query_count;
-            if (shared_pool_admission_ticket != 0) {
-                DEXKIT_CHECK(!shared_pool_admission_wait_queue_.empty());
-                DEXKIT_CHECK(shared_pool_admission_wait_queue_.front() == shared_pool_admission_ticket);
-                shared_pool_admission_wait_queue_.pop_front();
-                shared_pool_admission_ticket = 0;
-                query_execution_cv.notify_all();
-            }
-            return QueryExecutionGuard(this);
+        ++active_query_count;
+        if (shared_pool_admission_ticket != 0) {
+            DEXKIT_CHECK(!shared_pool_admission_wait_queue_.empty());
+            DEXKIT_CHECK(shared_pool_admission_wait_queue_.front() == shared_pool_admission_ticket);
+            shared_pool_admission_wait_queue_.pop_front();
+            shared_pool_admission_ticket = 0;
+            query_execution_cv.notify_all();
         }
-
-        track_warmup_request();
+        return QueryExecutionGuard(this);
     }
 }
 
@@ -1152,6 +1148,8 @@ DexKit::GetFieldByIds(const std::vector<int64_t> &encode_ids) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetClassAnnotations(int64_t encode_class_id) {
+    // By-id annotation metadata intentionally stays on EnterQueryExecution(0): these
+    // getters are cold-path friendly and each DexItem accessor owns its own lazy fallback.
     auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_class_id >> 32;
     auto class_id = encode_class_id & UINT32_MAX;
@@ -1242,6 +1240,8 @@ DexKit::GetParameterNames(int64_t encode_method_id) {
 
 std::vector<uint8_t>
 DexKit::GetMethodOpCodes(int64_t encode_method_id) {
+    // Same boundary as annotation getters: metadata reads keep their member-scoped lazy path
+    // instead of forcing a bridge-level warm-up for all methods.
     auto execution_guard = EnterQueryExecution(0);
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
@@ -1250,6 +1250,8 @@ DexKit::GetMethodOpCodes(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetCallMethods(int64_t encode_method_id) {
+    // Cross-ref metadata reads consume final shared indexes, so they must stay behind the
+    // outer barrier instead of growing a second fallback implementation here.
     auto execution_guard = EnterQueryExecution(kCallerMethod | kMethodInvoking);
 
     auto dex_id = encode_method_id >> 32;

@@ -174,15 +174,20 @@ public:
     AnnotationElementBean GetAnnotationElementBean(ir::AnnotationElement *annotation_element);
     AnnotationEncodeArrayBean GetAnnotationEncodeArrayBean(ir::EncodedArray *encoded_array);
 
+    // Member-scoped metadata getters may be called without a DexKit-level warm-up barrier.
+    // They either read immutable base dex data directly or own a local lazy/fallback path.
     std::vector<AnnotationBean> GetClassAnnotationBeans(uint32_t class_idx);
     std::vector<AnnotationBean> GetMethodAnnotationBeans(uint32_t method_idx);
     std::vector<AnnotationBean> GetFieldAnnotationBeans(uint32_t field_idx);
     std::vector<std::vector<AnnotationBean>> GetParameterAnnotationBeans(uint32_t method_idx);
     std::optional<std::vector<std::optional<std::string_view>>> GetParameterNames(uint32_t method_idx);
     std::vector<uint8_t> GetMethodOpCodes(uint32_t method_idx);
+    std::vector<std::string_view> GetUsingStrings(uint32_t method_idx);
+
+    // Cross-ref accessors read final shared indexes and therefore require the outer
+    // DexKit query barrier to guarantee the corresponding ready flags.
     std::vector<MethodBean> GetCallMethods(uint32_t method_idx);
     std::vector<MethodBean> GetInvokeMethods(uint32_t method_idx);
-    std::vector<std::string_view> GetUsingStrings(uint32_t method_idx);
     std::vector<UsingFieldBean> GetUsingFields(uint32_t method_idx);
     std::vector<MethodBean> FieldGetMethods(uint32_t field_idx);
     std::vector<MethodBean> FieldPutMethods(uint32_t field_idx);
@@ -210,6 +215,7 @@ private:
     std::vector<uint8_t> GetOpSeqFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetUsingStringsFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetInvokeMethodsFromCode(uint32_t method_idx);
+    // These helpers are the "member-scoped lazy" exceptions to the global warm-up barrier.
     const std::vector<uint8_t> &GetLazyMethodOpCodes(uint32_t method_idx);
     const std::vector<uint32_t> &GetLazyMethodUsingStringIds(uint32_t method_idx);
     std::vector<EncodeNumber> ParseUsingNumbersFromCode(uint32_t method_idx);

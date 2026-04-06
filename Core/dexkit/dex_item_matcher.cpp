@@ -353,6 +353,7 @@ bool DexItem::IsAnnotationMatched(const ir::Annotation *annotation, const schema
         return false;
     }
     if (matcher->target_element_types() || (uint8_t) matcher->policy()) {
+        DEXKIT_CHECK(class_annotations.size() == reader.TypeIds().size());
         auto m_class_annotations = this->class_annotations[annotation->type->orig_index];
         if (m_class_annotations == nullptr) {
             return false;
@@ -939,6 +940,9 @@ bool DexItem::IsClassAnnotationMatched(uint32_t type_idx, const schema::Annotati
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
+    // Annotation matchers are query hot paths, so unlike metadata getters they rely on
+    // Analyze(...) + DexKit::EnterQueryExecution(...) to prewarm the full shared index.
+    DEXKIT_CHECK(class_annotations.size() == reader.TypeIds().size());
     if (!IsAnnotationsMatched(this->class_annotations[type_idx], matcher)) {
         return false;
     }
@@ -1111,6 +1115,7 @@ bool DexItem::IsParametersMatched(uint32_t method_idx, const schema::ParametersM
         if (type_list_size != matcher->parameters()->size()) {
             return false;
         }
+        const std::vector<ir::AnnotationSet *> *method_parameter_annotation = nullptr;
         for (size_t i = 0; i < type_list_size; ++i) {
             auto parameter_matcher = matcher->parameters()->Get(i);
             DEXKIT_CHECK(parameter_matcher);
@@ -1118,11 +1123,14 @@ bool DexItem::IsParametersMatched(uint32_t method_idx, const schema::ParametersM
                 return false;
             }
             if (parameter_matcher->annotations()) {
-                auto &method_parameter_annotation = this->method_parameter_annotations[method_idx];
-                if (method_parameter_annotation.size() <= i) {
+                if (method_parameter_annotation == nullptr) {
+                    DEXKIT_CHECK(method_parameter_annotations.size() == reader.MethodIds().size());
+                    method_parameter_annotation = &this->method_parameter_annotations[method_idx];
+                }
+                if (method_parameter_annotation->size() <= i) {
                     return false;
                 }
-                if (!IsAnnotationsMatched(method_parameter_annotation[i], parameter_matcher->annotations())) {
+                if (!IsAnnotationsMatched((*method_parameter_annotation)[i], parameter_matcher->annotations())) {
                     return false;
                 }
             }
@@ -1261,6 +1269,7 @@ bool DexItem::IsMethodAnnotationMatched(uint32_t method_idx, const schema::Annot
     if (matcher == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(method_annotations.size() == reader.MethodIds().size());
     if (!IsAnnotationsMatched(this->method_annotations[method_idx], matcher)) {
         return false;
     }
@@ -1271,6 +1280,7 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
     if (matcher->using_fields() == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(!method_using_field_ids.empty());
     auto IsUsingFieldMatched = [this](std::pair<uint32_t, bool> field, const schema::UsingFieldMatcher *matcher) {
         return this->IsUsingFieldMatched(field, matcher);
     };
@@ -1382,7 +1392,8 @@ bool DexItem::IsInvokingMethodsMatched(uint32_t method_idx, const schema::Method
     if (matcher == nullptr) {
         return true;
     }
-    const auto invoking_methods = this->method_invoking_ids[method_idx];
+    DEXKIT_CHECK(!method_invoking_ids.empty());
+    const auto &invoking_methods = this->method_invoking_ids[method_idx];
     if (matcher->method_count()) {
         if (invoking_methods.size() < matcher->method_count()->min()
         || invoking_methods.size() > matcher->method_count()->max()) {
@@ -1426,6 +1437,7 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
     if (matcher == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(!method_caller_ids.empty());
     const auto &ids = this->method_caller_ids[method_idx];
     if (matcher->method_count()) {
         if (ids.size() < matcher->method_count()->min() || ids.size() > matcher->method_count()->max()) {
@@ -1523,6 +1535,7 @@ bool DexItem::IsFieldAnnotationMatched(uint32_t field_idx, const schema::Annotat
     if (matcher == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(field_annotations.size() == reader.FieldIds().size());
     if (!IsAnnotationsMatched(this->field_annotations[field_idx], matcher)) {
         return false;
     }
@@ -1533,6 +1546,7 @@ bool DexItem::IsFieldGetMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(!field_get_method_ids.empty());
     const auto &ids = this->field_get_method_ids[field_idx];
     if (matcher->method_count()) {
         if (ids.size() < matcher->method_count()->min() || ids.size() > matcher->method_count()->max()) {
@@ -1578,6 +1592,7 @@ bool DexItem::IsFieldPutMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
+    DEXKIT_CHECK(!field_put_method_ids.empty());
     const auto &ids = this->field_put_method_ids[field_idx];
     if (matcher->method_count()) {
         if (ids.size() < matcher->method_count()->min() || ids.size() > matcher->method_count()->max()) {

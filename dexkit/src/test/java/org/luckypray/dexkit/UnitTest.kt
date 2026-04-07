@@ -735,6 +735,42 @@ class UnitTest {
 
     @OptIn(DexKitExperimentalApi::class)
     @Test
+    fun testFindMethodFastDeclaredPathFindsNamedNonConstructorOnSharedScheduler() {
+        DexKitBridge.create(demoApkPath).use { parallelBridge ->
+            parallelBridge.setThreadNum(2)
+            parallelBridge.setSchedulerMode(SchedulerMode.SharedPool)
+            parallelBridge.setMaxConcurrentQueries(2)
+            parallelBridge.setQueryMetricsEnabled(true)
+            parallelBridge.resetQueryMetricsHistory()
+            parallelBridge.resetSchedulerMetrics()
+
+            val result = parallelBridge.findMethod {
+                matcher {
+                    declaredClass("org.luckypray.dexkit.demo.PlayActivity")
+                    name = "onCreate"
+                    paramTypes("android.os.Bundle")
+                }
+            }
+            assert(result.size == 1)
+            assert(result.single().className == "org.luckypray.dexkit.demo.PlayActivity")
+            assert(result.single().name == "onCreate")
+
+            val metrics = parallelBridge.getLastQueryMetricsSnapshot()
+            assert(metrics.submittedTasks == 0L)
+            assert(metrics.dispatchedTasks == 0L)
+            assert(metrics.completedTasks == 0L)
+            assert(metrics.firstDispatchDelayNs == -1L)
+            assert(metrics.firstBonusDispatchDelayNs == -1L)
+            assert(metrics.preprocessCompletedNs >= 0)
+            assert(metrics.submissionCompletedNs >= metrics.preprocessCompletedNs)
+            assert(metrics.workersCompletedNs >= metrics.submissionCompletedNs)
+            assert(metrics.completedNs >= metrics.workersCompletedNs)
+            assert(parallelBridge.getSchedulerMetricsSnapshot().dispatchedTasks == 0L)
+        }
+    }
+
+    @OptIn(DexKitExperimentalApi::class)
+    @Test
     fun testFindClassFastDeclaredPathRespectsSearchClassesOnSharedScheduler() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)

@@ -162,6 +162,138 @@ phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> &GetMatcherTh
     return registry;
 }
 
+constexpr size_t kPersistentUsingStringsCacheLimit = 32;
+
+struct NormalizedUsingStringMatcher {
+    std::string value;
+    schema::StringMatchType match_type = schema::StringMatchType::Contains;
+    bool ignore_case = false;
+};
+
+struct PersistentUsingStringsKeywordsCache {
+    using AcTrie = acdat::AhoCorasickDoubleArrayTrie<std::string_view>;
+    using MatchTypeMap = phmap::flat_hash_map<std::string_view, schema::StringMatchType>;
+    using StringSet = std::set<std::string_view>;
+
+    std::vector<std::string> owned_keywords;
+    std::shared_ptr<AcTrie> ac_trie = std::make_shared<AcTrie>();
+    std::shared_ptr<MatchTypeMap> match_type_map = std::make_shared<MatchTypeMap>();
+    std::shared_ptr<StringSet> real_keywords = std::make_shared<StringSet>();
+};
+
+struct PersistentUsingStringsThreadCache {
+    struct Entry {
+        std::string key;
+        std::shared_ptr<PersistentUsingStringsKeywordsCache> value;
+    };
+
+    template<typename Factory>
+    std::shared_ptr<PersistentUsingStringsKeywordsCache> GetOrCreate(std::string key, Factory &&factory) {
+        for (auto &entry: entries) {
+            if (entry.key == key) {
+                return entry.value;
+            }
+        }
+        if (entries.size() >= kPersistentUsingStringsCacheLimit) {
+            entries.erase(entries.begin());
+        }
+        entries.push_back(Entry{
+                .key = std::move(key),
+                .value = std::make_shared<PersistentUsingStringsKeywordsCache>(std::forward<Factory>(factory)()),
+        });
+        return entries.back().value;
+    }
+
+    std::vector<Entry> entries;
+};
+
+static std::vector<NormalizedUsingStringMatcher> NormalizeUsingStringsMatchers(
+        const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *using_strings_matcher
+) {
+    std::vector<NormalizedUsingStringMatcher> normalized;
+    if (using_strings_matcher == nullptr) {
+        return normalized;
+    }
+    normalized.reserve(using_strings_matcher->size());
+    for (int i = 0; i < using_strings_matcher->size(); ++i) {
+        auto string_matcher = using_strings_matcher->Get(i);
+        auto value = string_matcher->value()->string_view();
+        auto match_type = string_matcher->match_type();
+        if (match_type == schema::StringMatchType::SimilarRegex) {
+            match_type = schema::StringMatchType::Contains;
+            int left = 0;
+            int right = static_cast<int>(value.size());
+            if (value.starts_with('^')) {
+                left = 1;
+                match_type = schema::StringMatchType::StartWith;
+            }
+            if (value.ends_with('$')) {
+                right = static_cast<int>(value.size()) - 1;
+                if (match_type == schema::StringMatchType::StartWith) {
+                    match_type = schema::StringMatchType::Equal;
+                } else {
+                    match_type = schema::StringMatchType::EndWith;
+                }
+            }
+            value = value.substr(left, right - left);
+        }
+        normalized.push_back(NormalizedUsingStringMatcher{
+                .value = std::string(value),
+                .match_type = match_type,
+                .ignore_case = string_matcher->ignore_case(),
+        });
+    }
+    return normalized;
+}
+
+static std::string BuildUsingStringsCacheKey(const std::vector<NormalizedUsingStringMatcher> &normalized) {
+    size_t total_size = 0;
+    for (const auto &item: normalized) {
+        total_size += 2 + sizeof(uint32_t) + item.value.size();
+    }
+    std::string key;
+    key.reserve(total_size);
+    for (const auto &item: normalized) {
+        key.push_back(static_cast<char>(item.match_type));
+        key.push_back(static_cast<char>(item.ignore_case ? 1 : 0));
+        auto len = static_cast<uint32_t>(item.value.size());
+        key.append(reinterpret_cast<const char *>(&len), sizeof(len));
+        key.append(item.value);
+    }
+    return key;
+}
+
+static PersistentUsingStringsKeywordsCache BuildPersistentUsingStringsKeywordsCache(
+        const std::vector<NormalizedUsingStringMatcher> &normalized
+) {
+    PersistentUsingStringsKeywordsCache cache;
+    cache.owned_keywords.reserve(normalized.size());
+    cache.match_type_map->reserve(normalized.size());
+
+    std::vector<std::pair<std::string_view, bool>> keywords;
+    keywords.reserve(normalized.size());
+    for (const auto &item: normalized) {
+        cache.owned_keywords.emplace_back(item.value);
+        auto keyword = std::string_view(cache.owned_keywords.back());
+        keywords.emplace_back(keyword, item.ignore_case);
+        cache.real_keywords->insert(keyword);
+        (*cache.match_type_map)[keyword] = item.match_type;
+    }
+    acdat::Builder<std::string_view>().Build(keywords, cache.ac_trie.get());
+    return cache;
+}
+
+static std::shared_ptr<PersistentUsingStringsKeywordsCache> GetPersistentUsingStringsKeywordsCache(
+        const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *using_strings_matcher
+) {
+    thread_local PersistentUsingStringsThreadCache cache;
+    auto normalized = NormalizeUsingStringsMatchers(using_strings_matcher);
+    auto key = BuildUsingStringsCacheKey(normalized);
+    return cache.GetOrCreate(std::move(key), [&]() {
+        return BuildPersistentUsingStringsKeywordsCache(normalized);
+    });
+}
+
 } // namespace
 
 struct MatcherThreadLocalQueryCache {
@@ -237,6 +369,26 @@ static T *GetMatcherCache(MatcherCacheScope scope, std::uintptr_t key, Factory &
     // ends, and Rebind(query_id) clears any stale per-thread entries before reuse.
     query_cache.Put(cache_key, ptr);
     return ptr;
+}
+
+static PersistentUsingStringsKeywordsCache *GetUsingStringsKeywordsCache(
+        MatcherCacheScope scope,
+        const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *using_strings_matcher
+) {
+    if (using_strings_matcher == nullptr) {
+        return nullptr;
+    }
+    if (QueryContext::Current() == nullptr) {
+        return GetPersistentUsingStringsKeywordsCache(using_strings_matcher).get();
+    }
+    auto *cache_ref = GetMatcherCache<std::shared_ptr<PersistentUsingStringsKeywordsCache>>(
+            scope,
+            POINT_CASE(using_strings_matcher),
+            [&]() {
+                return GetPersistentUsingStringsKeywordsCache(using_strings_matcher);
+            }
+    );
+    return cache_ref->get();
 }
 
 void RegisterMatcherThreadLocalCache(
@@ -415,28 +567,13 @@ bool DexItem::IsAnnotationUsingStringsMatched(const ir::Annotation *annotation, 
         return true;
     }
 
-    typedef acdat::AhoCorasickDoubleArrayTrie<std::string_view> AcTrie;
-    typedef phmap::flat_hash_map<std::string_view, schema::StringMatchType> MatchTypeMap;
-    typedef std::set<std::string_view> StringSet;
-    std::shared_ptr<AcTrie> acTrie;
-    std::shared_ptr<MatchTypeMap> match_type_map;
-    std::shared_ptr<StringSet> real_keywords;
-
-    typedef std::tuple<std::shared_ptr<AcTrie>, std::shared_ptr<MatchTypeMap>, std::shared_ptr<StringSet>> KeywordsTuple;
-    std::vector<std::pair<std::string_view, bool>> keywords;
-    auto ptr = GetMatcherCache<KeywordsTuple>(MatcherCacheScope::AnnotationUsingStringsKeywords, POINT_CASE(matcher->using_strings()),
-                                              [&]() {
-        auto trie = std::make_shared<AcTrie>();
-        auto map = std::make_shared<MatchTypeMap>();
-        auto result = BuildBatchFindKeywordsMap(matcher->using_strings(), keywords, *map);
-        auto string_set = std::make_shared<StringSet>(result);
-        acdat::Builder<std::string_view>().Build(keywords, trie.get());
-        return std::make_tuple(trie, map, string_set);
-    });
-
-    acTrie = std::get<0>(*ptr);
-    match_type_map = std::get<1>(*ptr);
-    real_keywords = std::get<2>(*ptr);
+    auto *keywords_cache = GetUsingStringsKeywordsCache(
+            MatcherCacheScope::AnnotationUsingStringsKeywords,
+            matcher->using_strings()
+    );
+    auto &acTrie = keywords_cache->ac_trie;
+    auto &match_type_map = keywords_cache->match_type_map;
+    auto &real_keywords = keywords_cache->real_keywords;
 
     auto using_empty_string_count = 0;
     std::set<std::string_view> search_set;
@@ -814,28 +951,13 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
         return false;
     }
 
-    typedef acdat::AhoCorasickDoubleArrayTrie<std::string_view> AcTrie;
-    typedef phmap::flat_hash_map<std::string_view, schema::StringMatchType> MatchTypeMap;
-    typedef std::set<std::string_view> StringSet;
-    std::shared_ptr<AcTrie> acTrie;
-    std::shared_ptr<MatchTypeMap> match_type_map;
-    std::shared_ptr<StringSet> real_keywords;
-
-    typedef std::tuple<std::shared_ptr<AcTrie>, std::shared_ptr<MatchTypeMap>, std::shared_ptr<StringSet>> KeywordsTuple;
-    std::vector<std::pair<std::string_view, bool>> keywords;
-    auto ptr = GetMatcherCache<KeywordsTuple>(MatcherCacheScope::ClassUsingStringsKeywords, POINT_CASE(matcher->using_strings()),
-                                              [&]() {
-        auto trie = std::make_shared<AcTrie>();
-        auto map = std::make_shared<MatchTypeMap>();
-        auto result = BuildBatchFindKeywordsMap(matcher->using_strings(), keywords, *map);
-        auto string_set = std::make_shared<StringSet>(result);
-        acdat::Builder<std::string_view>().Build(keywords, trie.get());
-        return std::make_tuple(trie, map, string_set);
-    });
-
-    acTrie = std::get<0>(*ptr);
-    match_type_map = std::get<1>(*ptr);
-    real_keywords = std::get<2>(*ptr);
+    auto *keywords_cache = GetUsingStringsKeywordsCache(
+            MatcherCacheScope::ClassUsingStringsKeywords,
+            matcher->using_strings()
+    );
+    auto &acTrie = keywords_cache->ac_trie;
+    auto &match_type_map = keywords_cache->match_type_map;
+    auto &real_keywords = keywords_cache->real_keywords;
 
     auto using_empty_string_count = 0;
     std::set<std::string_view> search_set;
@@ -1201,28 +1323,13 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
         return true;
     }
 
-    typedef acdat::AhoCorasickDoubleArrayTrie<std::string_view> AcTrie;
-    typedef phmap::flat_hash_map<std::string_view, schema::StringMatchType> MatchTypeMap;
-    typedef std::set<std::string_view> StringSet;
-    std::shared_ptr<AcTrie> acTrie;
-    std::shared_ptr<MatchTypeMap> match_type_map;
-    std::shared_ptr<StringSet> real_keywords;
-
-    typedef std::tuple<std::shared_ptr<AcTrie>, std::shared_ptr<MatchTypeMap>, std::shared_ptr<StringSet>> KeywordsTuple;
-    std::vector<std::pair<std::string_view, bool>> keywords;
-    auto ptr = GetMatcherCache<KeywordsTuple>(MatcherCacheScope::MethodUsingStringsKeywords, POINT_CASE(matcher->using_strings()),
-                                              [&]() {
-        auto trie = std::make_shared<AcTrie>();
-        auto map = std::make_shared<MatchTypeMap>();
-        auto result = BuildBatchFindKeywordsMap(matcher->using_strings(), keywords, *map);
-        auto string_set = std::make_shared<StringSet>(result);
-        acdat::Builder<std::string_view>().Build(keywords, trie.get());
-        return std::make_tuple(trie, map, string_set);
-    });
-
-    acTrie = std::get<0>(*ptr);
-    match_type_map = std::get<1>(*ptr);
-    real_keywords = std::get<2>(*ptr);
+    auto *keywords_cache = GetUsingStringsKeywordsCache(
+            MatcherCacheScope::MethodUsingStringsKeywords,
+            matcher->using_strings()
+    );
+    auto &acTrie = keywords_cache->ac_trie;
+    auto &match_type_map = keywords_cache->match_type_map;
+    auto &real_keywords = keywords_cache->real_keywords;
 
     auto using_empty_string_count = 0;
     std::set<std::string_view> search_set;

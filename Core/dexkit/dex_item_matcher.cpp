@@ -1162,14 +1162,12 @@ bool DexItem::IsMethodMatched(uint32_t method_idx, const schema::MethodMatcher *
     if (matcher == nullptr) {
         return true;
     }
-    auto &method_def = this->reader.MethodIds()[method_idx];
-    if (!this->type_def_flag[method_def.class_idx]) {
-        auto &cross_info = this->method_cross_info[method_idx];
-        if (cross_info.has_value()) {
-            auto dex = dexkit->GetDexItem(cross_info->first);
-            return dex->IsMethodMatched(cross_info->second, matcher);
-        }
+    auto &cross_info = this->method_cross_info[method_idx];
+    if (cross_info.has_value()) {
+        auto dex = dexkit->GetDexItem(cross_info->first);
+        return dex->IsMethodMatched(cross_info->second, matcher);
     }
+    auto &method_def = this->reader.MethodIds()[method_idx];
     auto method_name = this->strings[method_def.name_idx];
     if (!IsStringMatched(method_name, matcher->method_name())) {
         return false;
@@ -1609,14 +1607,12 @@ bool DexItem::IsFieldMatched(uint32_t field_idx, const schema::FieldMatcher *mat
     if (matcher == nullptr) {
         return true;
     }
-    auto &field_def = this->reader.FieldIds()[field_idx];
-    if (!this->type_def_flag[field_def.class_idx]) {
-        auto &cross_info = this->field_cross_info[field_idx];
-        if (cross_info.has_value()) {
-            auto dex = dexkit->GetDexItem(cross_info->first);
-            return dex->IsFieldMatched(cross_info->second, matcher);
-        }
+    auto &cross_info = this->field_cross_info[field_idx];
+    if (cross_info.has_value()) {
+        auto dex = dexkit->GetDexItem(cross_info->first);
+        return dex->IsFieldMatched(cross_info->second, matcher);
     }
+    auto &field_def = this->reader.FieldIds()[field_idx];
     auto field_name = this->strings[field_def.name_idx];
     if (!IsStringMatched(field_name, matcher->field_name())) {
         return false;

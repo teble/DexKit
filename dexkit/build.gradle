@@ -6,7 +6,49 @@ plugins {
     id("io.github.tomtzook.gradle-cmake") version "1.2.2"
 }
 
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
 def isLinux = System.getProperty('os.name').toLowerCase().contains('linux')
+def requestedTasks = gradle.startParameter.taskNames.collect { it.toLowerCase() }
+def isDexkitReleaseArtifactTask = { String taskName ->
+    taskName == 'publish' ||
+            taskName == ':publish' ||
+            taskName == 'publishtomavenlocal' ||
+            taskName == ':publishtomavenlocal' ||
+            taskName == 'sign' ||
+            taskName == ':sign' ||
+            taskName == 'dokka' ||
+            taskName == ':dokka' ||
+            taskName == 'dokkahtml' ||
+            taskName == ':dokkahtml' ||
+            taskName == ':dexkit:jar' ||
+            taskName == 'dexkit:jar' ||
+            taskName == ':dexkit:sourcesjar' ||
+            taskName == 'dexkit:sourcesjar' ||
+            taskName == ':dexkit:javadocjar' ||
+            taskName == 'dexkit:javadocjar' ||
+            taskName.startsWith(':dexkit:publish') ||
+            taskName.startsWith('dexkit:publish') ||
+            taskName.startsWith(':dexkit:sign') ||
+            taskName.startsWith('dexkit:sign') ||
+            taskName.startsWith(':dexkit:dokka') ||
+            taskName.startsWith('dexkit:dokka')
+}
+def isReleaseArtifactBuild = requestedTasks.any(isDexkitReleaseArtifactTask)
+def defaultEnableInternalMetricsApi = !isReleaseArtifactBuild
+def localEnableInternalMetricsApi = localProps.getProperty("dexkit.enableInternalMetricsApi")
+def gradleEnableInternalMetricsApi = providers.gradleProperty("enableInternalMetricsApi").orNull
+def enableInternalMetricsApi = gradleEnableInternalMetricsApi != null
+        ? gradleEnableInternalMetricsApi.toBoolean()
+        : (isReleaseArtifactBuild
+            ? false
+            : (localEnableInternalMetricsApi != null
+                ? localEnableInternalMetricsApi.toBoolean()
+                : defaultEnableInternalMetricsApi))
 
 cmake {
     targets {
@@ -24,6 +66,7 @@ cmake {
             cmakeArgs.add("-DCMAKE_BUILD_TYPE=Release")
             cmakeArgs.add("-DCMAKE_CXX_FLAGS_RELEASE=$configFlags")
             cmakeArgs.add("-DCMAKE_C_FLAGS_RELEASE=$configFlags")
+            cmakeArgs.add("-DDEXKIT_ENABLE_INTERNAL_METRICS_API=${enableInternalMetricsApi ? 'ON' : 'OFF'}")
             if (project.hasProperty("linuxMuslBuild") && isLinux) {
                 cmakeArgs.add("-DUSE_MUSL_LIBC=ON")
             }
@@ -34,6 +77,16 @@ cmake {
 java {
     sourceCompatibility JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+sourceSets {
+    main {
+        java {
+            if (enableInternalMetricsApi) {
+                srcDir("src/internalMetrics/java")
+            }
+        }
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {

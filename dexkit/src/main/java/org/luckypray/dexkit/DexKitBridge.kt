@@ -61,6 +61,10 @@ class DexKitBridge : Closeable {
             return token
         }
 
+    @PublishedApi
+    internal val nativeToken: Long
+        get() = safeToken
+
     /**
      * DexKit is valid only when token is not 0
      * ----------------
@@ -131,41 +135,6 @@ class DexKitBridge : Closeable {
     fun setMaxConcurrentQueries(maxConcurrentQueries: Int) {
         require(maxConcurrentQueries >= 0) { "maxConcurrentQueries must be >= 0" }
         nativeSetMaxConcurrentQueries(safeToken, maxConcurrentQueries)
-    }
-
-    @DexKitExperimentalApi
-    @Synchronized
-    fun setQueryMetricsEnabled(enabled: Boolean) {
-        nativeSetQueryMetricsEnabled(safeToken, enabled)
-    }
-
-    @DexKitExperimentalApi
-    @Synchronized
-    fun getSchedulerMetricsSnapshot(): SchedulerMetricsSnapshot {
-        return SchedulerMetricsSnapshot.fromNative(nativeGetSchedulerMetrics(safeToken))
-    }
-
-    @DexKitExperimentalApi
-    fun getLastQueryMetricsSnapshot(): QueryMetricsSnapshot {
-        return QueryMetricsSnapshot.fromNative(nativeGetLastQueryMetrics(safeToken))
-    }
-
-    @DexKitExperimentalApi
-    @Synchronized
-    fun getQueryMetricsHistorySnapshot(): QueryMetricsHistorySnapshot {
-        return QueryMetricsHistorySnapshot.fromNative(nativeGetQueryMetricsHistory(safeToken))
-    }
-
-    @DexKitExperimentalApi
-    @Synchronized
-    fun resetSchedulerMetrics() {
-        nativeResetSchedulerMetrics(safeToken)
-    }
-
-    @DexKitExperimentalApi
-    @Synchronized
-    fun resetQueryMetricsHistory() {
-        nativeResetQueryMetricsHistory(safeToken)
     }
 
     /**
@@ -730,24 +699,6 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeSetMaxConcurrentQueries(nativePtr: Long, maxConcurrentQueries: Int)
-
-        @JvmStatic
-        private external fun nativeSetQueryMetricsEnabled(nativePtr: Long, enabled: Boolean)
-
-        @JvmStatic
-        private external fun nativeGetSchedulerMetrics(nativePtr: Long): LongArray
-
-        @JvmStatic
-        private external fun nativeGetLastQueryMetrics(nativePtr: Long): LongArray
-
-        @JvmStatic
-        private external fun nativeGetQueryMetricsHistory(nativePtr: Long): LongArray
-
-        @JvmStatic
-        private external fun nativeResetSchedulerMetrics(nativePtr: Long)
-
-        @JvmStatic
-        private external fun nativeResetQueryMetricsHistory(nativePtr: Long)
 
         @JvmStatic
         private external fun nativeInitFullCache(nativePtr: Long)

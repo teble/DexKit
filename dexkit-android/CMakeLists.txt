@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(dexkit)
+option(DEXKIT_ENABLE_INTERNAL_METRICS "Compile internal metrics into core" OFF)
 option(DEXKIT_ENABLE_INTERNAL_METRICS_API "Enable internal metrics JNI bridge" OFF)
+
+if (DEXKIT_ENABLE_INTERNAL_METRICS_API)
+    set(DEXKIT_ENABLE_INTERNAL_METRICS ON)
+endif ()
 
 find_package(cxx REQUIRED CONFIG)
 link_libraries(cxx::cxx)

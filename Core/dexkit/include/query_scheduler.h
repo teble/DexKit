@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "ThreadPool.h"
+#include "internal_metrics_config.h"
 #include "query_context.h"
 
 namespace dexkit {
@@ -66,6 +67,7 @@ public:
     [[nodiscard]] QuerySchedulerMetricsSnapshot GetMetricsSnapshot() const {
         std::lock_guard lock(mutex_);
         QuerySchedulerMetricsSnapshot snapshot;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         snapshot.share_count_syncs = metrics_.share_count_syncs;
         snapshot.share_count_changes = metrics_.share_count_changes;
         snapshot.budget_rebalances = metrics_.budget_rebalances;
@@ -77,12 +79,15 @@ public:
         snapshot.max_total_in_flight = metrics_.max_total_in_flight;
         snapshot.max_visible_query_share_count = metrics_.max_visible_query_share_count;
         snapshot.max_runnable_queue_size = metrics_.max_runnable_queue_size;
+#endif
         return snapshot;
     }
 
     void ResetMetrics() {
         std::lock_guard lock(mutex_);
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         metrics_ = {};
+#endif
     }
 
     void ActivateQuery(uint64_t query_id) {
@@ -165,6 +170,7 @@ private:
         }
     };
 
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     struct QuerySchedulerMetricsState {
         size_t share_count_syncs = 0;
         size_t share_count_changes = 0;
@@ -178,6 +184,7 @@ private:
         size_t max_visible_query_share_count = 0;
         size_t max_runnable_queue_size = 0;
     };
+#endif
 
     struct DispatchTask {
         uint64_t query_id = 0;
@@ -277,11 +284,13 @@ private:
     }
 
     void UpdateMaxRunnableQueueSizeLocked() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         UpdateMaxMetric(
                 metrics_.max_runnable_queue_size,
                 base_runnable_queries_.size() +
                 latency_sensitive_bonus_runnable_queries_.size()
         );
+#endif
     }
 
     [[nodiscard]] size_t BonusDispatchBudgetCap(const QuerySlot &slot, const DispatchRoundPolicy &policy) const {
@@ -298,7 +307,9 @@ private:
     }
 
     void RebalanceDispatchBudgetsLocked(size_t query_share_count) {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         ++metrics_.budget_rebalances;
+#endif
         auto policy = ComputeDispatchRoundPolicy(query_share_count);
         for (auto &[query_id, slot]: query_slots_) {
             (void) query_id;
@@ -323,19 +334,30 @@ private:
             slot.queued = false;
         }
         (void) CollectAndEnqueueRunnableCandidatesLocked(QueryInFlightLimitLocked());
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         ++metrics_.runnable_queue_rebuilds;
+#endif
         UpdateMaxRunnableQueueSizeLocked();
     }
 
     [[nodiscard]] size_t SyncQueryShareCountLocked() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         ++metrics_.share_count_syncs;
+#endif
         auto query_share_count = QueryShareCountLocked();
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         UpdateMaxMetric(metrics_.max_visible_query_share_count, query_share_count);
         if (query_share_count == last_query_share_count_) {
             return query_share_count;
         }
         last_query_share_count_ = query_share_count;
         ++metrics_.share_count_changes;
+#else
+        if (query_share_count == last_query_share_count_) {
+            return query_share_count;
+        }
+        last_query_share_count_ = query_share_count;
+#endif
         RebalanceDispatchBudgetsLocked(query_share_count);
         RebuildRunnableQueuesLocked();
         return query_share_count;
@@ -435,7 +457,9 @@ private:
     }
 
     bool RefillDispatchBudgetsLocked() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         ++metrics_.refill_rounds;
+#endif
         auto query_share_count = SyncQueryShareCountLocked();
         auto policy = ComputeDispatchRoundPolicy(query_share_count);
         auto query_in_flight_limit = policy.query_in_flight_limit;
@@ -520,6 +544,7 @@ private:
             }
             ++slot.in_flight;
             ++total_in_flight_;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
             ++metrics_.dispatched_tasks;
             if (used_bonus_dispatch) {
                 ++metrics_.bonus_dispatched_tasks;
@@ -527,6 +552,7 @@ private:
                 ++metrics_.base_dispatched_tasks;
             }
             UpdateMaxMetric(metrics_.max_total_in_flight, total_in_flight_);
+#endif
             if (slot.query_context != nullptr) {
                 slot.query_context->MarkTaskDispatched(
                         used_bonus_dispatch,
@@ -584,7 +610,9 @@ private:
     QuerySlotMap query_slots_;
     std::deque<uint64_t> base_runnable_queries_;
     std::deque<uint64_t> latency_sensitive_bonus_runnable_queries_;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     QuerySchedulerMetricsState metrics_;
+#endif
     uint64_t next_activation_sequence_ = 1;
     uint64_t next_dispatch_sequence_ = 1;
     size_t last_query_share_count_ = 1;

@@ -29,6 +29,7 @@
 #include <utility>
 #include <vector>
 
+#include "internal_metrics_config.h"
 #include "parallel_hashmap/phmap.h"
 
 namespace dexkit {
@@ -176,7 +177,15 @@ public:
     };
 
     explicit QueryContext(QueryKind kind, bool metrics_enabled = false)
-            : kind_(kind), query_id_(NextQueryId()), metrics_enabled_(metrics_enabled) {}
+            : kind_(kind), query_id_(NextQueryId())
+#if DEXKIT_ENABLE_INTERNAL_METRICS
+            , metrics_enabled_(metrics_enabled)
+#endif
+    {
+#if !DEXKIT_ENABLE_INTERNAL_METRICS
+        (void) metrics_enabled;
+#endif
+    }
 
     ~QueryContext() {
         ClearMatcherCaches();
@@ -215,40 +224,57 @@ public:
     }
 
     [[nodiscard]] bool AreMetricsEnabled() const {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         return metrics_enabled_;
+#else
+        return false;
+#endif
     }
 
     void MarkTaskSubmitted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         metrics_.submitted_tasks.fetch_add(1, std::memory_order_relaxed);
+#endif
     }
 
     void MarkTaskCompleted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         metrics_.completed_tasks.fetch_add(1, std::memory_order_relaxed);
+#endif
     }
 
     void MarkPreprocessCompleted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.preprocess_completed_ns, RelativeNowNs());
+#endif
     }
 
     void MarkSubmissionCompleted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.submission_completed_ns, RelativeNowNs());
+#endif
     }
 
     void MarkWorkersCompleted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.workers_completed_ns, RelativeNowNs());
+#endif
     }
 
     void MarkCompleted() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         StoreTimestampIfUnset(metrics_.completed_ns, RelativeNowNs());
+#endif
     }
 
     void MarkTaskDispatched(bool used_bonus_dispatch, uint32_t query_in_flight, uint32_t query_share_count) {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) return;
         metrics_.dispatched_tasks.fetch_add(1, std::memory_order_relaxed);
         if (used_bonus_dispatch) {
@@ -272,13 +298,21 @@ public:
         if (used_bonus_dispatch) {
             StoreTimestampIfUnset(metrics_.first_bonus_dispatch_delay_ns, first_dispatch_delay_ns);
         }
+#else
+        (void) used_bonus_dispatch;
+        (void) query_in_flight;
+        (void) query_share_count;
+#endif
     }
 
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     [[nodiscard]] const QueryMetrics &GetMetrics() const {
         return metrics_;
     }
+#endif
 
     [[nodiscard]] QueryMetricsSnapshot SnapshotMetrics() const {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) {
             return {};
         }
@@ -301,21 +335,34 @@ public:
         snapshot.workers_completed_ns = metrics_.workers_completed_ns.load(std::memory_order_relaxed);
         snapshot.completed_ns = metrics_.completed_ns.load(std::memory_order_relaxed);
         return snapshot;
+#else
+        return {};
+#endif
     }
 
     void PublishSnapshotToCurrentThread() const {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         last_query_metrics_snapshot_ = SnapshotMetrics();
+#endif
     }
 
     [[nodiscard]] static QueryMetricsSnapshot LastQueryMetricsSnapshot() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         return last_query_metrics_snapshot_;
+#else
+        return {};
+#endif
     }
 
     [[nodiscard]] TaskExecutionScope TrackTaskExecution() {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         if (!metrics_enabled_) {
             return {};
         }
         return TaskExecutionScope(*this);
+#else
+        return {};
+#endif
     }
 
     [[nodiscard]] ScopedBinding BindToCurrentThread() {
@@ -365,7 +412,12 @@ private:
     }
 
     [[nodiscard]] int64_t RelativeNs(std::chrono::steady_clock::time_point time_point) const {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         return std::chrono::duration_cast<std::chrono::nanoseconds>(time_point - metrics_.created_at).count();
+#else
+        (void) time_point;
+        return 0;
+#endif
     }
 
     [[nodiscard]] int64_t RelativeNowNs() const {
@@ -373,17 +425,26 @@ private:
     }
 
     void MarkTaskExecutionStarted(std::chrono::steady_clock::time_point start_time) {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         UpdateMinOrSet(metrics_.first_task_start_delay_ns, RelativeNs(start_time));
+#else
+        (void) start_time;
+#endif
     }
 
     void MarkTaskExecutionFinished(
             std::chrono::steady_clock::time_point start_time,
             std::chrono::steady_clock::time_point finish_time
     ) {
+#if DEXKIT_ENABLE_INTERNAL_METRICS
         auto runtime_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(finish_time - start_time).count();
         metrics_.task_runtime_total_ns.fetch_add(runtime_ns, std::memory_order_relaxed);
         UpdateMax(metrics_.task_runtime_max_ns, runtime_ns);
         UpdateMax(metrics_.last_task_finish_delay_ns, RelativeNs(finish_time));
+#else
+        (void) start_time;
+        (void) finish_time;
+#endif
     }
 
     static void UpdateMax(std::atomic<uint32_t> &target, uint32_t value) {
@@ -421,15 +482,21 @@ private:
     QueryKind kind_;
     uint64_t query_id_;
     QueryPriority priority_ = QueryPriority::Normal;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     bool metrics_enabled_ = false;
+#endif
     std::atomic<bool> early_exit_enabled_ = false;
     std::atomic<bool> early_exit_ = false;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     QueryMetrics metrics_{};
+#endif
     std::mutex matcher_cache_mutex_;
     phmap::flat_hash_map<QueryCacheKey, MatcherCacheOwnership, QueryCacheKeyHash> matcher_cache_;
 
     inline static std::atomic<uint64_t> next_query_id_ = 1;
+#if DEXKIT_ENABLE_INTERNAL_METRICS
     inline static thread_local QueryMetricsSnapshot last_query_metrics_snapshot_{};
+#endif
     inline static thread_local QueryContext *current_ = nullptr;
 };
 

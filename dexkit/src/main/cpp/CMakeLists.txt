@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.4.1...3.27)
 project(dexkit)
 
 set(CMAKE_CXX_STANDARD 20)
+option(DEXKIT_ENABLE_INTERNAL_METRICS "Compile internal metrics into core" OFF)
 option(DEXKIT_ENABLE_INTERNAL_METRICS_API "Enable internal metrics JNI bridge" OFF)
+
+if (DEXKIT_ENABLE_INTERNAL_METRICS_API)
+    set(DEXKIT_ENABLE_INTERNAL_METRICS ON)
+endif ()
 
 add_subdirectory(../../../../Core Core)
 

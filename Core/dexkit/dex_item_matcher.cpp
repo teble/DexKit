@@ -157,8 +157,8 @@ std::mutex &GetMatcherThreadLocalCacheRegistryMutex() {
     return mutex;
 }
 
-phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> &GetMatcherThreadLocalCacheRegistry() {
-    static phmap::flat_hash_map<std::thread::id, MatcherThreadLocalCacheSlot> registry;
+phmap::flat_hash_map<std::thread::id, std::vector<MatcherThreadLocalCacheSlot>> &GetMatcherThreadLocalCacheRegistry() {
+    static phmap::flat_hash_map<std::thread::id, std::vector<MatcherThreadLocalCacheSlot>> registry;
     return registry;
 }
 
@@ -286,10 +286,23 @@ static PersistentUsingStringsKeywordsCache BuildPersistentUsingStringsKeywordsCa
 static std::shared_ptr<PersistentUsingStringsKeywordsCache> GetPersistentUsingStringsKeywordsCache(
         const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *using_strings_matcher
 ) {
-    thread_local PersistentUsingStringsThreadCache cache;
+    // Avoid direct non-trivial thread_local destruction on Windows DLL TLS
+    // teardown. Keep the TLS slot trivially destructible and free native-owned
+    // worker-thread instances through the registry when the pool shuts down.
+    thread_local PersistentUsingStringsThreadCache *cache = nullptr;
+    if (cache == nullptr) {
+        cache = new PersistentUsingStringsThreadCache();
+        RegisterMatcherThreadLocalCache(
+                std::this_thread::get_id(),
+                cache,
+                [](void *ptr) {
+                    delete reinterpret_cast<PersistentUsingStringsThreadCache *>(ptr);
+                }
+        );
+    }
     auto normalized = NormalizeUsingStringsMatchers(using_strings_matcher);
     auto key = BuildUsingStringsCacheKey(normalized);
-    return cache.GetOrCreate(std::move(key), [&]() {
+    return cache->GetOrCreate(std::move(key), [&]() {
         return BuildPersistentUsingStringsKeywordsCache(normalized);
     });
 }
@@ -397,10 +410,10 @@ void RegisterMatcherThreadLocalCache(
         void (*deleter)(void *)
 ) {
     std::lock_guard lock(GetMatcherThreadLocalCacheRegistryMutex());
-    GetMatcherThreadLocalCacheRegistry()[thread_id] = MatcherThreadLocalCacheSlot{
+    GetMatcherThreadLocalCacheRegistry()[thread_id].push_back(MatcherThreadLocalCacheSlot{
             .cache = cache,
             .deleter = deleter,
-    };
+    });
 }
 
 void ReleaseMatcherThreadLocalCaches(const std::vector<std::thread::id> &thread_ids) {
@@ -408,13 +421,21 @@ void ReleaseMatcherThreadLocalCaches(const std::vector<std::thread::id> &thread_
     {
         std::lock_guard lock(GetMatcherThreadLocalCacheRegistryMutex());
         auto &registry = GetMatcherThreadLocalCacheRegistry();
-        slots.reserve(thread_ids.size());
+        size_t reserve_count = 0;
         for (const auto &thread_id: thread_ids) {
             auto it = registry.find(thread_id);
             if (it == registry.end()) {
                 continue;
             }
-            slots.push_back(it->second);
+            reserve_count += it->second.size();
+        }
+        slots.reserve(reserve_count);
+        for (const auto &thread_id: thread_ids) {
+            auto it = registry.find(thread_id);
+            if (it == registry.end()) {
+                continue;
+            }
+            slots.insert(slots.end(), it->second.begin(), it->second.end());
             registry.erase(it);
         }
     }

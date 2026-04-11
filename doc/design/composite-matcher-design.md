@@ -488,6 +488,227 @@ composite path 的执行顺序建议为：
 
 1. 第一版就把 composite planner 做到最强
 
+### 8.7 当前已知瓶颈：atomic 与 composite 的执行形态不同
+
+当前实现里，`usingStrings` 的 atomic query 与 composite query 并不走同一条热路径。
+
+#### atomic `usingStrings`
+
+以 `findMethod { matcher { usingStrings("A") } }` 为例，当前链路大致为：
+
+1. `Analyze(...)` 标记 `kUsingString`
+2. `EnterQueryExecution(kUsingString)` 保证 `method_using_string_ids` 已预热
+3. `DexItem::FindMethod(...)` 逐 method 扫描
+4. `DexItem::IsMethodMatched(...)` 进入 `IsMethodUsingStringsMatched(...)`
+5. 若 `StringMatcher` 全为原子条件，则走 AC trie 快路径
+
+此时一个 method 只需要执行一次 `usingStrings` 判断。
+
+#### composite `usingStrings`
+
+以：
+
+```kotlin
+anyOf {
+    match { usingStrings("A") }
+    match { usingStrings("B") }
+}
+```
+
+为例，当前执行模型是“**按 matcher 节点递归求值**”，而不是“先把所有字符串条件合并后统一处理”。
+
+对单个 method，当前更接近：
+
+```text
+先判断 child-1 的 usingStrings(A)
+若失败，再判断 child-2 的 usingStrings(B)
+```
+
+因此，同一个 method 的 used strings 可能被重复扫描多次。
+这正是当前 composite 在字符串场景下明显慢于 atomic 的主要原因。
+
+### 8.8 `findFirst` 与 batch 大小的经验结论
+
+当前 `findFirst` 的收益主要来自：
+
+- worker 侧早停
+- 调度优先级提升
+
+但它**不会**消除命中前那一段已经发生的 composite evaluator 成本，因此：
+
+- 对“第一条很快命中”的 atomic 查询，`findFirst` 也很难追平
+- 对“第一条大概率 miss，整体接近全量扫描”的场景，composite 更容易接近 atomic fallback 的总耗时
+
+另外，本地实验已经表明：**盲目降低 batch size 并不是有效优化**。
+batch 过小会带来：
+
+- 任务切分变多
+- future / 调度开销上升
+- 顺序扫描局部性变差
+
+因此，当前不建议把“减小 batch”作为 composite 性能优化的主方向。
+
+### 8.9 字符串类优化：适合使用 AC trie 做预过滤
+
+对于 composite 树中的**正向字符串叶子条件**，可以考虑提取后合并为一次 AC trie 扫描。
+
+例如：
+
+```kotlin
+anyOf {
+    match { usingStrings("A") }
+    match { usingStrings("B") }
+}
+```
+
+可抽象为：
+
+```text
+method 至少命中 A / B 中的一个关键词
+```
+
+建议的优化方式不是“让 AC trie 直接承担整棵布尔树求值”，而是：
+
+1. 从 composite 树中提取可安全合并的**正向原子字符串叶子**
+2. 构建 union AC trie
+3. 对一个 method 的 used strings 只扫描一次
+4. 先做廉价预过滤
+5. 仅对候选 method 再进入完整 composite evaluator
+
+这样可以在不破坏语义的前提下，避免：
+
+- 每个 `match { usingStrings(...) }` 都单独扫描一遍 method 的 used strings
+
+#### 8.9.1 优先适用范围
+
+第一批最值得做的范围：
+
+- `MethodMatcher.usingStrings`
+- `ClassMatcher.usingStrings`
+- 仅限**正向**、**原子**、**可归一化**的字符串条件
+
+例如：
+
+- `Contains`
+- `StartWith`
+- `EndWith`
+- `Equal`
+- 可安全降级为上述关系的 `SimilarRegex`
+
+#### 8.9.2 需要明确区分两种语义
+
+**方法级 / 类级 usingStrings**
+
+```kotlin
+allOf {
+    match { usingStrings("A") }
+    match { usingStrings("B") }
+}
+```
+
+其语义通常是：
+
+```text
+存在某个 used string 命中 A
+AND
+存在某个 used string 命中 B
+```
+
+这里 A 和 B 可以由**不同字符串**满足，因此很适合先做 method 级命中集合预过滤。
+
+**元素级 StringMatcher**
+
+```kotlin
+usingStrings {
+    add {
+        allOf {
+            match("abc", StringMatchType.StartWith)
+            match("xyz", StringMatchType.EndWith)
+        }
+    }
+}
+```
+
+其语义是：
+
+```text
+存在同一个 used string，同时满足多个子条件
+```
+
+这类场景不能只做 method 级关键词集合判断；若后续要优化，必须记录**每个字符串**命中了哪些叶子条件。
+因此它适合作为后续阶段，而不是第一批性能优化目标。
+
+### 8.10 非字符串类优化：不能依赖 AC trie
+
+AC trie 只能优化字符串类叶子，不能直接处理：
+
+- `accessFlags`
+- `declaredClass`
+- `returnType`
+- `invokes`
+- `usingFields`
+- `annotations`
+- `parameters`
+- `opCodes`
+- 数字类 matcher
+
+但这不意味着非字符串条件无法优化。更适合的方向包括：
+
+#### 8.10.1 query-local tri-state memo
+
+适合多对一关系边，例如：
+
+- `declaredClass`
+- `returnType`
+- `typeClass`
+
+思路是缓存：
+
+```text
+(matcher node, entity id) -> true / false
+```
+
+从而避免同一个子树被大量外层实体重复求值。
+
+#### 8.10.2 候选集 / 安全正向子树提取
+
+对于可安全索引的正向精确条件，可考虑提取为：
+
+- candidate class set
+- candidate method set
+- candidate type set
+
+再在运行时先做廉价 membership check，最后回到原 evaluator 做精确判定。
+
+#### 8.10.3 planner 继续保守
+
+在 `OR` / `NOT` 参与时，很多当前 atomic query 中成立的推导都不再安全。
+因此即使后续增强 planner，也应优先提取：
+
+- 正向
+- 精确
+- 可证明安全
+
+的子树，而不是试图一次性把整棵 composite 树静态编译成最优执行计划。
+
+### 8.11 当前建议的优化优先级
+
+若后续要继续推进 composite 性能，建议优先级如下：
+
+1. **字符串类正向预过滤**
+   - 先覆盖 `MethodMatcher` / `ClassMatcher` 的 `usingStrings`
+   - 收益最大，风险最低
+2. **多对一关系边的 query-local memo**
+   - 优先 `declaredClass` / `returnType` / `typeClass`
+3. **从 composite 树中提取安全的正向精确子树**
+   - 作为 planner 的增量增强
+4. **元素级 StringMatcher 的同一元素多条件优化**
+   - 复杂度高，放后续阶段验证
+
+换句话说，较合理的总体策略应当是：
+
+> **字符串叶子走 AC trie 预过滤，跨关系边子树走 memo，可安全索引的正向子树走候选集，其余复杂条件继续保留递归精确求值。**
+
 ## 9. Analyze 与后续优化影响
 
 ### 9.1 `need_flags`

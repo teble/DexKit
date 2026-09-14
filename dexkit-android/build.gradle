@@ -29,6 +29,7 @@ android {
                 arguments "-DANDROID_STL=none"
                 arguments "-DDEXKIT_ENABLE_INTERNAL_METRICS=${enableInternalMetricsApi ? 'ON' : 'OFF'}"
                 arguments "-DDEXKIT_ENABLE_INTERNAL_METRICS_API=${enableInternalMetricsApi ? 'ON' : 'OFF'}"
+                arguments "-DDEXKIT_EXPERIMENT_LAZY_DIRECTORIES=${providers.gradleProperty('experimentLazyDirectories').getOrElse('OFF')}"
                 def flags = [
                         "-funwind-tables",
                         "-fasynchronous-unwind-tables",

@@ -147,9 +147,11 @@ void DexItem::InitBaseCache() {
     method_descriptors.resize(method_count);
     method_access_flags.resize(method_count);
     method_codes.resize(method_count);
+#if !DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
     lazy_method_opcode_slots = std::make_unique<LazyMethodOpCodesSlot[]>(method_count);
     lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
+#endif
     field_descriptors.resize(field_count);
     field_access_flags.resize(field_count);
 
@@ -1136,6 +1138,11 @@ std::vector<uint32_t> DexItem::GetUsingStringsFromCode(uint32_t method_idx) {
 }
 
 const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
+#if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
+    std::call_once(lazy_opcode_directory_once, [this] {
+        lazy_method_opcode_slots = std::make_unique<LazyMethodOpCodesSlot[]>(reader.MethodIds().size());
+    });
+#endif
     auto &slot = lazy_method_opcode_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
@@ -1167,6 +1174,11 @@ const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
 }
 
 const std::vector<uint32_t> &DexItem::GetLazyMethodUsingStringIds(uint32_t method_idx) {
+#if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
+    std::call_once(lazy_string_directory_once, [this] {
+        lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(reader.MethodIds().size());
+    });
+#endif
     auto &slot = lazy_method_using_string_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
@@ -1295,6 +1307,11 @@ const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
 
     // Using-numbers remains a sparse per-method lazy cache because full warm-up cost and
     // resident memory are too high for the typical "read one method's metadata" path.
+#if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
+    std::call_once(lazy_number_directory_once, [this] {
+        lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(reader.MethodIds().size());
+    });
+#endif
     auto &slot = lazy_using_numbers_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {

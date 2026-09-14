@@ -373,6 +373,12 @@ private:
     std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
     std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
     std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
+#if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
+    // call_once publishes whole arrays; they remain alive through full warm-up.
+    std::once_flag lazy_opcode_directory_once;
+    std::once_flag lazy_string_directory_once;
+    std::once_flag lazy_number_directory_once;
+#endif
     std::unique_ptr<std::array<std::mutex, 64>> lazy_method_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
     std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;

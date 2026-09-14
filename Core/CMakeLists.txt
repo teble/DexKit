@@ -11,6 +11,7 @@ endif ()
 set(CMAKE_CXX_STANDARD 20)
 option(DEXKIT_ENABLE_INTERNAL_METRICS "Compile internal metrics into core" OFF)
 option(DEXKIT_BENCHMARK_DIAGNOSTICS "Compile benchmark-only cache diagnostics" OFF)
+option(DEXKIT_EXPERIMENT_LAZY_DIRECTORIES "Allocate lazy-slot directories on first use" OFF)
 
 file(GLOB_RECURSE SLICER_SRC_FILES CONFIGURE_DEPENDS third_party/slicer/*.cc)
 file(GLOB_RECURSE DEXKIT_SRC_FILES CONFIGURE_DEPENDS dexkit/*.cpp)
@@ -42,7 +43,8 @@ target_include_directories(${PROJECT_NAME}_static
 
 set_target_properties(${PROJECT_NAME}_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(${PROJECT_NAME}_static PUBLIC
-        DEXKIT_BENCHMARK_DIAGNOSTICS=$<BOOL:${DEXKIT_BENCHMARK_DIAGNOSTICS}>)
+        DEXKIT_BENCHMARK_DIAGNOSTICS=$<BOOL:${DEXKIT_BENCHMARK_DIAGNOSTICS}>
+        DEXKIT_EXPERIMENT_LAZY_DIRECTORIES=$<BOOL:${DEXKIT_EXPERIMENT_LAZY_DIRECTORIES}>)
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
     target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_INTERNAL_METRICS=1)
 else ()

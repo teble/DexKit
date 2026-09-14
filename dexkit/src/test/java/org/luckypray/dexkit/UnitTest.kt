@@ -945,4 +945,28 @@ class UnitTest {
             assert(res.any { it.getEncodeId() == method.getEncodeId() })
         }
     }
+
+    @Test
+    fun testLazyMetadataMatchesFullCacheIncludingEmptyMethods() {
+        DexKitBridge.create(demoApkPath).use { target ->
+            val token = getBridgeToken(target)
+            val methods = target.findMethod {
+                searchPackages("org.luckypray.dexkit.demo")
+            }
+            assert(methods.isNotEmpty())
+            val before = methods.associate { method ->
+                val id = method.getEncodeId()
+                id to Pair(nativeGetMethodUsingStrings(token, id), nativeGetMethodOpCodes(token, id))
+            }
+            // Router's abstract annotation members have no code; empty is a value.
+            assert(before.values.any { it.second.isEmpty() })
+            assert(before.values.any { it.first.isNotEmpty() && it.second.isNotEmpty() })
+            target.initFullCache()
+            before.forEach { (id, expected) ->
+                // Bypass MethodData's Kotlin lazy properties to read native state again.
+                assert(nativeGetMethodUsingStrings(token, id) == expected.first)
+                assert(nativeGetMethodOpCodes(token, id) == expected.second)
+            }
+        }
+    }
 }

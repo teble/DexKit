@@ -1,0 +1,1751 @@
+{
+  "qaux_commit": "01801ffd013c95781dd360704adf48dc42ee8aa6",
+  "source_file": "app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt",
+  "scope": "All literal target definitions; raw candidates only. This is not a captured enabled-feature profile.",
+  "string_match_type": "SimilarRegex",
+  "object_kinds": {
+    "UsingStr": 115,
+    "UsingDexkit": 6,
+    "UsingStringVector": 24,
+    "UsingDexKitBridge": 5
+  },
+  "targets": [
+    {
+      "name": "CDialogUtil",
+      "kind": "UsingStr",
+      "source_line": 118,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L118",
+      "groups": [
+        [
+          "android.permission.SEND_SMS"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CFaceDe",
+      "kind": "UsingStr",
+      "source_line": 124,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L124",
+      "groups": [
+        [
+          "reSendEmo"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CFlashPicHelper",
+      "kind": "UsingStr",
+      "source_line": 130,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L130",
+      "groups": [
+        [
+          "FlashPicHelper"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CBasePicDlProcessor",
+      "kind": "UsingStr",
+      "source_line": 136,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L136",
+      "groups": [
+        [
+          "BasePicDownloadProcessor.onSuccess():Delete "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CItemBuilderFactory",
+      "kind": "UsingStr",
+      "source_line": 145,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L145",
+      "groups": [
+        [
+          "ItemBuilder is: D"
+        ],
+        [
+          "findItemBuilder: invoked."
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CAIOUtils",
+      "kind": "UsingStr",
+      "source_line": 154,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L154",
+      "groups": [
+        [
+          "openAIO by MT"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CAbsGalScene",
+      "kind": "UsingStr",
+      "source_line": 160,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L160",
+      "groups": [
+        [
+          "gallery setColor bl"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CFavEmoConst",
+      "kind": "UsingStr",
+      "source_line": 169,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L169",
+      "groups": [
+        [
+          "http://p.qpic."
+        ],
+        [
+          "https://p.qpic."
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CMessageRecordFactory",
+      "kind": "UsingStr",
+      "source_line": 178,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L178",
+      "groups": [
+        [
+          "createPicMessage"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CArkAppItemBubbleBuilder",
+      "kind": "UsingStr",
+      "source_line": 187,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L187",
+      "groups": [
+        [
+          "debugArkMeta = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CPngFrameUtil",
+      "kind": "UsingStr",
+      "source_line": 197,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L197",
+      "groups": [
+        [
+          "func checkRandomPngEx"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CPicEmoticonInfo",
+      "kind": "UsingStr",
+      "source_line": 207,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L207",
+      "groups": [
+        [
+          "send emotion + 1:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CSimpleUiUtil",
+      "kind": "UsingStr",
+      "source_line": 220,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L220",
+      "groups": [
+        [
+          "key_simple_status_s"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CTroopGiftUtil",
+      "kind": "UsingStr",
+      "source_line": 227,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L227",
+      "groups": [
+        [
+          ".troop.send_giftTroopUtils"
+        ],
+        [
+          ".troop.send_giftTroopMemberUtil"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CQzoneMsgNotify",
+      "kind": "UsingStr",
+      "source_line": 233,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L233",
+      "groups": [
+        [
+          "use small icon ,exp:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CAppConstants",
+      "kind": "UsingStr",
+      "source_line": 247,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L247",
+      "groups": [
+        [
+          ".indivAnim/"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CMessageCache",
+      "kind": "UsingStr",
+      "source_line": 256,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L256",
+      "groups": [
+        [
+          "Q.msg.MessageCache"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CScreenShotHelper",
+      "kind": "UsingStr",
+      "source_line": 262,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L262",
+      "groups": [
+        [
+          "onActivityResumeHideFloatView"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CTimeFormatterUtils",
+      "kind": "UsingStr",
+      "source_line": 268,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L268",
+      "groups": [
+        [
+          "^EEEE$"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CGroupAppActivity",
+      "kind": "UsingStr",
+      "source_line": 276,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L276",
+      "groups": [
+        [
+          "onDrawerStartOpen"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CIntimateDrawer",
+      "kind": "UsingStr",
+      "source_line": 286,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L286",
+      "groups": [
+        [
+          "onDrawerOpened, needReqIntimateInfo: %s"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CZipUtils",
+      "kind": "UsingStr",
+      "source_line": 292,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L292",
+      "groups": [
+        [
+          ",ZipEntry name: "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CHttpDownloader",
+      "kind": "UsingStr",
+      "source_line": 298,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L298",
+      "groups": [
+        [
+          "[reportHttpsResult] url="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CMultiMsgManager",
+      "kind": "UsingStr",
+      "source_line": 304,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L304",
+      "groups": [
+        [
+          "[sendMultiMsg]data.length = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CAvatarUtil",
+      "kind": "UsingStr",
+      "source_line": 312,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L312",
+      "groups": [
+        [
+          "===getDiscussionUinFromPstn pstnDiscussionUin is null ==="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CFaceManager",
+      "kind": "UsingStr",
+      "source_line": 318,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L318",
+      "groups": [
+        [
+          "FaceManager"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CAIOPictureView",
+      "kind": "UsingStr",
+      "source_line": 324,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L324",
+      "groups": [
+        [
+          "AIOPictureView"
+        ],
+        [
+          "AIOGalleryPicView"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CGalleryBaseScene",
+      "kind": "UsingStr",
+      "source_line": 330,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L330",
+      "groups": [
+        [
+          "GalleryBaseScene"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CGuildHelperProvider",
+      "kind": "UsingStr",
+      "source_line": 340,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L340",
+      "groups": [
+        [
+          "^GuildHelperProvider$"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CGuildArkHelper",
+      "kind": "UsingStr",
+      "source_line": 346,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L346",
+      "groups": [
+        [
+          "GuildArkHelper"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CReplyMsgUtils",
+      "kind": "UsingStr",
+      "source_line": 355,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L355",
+      "groups": [
+        [
+          "generateSourceInfo sender uin exception:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CReplyMsgSender",
+      "kind": "UsingStr",
+      "source_line": 363,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L363",
+      "groups": [
+        [
+          "sendReplyMessage uniseq=0"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CPopOutEmoticonUtil",
+      "kind": "UsingStr",
+      "source_line": 369,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L369",
+      "groups": [
+        [
+          "supportPopOutEmoticon isC2C="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CTestStructMsg",
+      "kind": "UsingStr",
+      "source_line": 375,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L375",
+      "groups": [
+        [
+          "TestStructMsg"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CSystemMessageProcessor",
+      "kind": "UsingStr",
+      "source_line": 381,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L381",
+      "groups": [
+        [
+          "<---handleGetFriendSystemMsgResp : decode pb filtered"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "COnlinePushPbPushTransMsg",
+      "kind": "UsingStr",
+      "source_line": 387,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L387",
+      "groups": [
+        [
+          "PbPushTransMsg muteGeneralFlag:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CFrameControllerInjectImpl",
+      "kind": "UsingStr",
+      "source_line": 393,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L393",
+      "groups": [
+        [
+          "FrameControllerInjectImpl.recoverTabBluer"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "ForwardSendPicUtil",
+      "kind": "UsingStr",
+      "source_line": 399,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L399",
+      "groups": [
+        [
+          "ForwardSendPicUtil"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AbstractQQCustomMenuItem",
+      "kind": "UsingStr",
+      "source_line": 405,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L405",
+      "groups": [
+        [
+          "QQCustomMenuItem{title='"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "VasAttrBuilder",
+      "kind": "UsingStr",
+      "source_line": 411,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L411",
+      "groups": [
+        [
+          "attrs"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Guild_Emo_Btn_Create_QQNT",
+      "kind": "UsingStr",
+      "source_line": 418,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L418",
+      "groups": [
+        [
+          "mEmojiLayout"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NBaseChatPie_init",
+      "kind": "UsingStr",
+      "source_line": 425,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L425",
+      "groups": [
+        [
+          "input set error"
+        ],
+        [
+          ", mDefautlBtnLeft: "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NBaseChatPie_createMulti",
+      "kind": "UsingStr",
+      "source_line": 432,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L432",
+      "groups": [
+        [
+          "^createMulti$"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NBaseChatPie_chooseMsg",
+      "kind": "UsingStr",
+      "source_line": 445,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L445",
+      "groups": [
+        [
+          "set left text from cancel"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NLeftSwipeReplyHelper_reply",
+      "kind": "UsingStr",
+      "source_line": 452,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L452",
+      "groups": [
+        [
+          "0X800A92F"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NAtPanel_showDialogAtView",
+      "kind": "UsingStr",
+      "source_line": 459,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L459",
+      "groups": [
+        [
+          "showDialogAtView"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NAtPanel_refreshUI",
+      "kind": "UsingStr",
+      "source_line": 466,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L466",
+      "groups": [
+        [
+          "resultList = null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NFriendChatPie_updateUITitle",
+      "kind": "UsingStr",
+      "source_line": 477,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L477",
+      "groups": [
+        [
+          "FriendChatPie updateUI_ti"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NProfileCardUtil_getCard",
+      "kind": "UsingStr",
+      "source_line": 484,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L484",
+      "groups": [
+        [
+          "initCard bSuperVipOpen="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NVasProfileTemplateController_onCardUpdate",
+      "kind": "UsingStr",
+      "source_line": 494,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L494",
+      "groups": [
+        [
+          "onCardUpdate fail."
+        ],
+        [
+          "onCardUpdate: bgId="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NQQSettingMe_updateProfileBubble",
+      "kind": "UsingStr",
+      "source_line": 506,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L506",
+      "groups": [
+        [
+          "updateProfileBubbleMsgView"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NQQSettingMe_onResume",
+      "kind": "UsingStr",
+      "source_line": 516,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L516",
+      "groups": [
+        [
+          "-->onResume!"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NVipUtils_getPrivilegeFlags",
+      "kind": "UsingStr",
+      "source_line": 526,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L526",
+      "groups": [
+        [
+          "getPrivilegeFlags Friends is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NTroopChatPie_showNewTroopMemberCount",
+      "kind": "UsingStr",
+      "source_line": 538,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L538",
+      "groups": [
+        [
+          "showNewTroopMemberCount info is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NConversation_onCreate",
+      "kind": "UsingStr",
+      "source_line": 548,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L548",
+      "groups": [
+        [
+          "Recent_OnCreate"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NBaseChatPie_mosaic",
+      "kind": "UsingStr",
+      "source_line": 555,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L555",
+      "groups": [
+        [
+          "enableMosaicEffect"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NWebSecurityPluginV2_callback",
+      "kind": "UsingStr",
+      "source_line": 562,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L562",
+      "groups": [
+        [
+          "check finish jr="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NTroopAppShortcutBarHelper_resumeAppShorcutBar",
+      "kind": "UsingStr",
+      "source_line": 572,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L572",
+      "groups": [
+        [
+          "resumeAppShorcutBar"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NChatActivityFacade_sendMsgButton",
+      "kind": "UsingStr",
+      "source_line": 582,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L582",
+      "groups": [
+        [
+          " sendMessage start currenttime:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NFriendsStatusUtil_isChatAtTop",
+      "kind": "UsingStr",
+      "source_line": 593,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L593",
+      "groups": [
+        [
+          "isChatAtTop result is: "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NVipUtils_getUserStatus",
+      "kind": "UsingStr",
+      "source_line": 600,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L600",
+      "groups": [
+        [
+          "getUserStatus Friends is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NPhotoListPanel_resetStatus",
+      "kind": "UsingStr",
+      "source_line": 607,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L607",
+      "groups": [
+        [
+          "resetStatus selectSize:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NContactUtils_getDiscussionMemberShowName",
+      "kind": "UsingStr",
+      "source_line": 614,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L614",
+      "groups": [
+        [
+          "getDiscussionMemberShowName uin is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NContactUtils_getBuddyName",
+      "kind": "UsingStr",
+      "source_line": 624,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L624",
+      "groups": [
+        [
+          "getBuddyName()"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NScene_checkDataRecmdRemarkList",
+      "kind": "UsingStr",
+      "source_line": 634,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L634",
+      "groups": [
+        [
+          "checkDataRecmdRemarkList cacheInvalid_ts_type_troopUin=%b_%d_%d_%s"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NCustomWidgetUtil_updateCustomNoteTxt",
+      "kind": "UsingStr",
+      "source_line": 641,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L641",
+      "groups": [
+        [
+          "^NEW$"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIOTitleVB_updateLeftTopBack_NT",
+      "kind": "UsingStr",
+      "source_line": 648,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L648",
+      "groups": [
+        [
+          "99+"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CCustomWidgetUtil_updateCustomNoteTxt_NT",
+      "kind": "UsingStr",
+      "source_line": 656,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L656",
+      "groups": [
+        [
+          "fixTextViewLayout wrong: params wrong"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NPadUtil_initDeviceType",
+      "kind": "UsingStr",
+      "source_line": 663,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L663",
+      "groups": [
+        [
+          "initDeviceType type = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "PaiYiPaiHandler_canSendReq",
+      "kind": "UsingStr",
+      "source_line": 689,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L689",
+      "groups": [
+        [
+          "pai_yi_pai_user_double_tap_timestamp_"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "TroopGuildChatPie_flingRToL",
+      "kind": "UsingStr",
+      "source_line": 696,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L696",
+      "groups": [
+        [
+          "[flingRToL] isMultiSelectState:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "BaseListenTogetherPanel_onUIModuleNeedRefresh",
+      "kind": "UsingStr",
+      "source_line": 703,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L703",
+      "groups": [
+        [
+          "onUIModuleNeedRefresh, checkSession is false"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "EmotcationConstants",
+      "kind": "UsingStr",
+      "source_line": 710,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L710",
+      "groups": [
+        [
+          "setEmojiMap emoji's file is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "GroupSpecialCare_getCareTroopMemberMsgText",
+      "kind": "UsingStr",
+      "source_line": 717,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L717",
+      "groups": [
+        [
+          "getCareTroopMemberMsgText: invoked.  troopMemberIsCared: "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "ChatPanel_InitPanel_QQNT",
+      "kind": "UsingStr",
+      "source_line": 724,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L724",
+      "groups": [
+        [
+          "updateFunBtn"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIO_Create_QQNT",
+      "kind": "UsingStr",
+      "source_line": 731,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L731",
+      "groups": [
+        [
+          "rootVMBuild"
+        ],
+        [
+          "recursiveBuildVM"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIO_Destroy_QQNT",
+      "kind": "UsingStringVector",
+      "source_line": 738,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L738",
+      "groups": [
+        [
+          "ChatPie",
+          "onDestroy "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIO_InputRootInit_QQNT",
+      "kind": "UsingStringVector",
+      "source_line": 745,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L745",
+      "groups": [
+        [
+          "binding",
+          "inputRoot",
+          "findViewById(...)",
+          "getContext(...)",
+          "sendBtn"
+        ],
+        [
+          "inputRoot.findViewById(R.id.send_btn)"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "EmoMsgUtils_isSingleLottie_QQNT",
+      "kind": "UsingStr",
+      "source_line": 753,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L753",
+      "groups": [
+        [
+          "is Valid EmojiFaceId"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Reply_At_QQNT",
+      "kind": "UsingStr",
+      "source_line": 761,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L761",
+      "groups": [
+        [
+          "msgItem.msgRecord.senderUid"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIOMsgItemExt_HasInfo",
+      "kind": "UsingStr",
+      "source_line": 768,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L768",
+      "groups": [
+        [
+          "aioMsgItem.getMsgRecord().anonymousExtInfo != null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "TroopSendFile_QQNT",
+      "kind": "UsingStr",
+      "source_line": 775,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L775",
+      "groups": [
+        [
+          "send local to troop file use nt, filePath:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "TroopEnterEffect_QQNT",
+      "kind": "UsingStr",
+      "source_line": 782,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L782",
+      "groups": [
+        [
+          "playAnimaions: isSimpleUISwitch = true"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NQZMoment_EntranceEnabled",
+      "kind": "UsingStr",
+      "source_line": 790,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L790",
+      "groups": [
+        [
+          "KEY_OPEN_QZMOMENT_ENTRANCE"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "DefaultFileModel",
+      "kind": "UsingStr",
+      "source_line": 797,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L797",
+      "groups": [
+        [
+          "onVideoPlayerError : file entity is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "FileBrowserActivity_InnerClass_onItemClick",
+      "kind": "UsingStringVector",
+      "source_line": 804,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L804",
+      "groups": [
+        [
+          "GeneralFileBrowserActivity",
+          "reportShareActionSheetClick"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIOTextElementCtor",
+      "kind": "UsingStr",
+      "source_line": 817,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L817",
+      "groups": [
+        [
+          "textElement"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIOPicElementType",
+      "kind": "UsingStr",
+      "source_line": 824,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L824",
+      "groups": [
+        [
+          "PicElement(origPath="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "MultiSelectToBottomIntent",
+      "kind": "UsingStr",
+      "source_line": 831,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L831",
+      "groups": [
+        [
+          "SelectToBottom(dividingLineTop="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "MultiSelectBarVM",
+      "kind": "UsingStr",
+      "source_line": 838,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L838",
+      "groups": [
+        [
+          "MultiSelectBarVM"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIOSendMsg",
+      "kind": "UsingStr",
+      "source_line": 845,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L845",
+      "groups": [
+        [
+          "[sendMsg] elements is empty"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "AIODelegate_ISwipeListener",
+      "kind": "UsingStringVector",
+      "source_line": 852,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L852",
+      "groups": [
+        [
+          "aio_disappear_type",
+          "close_aio"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "NT_SysAndEmojiResInfo",
+      "kind": "UsingStringVector",
+      "source_line": 859,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L859",
+      "groups": [
+        [
+          "NT_SysAndEmojiResInfo",
+          "reloadDrawable restartDownload:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "X5_Properties_conf",
+      "kind": "UsingStr",
+      "source_line": 866,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L866",
+      "groups": [
+        [
+          "setting_forceUseSystemWebview"
+        ],
+        [
+          "result_systemWebviewForceUsed"
+        ],
+        [
+          "debug.conf"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "EmotionDownloadDisableSwitch",
+      "kind": "UsingStr",
+      "source_line": 872,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L872",
+      "groups": [
+        [
+          "emotion_download_disable_8980_887036489"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QQ_SETTING_ME_CONFIG_CLASS",
+      "kind": "UsingStringVector",
+      "source_line": 897,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L897",
+      "groups": [
+        [
+          "\u8d85\u7ea7QQ\u79c0",
+          "\u6211\u7684\u89c6\u9891",
+          "\u6211\u7684\u6587\u4ef6",
+          "\u6211\u7684\u6536\u85cf",
+          "\u6211\u7684\u76f8\u518c",
+          "\u514d\u6d41\u91cf",
+          "\u6211\u7684\u4e2a\u6027\u88c5\u626e",
+          "\u8d22\u5bcc\u5c0f\u91d1\u5e93",
+          "\u6211\u7684QQ\u94b1\u5305",
+          "\u5f00\u901a\u4f1a\u5458",
+          "\u6211\u7684\u5c0f\u4e16\u754c"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "ChatSettingForTroop_InitUI_TIM",
+      "kind": "UsingStr",
+      "source_line": 920,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L920",
+      "groups": [
+        [
+          "initUI: time = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "FormItem_TIM",
+      "kind": "UsingStringVector",
+      "source_line": 927,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L927",
+      "groups": [
+        [
+          "RobotMemberFormItem",
+          "setRobotRedDot"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QQSettingMeABTestHelper_isZPlanExpGroup_New",
+      "kind": "UsingStringVector",
+      "source_line": 934,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L934",
+      "groups": [
+        [
+          "isZPlanExpGroup: ",
+          "QQSettingMeABTestHelper"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QQSettingMeABTestHelper_isZplanExpGroup_Old",
+      "kind": "UsingStringVector",
+      "source_line": 941,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L941",
+      "groups": [
+        [
+          "isZplanExpGroup: ",
+          "QQSettingMeABTestHelper"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QQSettingMeABTestHelper_isV9ExpGroup",
+      "kind": "UsingStringVector",
+      "source_line": 948,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L948",
+      "groups": [
+        [
+          "isV9ExpGroup: ",
+          "QQSettingMeABTestHelper"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QQValueMethod",
+      "kind": "UsingStr",
+      "source_line": 955,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L955",
+      "groups": [
+        [
+          "\u80fd\u91cf\u503c:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "QZoneFeedxTopEntranceMethod",
+      "kind": "UsingStr",
+      "source_line": 962,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L962",
+      "groups": [
+        [
+          "findViewById(R.id.qzone_feedx_top_entrance_view)"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "CopyPromptHelper_handlePrompt",
+      "kind": "UsingStr",
+      "source_line": 969,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L969",
+      "groups": [
+        [
+          "handlePrompt content : "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "PushNotificationManager_judgeAndAddGrayTips",
+      "kind": "UsingStr",
+      "source_line": 977,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L977",
+      "groups": [
+        [
+          "getmTodayHadShowCount > showCount"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "RecentPopup_onClickAction",
+      "kind": "UsingStr",
+      "source_line": 985,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L985",
+      "groups": [
+        [
+          "jiahao.fukuan.click"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "TroopInfoCardPageABConfig",
+      "kind": "UsingStr",
+      "source_line": 992,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L992",
+      "groups": [
+        [
+          "enableNewPageFromTroopSettingSwitch="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "PlusPanel_PanelAdapter",
+      "kind": "UsingStr",
+      "source_line": 999,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L999",
+      "groups": [
+        [
+          "appDataLists.subList(startIndex, endIndex)"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_FakePhone_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1006,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1006",
+      "groups": [
+        [
+          "status",
+          "wording",
+          "target_desc",
+          "target_name"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_RemoveRedPackSkin_Class",
+      "kind": "UsingStr",
+      "source_line": 1013,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1013",
+      "groups": [
+        [
+          "\u7ea2\u5305\u5c01\u76ae"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_HandleQQSomeFunExit_fixFileView_Method",
+      "kind": "UsingStr",
+      "source_line": 1020,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1020",
+      "groups": [
+        [
+          "(fileElement.fileSize)"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_AutoSendOriginalPhoto_guildPicker_Method",
+      "kind": "UsingStr",
+      "source_line": 1027,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1027",
+      "groups": [
+        [
+          "isRaw"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_AutoSendOriginalPhoto_photoListPanel_Method",
+      "kind": "UsingStr",
+      "source_line": 1034,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1034",
+      "groups": [
+        [
+          "resetStatus selectSize:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_DisableGrowHalfLayer_Method1",
+      "kind": "UsingStringVector",
+      "source_line": 1041,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1041",
+      "groups": [
+        [
+          "grow_half_layer_info",
+          "grow_half_layer_tech_info"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_DisableGrowHalfLayer_Method2",
+      "kind": "UsingStr",
+      "source_line": 1051,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1051",
+      "groups": [
+        [
+          "start showVasADBanner"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_GagInfoDisclosure_Method",
+      "kind": "UsingStr",
+      "source_line": 1058,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1058",
+      "groups": [
+        [
+          "<---0x2dc push  groupCode:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "RemoveAudioTransitionMethod",
+      "kind": "UsingStr",
+      "source_line": 1071,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1071",
+      "groups": [
+        [
+          "getDrawable onCompositionLoaded lottieComposition is null or mIsDestroyed"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_HideShortcutBar_Method_Troop",
+      "kind": "UsingStr",
+      "source_line": 1078,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1078",
+      "groups": [
+        [
+          ",isShowingCustomShortcut:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_HideShortcutBar_Method_TroopApp",
+      "kind": "UsingStr",
+      "source_line": 1085,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1085",
+      "groups": [
+        [
+          "isShortcutBarVisibleOrGoingToBeVisible return false for AIOIceBreakViewShowing"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "UnlockTroopNameLimitClass",
+      "kind": "UsingStr",
+      "source_line": 1092,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1092",
+      "groups": [
+        [
+          "[\u2600-\u27ff]"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "DisableLightInteractionMethod",
+      "kind": "UsingStr",
+      "source_line": 1099,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1099",
+      "groups": [
+        [
+          "em_bas_shortcut_bar_above_c2c_input_box"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_HideTipsBar_Method",
+      "kind": "UsingStr",
+      "source_line": 1109,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1109",
+      "groups": [
+        [
+          "initBannerView | banner = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_DisableFekitToAppDialog_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1116,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1116",
+      "groups": [
+        [
+          "DTAPIImpl.FekitToApp",
+          "onSecDispatchToAppEvent show dialog"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "RemoveSecurityTipsBanner_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1123,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1123",
+      "groups": [
+        [
+          "[doOnCreate]",
+          "TroopSecurityTipsBar"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_RemoveEmoReplyMenu_Method",
+      "kind": "UsingStr",
+      "source_line": 1130,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1130",
+      "groups": [
+        [
+          "msgItem is not support emo reply"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "PadUtil_getDeviceType",
+      "kind": "UsingStr",
+      "source_line": 1141,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1141",
+      "groups": [
+        [
+          "context is null"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "SharePanelSceneData",
+      "kind": "UsingStr",
+      "source_line": 1148,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1148",
+      "groups": [
+        [
+          "SharePanelSceneData(sceneId="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "SharePanel_Handler_OtherApp_openImageByOtherApp",
+      "kind": "UsingStringVector",
+      "source_line": 1155,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1155",
+      "groups": [
+        [
+          "SharePanel_Handler_OtherApp",
+          "openImageByOtherApp "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "SharePanel_Handler_OtherApp_openVideoByOtherApp",
+      "kind": "UsingStringVector",
+      "source_line": 1162,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1162",
+      "groups": [
+        [
+          "SharePanel_Handler_OtherApp",
+          "openVideoByOtherApp "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "MsgListUtil_createMsgItem",
+      "kind": "UsingStringVector",
+      "source_line": 1189,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1189",
+      "groups": [
+        [
+          "MsgListUtil",
+          "[createMsgItemByType] err. msgType="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_HideChatPanelBtn_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1196,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1196",
+      "groups": [
+        [
+          "peerUid",
+          "panelCallback"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_QuickReplayPaiYiPai_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1203,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1203",
+      "groups": [
+        [
+          "HighlightClickableSpan",
+          "click handler is null. actionType="
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_RemoveReplyImagePreviewLimit_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1228,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1228",
+      "groups": [
+        [
+          "AIOMsgRepo MsgReplyAbility",
+          "[findSourceOfReply], source result = "
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_EnableGenChatSummary_Class",
+      "kind": "UsingStringVector",
+      "source_line": 1235,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1235",
+      "groups": [
+        [
+          "\u672a\u8bfb\u6d88\u606f\u8f83\u591a\u65f6\uff0c\u53ef\u4ee5\u8fdb\u884c\u7fa4\u804a\u603b\u7ed3",
+          "\u7acb\u5373\u603b\u7ed3"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_CustomReportStep_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1242,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1242",
+      "groups": [
+        [
+          "Health_SportReportHelper",
+          "health_step_count_history"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_CustomPetHomeBg_Method",
+      "kind": "UsingStringVector",
+      "source_line": 1258,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1258",
+      "groups": [
+        [
+          "AIFileModule",
+          "UpdateSystemData"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_ChatsListAdapter_CLASS",
+      "kind": "UsingStringVector",
+      "source_line": 1265,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1265",
+      "groups": [
+        [
+          "ChatsListAdapter",
+          "[onBindViewHolder-payload] throw:"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "Hd_ChatsListVB_OnCreateView_Method",
+      "kind": "UsingStr",
+      "source_line": 1272,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1272",
+      "groups": [
+        [
+          "onCreateView"
+        ]
+      ],
+      "host_filter_applied": false
+    },
+    {
+      "name": "BlockPicByMd5_EmotionPreviewDataV2",
+      "kind": "UsingStr",
+      "source_line": 1324,
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1324",
+      "groups": [
+        [
+          "MsgEmoticonPreviewData"
+        ]
+      ],
+      "host_filter_applied": false
+    }
+  ],
+  "skipped": []
+}

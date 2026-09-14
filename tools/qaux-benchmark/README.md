@@ -1,0 +1,130 @@
+# QAuxiliary query replay on QQ 9.3.55
+
+This is a host-side compatibility corpus for evaluating whether real QAuxiliary
+query workflows are suitable for DexKit architecture experiments. It contains
+no engine changes. It is not yet an Android end-to-end performance benchmark.
+
+The agreed experiment scope uses query-result equivalence as its regression
+contract. Host reflection, hook installation and full QAuxiliary initialization
+are not required acceptance gates. See `EXPERIMENT-PLAN.md` for the active
+first research phase and stopping criteria.
+
+## Pinned inputs
+
+- QAuxiliary: `01801ffd013c95781dd360704adf48dc42ee8aa6` (2026-09-13).
+- Initial DexKit baseline: `1d936bd9efa38e00b7336ef112e73ba4048324e6`.
+- QQ: package `com.tencent.mobileqq`, version `9.3.55`, versionCode `15900`.
+- APK SHA-256: `851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f`.
+- APK URL: <https://downv6.qq.com/qqweb/QQ_1/android_apk/9.3.55_226abb86565ab9e9.apk>.
+
+The APK, extracted target data, compiled replay classes and result files live
+outside this worktree. They are not inputs to ordinary Gradle tests and are not
+included in the library or demo APK.
+
+## Extraction and replay
+
+`extract.py` parses literal `UsingStr` and `UsingStringVector` definitions from
+the pinned QAuxiliary checkout. It removes comments, preserves escaped strings,
+rejects expressions it cannot interpret, and writes source references for each
+target. `UsingStr` alternatives become separate groups; each string vector
+remains an AND group. The engine receives `StringMatchType.SimilarRegex`, just
+as QAuxiliary's backend does.
+
+`QueryReplay.java` adapts five specialized finders and five feature discovery
+workflows. It preserves query dependencies, conditional fallbacks, cardinality
+checks, duplicate class results, and Java/Kotlin-side selection. In particular,
+`findMethod(...).firstOrNull()` stays a complete query followed by selection; it
+is not replaced with the native `findFirst` option.
+
+`run.py` pins the APK and QAux revision, compiles the adapter against the selected
+DexKit build, and records native/JAR/input hashes. Repeated passes compare result
+multisets and selected descriptors. Non-diagnostic profiles also compare every
+pass and execution sequence with `baseline/expected.json`, frozen from the
+original engine. The corpus is available under `baseline/` for reproducibility.
+It also writes observed timings and, on
+macOS, whole-process peak RSS. Output reports are never overwritten.
+
+Example on this machine, from `/Users/teble/project/android/DexKit-qaux-benchmark`:
+
+```sh
+env JAVA_HOME=/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home \
+    ANDROID_HOME=/Users/teble/Library/Android/sdk \
+    bash gradlew :dexkit:cmakeBuild :dexkit:jar :dexkit:test --max-workers=2
+
+python3 tools/qaux-benchmark/extract.py \
+    --qaux-root /Users/teble/project/android/QAuxiliary \
+    --output /Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted
+
+python3 tools/qaux-benchmark/run.py \
+    --dexkit-root /Users/teble/project/android/DexKit-qaux-benchmark \
+    --corpus /Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted \
+    --apk /Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk \
+    --output /Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/replay-next \
+    --java-home /Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home \
+    --threads 4 --passes 2 --profile all
+```
+
+Use a native JDK matching the native library architecture. The example uses an
+arm64 JDK; this machine's default `java` is x86_64. The wrapper is invoked through
+`bash` because its checked-out file is not executable.
+
+Profiles:
+
+- `all`: one batch of all literal targets followed by ten discovery workflows.
+- `chains`: the discovery workflows without the preceding string batch.
+- `batch`: raw candidates for all literal targets.
+- `diagnostics`: deliberately relaxed probes for understanding current misses;
+  these are not the original feature queries and are excluded from `all`.
+
+The initial runner resolves Kotlin 1.9.20 and FlatBuffers 23.5.26 from the Gradle
+cache, matching this DexKit baseline. Dependency changes require updating it.
+
+## Interpretation boundaries
+
+- The 139 literal targets are a source-derived superset, including old-version
+  and TIM targets. They are not an observed set of enabled features on a device.
+- Raw string matches are candidates. QAuxiliary's subsequent descriptor filters,
+  host reflection, cardinality checks and cache writes are not reproduced for
+  these 139 targets. A raw hit is not a successful feature initialization.
+- Five specialized finders use the same query shapes and dependencies. Other
+  feature discovery scopes and exclusions are recorded in `report.json`.
+- `HideMiniAppPullEntry` uses DEX metadata to resolve its direct Conversation
+  class names instead of QAuxiliary's ClassLoader/synthetic-class fallback.
+- `AutoReceiveOriginalPhoto_cache_miss` selects the source's absent-class-cache
+  path. Class loading is excluded. Its first query currently misses, so its
+  later three steps are not covered on this APK.
+- These samples provide real nested caller/invoke/field constraints and serial
+  dependencies. They do not cover every deep Boolean/matching edge case; keep
+  the small controlled demo and adversarial correctness fixtures.
+- Both passes use the same bridge. Pass 2 repeats engine work with warmed native
+  state; it does not simulate QAuxiliary startup with a persistent descriptor
+  cache, which can skip the queries completely.
+- Stages share caches warmed by earlier stages. Starting a new process does not
+  guarantee cold filesystem pages. `chains` helps separate batch-induced warming.
+- API timings include query construction, JNI and returned result objects.
+  Descriptor materialization is recorded separately. Scenario and lifecycle
+  timings include diagnostic hashing/logging overhead. Peak RSS includes the JVM,
+  native allocations and retained report data. None of these smoke measurements
+  establishes a performance improvement or an Android native-memory budget.
+
+For a performance comparison, keep this selected corpus fixed, preserve its
+dependency graph and cache state, compare result fingerprints first, and reduce
+reporting overhead in timed runs. A recorded enabled-feature profile can improve
+representativeness later; it is not a prerequisite for this controlled engine
+benchmark. Device runs are needed before making device-specific performance
+claims. Keep current misses as explicit compatibility cases; do not silently
+relax the original queries to improve the success rate.
+
+## Source attribution
+
+QAuxiliary source files identify their terms as AGPL-3.0-or-later plus the
+project EULA. The Java adapter retains an attribution notice; the extraction
+also writes the source header beside generated local data. Copies of the AGPL
+and QAuxiliary EULA are included under `licenses/`. Original sources:
+
+- [DexKitTarget.kt](https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt)
+- [DexKitDeobfs.kt](https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/impl/DexKitDeobfs.kt)
+- [InjectDelayableHooks.java](https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/core/InjectDelayableHooks.java)
+- [QAuxiliary license](https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/LICENSE.md)
+
+See `REPORT.md` for the inspected sample and observed compatibility results.

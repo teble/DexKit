@@ -1,0 +1,774 @@
+{
+  "apk_sha256": "851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f",
+  "qaux_commit": "01801ffd013c95781dd360704adf48dc42ee8aa6",
+  "dexkit_commit": "1d936bd9efa38e00b7336ef112e73ba4048324e6",
+  "groups_sha256": "2558389fae99493d49d21a2391d489216a44bf66c40f391298ba20762f7a048f",
+  "source_report_sha256": "b027f38b09118c72ceac414709162d366dcd4288f473e8e5ee9e284d2d358944",
+  "stages": [
+    {
+      "feature": "all_literal_targets",
+      "stage": "batch_strings",
+      "groups": {
+        "CDialogUtil#_#0": {
+          "count": 6,
+          "multiset_sha256": "852e7309ac8ea0640611fc1125db1201f2c5c2fd67111373d41043eccf2be325"
+        },
+        "CFaceDe#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CFlashPicHelper#_#0": {
+          "count": 1,
+          "multiset_sha256": "40f8d49db704263eb266f5f35b51319d299ae384364561bfc19b9bbabfda1e68"
+        },
+        "CBasePicDlProcessor#_#0": {
+          "count": 1,
+          "multiset_sha256": "bf8f05af1ff45a1f65f50cd7f27db5d608d72c265f64444c378947ec91f1eaff"
+        },
+        "CItemBuilderFactory#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CItemBuilderFactory#_#1": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CAIOUtils#_#0": {
+          "count": 1,
+          "multiset_sha256": "2f22bfec1ee7c218e8064161a1d1a035d29961807394c9795fa3760e2514eaf0"
+        },
+        "CAbsGalScene#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CFavEmoConst#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CFavEmoConst#_#1": {
+          "count": 3,
+          "multiset_sha256": "c880dbe989b8b5b74b92bd2dba0b21a21526ebe41a300dd13fb76fe9750560cb"
+        },
+        "CMessageRecordFactory#_#0": {
+          "count": 1,
+          "multiset_sha256": "77c202a8dc9bc0db7faed18549cbc5a51deb25b1094ea7b3cab49f962497b50f"
+        },
+        "CArkAppItemBubbleBuilder#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CPngFrameUtil#_#0": {
+          "count": 1,
+          "multiset_sha256": "d8a9abcee7f5ad1f182812d7351b2fa1b5052584b1e45f3c445a8211a2669076"
+        },
+        "CPicEmoticonInfo#_#0": {
+          "count": 2,
+          "multiset_sha256": "24e1476da005e25916ff126b7bacf9c7b4437a0406bf7073ae4103f31eaa9c49"
+        },
+        "CSimpleUiUtil#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CTroopGiftUtil#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CTroopGiftUtil#_#1": {
+          "count": 2,
+          "multiset_sha256": "388c356318011118023cb98d67b802bac1e61901a20547887141439483e479ad"
+        },
+        "CQzoneMsgNotify#_#0": {
+          "count": 2,
+          "multiset_sha256": "f79dcd4ae1b08d051b0db5664e5ea4caa9af045f3adb5e387c1c520eae1f3050"
+        },
+        "CAppConstants#_#0": {
+          "count": 1,
+          "multiset_sha256": "394e79d051cea415d2f3f3a58937bd05a511323080304ef43da88807cdc602e5"
+        },
+        "CMessageCache#_#0": {
+          "count": 1,
+          "multiset_sha256": "bacba503c03a87f42de6f3a722df3f0e8233c2f6a7a2e9ed97dc3439fbb7219f"
+        },
+        "CScreenShotHelper#_#0": {
+          "count": 1,
+          "multiset_sha256": "d4b6be3689333be1af8a3c314d623b7ee98d6454a74588745da822f06fa6c6a1"
+        },
+        "CTimeFormatterUtils#_#0": {
+          "count": 1,
+          "multiset_sha256": "c476904d13551b5566591e4fd9580f05d38e336ca9033d9c3656b92af2062d67"
+        },
+        "CGroupAppActivity#_#0": {
+          "count": 1,
+          "multiset_sha256": "1672910ccf85142af4b9284fcb6d4ab1f4a75eb6e20e315b649aa75121a343e6"
+        },
+        "CIntimateDrawer#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CZipUtils#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CHttpDownloader#_#0": {
+          "count": 1,
+          "multiset_sha256": "266cde388d0e57cb939333d3af3a1ccecc3f8928413810e1d8b1f881b4b9cb2d"
+        },
+        "CMultiMsgManager#_#0": {
+          "count": 1,
+          "multiset_sha256": "fc361dac9e5a03e3567214cb667ca68daf9595c2aad92a56a93d001574a09859"
+        },
+        "CAvatarUtil#_#0": {
+          "count": 2,
+          "multiset_sha256": "cd1b238aacaa4ceecaf2e5f36caa4e541176c1aada5b63c2dd2fb5c800ef788e"
+        },
+        "CFaceManager#_#0": {
+          "count": 27,
+          "multiset_sha256": "4f3c8ac15b7d9409f179e695e95f8c68285583b08ca52ec1ec09fdfc4bb7c0e7"
+        },
+        "CAIOPictureView#_#0": {
+          "count": 10,
+          "multiset_sha256": "7050c5409109b35497eae1e704c1f3a6c7bb4af5eaffb895dc032aaa23f40fee"
+        },
+        "CAIOPictureView#_#1": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CGalleryBaseScene#_#0": {
+          "count": 1,
+          "multiset_sha256": "c11ea55c1353c2cf90aa19fd08127fedd6bce42c6ed922b6e856a9fd8bc5f7f4"
+        },
+        "CGuildHelperProvider#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CGuildArkHelper#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CReplyMsgUtils#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CReplyMsgSender#_#0": {
+          "count": 1,
+          "multiset_sha256": "18e3b7b57eecc1fe687acc96582bc8db36f1a982035b94e1a75f9371d0245ef1"
+        },
+        "CPopOutEmoticonUtil#_#0": {
+          "count": 1,
+          "multiset_sha256": "7efa507c6d353b0a5dbfda810cfe158743e893d06b5fbf61a3f980285292c97c"
+        },
+        "CTestStructMsg#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CSystemMessageProcessor#_#0": {
+          "count": 1,
+          "multiset_sha256": "8a1c72cd6de6542772bff9cb70df34ad4fce2cf0022aa139083d69b8a03fa93d"
+        },
+        "COnlinePushPbPushTransMsg#_#0": {
+          "count": 1,
+          "multiset_sha256": "6e41f8f9c4de5a2a7885a8772866a1e14ee88f8688506be2a040f8f13e075a42"
+        },
+        "CFrameControllerInjectImpl#_#0": {
+          "count": 1,
+          "multiset_sha256": "8c1a9e6e4e8c1ffb3ed684a9f2d77855a3339ffb3ce72c4bdfcc226c6d0db734"
+        },
+        "ForwardSendPicUtil#_#0": {
+          "count": 1,
+          "multiset_sha256": "05d0f9ab6815be4ef08a6b5257c7c739bbdf0843e36475f0eb8962ded7e734e5"
+        },
+        "AbstractQQCustomMenuItem#_#0": {
+          "count": 5,
+          "multiset_sha256": "0b9e462838818647e58812c298b6b1eda6252954dab889072d2d5ebef483558f"
+        },
+        "VasAttrBuilder#_#0": {
+          "count": 317,
+          "multiset_sha256": "9cdfc6e5120615123d253dcf2a44c42141f085fa33d15b271171723979f6ce94"
+        },
+        "Guild_Emo_Btn_Create_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "335e8870d3a716fc8b1ea4182982417f4b9faf5ae4b92619a23edffbc76b41ac"
+        },
+        "NBaseChatPie_init#_#0": {
+          "count": 2,
+          "multiset_sha256": "628528d29e9bfef59604b7834dc1e425e54a93cca711ec55b1be9113e2d9b91d"
+        },
+        "NBaseChatPie_init#_#1": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NBaseChatPie_createMulti#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NBaseChatPie_chooseMsg#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NLeftSwipeReplyHelper_reply#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NAtPanel_showDialogAtView#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NAtPanel_refreshUI#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NFriendChatPie_updateUITitle#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NProfileCardUtil_getCard#_#0": {
+          "count": 1,
+          "multiset_sha256": "a219db72231845be5b61866c6e4d9261ed261e3ec7bc566de737bcb6bc692630"
+        },
+        "NVasProfileTemplateController_onCardUpdate#_#0": {
+          "count": 1,
+          "multiset_sha256": "ab2218f622470584fb7e9ebfb78ec59522921089f5fbdad14a66e98bfecc960e"
+        },
+        "NVasProfileTemplateController_onCardUpdate#_#1": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NQQSettingMe_updateProfileBubble#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NQQSettingMe_onResume#_#0": {
+          "count": 1,
+          "multiset_sha256": "f9a0b9a01bb2a3d2365b1ffde121f4cb5c319b604d0a263f70ffe35c947e6515"
+        },
+        "NVipUtils_getPrivilegeFlags#_#0": {
+          "count": 3,
+          "multiset_sha256": "4a1eed5108cbae5844492aff6b64a05b2146e473d0d09ff95182da699b27776d"
+        },
+        "NTroopChatPie_showNewTroopMemberCount#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NConversation_onCreate#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NBaseChatPie_mosaic#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NWebSecurityPluginV2_callback#_#0": {
+          "count": 1,
+          "multiset_sha256": "4dc159856aa943bff828a1669e56b7633ff3bb58becb64a0fdae1371ec57eac6"
+        },
+        "NTroopAppShortcutBarHelper_resumeAppShorcutBar#_#0": {
+          "count": 2,
+          "multiset_sha256": "d4f5a08f4e0414b93fbdf3662579f867580b8cabb2cb1ae743359b152a775f0e"
+        },
+        "NChatActivityFacade_sendMsgButton#_#0": {
+          "count": 1,
+          "multiset_sha256": "1dd3c5258d4b0324736509ae8d7ca4abb58064882b7dc01c57bb07ed2186db3b"
+        },
+        "NFriendsStatusUtil_isChatAtTop#_#0": {
+          "count": 1,
+          "multiset_sha256": "9fbbc50cb51e81ed2675ae5b6e8cb7ae69cb9cb4ed74429e25aadd97eb33ddb0"
+        },
+        "NVipUtils_getUserStatus#_#0": {
+          "count": 1,
+          "multiset_sha256": "3ca5d0357ed7cc93c6bac6435bb10b37ab1b08b9235628d90c3746c57bec568b"
+        },
+        "NPhotoListPanel_resetStatus#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NContactUtils_getDiscussionMemberShowName#_#0": {
+          "count": 1,
+          "multiset_sha256": "5b2fb878d515dbcc095cd6045e80d53c6a15d0374be00f5b89768dc5d8080ed4"
+        },
+        "NContactUtils_getBuddyName#_#0": {
+          "count": 1,
+          "multiset_sha256": "8ba0cf4b3f70ce13343a2a93b0e8f427f2f4b4165184aaa855d2de0bc468d4d3"
+        },
+        "NScene_checkDataRecmdRemarkList#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NCustomWidgetUtil_updateCustomNoteTxt#_#0": {
+          "count": 14,
+          "multiset_sha256": "8f4bbacc74449a275fb10bfcdac8b7bb53fc0d862d1057059492168019267628"
+        },
+        "AIOTitleVB_updateLeftTopBack_NT#_#0": {
+          "count": 137,
+          "multiset_sha256": "d9d65e6398e28185b722bc7fb65f4f4f13cb123508b6a2f1b29f6eab7a2d7e43"
+        },
+        "CCustomWidgetUtil_updateCustomNoteTxt_NT#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "NPadUtil_initDeviceType#_#0": {
+          "count": 1,
+          "multiset_sha256": "9474ac8ae599068b61c47aabdfe66e3b655e6ff585e86973ca1cfe8e179e6299"
+        },
+        "PaiYiPaiHandler_canSendReq#_#0": {
+          "count": 1,
+          "multiset_sha256": "58d8f167aedd0b2b7df11951da6fd42b585c4a91f3b367dcf7fbba03337fca33"
+        },
+        "TroopGuildChatPie_flingRToL#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "BaseListenTogetherPanel_onUIModuleNeedRefresh#_#0": {
+          "count": 1,
+          "multiset_sha256": "86790f1e8a9f5a68a4411b8119463c46464dd4635ade78289615da399de79ade"
+        },
+        "EmotcationConstants#_#0": {
+          "count": 1,
+          "multiset_sha256": "833e1edbafa0ac70b5aad042fe7937059fb75b7725999e14b3aa845e5a917690"
+        },
+        "GroupSpecialCare_getCareTroopMemberMsgText#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ChatPanel_InitPanel_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "4680d6f05b899e327b53ca5a70cce59a57ce13d4e8372f1ebc7cf7656b83624a"
+        },
+        "AIO_Create_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "8634e9395b2c3d0c6a3831209ebac4d47f6fb7f88660f00dd4f24a3b69609959"
+        },
+        "AIO_Create_QQNT#_#1": {
+          "count": 1,
+          "multiset_sha256": "8634e9395b2c3d0c6a3831209ebac4d47f6fb7f88660f00dd4f24a3b69609959"
+        },
+        "AIO_Destroy_QQNT#_#0": {
+          "count": 2,
+          "multiset_sha256": "ca0eb3df2b32fd45093954c7d0f7e174e25ae596a8492fd867abefbd127a3f8a"
+        },
+        "AIO_InputRootInit_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "251ef093134dadc9b7647f7352b361a6a36f121c8c14f9651ec9cdfc0373a86d"
+        },
+        "AIO_InputRootInit_QQNT#_#1": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "EmoMsgUtils_isSingleLottie_QQNT#_#0": {
+          "count": 2,
+          "multiset_sha256": "6d864d4af23dad40555c1e5f22fe4b44cb587cabd55db21130d63275bbd83343"
+        },
+        "Reply_At_QQNT#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "AIOMsgItemExt_HasInfo#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "TroopSendFile_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "0089bd4edcd777a859d290e1a63096eec1db1da695734bf5a6fdda809348a2f7"
+        },
+        "TroopEnterEffect_QQNT#_#0": {
+          "count": 1,
+          "multiset_sha256": "86ac32e0ac87c2905d09b6a914cc5827b758b9cfb5469af0ec7523afc295183f"
+        },
+        "NQZMoment_EntranceEnabled#_#0": {
+          "count": 1,
+          "multiset_sha256": "0f24481bab55df317e4d916db5c447cd1221507ca179cab86423c6b540e9bf97"
+        },
+        "DefaultFileModel#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "FileBrowserActivity_InnerClass_onItemClick#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "AIOTextElementCtor#_#0": {
+          "count": 21,
+          "multiset_sha256": "87de601a8ac73a370697fd2b12dbfb73a75222d2ea7694d4313ef022e6ea5f8d"
+        },
+        "AIOPicElementType#_#0": {
+          "count": 2,
+          "multiset_sha256": "0e6ab302d25b1437ae5e567e0595b0be8f79566fdce846c5e12b496661497cbb"
+        },
+        "MultiSelectToBottomIntent#_#0": {
+          "count": 3,
+          "multiset_sha256": "bb2c3566acbc7eb6af6b12fef3916e731685a1bb6d43b0fb760b784ab383afd8"
+        },
+        "MultiSelectBarVM#_#0": {
+          "count": 6,
+          "multiset_sha256": "ff8b4ce32aacd7d1f96288c0f99a1e79903ddd9f259f20db08cd05d1f8e81e11"
+        },
+        "AIOSendMsg#_#0": {
+          "count": 2,
+          "multiset_sha256": "3dd1c36408a8bc9c304aeba4b9fa92755197ef3f0ad7b5eea64516a7b20541e9"
+        },
+        "AIODelegate_ISwipeListener#_#0": {
+          "count": 6,
+          "multiset_sha256": "67925a339f9e2a93f02a02db753913961a31527c8437417b02c71210767d5942"
+        },
+        "NT_SysAndEmojiResInfo#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "X5_Properties_conf#_#0": {
+          "count": 2,
+          "multiset_sha256": "88b4d7e316bddf83b30247c67300f60403bccbd69dafb4319fd11be876b4973e"
+        },
+        "X5_Properties_conf#_#1": {
+          "count": 1,
+          "multiset_sha256": "b56004b2751755627c7f824d4b408ec152dbd5b37b4295523544b66a203610ea"
+        },
+        "X5_Properties_conf#_#2": {
+          "count": 3,
+          "multiset_sha256": "6884f2310a23e8b30dac5ecb80722b112875315416da820c01e94ea4755747c5"
+        },
+        "EmotionDownloadDisableSwitch#_#0": {
+          "count": 3,
+          "multiset_sha256": "70eba8ad5bf00946e139b550d8bb232af8e1c274533436182a423098205766d1"
+        },
+        "QQ_SETTING_ME_CONFIG_CLASS#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ChatSettingForTroop_InitUI_TIM#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "FormItem_TIM#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "QQSettingMeABTestHelper_isZPlanExpGroup_New#_#0": {
+          "count": 1,
+          "multiset_sha256": "9733f4a3ce126ed6288a5b8fa67b030bd00984837bb2a526a55fb6bf6229c1fe"
+        },
+        "QQSettingMeABTestHelper_isZplanExpGroup_Old#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "QQSettingMeABTestHelper_isV9ExpGroup#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "QQValueMethod#_#0": {
+          "count": 1,
+          "multiset_sha256": "273619253470fc70aba233ffc707f3fec6f787af9e9609c0818a5510b7a9f18b"
+        },
+        "QZoneFeedxTopEntranceMethod#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "CopyPromptHelper_handlePrompt#_#0": {
+          "count": 1,
+          "multiset_sha256": "fe628280233b9cbb87e0e801b540902ab65507c1a76a7f91d04168e6a36d61ce"
+        },
+        "PushNotificationManager_judgeAndAddGrayTips#_#0": {
+          "count": 1,
+          "multiset_sha256": "6d3fb6919f85b1ddf6c357d7d4c7bd881cbe483c3e2721ca0a9411854fd7e48c"
+        },
+        "RecentPopup_onClickAction#_#0": {
+          "count": 1,
+          "multiset_sha256": "8356a660749c820efc7e648f02d6b7c436e0d18ccb622ea9356b8f5a6becffe7"
+        },
+        "TroopInfoCardPageABConfig#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "PlusPanel_PanelAdapter#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_FakePhone_Method#_#0": {
+          "count": 2,
+          "multiset_sha256": "ee5986a295aabfab34860a6edb05a3491d3f304cfed2b3de061b5be593190e08"
+        },
+        "Hd_RemoveRedPackSkin_Class#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_HandleQQSomeFunExit_fixFileView_Method#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_AutoSendOriginalPhoto_guildPicker_Method#_#0": {
+          "count": 5,
+          "multiset_sha256": "16a8836ddf4721a8b8061eddeb600a3c202bd6923a19c9042a62137403f947a2"
+        },
+        "Hd_AutoSendOriginalPhoto_photoListPanel_Method#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_DisableGrowHalfLayer_Method1#_#0": {
+          "count": 2,
+          "multiset_sha256": "5ab6b5a5669b1e2484ed658595db7323a867c9bd36712137595881dfc41685a5"
+        },
+        "Hd_DisableGrowHalfLayer_Method2#_#0": {
+          "count": 1,
+          "multiset_sha256": "a14bd3315db411deda847c8a5bcad6d029a40ba348c427635184392e991803d6"
+        },
+        "Hd_GagInfoDisclosure_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "4f4c5f9023199b066881bcbdcfe04fb9397b1c899c220a4ed8b800166c0f9989"
+        },
+        "RemoveAudioTransitionMethod#_#0": {
+          "count": 1,
+          "multiset_sha256": "f0c9d84d9bee0160dc7889580fced9be66fe6c63a00d195fc3e1b4cf4049e32c"
+        },
+        "Hd_HideShortcutBar_Method_Troop#_#0": {
+          "count": 1,
+          "multiset_sha256": "717a9bdc3a538ff376d48c6a38768bc5e282a281c023e85f00a577521b71a76c"
+        },
+        "Hd_HideShortcutBar_Method_TroopApp#_#0": {
+          "count": 2,
+          "multiset_sha256": "55f0970f79bd40d0168d9f7f487718037273ece37fc72467bfe5004ddb20926e"
+        },
+        "UnlockTroopNameLimitClass#_#0": {
+          "count": 2,
+          "multiset_sha256": "05f4580db33041574927a0fc4d6ed8121d1c46279ea7b1141a634f211b68cfd2"
+        },
+        "DisableLightInteractionMethod#_#0": {
+          "count": 3,
+          "multiset_sha256": "a21378e6b9074671b572025af43b28835d65f501fa5632e99a35ade2797aff07"
+        },
+        "Hd_HideTipsBar_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "a974850632f094a7af7726f913af69e200911d170666e5c774ef8cfd0986b703"
+        },
+        "Hd_DisableFekitToAppDialog_Method#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "RemoveSecurityTipsBanner_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "b03469a62f6f3e7993814d492ec3cc060f494af388303c38a824188a59eaa5db"
+        },
+        "Hd_RemoveEmoReplyMenu_Method#_#0": {
+          "count": 4,
+          "multiset_sha256": "8361baa503205f031aa9758ab14995000ccbf2faf9a1184abf969902a09fe8b6"
+        },
+        "PadUtil_getDeviceType#_#0": {
+          "count": 683,
+          "multiset_sha256": "cba3767ea629940339f1efe08a0872f415cb2f0873a0446119b1aff7d057500f"
+        },
+        "SharePanelSceneData#_#0": {
+          "count": 1,
+          "multiset_sha256": "bf805bcb007a422fe102f881eeea44faeeea0eddca4512cf698b32490e531c30"
+        },
+        "SharePanel_Handler_OtherApp_openImageByOtherApp#_#0": {
+          "count": 1,
+          "multiset_sha256": "cb443751b614f7106a3ccd8018ff5dd351ba5bbd8b018bd23dc889a2061a144a"
+        },
+        "SharePanel_Handler_OtherApp_openVideoByOtherApp#_#0": {
+          "count": 1,
+          "multiset_sha256": "cb443751b614f7106a3ccd8018ff5dd351ba5bbd8b018bd23dc889a2061a144a"
+        },
+        "MsgListUtil_createMsgItem#_#0": {
+          "count": 1,
+          "multiset_sha256": "d5d3d09ad2e2cdb286d1bc0fa3213a826d9a44f291b1047321390421a758d716"
+        },
+        "Hd_HideChatPanelBtn_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "301accbc13699a35fc5acf2d7afbbcce89a6106f35d7d639c9a2a41c0098069e"
+        },
+        "Hd_QuickReplayPaiYiPai_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "9ee150633ce8ef7ec9ba594d8a4a36225bb56267e02590425fb6f9eb34846925"
+        },
+        "Hd_RemoveReplyImagePreviewLimit_Method#_#0": {
+          "count": 1,
+          "multiset_sha256": "26755a34852c52663b921dba4992d9bfb38d1a16990feab8be19d796c6e390ec"
+        },
+        "Hd_EnableGenChatSummary_Class#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_CustomReportStep_Method#_#0": {
+          "count": 2,
+          "multiset_sha256": "714f0b50d9986fe534aa89108b81ace89d649f8bd7958e78a03976bdb3cac660"
+        },
+        "Hd_CustomPetHomeBg_Method#_#0": {
+          "count": 0,
+          "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Hd_ChatsListAdapter_CLASS#_#0": {
+          "count": 1,
+          "multiset_sha256": "557fe73e00217261f59b64340070220bbef5193fa60bbbb3800a2aaff6bd6c3e"
+        },
+        "Hd_ChatsListVB_OnCreateView_Method#_#0": {
+          "count": 274,
+          "multiset_sha256": "0c1b8ab0ea17d53a5a15f8dc3ad9deac287a14e2e17e15f91f5a9f50d6145762"
+        },
+        "BlockPicByMd5_EmotionPreviewDataV2#_#0": {
+          "count": 6,
+          "multiset_sha256": "7bebd21381a1a862f9d2b139ebd3e660bfc0510de6379b99bdbcc0e684416cc7"
+        }
+      }
+    },
+    {
+      "feature": "AIOMsgItem_initContentDescription",
+      "stage": "find_seed",
+      "count": 1,
+      "multiset_sha256": "ee3fb45379381419ad77d9b9d50aa35bcbec1df64dce160824c47fc12f42597f"
+    },
+    {
+      "feature": "AIOMsgItem_initContentDescription",
+      "stage": "find_callee_using_seed_as_caller",
+      "count": 1,
+      "multiset_sha256": "dc68198225085a8698bde543ded3d4d79b406dfe3be4f8dc1b54fe23e436fa51"
+    },
+    {
+      "feature": "EmotionDetailAi",
+      "stage": "find_classes",
+      "count": 1,
+      "multiset_sha256": "d01d64f9b6a67808fc3ecb5221564fb37cd09e50194578fa25981c6a4650f43e"
+    },
+    {
+      "feature": "EmotionDetailAi",
+      "stage": "find_method_in_classes",
+      "count": 1,
+      "multiset_sha256": "556a1d2b68000ba980f3794f9b058b3427953524251f951eee6eb9d95bd6d31d"
+    },
+    {
+      "feature": "Hd_HideEmoReplyLayout_Method",
+      "stage": "find_classes",
+      "count": 1,
+      "multiset_sha256": "4b47fb3480ae175292423d39f919797f90ebd2504085d88c089f0aa864236678"
+    },
+    {
+      "feature": "Hd_HideEmoReplyLayout_Method",
+      "stage": "find_method_in_classes",
+      "count": 1,
+      "multiset_sha256": "ba23a928e7ced0977036dfee1ba9b2688e4b05b059cd8a9c6b14626956af30f1"
+    },
+    {
+      "feature": "BlockPicByMd5_LoadImagePathV2",
+      "stage": "find_method",
+      "count": 0,
+      "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "feature": "BlockPicByMd5_PicPathResolverV2",
+      "stage": "find_method",
+      "count": 1,
+      "multiset_sha256": "b4ac7f029b7e0664f28fc033cab2273ba9b4bc9c337c52f33b8628d5b555fa58"
+    },
+    {
+      "feature": "ReplyNoAtHook",
+      "stage": "reply_new_signature",
+      "count": 1,
+      "multiset_sha256": "6ffb0b9831b5252d1833a58b6e1927618df68b3454c3758271f9b0d0c2475f0e"
+    },
+    {
+      "feature": "ReplyNoAtHook",
+      "stage": "optional_has_info",
+      "count": 1,
+      "multiset_sha256": "85415450554a6afc65702a7409c8e5fbae122af41cedea9f0fc6e7ecb7822425"
+    },
+    {
+      "feature": "MultiForwardAvatarHook",
+      "stage": "find_avatar_listener",
+      "count": 0,
+      "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "feature": "SettingEntryHook",
+      "stage": "find_processor",
+      "count": 1,
+      "multiset_sha256": "c9a69926fb1b5dda8c3849d788803a28a0f923b742414903049c55f38f2f17d3"
+    },
+    {
+      "feature": "HideMiniAppPullEntry",
+      "stage": "resolve_direct_conversation_class",
+      "count": 1,
+      "multiset_sha256": "c4b1721a17b0d317f102d98c8a1990f7088e02aa806a7c14cfa57e1535bd11a9"
+    },
+    {
+      "feature": "HideMiniAppPullEntry",
+      "stage": "legacy_string_groups",
+      "count": 1,
+      "multiset_sha256": "00ead81d9b56ca42f20d3bea20bfaaff4d447fd525bc5f3e03edfc00e5169ee7"
+    },
+    {
+      "feature": "HideMiniAppPullEntry",
+      "stage": "nt_invoke_fallback",
+      "count": 1,
+      "multiset_sha256": "1108d735be78ad76a1f165094cc2928fb981f4fefa47f5835aae5571b5520ca1"
+    },
+    {
+      "feature": "AutoReceiveOriginalPhoto_cache_miss",
+      "stage": "nt_on_init_view",
+      "count": 0,
+      "multiset_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "features": [
+    {
+      "feature": "AIOMsgItem_initContentDescription",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/aio/msg/AIOMsgItem;->y1()Ljava/lang/String;"
+      ]
+    },
+    {
+      "feature": "EmotionDetailAi",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/emotionintegrate/al;->n()Z"
+      ]
+    },
+    {
+      "feature": "Hd_HideEmoReplyLayout_Method",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/aio/msglist/holder/template/g;->i()Landroid/view/View;"
+      ]
+    },
+    {
+      "feature": "BlockPicByMd5_LoadImagePathV2",
+      "status": "unresolved",
+      "reason": "method: expected one, got 0"
+    },
+    {
+      "feature": "BlockPicByMd5_PicPathResolverV2",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/aio/utils/ap;->a(Lcom/tencent/qqnt/kernel/nativeinterface/PicElement;)Ljava/lang/String;"
+      ]
+    },
+    {
+      "feature": "ReplyNoAtHook",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/aio/input/reply/i;->f(Lcom/tencent/mvi/base/route/MsgIntent;)V",
+        "Lcom/tencent/mobileqq/aio/utils/AIOMsgItemExtKt;->m(Lcom/tencent/mobileqq/aio/msg/AIOMsgItem;)Z"
+      ]
+    },
+    {
+      "feature": "MultiForwardAvatarHook",
+      "status": "unresolved",
+      "reason": "method: expected one, got 0"
+    },
+    {
+      "feature": "SettingEntryHook",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/setting/processor/i;->z(Lcom/tencent/mobileqq/setting/processor/i;Landroid/view/View;)V"
+      ]
+    },
+    {
+      "feature": "HideMiniAppPullEntry",
+      "status": "resolved",
+      "selected": [
+        "Lcom/tencent/mobileqq/activity/home/Conversation;->initMiniAppView()V"
+      ]
+    },
+    {
+      "feature": "AutoReceiveOriginalPhoto_cache_miss",
+      "status": "unresolved",
+      "reason": "nt_on_init_view: empty"
+    }
+  ]
+}

@@ -121,6 +121,8 @@ def main():
     jvm_name = {'Darwin': 'libjvm.dylib', 'Linux': 'libjvm.so', 'Windows': 'jvm.dll'}[platform.system()]
     java_files = [java_executable, java_root / 'release', java_root / 'lib/server' / jvm_name]
     java_identity = {str(path): sha256(path) for path in java_files if path.is_file()}
+    if args.mode == 'measure' and (not args.java_home or len(java_identity) != len(java_files)):
+        raise SystemExit('Formal measurement requires an explicit complete JDK installation.')
     cache = Path(os.environ.get('GRADLE_USER_HOME', str(Path.home() / '.gradle'))) / 'caches/modules-2/files-2.1'
     jars = [root / 'dexkit/build/libs/dexkit.jar',
             cached_jar(cache, 'org.jetbrains.kotlin', 'kotlin-stdlib', '1.9.20'),

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>
+#include <optional>
 #include <string>
 
 using namespace dexkit;
@@ -20,8 +21,8 @@ Result Run(acdat::AhoCorasickDoubleArrayTrie<std::string_view> &trie,
     uint64_t parses = 0, hits = 0;
     {
         QueryContext query(QueryKind::BatchFindMethodUsingStrings);
-        std::unique_ptr<NegativeStringMemo> memo;
-        if constexpr (UseMemo) memo = std::make_unique<NegativeStringMemo>(query, directory_size, 0);
+        std::optional<NegativeStringMemo> memo;
+        if constexpr (UseMemo) memo.emplace(query, directory_size, 0);
         for (size_t i = 0; i < visits; ++i) {
             const auto id = static_cast<uint32_t>(i % strings.size());
             if constexpr (UseMemo) { if (memo->Contains(id)) continue; }
@@ -60,13 +61,16 @@ int main() {
     std::vector<std::string_view> keywords{"needle"};
     acdat::AhoCorasickDoubleArrayTrie<std::string_view> trie;
     acdat::Builder<std::string_view>().Build(keywords, &trie);
-    for (const std::string name : {"unique_short_negative", "repeated_negative", "repeated_positive", "over_budget"}) {
+    for (const std::string name : {"unique_short_negative", "repeated_negative", "repeated_positive", "over_budget", "no_visits", "one_visit_large_directory"}) {
         const size_t count = name == "unique_short_negative" ? 32768 : 64;
         std::vector<std::string> values;
         for (size_t i = 0; i < count; ++i)
             values.push_back((name == "repeated_positive" ? "needle" : "x") + std::to_string(i));
-        const size_t directory = name == "over_budget" ? (budget / 8 + 1) * 64 : count;
-        const size_t visits = name == "unique_short_negative" ? count : 500000;
+        const bool small_scope = name == "no_visits" || name == "one_visit_large_directory";
+        const size_t directory = name == "over_budget" ? (budget / 8 + 1) * 64
+                                : small_scope ? std::max(size_t{64}, budget / 8 * 64) : count;
+        const size_t visits = name == "unique_short_negative" ? count
+                             : name == "no_visits" ? 0 : small_scope ? 1 : 500000;
         for (int pair = 0; pair < 6; ++pair) {
             Result base{}, candidate{};
             if (pair % 2) {

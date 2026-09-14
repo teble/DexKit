@@ -58,6 +58,14 @@ target_link_libraries(${PROJECT_NAME}_static
 )
 
 option(EXECUTABLE_TEST "execute test cpp" OFF)
+option(DEXKIT_BENCHMARK_METADATA_CHECKS "Build exhaustive demo metadata checks" OFF)
+if (DEXKIT_BENCHMARK_METADATA_CHECKS)
+    if (NOT DEXKIT_BENCHMARK_DIAGNOSTICS)
+        message(FATAL_ERROR "Metadata checks require benchmark diagnostics")
+    endif ()
+    add_executable(dexkit_metadata_checks ../tools/qaux-benchmark/metadata_checks.cpp)
+    target_link_libraries(dexkit_metadata_checks PRIVATE dexkit_static)
+endif ()
 if (EXECUTABLE_TEST)
     link_libraries(z ${PROJECT_NAME}_static)
     add_executable(${PROJECT_NAME}

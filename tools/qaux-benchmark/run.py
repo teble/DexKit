@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import signal
+import shutil
 import subprocess
 import sys
 import time
@@ -112,6 +113,14 @@ def main():
         raise SystemExit('APK differs from the pinned QQ 9.3.55 sample; review version-dependent paths first.')
     java = str(args.java_home / 'bin/java') if args.java_home else 'java'
     javac = str(args.java_home / 'bin/javac') if args.java_home else 'javac'
+    injected_options = ['JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS']
+    if any(os.environ.get(key) for key in injected_options):
+        raise SystemExit('Unset JAVA_TOOL_OPTIONS, JDK_JAVA_OPTIONS and _JAVA_OPTIONS for a controlled run.')
+    java_executable = Path(shutil.which(java) or java).resolve()
+    java_root = java_executable.parent.parent
+    jvm_name = {'Darwin': 'libjvm.dylib', 'Linux': 'libjvm.so', 'Windows': 'jvm.dll'}[platform.system()]
+    java_files = [java_executable, java_root / 'release', java_root / 'lib/server' / jvm_name]
+    java_identity = {str(path): sha256(path) for path in java_files if path.is_file()}
     cache = Path(os.environ.get('GRADLE_USER_HOME', str(Path.home() / '.gradle'))) / 'caches/modules-2/files-2.1'
     jars = [root / 'dexkit/build/libs/dexkit.jar',
             cached_jar(cache, 'org.jetbrains.kotlin', 'kotlin-stdlib', '1.9.20'),
@@ -149,6 +158,8 @@ def main():
         'adapter_sha256': sha256(source), 'native_sha256': sha256(library),
         'expected_sha256': sha256(args.expected),
         'jvm_options': jvm_options,
+        'java_identity': java_identity,
+        'injected_java_options': {key: None for key in injected_options},
         'memory_probe_sha256': sha256(args.memory_probe) if args.memory_probe else None,
         'jars_sha256': {str(p): sha256(p) for p in jars}, 'command': cmd,
         'mode': args.mode, 'profile': args.profile, 'threads': args.threads, 'passes': args.passes,
@@ -177,6 +188,7 @@ def main():
             raise SystemExit('Verification must cover at least as many passes as measurement.')
         keys = ['apk_sha256', 'qaux_commit', 'groups_sha256', 'adapter_sha256', 'native_sha256',
                 'jars_sha256', 'expected_sha256', 'profile', 'threads', 'jvm_options', 'memory_probe_sha256']
+        keys += ['java_identity', 'injected_java_options']
         if any(verified.get(key) != metadata[key] for key in keys):
             raise SystemExit('The verified input, binary, adapter or profile differs from this measurement.')
         metadata['verified_run'] = str(args.verified_run.resolve())

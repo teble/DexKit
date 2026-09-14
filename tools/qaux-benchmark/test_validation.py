@@ -6,6 +6,7 @@ from pathlib import Path
 import unittest
 
 from run import expected_fingerprint, fingerprints, validate_report
+from sweep import summarize
 
 
 class ValidationTest(unittest.TestCase):
@@ -60,6 +61,11 @@ class ValidationTest(unittest.TestCase):
         self.report['stages'][1]['multiset_sha256'] = 'different'
         self.assertEqual(fingerprints(self.report, True)[0], expected_fingerprint(self.expected, 'all', True))
         self.assertNotEqual(fingerprints(self.report)[0], expected_fingerprint(self.expected, 'all'))
+
+    def test_failed_memory_probe_is_not_a_memory_measurement(self):
+        rows = [dict(pair=pair, label=label, peak_footprint_bytes=-1)
+                for pair in range(2) for label in ['a', 'b']]
+        self.assertNotIn('peak_footprint_bytes', summarize(rows, ['a', 'b'], 2, 42))
 
 
 if __name__ == '__main__':

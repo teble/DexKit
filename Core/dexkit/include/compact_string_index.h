@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <limits>
 #include <span>
 #include <vector>
 
@@ -24,16 +27,33 @@ public:
     void EndMethod(uint32_t method) {
         // One method has at most UINT32_MAX code units; each const-string uses
         // at least two. Only the per-method length is narrowed, never the offset.
-        lengths_[method] = static_cast<uint32_t>(ids_.size() - offsets_[method]);
+        const auto begin = offsets_[method];
+        if (begin > ids_.size() || ids_.size() - begin > std::numeric_limits<uint32_t>::max()) std::abort();
+        lengths_[method] = static_cast<uint32_t>(ids_.size() - begin);
     }
 
     std::span<const uint32_t> operator[](size_t method) const {
-        return std::span<const uint32_t>(ids_).subspan(offsets_[method], lengths_[method]);
+        const auto begin = offsets_[method];
+        const auto length = lengths_[method];
+        if (begin > ids_.size() || length > ids_.size() - begin) std::abort();
+        return std::span<const uint32_t>(ids_).subspan(begin, length);
     }
+
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    void ObserveAppend() {
+        if (ids_.capacity() != observed_capacity_) {
+            ++growth_count_;
+            moved_bytes_ += observed_capacity_ * sizeof(uint32_t);
+            overlap_bytes_ = std::max(overlap_bytes_, (observed_capacity_ + ids_.capacity()) * sizeof(uint32_t));
+            observed_capacity_ = ids_.capacity();
+        }
+    }
+#endif
 
 private:
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
+    size_t growth_count_ = 0, moved_bytes_ = 0, overlap_bytes_ = 0, observed_capacity_ = 0;
 #endif
     std::vector<size_t> offsets_;
     std::vector<uint32_t> lengths_;

@@ -72,7 +72,7 @@ The diagnostic binary preserves all frozen results. Its pre-close census shows:
   neither H1 nor H2 removes them. The census is not a complete allocator account.
 - A 149-group batch visits 2,071,884 string uses but only 949,982 distinct DEX
   string IDs (54.15% repeated visits). It scans 39.19 MB including 24.69 MB unique
-  bytes. Systematic 1/1024 timing samples contain 0.421 ms total parse time and
+  bytes. Xorshift PRNG 1/1024 timing samples contain 0.421 ms total parse time and
   0.135 ms duplicate parse time summed across workers. This is attribution with
   instrumentation overhead, not a precise or rigorous speedup bound.
 - The three-group fallback repeats the same visits, with 0.219 ms sampled parse

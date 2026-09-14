@@ -23,7 +23,7 @@ def summarize(rows, labels, pairs, seed):
                'peak_footprint_bytes', 'window_peak_footprint_bytes']
     result = {}
     for metric in metrics:
-        if any(row.get(metric) is None or row.get(metric) == 0 for row in rows):
+        if any(row.get(metric) is None or row.get(metric) <= 0 for row in rows):
             continue
         grouped = {label: [r[metric] for r in rows if r['label'] == label] for label in labels}
         stats = {}

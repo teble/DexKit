@@ -212,7 +212,7 @@ DexItem::BatchFindMethodUsingStrings(
                 auto hits = acTrie.ParseText(str);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
                 if (sample) scan_diagnostics.Record(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        BatchScanDiagnostics::Clock::now() - parse_begin).count(), duplicate);
+                        BatchScanDiagnostics::Clock::now() - parse_begin).count(), duplicate, str.size(), hits.empty());
 #endif
                 for (auto &hit: hits) {
                     auto match_type = match_type_map[hit.value];

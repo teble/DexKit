@@ -4,6 +4,8 @@
 #include "dexkit.h"
 #include <map>
 #include <set>
+#include <latch>
+#include <thread>
 
 namespace dexkit {
 namespace {
@@ -83,6 +85,8 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         strings.buffers += (index.offsets_.capacity() != 0) + (index.lengths_.capacity() != 0)
                          + (index.ids_.capacity() != 0);
         for (auto length : index.lengths_) strings.ready += length != 0;
+        if (index.growth_count_) std::fprintf(stderr, "BENCH_GROWTH {\"phase\":\"%s\",\"dex\":%u,\"growths\":%zu,\"moved_id_bytes\":%zu,\"peak_overlap_bytes\":%zu,\"ids\":%zu,\"capacity\":%zu}\n",
+                phase, item.dex_id, index.growth_count_, index.moved_bytes_, index.overlap_bytes_, index.ids_.size(), index.ids_.capacity());
 #else
         Rows(counts["using_strings"], item.method_using_string_ids);
 #endif
@@ -136,6 +140,78 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     }
     std::fprintf(stderr, "BENCH_CENSUS {\"phase\":\"%s\",\"diagnostic_ns\":%lld}\n", phase,
         (long long) std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - begin).count());
+}
+
+void BenchmarkDiagnostics::CheckMetadata(std::string_view apk) {
+    const auto require = [](bool value) {
+        if (!value) { std::fprintf(stderr, "Metadata equivalence check failed\n"); std::abort(); }
+    };
+    const auto same_numbers = [](const auto &left, const auto &right) {
+        if (left.size() != right.size()) return false;
+        const auto bits = [](const EncodeNumber &number) -> int64_t {
+            switch (number.type) {
+                case BYTE: return number.value.L8;
+                case SHORT: return number.value.L16;
+                case INT: case FLOAT: return number.value.L32.int_value;
+                case LONG: case DOUBLE: return number.value.L64.long_value;
+                default: std::abort();
+            }
+        };
+        for (size_t i = 0; i < left.size(); ++i)
+            if (left[i].type != right[i].type || bits(left[i]) != bits(right[i])) return false;
+        return true;
+    };
+    DexKit full(apk), lazy(apk), cold(apk);
+    require(full.GetDexNum() > 0 && full.GetDexNum() == lazy.GetDexNum());
+    full.InitFullCache();
+    uint64_t methods = 0, empty_methods = 0, duplicate_strings = 0;
+    for (size_t d = 0; d < full.dex_items.size(); ++d) {
+        auto &reference = *full.dex_items[d];
+        auto &item = *lazy.dex_items[d];
+        const auto count = reference.reader.MethodIds().size();
+        methods += count;
+        for (uint32_t m = 0; m < count; ++m) {
+            const auto strings = item.GetUsingStrings(m);
+            require(strings == reference.GetUsingStrings(m));
+            require(item.GetMethodOpCodes(m) == reference.GetMethodOpCodes(m));
+            require(same_numbers(item.GetUsingNumbers(m), reference.GetUsingNumbers(m)));
+            empty_methods += item.method_codes[m] == nullptr;
+            duplicate_strings += std::set<std::string_view>(strings.begin(), strings.end()).size() < strings.size();
+        }
+#if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
+        require(!reference.lazy_method_opcode_slots && !reference.lazy_method_using_string_slots
+                && !reference.lazy_using_numbers_slots);
+#endif
+        // Concurrent first access to different and repeated slots of one DEX.
+        std::latch start(1);
+        std::vector<std::thread> readers;
+        for (uint32_t worker = 0; worker < 8; ++worker) readers.emplace_back([&, worker] {
+            start.wait();
+            for (uint32_t m = worker % 4; m < count; m += 4) {
+                auto &target = *cold.dex_items[d];
+                require(target.GetUsingStrings(m) == reference.GetUsingStrings(m));
+                require(target.GetMethodOpCodes(m) == reference.GetMethodOpCodes(m));
+                require(same_numbers(target.GetUsingNumbers(m), reference.GetUsingNumbers(m)));
+            }
+        });
+        start.count_down();
+        for (auto &reader : readers) reader.join();
+    }
+    lazy.InitFullCache();
+    for (size_t d = 0; d < lazy.dex_items.size(); ++d) {
+        auto &item = *lazy.dex_items[d];
+        for (uint32_t m = 0; m < item.reader.MethodIds().size(); ++m) {
+            // Previously published lazy payloads remain alive after full warm-up.
+            require(*item.lazy_method_opcode_slots[m].data == item.GetMethodOpCodes(m));
+            require(same_numbers(*item.lazy_using_numbers_slots[m].data, item.GetUsingNumbers(m)));
+            const auto &ids = *item.lazy_method_using_string_slots[m].data;
+            std::vector<std::string_view> before;
+            for (auto id : ids) before.push_back(item.strings[id]);
+            require(before == item.GetUsingStrings(m));
+        }
+    }
+    std::fprintf(stderr, "CHECK_METADATA {\"methods\":%llu,\"empty_methods\":%llu,\"duplicate_string_methods\":%llu,\"workers\":8,\"passed\":true}\n",
+            (unsigned long long) methods, (unsigned long long) empty_methods, (unsigned long long) duplicate_strings);
 }
 }
 #endif

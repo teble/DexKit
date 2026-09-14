@@ -413,8 +413,8 @@ public final class QueryReplay {
                 report.put("memory_before_create", memory(memoryBefore));
                 report.put("memory_after_close", memory(memoryAfter));
                 // A newly established process maximum must lie in this interval.
-                report.put("window_peak_rss_bytes", memoryAfter[1] > memoryBefore[1] ? memoryAfter[1] : null);
-                report.put("window_peak_footprint_bytes", memoryAfter[6] > memoryBefore[6] ? memoryAfter[6] : null);
+                report.put("window_peak_rss_bytes", memoryBefore[1] >= 0 && memoryAfter[1] > memoryBefore[1] ? memoryAfter[1] : null);
+                report.put("window_peak_footprint_bytes", memoryBefore[6] >= 0 && memoryAfter[6] > memoryBefore[6] ? memoryAfter[6] : null);
             }
             report.put("completed", true);
             report.put("stages", stages);

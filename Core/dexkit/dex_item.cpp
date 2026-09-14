@@ -378,9 +378,15 @@ void DexItem::InitCache(uint32_t init_flags) {
                         if (op == 0x1a) { // const-string
                             auto index = ReadShort(ptr);
                             method_using_string_ptr->emplace_back(index);
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+                            method_using_string_ids.ObserveAppend();
+#endif
                         } else if (op == 0x1b) { // const-string-jumbo
                             auto index = ReadInt(ptr);
                             method_using_string_ptr->emplace_back(index);
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+                            method_using_string_ids.ObserveAppend();
+#endif
                         }
                     }
 

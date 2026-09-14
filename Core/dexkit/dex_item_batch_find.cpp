@@ -213,10 +213,12 @@ DexItem::BatchFindMethodUsingStrings(
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
                 bool duplicate = false;
                 const bool sample = scan_diagnostics.Observe(string_idx, str.size(), duplicate);
-                const auto parse_begin = sample ? BatchScanDiagnostics::Clock::now() : BatchScanDiagnostics::Clock::time_point{};
 #endif
 #if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
                 if (negative_memo.Contains(string_idx)) continue;
+#endif
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                const auto parse_begin = sample ? BatchScanDiagnostics::Clock::now() : BatchScanDiagnostics::Clock::time_point{};
 #endif
                 auto hits = acTrie.ParseText(str);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS

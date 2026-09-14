@@ -109,3 +109,44 @@ unique short negatives, repeated positives, an oversized directory and zero
 budget separately; a cache that cannot fit bypasses from the start rather than
 thrashing. Use the same 12 paired 1/11-pass A/B and six confirmation pairs if
 promising. No new architecture beyond these three hypotheses is in this phase.
+
+## H1 measured result
+
+The 12-pair main sweep and independent six-pair confirmation both preserve all
+counts and execution paths, following full 11-pass fingerprint verification.
+The three directories fall from 124,801,488 logical bytes to 1,046,128 bytes: only
+one DEX's 65,383 numeric slots is allocated, with nine Ready payloads.
+
+| Workload / set | Lifecycle median change | Footprint median change | Close median change |
+| --- | ---: | ---: | ---: |
+| 1 pass / main | -3.59% | -6.12% | -8.53% |
+| 11 passes / main | -0.41% | -5.91% | -7.79% |
+| 1 pass / confirmation | -1.56% | -5.94% | -3.18% |
+| 11 passes / confirmation | -2.73% | -6.20% | -14.25% |
+
+Disposition: stable modest memory saving, variable small lifecycle saving. It
+does not reach the expansion guideline. The 11-pass main lifecycle interval
+includes zero; confirmation timing does not erase that limitation. All 48 main
+reports have the same aarch64 JBR 17.0.6+10-b785.1 and valid probe endpoints.
+After review, identity hashing and failed-probe guards were added outside the
+lifecycle timer; confirmation reverified the same native binaries with the new
+adapter. One attempted sweep stopped before its first JVM measurement because
+its verification record was from the older adapter; that attempt is retained.
+
+## H2 main result (confirmation pending)
+
+The checked-range prototype preserves 11-pass fingerprints and all measured
+counts/paths. Twelve pairs show -2.35% lifecycle / -1.77% footprint for one pass;
+-0.36% lifecycle / -1.71% footprint for 11 passes. Both lifecycle intervals include
+zero. String-use headers fall from 62,400,744 to 31,200,372 bytes; payload capacity
+rises from 10,561,680 to 11,436,032 bytes. Live buffers fall from 552,516 to 123.
+The direct append makes 696 growth allocations and moves 11,435,868 ID bytes
+across 41 DEXes. It decodes each instruction once; no old representation is built.
+
+H1 and H2 together pass 70 JVM tests and all Android release ABIs. A diagnostic
+component test independently compares every demo method's strings/opcodes/numbers
+between lazy and full representations: 60,457 method IDs, 8,109 without code, 16
+with duplicate string references. Eight readers exercise same/different cold
+slots; full-first getters allocate no lazy directory with H1 enabled, and old lazy
+payloads remain valid after full warm-up. These checks are correctness evidence,
+not performance samples.

@@ -1,0 +1,7 @@
+{
+  "path": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/phase1-evidence.zip",
+  "bytes": 10632242,
+  "sha256": "dda65625314d2d86c7b3bb460479fb6aa40d7817e5723020f7c4ab9611eb5074",
+  "entries": 1465,
+  "contents": "Full run reports, metadata, GC/build logs, native manifests/patches; excludes APK and build binaries."
+}

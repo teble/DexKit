@@ -133,7 +133,7 @@ lifecycle timer; confirmation reverified the same native binaries with the new
 adapter. One attempted sweep stopped before its first JVM measurement because
 its verification record was from the older adapter; that attempt is retained.
 
-## H2 main result (confirmation pending)
+## H2 main and confirmation results
 
 The checked-range prototype preserves 11-pass fingerprints and all measured
 counts/paths. Twelve pairs show -2.35% lifecycle / -1.77% footprint for one pass;
@@ -150,3 +150,53 @@ with duplicate string references. Eight readers exercise same/different cold
 slots; full-first getters allocate no lazy directory with H1 enabled, and old lazy
 payloads remain valid after full warm-up. These checks are correctness evidence,
 not performance samples.
+
+Six independent confirmation pairs per lifetime give -6.24% lifecycle / -1.59%
+footprint for one pass, and -2.94% / -1.74% for 11 passes. The timing difference
+from the main sweep is material relative to the small effect; it is not grounds
+to replace the main observations with the better confirmation. The supported
+claim is modest repeatable memory saving, with uncertain time benefit.
+
+## H3 final results and counterexamples
+
+The main 12-pair sweep gives -1.48% lifecycle for one pass and -6.94% for 11
+passes. Six new confirmation pairs give -1.65% (interval includes zero) and
+-6.38% respectively. The repeated API sum improves 8.80% and 7.85%; footprint
+does not change outside calibration noise. Main and confirmation close-time
+changes have opposite signs, so no close-time mechanism is claimed for H3.
+
+All 11 full-fingerprint passes match for both the normal and zero-byte budget
+binaries. The latest JVM suite has 71 passing tests and the Android AAR builds.
+Diagnostics count 2,232,889 avoided parses in 4,143,768 visits across the two
+method batches; bit arrays request 644,080 bytes cumulatively over 82 DEX jobs,
+which is not a simultaneous-memory total. No positive parse is cached.
+
+The revised local trie checks use a stack memo, as production does. They confirm
+that all-unique negatives, positive parses and oversized directories preserve
+normal parse counts, and that their management overhead can lose. A maximum-size
+directory with no/one visit costs about 8 microseconds here. These deliberately
+small local measurements illustrate counterexamples; they are not QQ scores.
+There is no general claim that H3 should be enabled for small scopes.
+
+The shared budget test runs 16 rounds of eight simultaneously held jobs, each
+requesting 524,296 bytes against a 1,048,576-byte quota. One job is admitted per
+round, the other seven bypass, and full quota is available again after teardown.
+One targeted nothrow allocation failure returns its quota while the object is
+still alive. Only the separate correctness executable injects this failure.
+The updated check build produces the same production H3 native SHA-256 as the
+measured snapshot (`6929c4263e59e4502323157ff710c7d5e2ac53ae004c6678f6ff09f03b846e1e`).
+
+## Final audit and stopping decision
+
+All 216 final measurement processes completed and match frozen counts and
+execution paths; all probe endpoints are valid and window footprint peaks equal
+the corresponding process peaks. Each variant has separate 11-pass full result
+verification. Nine runner counterexample tests pass. Full samples and intervals
+are under `evidence/`; see `RESULTS.md` for the final comparison and
+`PRO-REVIEW.md` for actual consultation scope and incorporated findings.
+
+Three hypotheses have now been evaluated. Their mechanisms are supported within
+the documented workload, with limited or uncertain gains outside it. None meets
+the independent 10% lifecycle / 15% peak-memory expansion guideline. Retain the
+three default-OFF prototypes and stop this phase; do not infer their combined
+performance, generalize to other relations, or start a generic memo/DAG engine.

@@ -7,8 +7,9 @@ it does not establish Android device performance.
 
 The agreed experiment scope uses query-result equivalence as its regression
 contract. Host reflection, hook installation and full QAuxiliary initialization
-are not required acceptance gates. See `EXPERIMENT-PLAN.md` for the active
-first research phase and stopping criteria.
+are not required acceptance gates. See `EXPERIMENT-PLAN.md` for the first
+research phase and stopping criteria, `RESULTS.md` for its decisions, and
+`EVIDENCE.md` for detailed observations and review history.
 
 ## Pinned inputs
 
@@ -144,6 +145,22 @@ verification and measurement. The probe runs outside the lifecycle timer. A
 window peak is available only if the process lifetime peak increased after the
 pre-create snapshot. Whole-process `/usr/bin/time -l` peaks are also retained.
 
+For example (use an empty output directory):
+
+```sh
+BENCH_JDK=/path/to/arm64-jdk17
+clang++ -std=c++20 -O2 -dynamiclib \
+  -I"$BENCH_JDK/include" -I"$BENCH_JDK/include/darwin" \
+  tools/qaux-benchmark/memory_probe.cpp -lproc \
+  -install_name @rpath/libqauxbench_probe.dylib \
+  -o /path/to/artifacts/probe/libqauxbench_probe.dylib
+```
+
+Formal measurement requires an explicit JDK path and hashes its executable,
+release metadata and JVM library. Unset `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`
+and `_JAVA_OPTIONS`; implicit extra JVM parameters are rejected. Probe failure
+is missing data, and both endpoints must be valid for a window-peak inference.
+
 Formal runs use `-Xms256m -Xmx256m -XX:+AlwaysPreTouch` and record GC logs. Use
 `--mode verify --passes 11 --native-library /path/to/artifacts/base/libdexkit.dylib`
 with the `run.py` arguments above. Repeat for the candidate. Then use:
@@ -170,6 +187,51 @@ independent confirmation. `EVIDENCE.md` records calibration and decisions.
 capacity and sampled string-scan measurements perturb the workload and are never
 used as formal performance samples. The cache census counts logical capacity and
 known buffers, not allocator overhead or every native allocation.
+
+## Prototype switches and component checks
+
+All switches default to OFF. Enable exactly one for an isolated A/B comparison.
+Use the recorded `engine_commit` and CMake settings in each artifact manifest
+to reproduce the measured snapshot, rather than assuming the latest HEAD is
+byte-identical to an earlier prototype.
+
+| Hypothesis | Native CMake option | Gradle property |
+| --- | --- | --- |
+| H1, lazy directories | `DEXKIT_EXPERIMENT_LAZY_DIRECTORIES=ON` | `-PexperimentLazyDirectories=ON` |
+| H2, compact string uses | `DEXKIT_EXPERIMENT_COMPACT_STRINGS=ON` | `-PexperimentCompactStrings=ON` |
+| H3, empty-parse memo | `DEXKIT_EXPERIMENT_NEGATIVE_STRINGS=ON` | `-PexperimentNegativeStrings=ON` |
+
+Pass a CMake option as `build_native.py --define OPTION=ON`. The H3 payload
+budget is `DEXKIT_EXPERIMENT_STRING_MEMO_BYTES` (default 1048576); zero forces
+normal parsing. The budget is per query and covers live requested bit-array
+bytes, not total process memory. H3 applies only to method batch queries.
+
+Run `:dexkit:cmakeBuild :dexkit:jar :dexkit:test :dexkit-android:assembleRelease`
+with the corresponding Gradle property. The exhaustive native metadata check
+also compares numbers, strings and opcodes over every demo method, including
+empty and duplicate cases, cold concurrent access, and lazy/full transitions:
+
+```sh
+python3 tools/qaux-benchmark/build_native.py \
+  --source-root /path/to/worktree --java-home /path/to/arm64-jdk17 \
+  --output /path/to/artifacts/metadata-checks \
+  --define DEXKIT_EXPERIMENT_LAZY_DIRECTORIES=ON \
+  --define DEXKIT_EXPERIMENT_COMPACT_STRINGS=ON \
+  --define DEXKIT_BENCHMARK_DIAGNOSTICS=ON \
+  --define DEXKIT_BENCHMARK_METADATA_CHECKS=ON
+/path/to/artifacts/metadata-checks/build/Core/dexkit_metadata_checks \
+  /path/to/worktree/dexkit/apk/demo.apk
+```
+
+For memo counterexamples, build with `DEXKIT_EXPERIMENT_NEGATIVE_STRINGS=ON`
+and `DEXKIT_BENCHMARK_MEMO_CHECKS=ON`, with diagnostics OFF. Run
+`build/Core/dexkit_memo_checks` and `build/Core/dexkit_memo_budget_checks` from
+that artifact. The latter alone injects a nothrow array allocation failure;
+neither the native library nor the timing executable contains that injection.
+The checks include concurrent quota contention, release/reuse, zero/oversized
+budgets, positive/negative strings, and empty/tiny scopes. They are separate
+from the QQ scores. The source, compiler and native hash remain recorded in
+the artifact manifest.
 
 ## Source attribution
 

@@ -1,0 +1,1 @@
+CHECK_MEMO_BUDGET {"rounds":16,"jobs_per_round":8,"live_requested_bytes":524296,"budget_bytes":1048576,"rejections":112,"allocation_failure_recovered":true,"passed":true}

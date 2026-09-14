@@ -1,0 +1,23 @@
+{
+  "measurement_processes": 216,
+  "expected_apk_sha256": "851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f",
+  "all_counts_and_flow_equal": true,
+  "all_processes_completed": true,
+  "all_probe_endpoints_valid": true,
+  "window_peak_equals_process_peak_in_all_samples": true,
+  "runtime": "aarch64 JBR 17.0.6+10-b785.1",
+  "selected_sweeps": [
+    "h1-p1",
+    "h1-p11",
+    "h1-confirm-v3-p1",
+    "h1-confirm-v3-p11",
+    "h2-p1",
+    "h2-p11",
+    "h2-confirm-p1",
+    "h2-confirm-p11",
+    "h3-p1",
+    "h3-p11",
+    "h3-confirm-p1",
+    "h3-confirm-p11"
+  ]
+}

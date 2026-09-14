@@ -1,5 +1,10 @@
 # First research phase
 
+Status: completed on 2026-09-15. Three hypotheses were evaluated with the
+predeclared main and independent confirmation runs. See `RESULTS.md` for the
+decisions, retained prototypes and explicit limits. No larger architecture was
+started, no default was enabled, and no merge or release was performed.
+
 ## User-approved scope
 
 - Use the pinned QQ APK and extracted QAuxiliary queries as an engine benchmark.

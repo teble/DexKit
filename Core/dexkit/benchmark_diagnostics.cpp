@@ -73,7 +73,19 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
         Descriptors(counts["descriptors"], item.method_descriptors);
         Descriptors(counts["descriptors"], item.field_descriptors);
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+        const auto &index = item.method_using_string_ids;
+        auto &strings = counts["using_strings"];
+        strings.index_bytes += index.offsets_.capacity() * sizeof(size_t)
+                             + index.lengths_.capacity() * sizeof(uint32_t);
+        strings.entries += index.offsets_.size();
+        strings.payload_bytes += index.ids_.capacity() * sizeof(uint32_t);
+        strings.buffers += (index.offsets_.capacity() != 0) + (index.lengths_.capacity() != 0)
+                         + (index.ids_.capacity() != 0);
+        for (auto length : index.lengths_) strings.ready += length != 0;
+#else
         Rows(counts["using_strings"], item.method_using_string_ids);
+#endif
         Rows(counts["invokes"], item.method_invoking_ids);
         Rows(counts["callers"], item.method_caller_ids);
         Rows(counts["using_fields"], item.method_using_field_ids);

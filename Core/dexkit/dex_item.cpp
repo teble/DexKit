@@ -347,7 +347,11 @@ void DexItem::InitCache(uint32_t init_flags) {
                     *op_seq_ptr = std::vector<uint8_t>();
                 }
                 if (need_method_using_string) {
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+                    method_using_string_ptr = method_using_string_ids.BeginMethod(method_id);
+#else
                     method_using_string_ptr = &method_using_string_ids[method_id];
+#endif
                 }
                 if (need_method_using_field) {
                     method_using_field_ptr = &method_using_field_ids[method_id];
@@ -407,6 +411,9 @@ void DexItem::InitCache(uint32_t init_flags) {
 
                     p += width;
                 }
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+                if (need_method_using_string) method_using_string_ids.EndMethod(method_id);
+#endif
             }
         }
     }
@@ -994,14 +1001,14 @@ std::vector<std::string_view> DexItem::GetUsingStrings(uint32_t method_idx) {
     // Using-strings follows the same rule as opcodes: per-method lazy fallback is allowed
     // for metadata getters, while matcher/query hot paths rely on the outer ready barrier.
     std::vector<std::string_view> using_strings;
-    const std::vector<uint32_t> *method_using_strings = nullptr;
+    std::span<const uint32_t> method_using_strings;
     if ((dex_flag.load(std::memory_order_acquire) & kUsingString) != 0) {
-        method_using_strings = &method_using_string_ids[method_idx];
+        method_using_strings = method_using_string_ids[method_idx];
     } else {
-        method_using_strings = &GetLazyMethodUsingStringIds(method_idx);
+        method_using_strings = GetLazyMethodUsingStringIds(method_idx);
     }
-    using_strings.reserve(method_using_strings->size());
-    for (auto string_id: *method_using_strings) {
+    using_strings.reserve(method_using_strings.size());
+    for (auto string_id: method_using_strings) {
         using_strings.emplace_back(this->strings[string_id]);
     }
     return using_strings;

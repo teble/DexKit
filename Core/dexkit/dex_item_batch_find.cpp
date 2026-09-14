@@ -76,7 +76,7 @@ DexItem::BatchFindClassUsingStrings(
         if (keywords_map.empty()) {
             std::vector<std::string_view> using_strings;
             for (auto method_idx: class_method_ids[type_idx]) {
-                auto &method_using_strings = method_using_string_ids[method_idx];
+                auto &&method_using_strings = method_using_string_ids[method_idx];
                 using_strings.reserve(using_strings.size() + method_using_strings.size());
                 for (auto string_idx: method_using_strings) {
                     using_strings.emplace_back(this->strings[string_idx]);
@@ -183,7 +183,7 @@ DexItem::BatchFindMethodUsingStrings(
 
             if (keywords_map.empty()) {
                 std::vector<std::string_view> using_strings;
-                auto &using_string_ids = method_using_string_ids[method_idx];
+                auto &&using_string_ids = method_using_string_ids[method_idx];
                 using_strings.reserve(using_string_ids.size());
                 for (auto string_idx: using_string_ids) {
                     using_strings.emplace_back(this->strings[string_idx]);

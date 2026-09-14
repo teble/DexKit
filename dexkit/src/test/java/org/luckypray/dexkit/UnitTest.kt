@@ -969,4 +969,41 @@ class UnitTest {
             }
         }
     }
+
+    @Test
+    fun testColdMetadataReadersRaceFullWarmup() {
+        val descriptor = "Lorg/luckypray/dexkit/demo/PlayActivity;->onCreate(Landroid/os/Bundle;)V"
+        val expectedStrings: List<String>
+        val expectedOpcodes: List<Int>
+        DexKitBridge.create(demoApkPath).use { reference ->
+            val id = reference.getMethodData(descriptor)!!.getEncodeId()
+            expectedStrings = nativeGetMethodUsingStrings(getBridgeToken(reference), id)
+            expectedOpcodes = nativeGetMethodOpCodes(getBridgeToken(reference), id)
+        }
+        DexKitBridge.create(demoApkPath).use { target ->
+            val id = target.getMethodData(descriptor)!!.getEncodeId()
+            val token = getBridgeToken(target)
+            val start = CountDownLatch(1)
+            val executor = Executors.newFixedThreadPool(7)
+            try {
+                val readers = (0 until 6).map {
+                    executor.submit<Unit> {
+                        start.await(10, TimeUnit.SECONDS)
+                        repeat(16) {
+                            assert(nativeGetMethodUsingStrings(token, id) == expectedStrings)
+                            assert(nativeGetMethodOpCodes(token, id) == expectedOpcodes)
+                        }
+                    }
+                }
+                val warmup = executor.submit<Unit> {
+                    start.await(10, TimeUnit.SECONDS)
+                    target.initFullCache()
+                }
+                start.countDown()
+                (readers + warmup).forEach { it.get(60, TimeUnit.SECONDS) }
+            } finally {
+                executor.shutdownNow()
+            }
+        }
+    }
 }

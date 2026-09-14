@@ -30,6 +30,7 @@ cmake {
             cmakeArgs.add("-DDEXKIT_ENABLE_INTERNAL_METRICS=${enableInternalMetricsApi ? 'ON' : 'OFF'}")
             cmakeArgs.add("-DDEXKIT_ENABLE_INTERNAL_METRICS_API=${enableInternalMetricsApi ? 'ON' : 'OFF'}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_LAZY_DIRECTORIES=${providers.gradleProperty('experimentLazyDirectories').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_COMPACT_STRINGS=${providers.gradleProperty('experimentCompactStrings').getOrElse('OFF')}")
         }
     }
 }

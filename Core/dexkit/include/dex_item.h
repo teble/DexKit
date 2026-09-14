@@ -24,6 +24,7 @@
 #include <string_view>
 #include <vector>
 #include <condition_variable>
+#include <span>
 
 #include "beans.h"
 #include "common.h"
@@ -42,6 +43,9 @@
 #include "query_context.h"
 #include "dexkit.h"
 #include "analyze.h"
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+#include "compact_string_index.h"
+#endif
 
 namespace dexkit {
 
@@ -370,7 +374,11 @@ private:
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;
 
     std::unique_ptr<LazyMethodUsingStringsSlot[]> lazy_method_using_string_slots;
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+    CompactStringIndex method_using_string_ids;
+#else
     std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
+#endif
     std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
     std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
 #if DEXKIT_EXPERIMENT_LAZY_DIRECTORIES

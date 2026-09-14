@@ -1103,7 +1103,7 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     if (!CanUseKeywordUsingStringsMatchers(matcher->using_strings())) {
         std::vector<std::string_view> using_strings;
         for (auto method_idx: this->class_method_ids[type_idx]) {
-            auto &method_using_strings = this->method_using_string_ids[method_idx];
+            auto &&method_using_strings = this->method_using_string_ids[method_idx];
             using_strings.reserve(using_strings.size() + method_using_strings.size());
             for (auto idx: method_using_strings) {
                 using_strings.emplace_back(this->strings[idx]);
@@ -1136,7 +1136,7 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     auto using_empty_string_count = 0;
     std::set<std::string_view> search_set;
     for (auto method_idx: this->class_method_ids[type_idx]) {
-        auto &using_strings = this->method_using_string_ids[method_idx];
+        auto &&using_strings = this->method_using_string_ids[method_idx];
         for (auto idx: using_strings) {
             if (idx == this->empty_string_id) ++using_empty_string_count;
             auto str = this->strings[idx];
@@ -1520,7 +1520,7 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
     }
 
     if (!CanUseKeywordUsingStringsMatchers(matcher->using_strings())) {
-        auto &using_string_ids = this->method_using_string_ids[method_idx];
+        auto &&using_string_ids = this->method_using_string_ids[method_idx];
         for (int i = 0; i < matcher->using_strings()->size(); ++i) {
             auto string_matcher = matcher->using_strings()->Get(i);
             bool matched = false;
@@ -1547,7 +1547,7 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
 
     auto using_empty_string_count = 0;
     std::set<std::string_view> search_set;
-    auto &using_strings = this->method_using_string_ids[method_idx];
+    auto &&using_strings = this->method_using_string_ids[method_idx];
     for (auto idx: using_strings) {
         if (idx == this->empty_string_id) ++using_empty_string_count;
         auto str = this->strings[idx];

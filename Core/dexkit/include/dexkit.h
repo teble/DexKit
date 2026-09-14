@@ -113,6 +113,9 @@ public:
     void PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint32_t type_idx);
 
 private:
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    friend struct BenchmarkDiagnostics;
+#endif
     std::mutex _mutex;
     std::shared_mutex _put_class_mutex;
     mutable std::mutex query_execution_mutex;

@@ -2,7 +2,8 @@
 
 This is a host-side compatibility corpus for evaluating whether real QAuxiliary
 query workflows are suitable for DexKit architecture experiments. It contains
-no engine changes. It is not yet an Android end-to-end performance benchmark.
+switchable engine experiments and diagnostics. It is a macOS arm64 host benchmark;
+it does not establish Android device performance.
 
 The agreed experiment scope uses query-result equivalence as its regression
 contract. Host reflection, hook installation and full QAuxiliary initialization
@@ -41,8 +42,11 @@ DexKit build, and records native/JAR/input hashes. Repeated passes compare resul
 multisets and selected descriptors. Non-diagnostic profiles also compare every
 pass and execution sequence with `baseline/expected.json`, frozen from the
 original engine. The corpus is available under `baseline/` for reproducibility.
-It also writes observed timings and, on
-macOS, whole-process peak RSS. Output reports are never overwritten.
+Verification materializes and hashes descriptors; measurement keeps only counts,
+selected descriptors and control-flow metadata. A measurement requires a successful
+full verification of the same binary, adapter, dependencies, profile and at least
+as many passes. Missing reports, missing passes and changed returned key sets fail.
+Output reports and native snapshots are never overwritten.
 
 Example on this machine, from `/Users/teble/project/android/DexKit-qaux-benchmark`:
 
@@ -96,24 +100,76 @@ cache, matching this DexKit baseline. Dependency changes require updating it.
 - These samples provide real nested caller/invoke/field constraints and serial
   dependencies. They do not cover every deep Boolean/matching edge case; keep
   the small controlled demo and adversarial correctness fixtures.
-- Both passes use the same bridge. Pass 2 repeats engine work with warmed native
+- Repeated passes use the same bridge. Later passes repeat engine work with warmed native
   state; it does not simulate QAuxiliary startup with a persistent descriptor
   cache, which can skip the queries completely.
 - Stages share caches warmed by earlier stages. Starting a new process does not
   guarantee cold filesystem pages. `chains` helps separate batch-induced warming.
 - API timings include query construction, JNI and returned result objects.
-  Descriptor materialization is recorded separately. Scenario and lifecycle
-  timings include diagnostic hashing/logging overhead. Peak RSS includes the JVM,
-  native allocations and retained report data. None of these smoke measurements
-  establishes a performance improvement or an Android native-memory budget.
+  Descriptor materialization is recorded separately in verification. Formal timing
+  uses `--mode measure`, includes required selection/filtering and result objects,
+  and excludes hashes and per-stage logging. Create-to-close includes thread
+  configuration, all queries, cache construction and destruction. Process peaks
+  include the fixed JVM heap and native allocations, not just DexKit.
 
-For a performance comparison, keep this selected corpus fixed, preserve its
-dependency graph and cache state, compare result fingerprints first, and reduce
-reporting overhead in timed runs. A recorded enabled-feature profile can improve
+For a performance comparison, keep this selected corpus fixed and preserve its
+dependency graph and cache state. A recorded enabled-feature profile can improve
 representativeness later; it is not a prerequisite for this controlled engine
 benchmark. Device runs are needed before making device-specific performance
 claims. Keep current misses as explicit compatibility cases; do not silently
 relax the original queries to improve the success rate.
+
+## Formal native experiments
+
+`build_native.py` builds a separate immutable `libdexkit.dylib`, CMake cache,
+compiler/configuration manifest and source patch. New native source files are
+also copied into the artifact. Formal measurements require the manifest to match
+the library hash, with diagnostics and internal metrics compiled out. Baseline
+and candidate use this builder with identical compiler settings; toggles differ.
+The benchmark library is selected explicitly and does not replace Gradle outputs.
+
+Use the same native arm64 JDK as above:
+
+```sh
+python3 tools/qaux-benchmark/build_native.py \
+  --source-root /path/to/experiment-worktree --output /path/to/artifacts/base \
+  --java-home /path/to/arm64-jdk17
+```
+
+The optional `memory_probe.cpp` JNI library records current RSS, process malloc
+statistics, current physical footprint and lifetime peaks before create and after
+close. On macOS it links against `libproc`; compile with the JDK `include` and
+`include/darwin` directories. Pass its absolute path as `--memory-probe` to both
+verification and measurement. The probe runs outside the lifecycle timer. A
+window peak is available only if the process lifetime peak increased after the
+pre-create snapshot. Whole-process `/usr/bin/time -l` peaks are also retained.
+
+Formal runs use `-Xms256m -Xmx256m -XX:+AlwaysPreTouch` and record GC logs. Use
+`--mode verify --passes 11 --native-library /path/to/artifacts/base/libdexkit.dylib`
+with the `run.py` arguments above. Repeat for the candidate. Then use:
+
+```sh
+python3 tools/qaux-benchmark/sweep.py \
+  --dexkit-root /path/to/experiment-worktree --corpus /path/to/frozen-corpus \
+  --apk /path/to/qq-9.3.55.apk --java-home /path/to/arm64-jdk17 \
+  --variant base /path/to/artifacts/base/libdexkit.dylib /path/to/verify-base \
+  --variant candidate /path/to/artifacts/candidate/libdexkit.dylib /path/to/verify-candidate \
+  --output /path/to/new-sweep --pairs 12 --passes 1 --profile all
+```
+
+Run the predeclared 12 pairs for both 1 pass (create/query/close) and 11 passes
+(first query plus 10 repeats), then six new confirmation pairs if promising.
+Every sample starts a fresh JVM. Balanced randomized AB/BA ordering and all raw
+samples are retained; no filesystem-cache flushing or sample deletion occurs.
+First, repeated-sum and complete lifecycle times are separate. Passes in one
+process are dependent, and pass 2 is not assumed to be steady state. Bootstrap
+intervals describe paired medians and are exploratory, not a substitute for the
+independent confirmation. `EVIDENCE.md` records calibration and decisions.
+
+`DEXKIT_BENCHMARK_DIAGNOSTICS=ON` is exclusively for attribution. Its slot/cache
+capacity and sampled string-scan measurements perturb the workload and are never
+used as formal performance samples. The cache census counts logical capacity and
+known buffers, not allocator overhead or every native allocation.
 
 ## Source attribution
 

@@ -20,6 +20,7 @@
 
 #include <jni.h>
 #include "dexkit.h"
+#include "benchmark_diagnostics.h"
 #include "jni_helper.h"
 
 #define TAG "DexKit"
@@ -329,6 +330,9 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeInitDexKit(JNIEnv *env, jclass claz
         delete dexkit;
         return 0;
     }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    dexkit::BenchmarkDiagnostics::Dump(*dexkit, "create");
+#endif
     return (jlong) dexkit;
 }
 
@@ -395,7 +399,14 @@ Java_org_luckypray_dexkit_DexKitBridge_nativeRelease(JNIEnv *env, jclass clazz,
     if (!native_ptr) {
         return;
     }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    const auto close_begin = std::chrono::steady_clock::now();
+#endif
     delete reinterpret_cast<dexkit::DexKit *>(native_ptr);
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    std::fprintf(stderr, "BENCH_CLOSE {\"native_delete_ns\":%lld}\n",
+        (long long) std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - close_begin).count());
+#endif
 }
 
 DEXKIT_JNI void

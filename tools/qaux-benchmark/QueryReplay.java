@@ -42,6 +42,15 @@ public final class QueryReplay {
     private static int pass;
     private static String feature;
     private static int apiErrors;
+    private static boolean measure;
+    private static native long[] memorySnapshot();
+
+    private static Map<String, Object> memory(long[] values) {
+        return obj("rss_bytes", values[0], "process_peak_rss_bytes", values[1],
+                "process_malloc_in_use_bytes", values[2], "process_malloc_reserved_bytes", values[3],
+                "process_malloc_blocks", values[4], "physical_footprint_bytes", values[5],
+                "process_peak_footprint_bytes", values[6]);
+    }
 
     private static Map<String, Object> obj(Object... values) {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -96,13 +105,17 @@ public final class QueryReplay {
         long begin = System.nanoTime();
         T result = query.get();
         long returned = System.nanoTime();
-        List<String> values = descriptors(result);
+        List<String> values = measure ? null : descriptors(result);
         long materialized = System.nanoTime();
-        stages.add(obj("pass", pass, "feature", feature, "stage", name,
+        Map<String, Object> record = obj("pass", pass, "feature", feature, "stage", name,
                 "api_ns", returned - begin, "descriptor_ns", materialized - returned,
-                "count", result.size(), "ordered_results", values,
-                "multiset_sha256", digest(values)));
-        System.err.printf("pass=%d %s/%s count=%d api=%.3f ms%n",
+                "count", result.size());
+        if (!measure) {
+            record.put("ordered_results", values);
+            record.put("multiset_sha256", digest(values));
+        }
+        stages.add(record);
+        if (!measure) System.err.printf("pass=%d %s/%s count=%d api=%.3f ms%n",
                 pass, feature, name, result.size(), (returned - begin) / 1e6);
         return result;
     }
@@ -140,7 +153,7 @@ public final class QueryReplay {
         }
         record.put("observed_ns", System.nanoTime() - start);
         features.add(record);
-        System.err.println(json(record));
+        if (!measure) System.err.println(json(record));
     }
 
     private static MethodDataList methods(DexKitBridge b, MethodMatcher matcher) {
@@ -170,21 +183,32 @@ public final class QueryReplay {
         Map<String, MethodDataList> found = bridge.batchFindMethodUsingStrings(
                 BatchFindMethodUsingStrings.create().groups(groups, StringMatchType.SimilarRegex));
         long returned = System.nanoTime();
+        if (!groups.keySet().containsAll(found.keySet())) throw new IllegalStateException("Unexpected batch result key");
         Map<String, Object> results = new LinkedHashMap<>();
         Map<String, TreeSet<String>> targetUnion = new LinkedHashMap<>();
         for (String key : groups.keySet()) {
-            List<String> values = descriptors(found.getOrDefault(key, new MethodDataList()));
-            results.put(key, obj("count", values.size(), "ordered_results", values,
-                    "multiset_sha256", digest(values)));
-            targetUnion.computeIfAbsent(key.split("#_#")[0], ignored -> new TreeSet<>()).addAll(values);
+            MethodDataList methods = found.get(key);
+            if (measure) {
+                results.put(key, obj("count", methods == null ? 0 : methods.size()));
+            } else {
+                List<String> values = descriptors(methods == null ? Collections.emptyList() : methods);
+                results.put(key, obj("count", values.size(), "ordered_results", values,
+                        "multiset_sha256", digest(values)));
+                targetUnion.computeIfAbsent(key.split("#_#")[0], ignored -> new TreeSet<>()).addAll(values);
+            }
         }
         long hitTargets = targetUnion.values().stream().filter(v -> !v.isEmpty()).count();
-        stages.add(obj("pass", pass, "feature", "all_literal_targets", "stage", "batch_strings",
+        Map<String, Object> record = obj("pass", pass, "feature", "all_literal_targets", "stage", "batch_strings",
                 "api_ns", returned - begin, "postprocess_ns", System.nanoTime() - returned,
-                "group_count", groups.size(), "target_count", targetUnion.size(),
-                "targets_with_raw_candidates", hitTargets, "host_filters_applied", false,
-                "groups", results, "target_candidate_union", targetUnion));
-        System.err.printf("pass=%d batch groups=%d raw-hit-targets=%d/%d api=%.3f ms%n",
+                "group_count", groups.size(), "host_filters_applied", false, "groups", results,
+                "returned_keys", new TreeSet<>(found.keySet()));
+        if (!measure) {
+            record.put("target_count", targetUnion.size());
+            record.put("targets_with_raw_candidates", hitTargets);
+            record.put("target_candidate_union", targetUnion);
+        }
+        stages.add(record);
+        if (!measure) System.err.printf("pass=%d batch groups=%d raw-hit-targets=%d/%d api=%.3f ms%n",
                 pass, groups.size(), hitTargets, targetUnion.size(), (returned - begin) / 1e6);
     }
 
@@ -341,22 +365,30 @@ public final class QueryReplay {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 3 || args.length > 6) throw new IllegalArgumentException(
-                "Usage: QueryReplay apk groups.tsv report.json [threads=4] [passes=2] [all|chains|batch|diagnostics]");
+        if (args.length < 3 || args.length > 7) throw new IllegalArgumentException(
+                "Usage: QueryReplay apk groups.tsv report.json [threads=4] [passes=2] [all|chains|batch|diagnostics] [verify|measure]");
         int threads = args.length > 3 ? Integer.parseInt(args[3]) : 4;
         int passes = args.length > 4 ? Integer.parseInt(args[4]) : 2;
         String profile = args.length > 5 ? args[5] : "all";
+        String mode = args.length > 6 ? args[6] : "verify";
+        if (!List.of("verify", "measure").contains(mode)) throw new IllegalArgumentException("invalid mode");
+        measure = mode.equals("measure");
         if (threads < 1 || passes < 1 || !List.of("all", "chains", "batch", "diagnostics").contains(profile)) {
             throw new IllegalArgumentException("invalid threads, passes, or profile");
         }
         Map<String, Collection<String>> groups = loadGroups(Path.of(args[1]));
         Map<String, Object> report = obj("apk", Path.of(args[0]).toAbsolutePath().toString(),
                 "qaux_commit", "01801ffd013c95781dd360704adf48dc42ee8aa6", "threads", threads,
-                "passes", passes, "profile", profile, "os", System.getProperty("os.name"),
+                "passes", passes, "profile", profile, "mode", mode, "os", System.getProperty("os.name"),
                 "arch", System.getProperty("os.arch"), "java", System.getProperty("java.runtime.version"),
                 "scope", "Compatibility replay, not an Android end-to-end benchmark. No host reflection, hooks, or persistent descriptor cache. Fixed scenario order; all literal targets are a superset.",
-                "measurement_note", "API times include query construction/JNI/result return. Descriptor extraction is separate. Scenario/lifecycle times include reporting overhead. Later stages share caches warmed by preceding stages. Pass 2 repeats engine work without a QAux persistent cache.");
+                "measurement_note", "API times include query construction/JNI/result return. Measure mode keeps counts, required control-flow metadata and selected descriptors, but omits full-result hashing, retained raw result reports and per-stage logging. Verify mode includes those diagnostics. Later stages share caches warmed by preceding stages. Pass 2 repeats engine work without a QAux persistent cache. Library loading is recorded separately; create-to-close includes thread configuration.");
+        long beforeLoad = System.nanoTime();
         System.loadLibrary("dexkit");
+        report.put("load_library_ns", System.nanoTime() - beforeLoad);
+        String probePath = System.getProperty("qaux.memory.probe");
+        if (probePath != null) System.load(probePath);
+        long[] memoryBefore = probePath == null ? null : memorySnapshot();
         long start = System.nanoTime();
         DexKitBridge bridge = DexKitBridge.create(args[0]);
         report.put("create_ns", System.nanoTime() - start);
@@ -373,8 +405,18 @@ public final class QueryReplay {
         } finally {
             long beforeClose = System.nanoTime();
             bridge.close();
-            report.put("close_ns", System.nanoTime() - beforeClose);
-            report.put("create_to_close_observed_ns", System.nanoTime() - start);
+            long closed = System.nanoTime();
+            long[] memoryAfter = probePath == null ? null : memorySnapshot();
+            report.put("close_ns", closed - beforeClose);
+            report.put("create_to_close_observed_ns", closed - start);
+            if (memoryAfter != null) {
+                report.put("memory_before_create", memory(memoryBefore));
+                report.put("memory_after_close", memory(memoryAfter));
+                // A newly established process maximum must lie in this interval.
+                report.put("window_peak_rss_bytes", memoryAfter[1] > memoryBefore[1] ? memoryAfter[1] : null);
+                report.put("window_peak_footprint_bytes", memoryAfter[6] > memoryBefore[6] ? memoryAfter[6] : null);
+            }
+            report.put("completed", true);
             report.put("stages", stages);
             report.put("features", features);
             report.put("api_errors", apiErrors);

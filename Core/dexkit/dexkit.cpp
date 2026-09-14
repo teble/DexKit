@@ -20,6 +20,7 @@
 
 #include "include/dexkit.h"
 #include "include/query_context.h"
+#include "include/benchmark_diagnostics.h"
 
 #include <algorithm>
 
@@ -108,11 +109,22 @@ DexKit::DexKit(std::string_view apk_path, int unzip_thread_num) {
     std::lock_guard lock(_mutex);
     AddZipPath(apk_path, unzip_thread_num);
     std::sort(dex_items.begin(), dex_items.end(), comp);
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    BenchmarkDiagnostics::Dump(*this, "create");
+#endif
 }
 
 DexKit::~DexKit() {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    BenchmarkDiagnostics::Dump(*this, "pre_close");
+    const auto shutdown_begin = std::chrono::steady_clock::now();
+#endif
     // Finish worker cleanup while the DEX data and other bridge state are alive.
     shared_query_scheduler_.reset();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    std::fprintf(stderr, "BENCH_CLOSE {\"worker_shutdown_ns\":%lld}\n",
+        (long long) std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - shutdown_begin).count());
+#endif
 }
 
 void DexKit::SetThreadNum(int num) {

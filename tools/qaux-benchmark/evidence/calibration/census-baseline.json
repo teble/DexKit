@@ -1,0 +1,203 @@
+{
+  "scan": {
+    "149": {
+      "visits": 2071884,
+      "unique": 949982,
+      "bytes": 39190402,
+      "unique_bytes": 24687306,
+      "samples": 2082,
+      "sample_wall_ns": 420924,
+      "duplicate_samples": 1134,
+      "duplicate_sample_wall_ns": 135051
+    },
+    "3": {
+      "visits": 2071884,
+      "unique": 949982,
+      "bytes": 39190402,
+      "unique_bytes": 24687306,
+      "samples": 2082,
+      "sample_wall_ns": 218609,
+      "duplicate_samples": 1134,
+      "duplicate_sample_wall_ns": 75856
+    }
+  },
+  "census": [
+    {
+      "phase": "pre_close",
+      "dexes": 41,
+      "method_ids": 2600031,
+      "field_ids": 1492869,
+      "mapped_bytes": 411819364,
+      "slot_sizes": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "phase": "pre_close",
+      "category": "aggregate_work",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "annotations",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "base_arrays",
+      "index_bytes": 160614118,
+      "payload_capacity_bytes": 0,
+      "entries": 17414998,
+      "nonempty_or_ready": 0,
+      "live_buffers": 492
+    },
+    {
+      "phase": "pre_close",
+      "category": "callers",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 105407848,
+      "entries": 2600031,
+      "nonempty_or_ready": 1315612,
+      "live_buffers": 1315653
+    },
+    {
+      "phase": "pre_close",
+      "category": "class_members",
+      "index_bytes": 49971888,
+      "payload_capacity_bytes": 18459808,
+      "entries": 2082162,
+      "nonempty_or_ready": 1001975,
+      "live_buffers": 1002098
+    },
+    {
+      "phase": "pre_close",
+      "category": "descriptors",
+      "index_bytes": 130972800,
+      "payload_capacity_bytes": 130809332,
+      "entries": 4092900,
+      "nonempty_or_ready": 1317599,
+      "live_buffers": 1281255
+    },
+    {
+      "phase": "pre_close",
+      "category": "field_readers",
+      "index_bytes": 35828856,
+      "payload_capacity_bytes": 37585880,
+      "entries": 1492869,
+      "nonempty_or_ready": 1110126,
+      "live_buffers": 1110167
+    },
+    {
+      "phase": "pre_close",
+      "category": "field_writers",
+      "index_bytes": 35828856,
+      "payload_capacity_bytes": 13206512,
+      "entries": 1492869,
+      "nonempty_or_ready": 1096109,
+      "live_buffers": 1096150
+    },
+    {
+      "phase": "pre_close",
+      "category": "full_numbers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "full_opcodes",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "invokes",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 58875724,
+      "entries": 2600031,
+      "nonempty_or_ready": 1651553,
+      "live_buffers": 1651594
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_numbers",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 680,
+      "entries": 2600031,
+      "nonempty_or_ready": 9,
+      "live_buffers": 59
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_opcodes",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_strings",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "pre_close",
+      "category": "pending_cross_refs",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "using_fields",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 55446792,
+      "entries": 2600031,
+      "nonempty_or_ready": 1540649,
+      "live_buffers": 1540690
+    },
+    {
+      "phase": "pre_close",
+      "category": "using_strings",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 10561680,
+      "entries": 2600031,
+      "nonempty_or_ready": 552475,
+      "live_buffers": 552516
+    },
+    {
+      "phase": "pre_close",
+      "diagnostic_ns": 51732000
+    }
+  ],
+  "close": [
+    {
+      "worker_shutdown_ns": 198250
+    },
+    {
+      "native_delete_ns": 707962083
+    }
+  ]
+}

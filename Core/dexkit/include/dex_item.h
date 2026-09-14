@@ -273,6 +273,9 @@ private:
 
 private:
     friend class DexKit;
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    friend struct BenchmarkDiagnostics;
+#endif
 
     struct PendingAggregateMethodWorkItem {
         uint32_t source_method_idx;

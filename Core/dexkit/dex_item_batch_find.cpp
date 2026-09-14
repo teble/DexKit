@@ -18,6 +18,7 @@
 // <https://github.com/LuckyPray/DexKit/blob/master/LICENSE>.
 
 #include "dex_item.h"
+#include "benchmark_diagnostics.h"
 
 namespace dexkit {
 
@@ -161,6 +162,9 @@ DexItem::BatchFindMethodUsingStrings(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    BatchScanDiagnostics scan_diagnostics(dex_id, strings.size(), query->matchers()->size());
+#endif
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
@@ -200,7 +204,16 @@ DexItem::BatchFindMethodUsingStrings(
             for (auto string_idx: method_using_string_ids[method_idx]) {
                 if (string_idx == this->empty_string_id) ++using_empty_string_count;
                 auto str = this->strings[string_idx];
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                bool duplicate = false;
+                const bool sample = scan_diagnostics.Observe(string_idx, str.size(), duplicate);
+                const auto parse_begin = sample ? BatchScanDiagnostics::Clock::now() : BatchScanDiagnostics::Clock::time_point{};
+#endif
                 auto hits = acTrie.ParseText(str);
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                if (sample) scan_diagnostics.Record(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        BatchScanDiagnostics::Clock::now() - parse_begin).count(), duplicate);
+#endif
                 for (auto &hit: hits) {
                     auto match_type = match_type_map[hit.value];
                     bool match;

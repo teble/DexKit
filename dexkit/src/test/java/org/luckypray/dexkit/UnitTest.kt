@@ -745,6 +745,29 @@ class UnitTest {
     }
 
     @Test
+    fun testBatchStringsMatchOrdinaryQueriesAcrossModesAndEmptyStrings() {
+        DexKitBridge.create(demoApkPath).use { target ->
+            val groups = mapOf(
+                "missing" to listOf("qaux-benchmark-no-such-literal-9187"),
+                "hit" to listOf("PlayActivity"),
+                "empty" to listOf(""),
+                "case" to listOf("playactivity"),
+                "and" to listOf("PlayActivity", "onCreate")
+            )
+            for (type in StringMatchType.values()) for (ignoreCase in listOf(false, true)) {
+                val batch = target.batchFindMethodUsingStrings { groups(groups, type, ignoreCase) }
+                assert(batch.keys == groups.keys)
+                groups.forEach { (key, words) ->
+                    val ordinary = target.findMethod {
+                        matcher { usingStrings(words, type, ignoreCase) }
+                    }
+                    assert(batch[key]!!.map { it.descriptor }.sorted() == ordinary.map { it.descriptor }.sorted())
+                }
+            }
+        }
+    }
+
+    @Test
     fun testConcurrentBatchFindClassUsingStringsOnSharedBridge() {
         DexKitBridge.create(demoApkPath).use { parallelBridge ->
             parallelBridge.setThreadNum(2)

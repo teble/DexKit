@@ -84,3 +84,28 @@ The diagnostic binary preserves all frozen results. Its pre-close census shows:
 Raw aggregate census and calibration samples are under `evidence/calibration/`.
 Full run logs, artifact manifests and GC logs remain in the external data
 directory referenced by each experiment run; the QQ APK is not committed.
+
+## H3 admission after independent attribution
+
+Three xorshift seeds (17, 5309, 9187), each mixed with the DEX ID, preserve all
+frozen results. For the 149-group batch, 99.15%, 99.42% and 99.17% of samples
+have empty raw trie results. Duplicate sampled parse sums are 0.137, 0.142 and
+0.107 ms; empty-clock sums are 0.037, 0.039 and 0.035 ms across all samples.
+Long strings are poorly covered (0--2 samples per run), so this is not a
+precise time bound or evidence that positive-hit filtering is cheap.
+
+This admits a narrower H3 prototype: memoize only completed empty `ParseText`
+results, as one bit per string ID in a single batch/DEX job. Positive values are
+recomputed normally. The query shares a 1 MiB cap on live requested bit-array
+payload across workers. If a directory cannot fit, or allocation fails, that job
+uses the original parse path. There is no eviction, partial entry, cross-query
+reuse or generic nested-matcher memoization. Stack objects and allocator metadata
+are outside this payload cap and must not be described as a whole-process cap.
+Empty-string occurrence handling stays before the cache bypass.
+
+Predicted benefit: skip repeated negative scans with very small state. A valid
+negative finding is unchanged/slower lifecycle despite many fewer parses. Test
+unique short negatives, repeated positives, an oversized directory and zero
+budget separately; a cache that cannot fit bypasses from the start rather than
+thrashing. Use the same 12 paired 1/11-pass A/B and six confirmation pairs if
+promising. No new architecture beyond these three hypotheses is in this phase.

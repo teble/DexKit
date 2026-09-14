@@ -19,6 +19,9 @@
 
 #include "dex_item.h"
 #include "benchmark_diagnostics.h"
+#if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
+#include "negative_string_memo.h"
+#endif
 
 namespace dexkit {
 
@@ -165,6 +168,9 @@ DexItem::BatchFindMethodUsingStrings(
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     BatchScanDiagnostics scan_diagnostics(dex_id, strings.size(), query->matchers()->size());
 #endif
+#if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
+    NegativeStringMemo negative_memo(query_context, keywords_map.empty() ? 0 : strings.size(), dex_id);
+#endif
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
@@ -209,10 +215,16 @@ DexItem::BatchFindMethodUsingStrings(
                 const bool sample = scan_diagnostics.Observe(string_idx, str.size(), duplicate);
                 const auto parse_begin = sample ? BatchScanDiagnostics::Clock::now() : BatchScanDiagnostics::Clock::time_point{};
 #endif
+#if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
+                if (negative_memo.Contains(string_idx)) continue;
+#endif
                 auto hits = acTrie.ParseText(str);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
                 if (sample) scan_diagnostics.Record(std::chrono::duration_cast<std::chrono::nanoseconds>(
                         BatchScanDiagnostics::Clock::now() - parse_begin).count(), duplicate, str.size(), hits.empty());
+#endif
+#if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
+                if (hits.empty()) negative_memo.RecordEmpty(string_idx);
 #endif
                 for (auto &hit: hits) {
                     auto match_type = match_type_map[hit.value];

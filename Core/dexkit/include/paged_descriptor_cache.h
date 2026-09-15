@@ -73,7 +73,9 @@ class PagedDescriptorCache {
         void *body = block.data.get() + block.used + sizeof(size_t);
         size_t space = block.capacity - block.used - sizeof(size_t);
         if (!std::align(16, needed - sizeof(size_t), body, space)) return false;
-        offset = static_cast<char *>(body) - block.data.get() - sizeof(size_t);
+        // std::align removes only padding from space. Avoid a pointer
+        // difference that could exceed ptrdiff_t on very large byte arrays.
+        offset = block.capacity - space - sizeof(size_t);
         return true;
 #else
         offset = AlignRecord(block.used);

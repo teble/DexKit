@@ -21,7 +21,7 @@ parsing for 16 method/16 class batches, then checks complete ordered serialized
 results across control and candidate. Cases include empty groups, mixed empty
 groups, overlapping and repeated atoms, duplicate/empty keys, all literal
 boundaries, SimilarRegex normalization, ASCII case folding, MUTF-8 values,
-composite fallback, missing values and empty input filters. Cold, full-cache,
+all-empty direct fallback and empty input filters. Cold, full-cache,
 repeated and concurrent sequences preserve their original behavior.
 
 Measure unchanged QQ one/eleven-round replays and high-overlap method/class
@@ -38,3 +38,10 @@ plus focused sanitizer and standalone-macro checks. Review the source and
 evidence in the authorized Pro conversation after a meaningful increment.
 Do not combine this change with trie borrowing, bridge key initialization,
 ordinary string ranges or any later field experiment.
+
+The initial checker build used a nonexistent StringMatcher OR field and failed
+before producing measurement artifacts. The corrected cases follow the actual
+schema: StringMatcher has no logical children, and HasComposite(StringMatcher)
+is always false. Missing using-string lists/values are dereferenced by existing
+batch preprocessing, so they are not labeled valid batch DSL cases here. No
+schema or native semantic change is made to accommodate a test fixture.

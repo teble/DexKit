@@ -12,8 +12,6 @@ inline constexpr int QueryCount = 16;
 struct Group {
     std::string key;
     std::vector<Atom> atoms;
-    bool null_list = false;
-    bool composite = false;
 };
 
 inline std::vector<Group> Groups(int variant) {
@@ -43,9 +41,9 @@ inline std::vector<Group> Groups(int variant) {
                         {"surrogate", {{"\355\240\200"}}}, {"supplementary", {{"\355\240\275\355\270\200"}}},
                         {"del", {{"\177", T::Contains}}}};
         case 10: return {{"same", {{"Needle"}}}, {"other", {{"Needle"}}}, {"same", {{"Second"}}}};
-        case 11: return {{"or", {}, false, true}, {"empty", {}}, {"null-list", {}, true},
-                         {"plain", {{"Second"}}}};
-        case 12: return {{"or", {}, false, true}, {"any-value", {{"", T::Equal, false, true}}}};
+        case 11: return {{"same", {}}, {"other", {}}, {"same", {}}};
+        case 12: return {{"fold-equal", {{"needle", T::Equal, true}}},
+                         {"fold-two", {{"needle", T::Equal, true}, {"second", T::Equal, true}}}};
         case 13: case 14: return {{"equal", {{"Needle"}}}, {"empty", {}}};
         case 15: return {{"", {{"Needle"}}}, {"z", {{"Needle"}}}, {"", {{"Needle"}}}};
         default: std::abort();
@@ -58,14 +56,6 @@ inline std::unique_ptr<Builder> Build(bool classes, const std::vector<Group> &gr
     std::vector<flatbuffers::Offset<schema::BatchUsingStringsMatcher>> all;
     for (const auto &group : groups) {
         auto strings = string_fixture::Strings(*b, group.atoms);
-        if (group.null_list) strings = {};
-        if (group.composite) {
-            auto children = string_fixture::Strings(*b, {{"Needle"}, {"OnlySecond"}});
-            schema::StringMatcherBuilder logical(*b);
-            logical.add_any_of(children);
-            auto node = logical.Finish();
-            strings = b->CreateVector(std::vector{node});
-        }
         all.push_back(schema::CreateBatchUsingStringsMatcher(*b, b->CreateString(group.key), strings));
     }
     auto matchers = b->CreateVector(all);

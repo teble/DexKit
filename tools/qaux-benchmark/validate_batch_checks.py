@@ -43,8 +43,9 @@ def groups(variant):
                              ('surrogate', [atom(b'\xed\xa0\x80')]), ('supplementary', [atom(b'\xed\xa0\xbd\xed\xb8\x80')]),
                              ('del', [atom(b'\x7f', 'contains')])]
     if variant == 10: return [('same', [needle]), ('other', [needle]), ('same', [second])]
-    if variant == 11: return [('or', [(b'', 'or', False)]), ('empty', []), ('null-list', None), ('plain', [second])]
-    if variant == 12: return [('or', [(b'', 'or', False)]), ('any-value', [(b'', 'any', False)])]
+    if variant == 11: return [('same', []), ('other', []), ('same', [])]
+    if variant == 12: return [('fold-equal', [atom(b'needle', 'equal', True)]),
+                              ('fold-two', [atom(b'needle', 'equal', True), atom(b'second', 'equal', True)])]
     if variant in (13, 14): return [('equal', [needle]), ('empty', [])]
     if variant == 15: return [('', [needle]), ('z', [needle]), ('', [needle])]
     raise AssertionError(variant)
@@ -52,8 +53,6 @@ def groups(variant):
 
 def matched(rows, atom):
     value, kind, fold = atom
-    if kind == 'or': return b'Needle' in rows or b'OnlySecond' in rows
-    if kind == 'any': return bool(rows)
     if fold: value, rows = value.translate(FOLD), [row.translate(FOLD) for row in rows]
     if kind == 'equal': return value in rows
     if kind == 'contains': return any(value in row for row in rows)
@@ -101,10 +100,8 @@ def expected(fixture):
             # An empty group is absent from keywords_map unless all groups are
             # empty, which chooses the existing direct fallback instead.
             merged = {}
-            composite = variant in (11, 12)
-            if not composite:
-                for key, atoms in requested:
-                    for atom in atoms: merged.setdefault(key, set()).add(atom)
+            for key, atoms in requested:
+                for atom in atoms: merged.setdefault(key, set()).add(atom)
             for dex, (info, record) in enumerate(zip(manifest['dexes'], independent)):
                 raw = (fixture / info['name']).read_bytes()
                 code = code_methods(raw)
@@ -121,7 +118,7 @@ def expected(fixture):
                     if merged:
                         candidates = [(key, atoms) for key, atoms in sorted(merged.items()) if all(matched(values, atom) for atom in atoms)]
                     else:
-                        candidates = [(key, atoms) for key, atoms in requested if atoms is None or all(matched(values, atom) for atom in atoms)]
+                        candidates = [(key, atoms) for key, atoms in requested if all(matched(values, atom) for atom in atoms)]
                     for key, _ in candidates: result[key].append([dex, identity, descriptor])
             answer[(classes, variant)] = [[key, values] for key, values in sorted(result.items())]
     return answer

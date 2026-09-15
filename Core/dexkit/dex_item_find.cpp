@@ -74,6 +74,11 @@ DexItem::FindClass(
     std::vector<std::future<std::vector<ClassBean>>> futures;
     uint32_t split_count;
     auto should_stop_submission = query_context.IsEarlyExitEnabled();
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    if (!should_stop_submission && !query->in_classes() && !query->search_packages()
+            && !query->exclude_packages() && query->matcher()
+            && CanUseInvertedStrings(query->matcher()->using_strings())) slice_size = 0;
+#endif
     if (slice_size > 0) {
         split_count = (this->reader.ClassDefs().size() + slice_size - 1) / slice_size;
     } else {
@@ -111,6 +116,11 @@ DexItem::FindMethod(
     std::vector<std::future<std::vector<MethodBean>>> futures;
     uint32_t split_count;
     auto should_stop_submission = query_context.IsEarlyExitEnabled();
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    if (!should_stop_submission && !query->in_classes() && !query->in_methods() && !query->search_packages()
+            && !query->exclude_packages() && query->matcher()
+            && CanUseInvertedStrings(query->matcher()->using_strings())) slice_size = 0;
+#endif
     if (slice_size > 0) {
         split_count = (this->reader.MethodIds().size() + slice_size - 1) / slice_size;
     } else {
@@ -205,6 +215,23 @@ DexItem::FindClass(
         return true;
     };
 
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    inverted_string::Bits candidates;
+    const bool inverted = !query_context.IsEarlyExitEnabled() && start == 0 && end == reader.ClassDefs().size()
+            && !query->in_classes() && !query->search_packages() && !query->exclude_packages() && query->matcher()
+            && BuildRootStringCandidates(query->matcher()->using_strings(), true, candidates);
+    inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
+            true, inverted ? &candidates : nullptr);
+    if (inverted) {
+        std::vector<uint32_t> definitions;
+        candidates.Each([&](uint32_t type) {
+            if (type_def_flag[type]) definitions.push_back(type_def_idx[type]);
+        });
+        // ClassDefs order need not equal type-ID order.
+        std::sort(definitions.begin(), definitions.end());
+        ScanFindItems<false>(definitions, query_context, try_match_class);
+    } else
+#endif
     if (query_context.IsEarlyExitEnabled()) {
         ScanFindRange<true>(start, end, query_context, try_match_class);
     } else {
@@ -256,6 +283,21 @@ DexItem::FindMethod(
         return true;
     };
 
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    inverted_string::Bits candidates;
+    const bool inverted = !query_context.IsEarlyExitEnabled() && start == 0 && end == reader.MethodIds().size()
+            && !query->in_classes() && !query->in_methods() && !query->search_packages()
+            && !query->exclude_packages() && query->matcher()
+            && BuildRootStringCandidates(query->matcher()->using_strings(), false, candidates);
+    inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
+            false, inverted ? &candidates : nullptr);
+    if (inverted) {
+        // Root results admit only locally defined owners. Cross-reference
+        // bindings are populated only for undefined owners; nested matches
+        // still resolve them through IsMethodMatched without this scope.
+        candidates.Each(try_match_method);
+    } else
+#endif
     if (query_context.IsEarlyExitEnabled()) {
         ScanFindRange<true>(start, end, query_context, try_match_method);
     } else {

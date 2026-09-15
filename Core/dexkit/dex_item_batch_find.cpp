@@ -69,9 +69,19 @@ DexItem::BatchFindClassUsingStrings(
 #if DEXKIT_BENCHMARK_BATCH_TRACE
     BatchGroupTrace group_trace{query_context.GetQueryId(), dex_id, true};
 #endif
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    StringCandidateGroups candidate_groups;
+    const bool inverted = !query->in_classes() && !query->search_packages() && !query->exclude_packages()
+            && BuildStringCandidateGroups(acTrie, keywords_map, match_type_map, true, candidate_groups);
+    inverted_string::Bits candidate_classes(inverted ? type_names.size() : 0);
+    if (inverted) for (const auto &[key, hits] : candidate_groups) candidate_classes.Or(hits);
+#endif
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+        if (inverted && !candidate_classes.Has(type_idx)) continue;
+#endif
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && !in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {
@@ -81,6 +91,14 @@ DexItem::BatchFindClassUsingStrings(
         }
 
         DEXKIT_BATCH_COUNT(candidates, 1);
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+        if (inverted) {
+            for (const auto &[key, hits] : candidate_groups) {
+                if (hits.Has(type_idx)) find_result[key].emplace_back(type_idx);
+            }
+            continue;
+        }
+#endif
         if (keywords_map.empty()) {
             DEXKIT_BATCH_COUNT(fallback_candidates, 1);
             std::vector<std::string_view> using_strings;
@@ -189,12 +207,31 @@ DexItem::BatchFindMethodUsingStrings(
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     BatchScanDiagnostics scan_diagnostics(dex_id, strings.size(), query->matchers()->size());
 #endif
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    StringCandidateGroups candidate_groups;
+    const bool inverted = !query->in_classes() && !query->in_methods() && !query->search_packages()
+            && !query->exclude_packages()
+            && BuildStringCandidateGroups(acTrie, keywords_map, match_type_map, false, candidate_groups);
+    inverted_string::Bits candidate_methods(inverted ? reader.MethodIds().size() : 0);
+    inverted_string::Bits candidate_classes(inverted ? type_names.size() : 0);
+    if (inverted) {
+        for (const auto &[key, hits] : candidate_groups) candidate_methods.Or(hits);
+        candidate_methods.Each([&](uint32_t method) { candidate_classes.Set(reader.MethodIds()[method].class_idx); });
+    }
+#endif
 #if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    NegativeStringMemo negative_memo(query_context, keywords_map.empty() || inverted ? 0 : strings.size(), dex_id);
+#else
     NegativeStringMemo negative_memo(query_context, keywords_map.empty() ? 0 : strings.size(), dex_id);
+#endif
 #endif
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+        if (inverted && !candidate_classes.Has(type_idx)) continue;
+#endif
         if (class_method_ids[type_idx].empty()) continue;
         if (query->in_classes() && !in_class_set.contains(type_idx)) continue;
         if (query->search_packages() || query->exclude_packages()) {
@@ -204,11 +241,24 @@ DexItem::BatchFindMethodUsingStrings(
         }
 
         for (auto method_idx: class_method_ids[type_idx]) {
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+            if (inverted && !candidate_methods.Has(method_idx)) continue;
+#endif
             if (query->in_methods() && !in_method_set.contains(method_idx)) continue;
             auto code = this->method_codes[method_idx];
             if (code == nullptr) continue;
 
             DEXKIT_BATCH_COUNT(candidates, 1);
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+            if (inverted) {
+                // Traverse the original direct/virtual order within candidate
+                // classes, which can differ from numeric method-ID order.
+                for (const auto &[key, hits] : candidate_groups) {
+                    if (hits.Has(method_idx)) find_result[key].emplace_back(method_idx);
+                }
+                continue;
+            }
+#endif
             if (keywords_map.empty()) {
                 DEXKIT_BATCH_COUNT(fallback_candidates, 1);
                 std::vector<std::string_view> using_strings;

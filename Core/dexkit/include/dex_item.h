@@ -45,6 +45,9 @@
 #include "dexkit.h"
 #include "analyze.h"
 #include "descriptor_diagnostics.h"
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+#include "inverted_string_index.h"
+#endif
 #if DEXKIT_EXPERIMENT_RAW_INTERFACES
 #include "raw_type_ids.h"
 #endif
@@ -294,6 +297,19 @@ private:
 
 private:
     friend class DexKit;
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    using StringMatcherVector = flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>>;
+    using StringCandidateGroups = std::vector<std::pair<std::string_view, inverted_string::Bits>>;
+    bool CanUseInvertedStrings(const StringMatcherVector *matchers) const;
+    bool EnsureInvertedStrings();
+    bool BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes, inverted_string::Bits &hits);
+    bool BuildStringCandidateGroups(acdat::AhoCorasickDoubleArrayTrie<std::string_view> &trie,
+            const std::map<std::string_view, std::set<std::string_view>> &groups,
+            const phmap::flat_hash_map<std::string_view, schema::StringMatchType> &types,
+            bool classes, StringCandidateGroups &result);
+    std::once_flag inverted_strings_once;
+    inverted_string::Index inverted_strings;
+#endif
 #if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
     std::string_view GetMethodDescriptorCold(uint32_t method_idx);
     std::string_view GetFieldDescriptorCold(uint32_t field_idx);

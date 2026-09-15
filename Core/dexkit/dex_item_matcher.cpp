@@ -22,7 +22,7 @@
 #include "benchmark_diagnostics.h"
 #include "string_query_diagnostics.h"
 #include "field_query_diagnostics.h"
-#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID || DEXKIT_EXPERIMENT_INVERTED_STRINGS
 #include "single_string_index.h"
 #endif
 #include <type_traits>
@@ -529,6 +529,47 @@ static PersistentUsingStringsKeywordsCache *GetUsingStringsKeywordsCache(
     );
     return cache_ref->get();
 }
+
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+bool DexItem::CanUseInvertedStrings(const StringMatcherVector *matchers) const {
+    if (!matchers || matchers->size() == 0 || !CanUseKeywordUsingStringsMatchers(matchers)) return false;
+    // Empty patterns have intentionally different ordinary/Batch semantics;
+    // let the established matcher handle these cheap, degenerate root queries.
+    for (const auto *matcher : *matchers) if (matcher->value()->size() == 0) return false;
+    return true;
+}
+
+bool DexItem::BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+        inverted_string::Bits &hits) {
+    if (!CanUseInvertedStrings(matchers)) return false;
+    if (matchers->size() == 1) {
+        const auto *matcher = matchers->Get(0);
+        const auto type = matcher->match_type();
+        if (!matcher->ignore_case() && (type == schema::StringMatchType::Equal
+                || type == schema::StringMatchType::StartWith)) {
+            const auto range = single_string::FindIds(strings, matcher->value()->string_view(),
+                    type == schema::StringMatchType::StartWith);
+            if (range.valid) {
+                hits = inverted_string::Bits(classes ? type_names.size() : reader.MethodIds().size());
+                if (range.begin == range.end) return true;
+                if (!EnsureInvertedStrings()) return false;
+                inverted_strings.VisitRange(range.begin, range.end, [&](uint32_t method) {
+                    hits.Set(classes ? reader.MethodIds()[method].class_idx : method);
+                });
+                return true;
+            }
+        }
+    }
+    auto *cache = GetUsingStringsKeywordsCache(classes ? MatcherCacheScope::ClassUsingStringsKeywords
+            : MatcherCacheScope::MethodUsingStringsKeywords, matchers);
+    if (cache->real_keywords->empty()) return false;
+    const std::map<std::string_view, std::set<std::string_view>> groups{{"", *cache->real_keywords}};
+    StringCandidateGroups candidates;
+    if (!BuildStringCandidateGroups(*cache->ac_trie, groups, *cache->match_type_map, classes, candidates)) return false;
+    hits = std::move(candidates.front().second);
+    return true;
+}
+#endif
 
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
 namespace {
@@ -1239,6 +1280,12 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    if (const auto *scope = inverted_string::MatchScope::current; scope && scope->hits
+            && scope->dex == this && scope->classes && scope->matchers == matcher->using_strings()) {
+        return scope->hits->Has(type_idx);
+    }
+#endif
     DEXKIT_STRING_COUNT(class_calls, 1);
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
     if (auto matched = TrySingleUsingString(matcher->using_strings(), dexkit, dex_id, strings,
@@ -1683,6 +1730,12 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
     if (matcher->using_strings() == nullptr) {
         return true;
     }
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    if (const auto *scope = inverted_string::MatchScope::current; scope && scope->hits
+            && scope->dex == this && !scope->classes && scope->matchers == matcher->using_strings()) {
+        return scope->hits->Has(method_idx);
+    }
+#endif
     DEXKIT_STRING_COUNT(method_calls, 1);
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
     if (auto matched = TrySingleUsingString(matcher->using_strings(), dexkit, dex_id, strings,

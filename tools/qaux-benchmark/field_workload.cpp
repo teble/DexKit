@@ -29,15 +29,38 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
     begin = Clock::now();
     bridge->SetThreadNum(4);
     const bool classes = mode == "using-class";
+    const bool output = mode == "using-output";
     auto query = Query(classes, mode == "using-multiple" ? 10 : mode == "using-sparse" ? 23 : 2,
                        // The zero-padded bulk family excludes the separate
                        // "missing" method that intentionally uses an absent owner.
                        mode == "using-late" ? "late" : mode == "using-miss" ? "miss0"
                        : mode == "using-sparse" ? "early00000" : "early", mode == "using-sparse");
+    std::vector<int64_t> method_ids;
+    if (output) {
+        // Enumerate methods without warming field rows. Include enumeration
+        // and its output destruction in setup and in the complete lifecycle.
+        auto all = Query(false, 0);
+        auto data = bridge->FindMethod(flatbuffers::GetRoot<schema::FindMethod>(all->GetBufferPointer()));
+        Require(data != nullptr);
+        for (auto method : *flatbuffers::GetRoot<schema::MethodMetaArrayHolder>(data->GetBufferPointer())->methods())
+            method_ids.push_back((int64_t(method->dex_id()) << 32) | uint32_t(method->id()));
+    }
     s.setup_ns = Ns(begin);
     for (size_t i = 0; i < repeats; ++i) {
         begin = Clock::now();
-        {
+        if (output) {
+            for (auto id : method_ids) {
+                auto data = bridge->GetUsingFields(id);
+                Require(data != nullptr);
+                auto uses = flatbuffers::GetRoot<schema::UsingFieldMetaArrayHolder>(data->GetBufferPointer())->items();
+                s.returned += uses->size();
+                for (auto use : *uses) {
+                    auto field = use->field();
+                    s.checksum += uint64_t(field->dex_id()) * 0x100000001ULL + uint32_t(field->id())
+                                + field->dex_descriptor()->size() + static_cast<uint8_t>(use->using_type());
+                }
+            }
+        } else {
             auto data = classes ? bridge->FindClass(flatbuffers::GetRoot<schema::FindClass>(query->GetBufferPointer()))
                                 : bridge->FindMethod(flatbuffers::GetRoot<schema::FindMethod>(query->GetBufferPointer()));
             Require(data != nullptr);
@@ -55,7 +78,7 @@ int main(int argc, char **argv) {
     if (argc != 4) return 2;
     std::string_view mode(argv[2]);
     Require(mode == "using-early" || mode == "using-late" || mode == "using-miss"
-            || mode == "using-sparse" || mode == "using-multiple" || mode == "using-class");
+            || mode == "using-sparse" || mode == "using-multiple" || mode == "using-class" || mode == "using-output");
     char *end = nullptr;
     auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && !*end && repeats > 0 && repeats <= 100000);

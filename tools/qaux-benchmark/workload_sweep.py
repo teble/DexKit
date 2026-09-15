@@ -30,7 +30,7 @@ def main():
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
-                                         'using-sparse', 'using-multiple', 'using-class'], required=True)
+                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)

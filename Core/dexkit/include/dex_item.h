@@ -60,6 +60,9 @@
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS || DEXKIT_EXPERIMENT_COMPACT_INVOKES
 #include "compact_string_index.h"
 #endif
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+#include "compact_field_index.h"
+#endif
 
 namespace dexkit {
 
@@ -483,7 +486,11 @@ private:
 #else
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
 #endif
-    std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+    CompactFieldIndex method_using_field_ids;
+#else
+    std::vector<std::vector<std::pair<uint32_t /*field_id*/, bool /*is_getting*/>>> method_using_field_ids;
+#endif
     // local reverse edges are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;

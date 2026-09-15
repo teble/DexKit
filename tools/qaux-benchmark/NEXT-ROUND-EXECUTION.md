@@ -2,7 +2,7 @@
 
 Status: active. Equal and StartWith measurements and independent confirmation
 are complete. Batch boolean containment and one using-field requirement are
-complete; contiguous forward-field rows are next. Subsequent ranked mechanisms
+complete; contiguous forward-field rows are in validation. Subsequent ranked mechanisms
 remain independent experiments against the nine-switch control.
 
 ## Controls and sequence

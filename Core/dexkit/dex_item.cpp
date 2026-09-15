@@ -377,7 +377,11 @@ void DexItem::InitCache(uint32_t init_flags) {
 #endif
                 }
                 if (need_method_using_field) {
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+                    method_using_field_ptr = method_using_field_ids.BeginMethod(method_id);
+#else
                     method_using_field_ptr = &method_using_field_ids[method_id];
+#endif
                 }
                 if (need_method_invoking) {
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
@@ -427,6 +431,9 @@ void DexItem::InitCache(uint32_t init_flags) {
                             auto is_setter = ((op >= 0x59 && op <= 0x5f) || (op >= 0x67 && op <= 0x6d));
                             auto index = ReadShort(ptr);
                             method_using_field_ptr->emplace_back(index, is_getter);
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS && DEXKIT_BENCHMARK_DIAGNOSTICS
+                            method_using_field_ids.ObserveAppend();
+#endif
                         }
                     }
 
@@ -447,6 +454,9 @@ void DexItem::InitCache(uint32_t init_flags) {
 
                     p += width;
                 }
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+                if (need_method_using_field) method_using_field_ids.EndMethod(method_id);
+#endif
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
                 if (need_method_invoking) method_invoking_ids.EndMethod(method_id);
 #endif

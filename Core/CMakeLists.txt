@@ -44,6 +44,7 @@ option(DEXKIT_BENCHMARK_STRING_TRACE "Count ordinary usingStrings work per query
 option(DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES "Check batch keyword containment without an intersection vector" OFF)
 option(DEXKIT_BENCHMARK_BATCH_TRACE "Count batch group and intersection work per DEX task" OFF)
 option(DEXKIT_EXPERIMENT_SINGLE_USING_FIELD "Match one using-field requirement without a general solver" OFF)
+option(DEXKIT_EXPERIMENT_COMPACT_FIELDS "Build forward field-use rows in contiguous storage" OFF)
 option(DEXKIT_BENCHMARK_FIELD_TRACE "Count using-field preparation and judges per query task" OFF)
 if (DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT AND DEXKIT_EXPERIMENT_SINGLE_STRING_ID)
     message(FATAL_ERROR "Choose one single-string matching experiment")
@@ -108,6 +109,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES=$<BOOL:${DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES}>
         DEXKIT_BENCHMARK_BATCH_TRACE=$<BOOL:${DEXKIT_BENCHMARK_BATCH_TRACE}>
         DEXKIT_EXPERIMENT_SINGLE_USING_FIELD=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_USING_FIELD}>
+        DEXKIT_EXPERIMENT_COMPACT_FIELDS=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_FIELDS}>
         DEXKIT_BENCHMARK_FIELD_TRACE=$<BOOL:${DEXKIT_BENCHMARK_FIELD_TRACE}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)

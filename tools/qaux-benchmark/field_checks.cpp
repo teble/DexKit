@@ -33,6 +33,30 @@ std::string Collect(DexKit &bridge, bool describe = false) {
         for (int i = 0; i < 4; ++i) out.push_back(char(size >> (i * 8)));
         out.append(reinterpret_cast<const char *>(data->GetBufferPointer()), size);
     }
+    // Check the public forward getter too: matching alone cannot prove that
+    // every duplicate occurrence and access direction survives compaction.
+    auto all = Query(false, 0);
+    auto methods = bridge.FindMethod(flatbuffers::GetRoot<schema::FindMethod>(all->GetBufferPointer()));
+    for (auto method : *flatbuffers::GetRoot<schema::MethodMetaArrayHolder>(methods->GetBufferPointer())->methods()) {
+        const int64_t id = (int64_t(method->dex_id()) << 32) | uint32_t(method->id());
+        auto data = bridge.GetUsingFields(id);
+        Require(data != nullptr && data->GetSize() <= UINT32_MAX);
+        uint32_t size = data->GetSize();
+        for (int i = 0; i < 4; ++i) out.push_back(char(size >> (i * 8)));
+        out.append(reinterpret_cast<const char *>(data->GetBufferPointer()), size);
+        if (describe) {
+            std::fprintf(stderr, "FIELD_USES {\"dex\":%u,\"method\":%u,\"uses\":[", method->dex_id(), uint32_t(method->id()));
+            bool first = true;
+            for (auto use : *flatbuffers::GetRoot<schema::UsingFieldMetaArrayHolder>(data->GetBufferPointer())->items()) {
+                auto field = use->field();
+                auto text = field->dex_descriptor()->string_view();
+                std::fprintf(stderr, "%s[%u,%u,\"%.*s\",%s]", first ? "" : ",", field->dex_id(), uint32_t(field->id()),
+                    int(text.size()), text.data(), use->using_type() == schema::UsingType::Get ? "true" : "false");
+                first = false;
+            }
+            std::fprintf(stderr, "]}\n");
+        }
+    }
     return out;
 }
 }

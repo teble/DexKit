@@ -131,7 +131,9 @@ def expected(fixture):
                 result.sort(key=lambda item: (item[0], item[1]))
             if variant == 20: assert len(result) == 1
             answers[(is_class, variant)] = result
-    return answers
+    forward = {(r['dex'], methods[(r['dex'], r['descriptor'])]):
+               [[*identity(r['dex'], u['field']), u['field'], u['get']] for u in r['uses']] for r in rows}
+    return answers, forward
 
 
 def main():
@@ -142,7 +144,8 @@ def main():
     args = parser.parse_args()
     assert not args.output.exists() or not any(args.output.iterdir())
     args.output.mkdir(parents=True, exist_ok=True)
-    oracle, baseline, records = expected(args.fixture), None, []
+    oracle, forward = expected(args.fixture)
+    baseline, records = None, []
     for label, directory in args.variant:
         artifact = Path(directory)
         manifest = json.loads((artifact / 'artifact.json').read_text())
@@ -159,16 +162,19 @@ def main():
             if report['results'] != oracle[key]:
                 (destination / 'mismatch.json').write_text(json.dumps(dict(key=key, actual=report['results'], expected=oracle[key]), indent=2))
                 raise SystemExit(f'Independent field oracle differs: {label}, {key}')
+        uses = [json.loads(s) for s in re.findall(r'^FIELD_USES (.+)$', (destination / 'stderr.log').read_text(), re.M)]
+        assert len(uses) == len(forward)
+        assert {(r['dex'], r['method']): r['uses'] for r in uses} == forward, 'Public field-use order/direction/multiplicity differs: ' + label
         data = (destination / 'oracle.bin').read_bytes(); assert data
         if baseline is None: baseline = data
         assert data == baseline, 'Complete ordered field results differ: ' + label
         record = dict(label=label, command=command, native_sha256=manifest['native_sha256'],
                       executable_sha256=sha(executable), ordered_results_sha256=sha(destination / 'oracle.bin'),
-                      queries=len(reports), passed=True)
+                      queries=len(reports), forward_rows=len(uses), forward_uses=sum(len(r['uses']) for r in uses), passed=True)
         records.append(record); print(json.dumps(record), flush=True)
     result = dict(fixture_sha256=sha(args.fixture / 'fields.apk'), manifest_sha256=sha(args.fixture / 'manifest.json'),
                   checker_script_sha256=sha(Path(__file__)), records=records,
-                  coverage='24 method and 24 nested class queries; independent field-row predicates; cold/full/repeat/concurrent complete ordered bytes')
+                  coverage='24 method and 24 nested class queries; independently decoded field rows and ordered GetUsingFields output; cold/full/repeat/concurrent complete ordered bytes')
     (args.output / 'validation.json').write_text(json.dumps(result, indent=2) + '\n')
 
 

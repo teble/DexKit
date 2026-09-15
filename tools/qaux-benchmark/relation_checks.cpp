@@ -8,6 +8,9 @@
 #include <chrono>
 #include <string>
 #include <thread>
+#include <algorithm>
+#include <span>
+#include <vector>
 
 namespace {
 using namespace dexkit;
@@ -101,6 +104,34 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
     const auto expected_forward = Forward(reference, methods);
     const auto expected_reverse = Reverse(reference, fields);
     const auto expected_calls = Calls(reference, methods);
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+    struct HeldFieldRow {
+        const DexItem *item;
+        uint32_t method;
+        std::span<const CompactFieldIndex::Use> view;
+        std::vector<CompactFieldIndex::Use> values;
+    };
+    const auto hold_fields = [&](const DexKit &bridge) {
+        std::vector<HeldFieldRow> held;
+        for (size_t dex = 0; dex < bridge.dex_items.size(); ++dex) {
+            const auto *item = bridge.dex_items[dex].get();
+            for (uint32_t method = 0; method < item->reader.MethodIds().size(); ++method) {
+                auto row = item->method_using_field_ids[method];
+                auto expected = reference.dex_items[dex]->method_using_field_ids[method];
+                Require(std::equal(row.begin(), row.end(), expected.begin(), expected.end()), "raw field row equals full initialization");
+                held.push_back({item, method, row, {row.begin(), row.end()}});
+            }
+        }
+        return held;
+    };
+    const auto check_fields = [](const std::vector<HeldFieldRow> &held) {
+        for (const auto &saved : held) {
+            auto current = saved.item->method_using_field_ids[saved.method];
+            Require(current.data() == saved.view.data() && current.size() == saved.view.size(), "published field view address/size stable");
+            Require(std::equal(saved.view.begin(), saved.view.end(), saved.values.begin(), saved.values.end()), "held field view order/multiplicity stable");
+        }
+    };
+#endif
     for (int sequence = 0; sequence < 6; ++sequence) {
         DexKit bridge(apk, 1);
         bridge.SetThreadNum(4);
@@ -115,9 +146,15 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
             a.join(); b.join(); c.join();
         } else if (sequence == 4) {
             std::thread reverse;
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+            std::vector<HeldFieldRow> pending_views;
+#endif
             {
                 // Hold a real forward admission while reverse warm-up queues.
                 auto guard = bridge.EnterQueryExecution(kFieldIdentity | kMethodUsingField);
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+                pending_views = hold_fields(bridge);
+#endif
                 reverse = std::thread([&] { Require(Reverse(bridge, fields) == expected_reverse, "queued reverse"); });
 #if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
                 const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
@@ -132,8 +169,14 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
                     std::this_thread::yield();
                 }
 #endif
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+                check_fields(pending_views);
+#endif
             }
             reverse.join();
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+            check_fields(pending_views);
+#endif
         } else if (sequence == 5) {
             // Reverse state is definitely ready before another thread enters.
             auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
@@ -141,6 +184,9 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
             forward.join();
         }
         Require(Forward(bridge, methods) == expected_forward, "forward results/order");
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+        const auto held_fields = hold_fields(bridge);
+#endif
 #if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
         if (sequence == 0 || sequence == 2) {
             for (const auto &item : bridge.dex_items) {
@@ -168,6 +214,9 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
         Require(Forward(bridge, methods) == expected_forward, "full warmup preserves forward");
         Require(Reverse(bridge, fields) == expected_reverse, "no duplicate aggregation");
         Require(Calls(bridge, methods) == expected_calls, "full warmup preserves calls");
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+        check_fields(held_fields);
+#endif
     }
     if (dump) {
         for (const auto *data : {&expected_forward, &expected_reverse, &expected_calls})

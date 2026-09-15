@@ -168,7 +168,21 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Rows(counts["invokes"], item.method_invoking_ids);
 #endif
         Rows(counts["callers"], item.method_caller_ids);
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+        const auto &field_index = item.method_using_field_ids;
+        auto &fields = counts["using_fields"];
+        fields.index_bytes += field_index.offsets_.capacity() * sizeof(size_t)
+                            + field_index.lengths_.capacity() * sizeof(uint32_t);
+        fields.entries += field_index.offsets_.size();
+        fields.payload_bytes += field_index.uses_.capacity() * sizeof(CompactFieldIndex::Use);
+        fields.buffers += (field_index.offsets_.capacity() != 0) + (field_index.lengths_.capacity() != 0)
+                        + (field_index.uses_.capacity() != 0);
+        for (auto length : field_index.lengths_) fields.ready += length != 0;
+        if (field_index.growth_count_) std::fprintf(stderr, "BENCH_FIELD_GROWTH {\"phase\":\"%s\",\"dex\":%u,\"growths\":%zu,\"moved_use_bytes\":%zu,\"peak_overlap_bytes\":%zu,\"uses\":%zu,\"capacity\":%zu}\n",
+                phase, item.dex_id, field_index.growth_count_, field_index.moved_bytes_, field_index.overlap_bytes_, field_index.uses_.size(), field_index.uses_.capacity());
+#else
         Rows(counts["using_fields"], item.method_using_field_ids);
+#endif
         Rows(counts["field_readers"], item.field_get_method_ids);
         Rows(counts["field_writers"], item.field_put_method_ids);
         Rows(counts["full_numbers"], item.method_using_numbers);

@@ -34,7 +34,7 @@
 
 namespace dexkit {
 
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
 template<typename T, typename U, typename Targets = std::vector<T>>
 #else
 template<typename T, typename U>
@@ -42,7 +42,7 @@ template<typename T, typename U>
 class Hungarian {
 private:
     std::vector<U> left;
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
     Targets right;
 #else
     std::vector<T> right;
@@ -53,7 +53,7 @@ private:
     std::function<bool(T&, U&)> judge;
     bool fast_fail = false;
 public:
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
     Hungarian(const Targets &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
 #else
     Hungarian(const std::vector<T> &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
@@ -78,7 +78,7 @@ public:
         for (int j = 0; j < right.size(); ++j) {
             if (vis[j]) continue;
             if (!map[i][j]) {
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
                 if constexpr (!std::is_same_v<Targets, std::vector<T>>) {
                     auto target = right[j];
                     map[i][j] = judge(target, left[i]) ? 1 : -1;
@@ -1788,7 +1788,7 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
         DEXKIT_FIELD_COUNT(judges, 1);
         return this->IsUsingFieldMatched(field, matcher);
     };
-    auto &using_fields = this->method_using_field_ids[method_idx];
+    const auto &using_fields = this->method_using_field_ids[method_idx];
     DEXKIT_FIELD_COUNT(row_items, using_fields.size());
     DEXKIT_FIELD_COUNT(empty, matcher->using_fields()->size() == 0);
     DEXKIT_FIELD_COUNT(single, matcher->using_fields()->size() == 1);
@@ -1820,7 +1820,12 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
     auto &using_field_matchers = *ptr;
     DEXKIT_FIELD_COUNT(solver_calls, 1);
     DEXKIT_FIELD_COUNT(prepared_items, using_field_matchers.size() <= using_fields.size() ? using_fields.size() : 0);
+#if DEXKIT_EXPERIMENT_COMPACT_FIELDS
+    Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *,
+              std::span<const std::pair<uint32_t, bool>>> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
+#else
     Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
+#endif
     auto count = hungarian.solve();
     if (count != using_field_matchers.size()) {
         return false;

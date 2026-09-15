@@ -67,7 +67,9 @@ No new Goal, default enablement, upstream merge or release is implied.
 
 - Baseline source and previous measurements reviewed.
 - Field diagnostics confirmed zero reverse-row consumption in eleven QQ passes.
-- First field split, six lifecycle-order checks and initial paired timings are
-  complete. Consumer-workload regressions require a bounded follow-up before
-  deciding how this candidate may be retained.
-- Remaining candidates have not yet been implemented in this phase.
+- Field split and one bounded binding-filter revision are complete, including
+  six lifecycle-order checks, independent byte oracles, ASan/UBSan, 71 JVM tests,
+  four Android ABIs and revised paired timings. Keep it conditional: QQ wins,
+  but reverse-consumer workloads still regress about 1.5--2%.
+- Dense descriptor pointers are next; a high-coverage short-descriptor fixture
+  is prepared. The remaining four candidates are not yet implemented.

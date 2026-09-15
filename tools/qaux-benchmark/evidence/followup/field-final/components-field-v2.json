@@ -1,0 +1,21 @@
+{
+  "totals": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "properties": {
+    "experimentLazyDirectories": "ON",
+    "experimentCompactStrings": "ON",
+    "experimentNegativeStrings": "ON",
+    "experimentStructuralDescriptors": "ON",
+    "experimentDescriptorFastHits": "ON",
+    "experimentRawInterfaces": "ON",
+    "experimentFieldIdentitySplit": "ON",
+    "experimentPagedDescriptors": "OFF",
+    "experimentAlignedDescriptors": "OFF",
+    "experimentRawDescriptorLookup": "OFF"
+  },
+  "source_commit": "f01e59f9c5d8f5533ee90bb441aa2abf6959285c"
+}

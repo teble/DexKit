@@ -1,0 +1,254 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 1,
+  "pairs": 6,
+  "seed": 2026091524,
+  "labels": [
+    "best5-timers-v3",
+    "field-split-timers-v3"
+  ],
+  "reversed_order": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    1
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 2043.78975,
+          "minimum": 2023.078125,
+          "maximum": 2087.54825,
+          "mad": 18.62993749999987
+        },
+        "field-split-timers-v3": {
+          "median": 1842.3243125,
+          "minimum": 1788.214,
+          "maximum": 1930.192,
+          "mad": 52.47431249999988
+        }
+      },
+      "paired_change_percent": [
+        -7.537849723952483,
+        -13.76559963251064,
+        -10.811019717787717,
+        -11.790775790649521,
+        -7.563868326069024,
+        -7.13294752423198
+      ],
+      "median_change_percent": -9.187444021928371,
+      "bootstrap95_percent": [
+        -12.778187711580081,
+        -7.335398624092232
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 267.024896,
+          "minimum": 264.319292,
+          "maximum": 271.394458,
+          "mad": 1.076520500000015
+        },
+        "field-split-timers-v3": {
+          "median": 270.511833,
+          "minimum": 263.672416,
+          "maximum": 306.184667,
+          "mad": 2.7024999999999864
+        }
+      },
+      "paired_change_percent": [
+        14.370026249235446,
+        -0.7111833820865887,
+        2.4690464137593127,
+        -0.32167178225843696,
+        0.023843154527503074,
+        1.138429166255417
+      ],
+      "median_change_percent": 0.58113616039146,
+      "bootstrap95_percent": [
+        -0.5164275821725128,
+        8.41953633149738
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 521.7321460000001,
+          "minimum": 509.682417,
+          "maximum": 543.330541,
+          "mad": 10.873021000000051
+        },
+        "field-split-timers-v3": {
+          "median": 389.2825,
+          "minimum": 377.91125,
+          "maximum": 446.989708,
+          "mad": 9.343208000000004
+        }
+      },
+      "paired_change_percent": [
+        -26.389193373721508,
+        -30.445424749277993,
+        -26.17237883818183,
+        -24.252733246632673,
+        -14.536968654946769,
+        -24.584560834478207
+      ],
+      "median_change_percent": -25.37846983633002,
+      "bootstrap95_percent": [
+        -28.41730906149975,
+        -19.39485095078972
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 1220.474291,
+          "minimum": 1201.962707,
+          "maximum": 1241.474794,
+          "mad": 11.127458499999989
+        },
+        "field-split-timers-v3": {
+          "median": 1121.8347095,
+          "minimum": 1100.25996,
+          "maximum": 1206.48371,
+          "mad": 15.135250999999926
+        }
+      },
+      "paired_change_percent": [
+        -4.458356727619551,
+        -9.52942119243655,
+        -7.337148076530897,
+        -9.273216344566638,
+        -6.4713875519600395,
+        -1.7705921698587535
+      ],
+      "median_change_percent": -6.904267814245468,
+      "bootstrap95_percent": [
+        -9.401318768501593,
+        -3.114474448739152
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 1781350400.0,
+          "minimum": 1571028992,
+          "maximum": 1819803648,
+          "mad": 38174720.0
+        },
+        "field-split-timers-v3": {
+          "median": 1682817024.0,
+          "minimum": 1377222656,
+          "maximum": 1687093248,
+          "mad": 3801088.0
+        }
+      },
+      "paired_change_percent": [
+        -12.336267311863846,
+        -3.804413981666155,
+        -7.344785364448281,
+        -7.198178088257889,
+        -7.264179830328354,
+        -16.766579772066372
+      ],
+      "median_change_percent": -7.304482597388318,
+      "bootstrap95_percent": [
+        -14.551423541965109,
+        -5.501296034962023
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 1781350400.0,
+          "minimum": 1571028992,
+          "maximum": 1819803648,
+          "mad": 38174720.0
+        },
+        "field-split-timers-v3": {
+          "median": 1682817024.0,
+          "minimum": 1377222656,
+          "maximum": 1687093248,
+          "mad": 3801088.0
+        }
+      },
+      "paired_change_percent": [
+        -12.336267311863846,
+        -3.804413981666155,
+        -7.344785364448281,
+        -7.198178088257889,
+        -7.264179830328354,
+        -16.766579772066372
+      ],
+      "median_change_percent": -7.304482597388318,
+      "bootstrap95_percent": [
+        -14.551423541965109,
+        -5.501296034962023
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 1784132928.0,
+          "minimum": 1779012992,
+          "maximum": 1787286976,
+          "mad": 3072128.0
+        },
+        "field-split-timers-v3": {
+          "median": 1643394240.0,
+          "minimum": 1639961792,
+          "maximum": 1663046720,
+          "mad": 2031616.0
+        }
+      },
+      "paired_change_percent": [
+        -6.546972229440017,
+        -8.056861261434046,
+        -8.061747918518236,
+        -7.942520018073507,
+        -7.617271858574492,
+        -7.198572801644931
+      ],
+      "median_change_percent": -7.779895938324,
+      "bootstrap95_percent": [
+        -8.05930458997614,
+        -6.872772515542474
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-timers-v3": {
+          "median": 1784132928.0,
+          "minimum": 1779012992,
+          "maximum": 1787286976,
+          "mad": 3072128.0
+        },
+        "field-split-timers-v3": {
+          "median": 1643394240.0,
+          "minimum": 1639961792,
+          "maximum": 1663046720,
+          "mad": 2031616.0
+        }
+      },
+      "paired_change_percent": [
+        -6.546972229440017,
+        -8.056861261434046,
+        -8.061747918518236,
+        -7.942520018073507,
+        -7.617271858574492,
+        -7.198572801644931
+      ],
+      "median_change_percent": -7.779895938324,
+      "bootstrap95_percent": [
+        -8.05930458997614,
+        -6.872772515542474
+      ]
+    }
+  }
+}

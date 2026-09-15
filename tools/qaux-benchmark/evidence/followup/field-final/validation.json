@@ -1,0 +1,38 @@
+{
+  "field-split-checks-v4": {
+    "relations": {
+      "bytes": 239800,
+      "sha256": "3c9dd580a506dc88a1d7b62e1d65bbd54ccd968f33a0f952ac576bda08e8398d"
+    },
+    "field-adverse": {
+      "bytes": 12049336,
+      "sha256": "b9988af78a2fb0980264fd850d801bae7f041a298d5c2e6a03218b7cc593c04d"
+    },
+    "symbol-fixture": {
+      "bytes": 7853159,
+      "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+    },
+    "overload-fixture": {
+      "bytes": 8433737,
+      "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    }
+  },
+  "field-split-sanitized": {
+    "relations": {
+      "bytes": 239800,
+      "sha256": "3c9dd580a506dc88a1d7b62e1d65bbd54ccd968f33a0f952ac576bda08e8398d"
+    },
+    "field-adverse": {
+      "bytes": 12049336,
+      "sha256": "b9988af78a2fb0980264fd850d801bae7f041a298d5c2e6a03218b7cc593c04d"
+    },
+    "symbol-fixture": {
+      "bytes": 7853159,
+      "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+    },
+    "overload-fixture": {
+      "bytes": 8433737,
+      "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    }
+  }
+}

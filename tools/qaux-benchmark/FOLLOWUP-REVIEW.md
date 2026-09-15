@@ -28,3 +28,24 @@ The suggested counterexample of unused resolved references plus concentrated
 field readers/writers is implemented and has exposed the regression reported
 in FOLLOWUP-RESULTS.md. This is a measured limit requiring follow-up, not a
 reason to label the current version universally faster.
+
+## Field implementation and results review
+
+Pro read the actual `dbda5a1..064c0d8` changes and fixed `32e1f48` results,
+relation checks and workload. The full answer identified no new correctness
+blocker. It verified dependency normalization, masks, delayed aggregation and
+the timed destruction boundaries. It correctly distinguished each executable's
+internal full-first comparison from the necessary independent best5 oracle;
+the latter was also executed and its full-byte hashes are retained.
+
+The review accepted reading the local RW ready bit once in PutCrossRef, then
+using short-circuit `not_ready || nonempty_get || nonempty_put` to filter only
+aggregate bindings. That exact bounded correction was implemented in `bd0f8ae`.
+Pro did not promise this would remove the warm regression. It recommended
+splitting first/repeated API-leg timers and verifying zero warm-up jobs after
+the first reverse access; `f01e59f` implements those diagnostic boundaries.
+
+The revised checks pass, but repeatable consumer regressions remain. The
+candidate is therefore classified as conditional, and the next representation
+experiment proceeds independently against best5. No further field-only tuning
+or universal no-regression claim is inferred from the review.

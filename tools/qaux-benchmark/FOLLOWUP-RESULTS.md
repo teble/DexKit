@@ -1,7 +1,7 @@
 # Incremental optimization results
 
-Status: work in progress. The first two candidates have scoped
-decisions; three remain to be validated. All switches remain OFF by default.
+Status: work in progress. The first three candidates have scoped
+decisions; two remain to be validated. All switches remain OFF by default.
 
 ## Field decision after the bounded follow-up
 
@@ -164,8 +164,76 @@ FAST_HITS OFF, passed the dense and both symbol concurrency checks. Native/JAR,
 plus PTR enabled. The rebuilt JAR SHA256 remains `aad51ff2...`, exactly the one
 used by all frozen verifications and paired samples.
 
+## Contiguous invocation row decision
+
+Retain this as a conditional prototype, not a general no-time-regression
+improvement. QQ benefits reproduce, but mixed and giant-row matcher costs
+also reproduce. The mixed fixture additionally exposes increased memory.
+No further invocation allocation policy is introduced to rescue this result.
+
+Source `a89257e` directly appends invocation IDs into checked contiguous rows,
+preserves duplicate positions and order, and borrows spans in the invoke
+solver. Caller storage and its solver remain unchanged. This changes both
+persistent row representation and the invoke solver's target copying, so
+matcher effects cannot be assigned entirely to storage layout. The normal
+artifact is `a9b869422851199657afa0e676cb14fe9b610e93533dad1d413c5eeaffe7a99b`;
+the independently rebuilt best5 is still byte-identical `331f615...`.
+Both the field split and descriptor pointers are OFF.
+
+All frozen QQ outputs passed eleven verification passes. The candidate and
+ASan/UBSan builds match independent best5 full-byte oracles for all raw
+reference/definition IDs' ordered invoke/caller results on tiny, mixed and
+131,072-entry-row fixtures. Nested queries, counts, Equal, absent/empty
+requirements and duplicate positions also pass. `aec239e` extends this to
+24 query cases and five initialization sequences, including an actual
+invokes-only internal admission followed by queued caller construction.
+Every retained row's address, length and content remains unchanged after
+caller and full-cache warm-up. Two identical requirements for a single
+available position fail, while the same single requirement succeeds.
+All old query oracle bytes remain unchanged. Native/JAR, 71 freshly executed
+JVM tests and all four release Android ABIs pass with this switch enabled.
+The rebuilt JAR remains byte-identical to the measured one.
+
+Both complete batches use six balanced fresh-process pairs, independent seeds
+2026091527 and 2026091528, and no heavy concurrent builds. The confirmation
+below reports paired median changes with exploratory 95% bootstrap intervals;
+all 28 workload summaries and every valid sample are retained in
+`evidence/followup/invocations/`.
+
+| Independent confirmation vs best5 | Complete lifecycle | Repeated APIs | Peak footprint |
+| --- | ---: | ---: | ---: |
+| QQ, 1 pass | -7.39% [-11.93, -4.80] | n/a | -2.63% [-2.90, -2.15] |
+| QQ, 11 passes | -4.96% [-8.27, -1.50] | -2.65% [-6.99, -0.51] | -2.88% [-3.29, -2.51] |
+| Mixed invoke output, 4 repetitions | +6.21% [+0.34, +12.46] | -0.36% [-2.95, +2.79] | +21.15% [+9.79, +22.22] |
+| Mixed invoke matching, 32 repetitions | +1.03% [+0.59, +1.51] | +1.02% [+0.54, +1.53] | +13.33% [+4.97, +19.63] |
+| Mixed caller matching, 32 repetitions | +2.05% [+1.87, +3.06] | +2.08% [+1.90, +3.09] | +22.44% [+1.28, +25.68] |
+| Giant invoke matching, 32 repetitions | +0.55% [+0.36, +0.86] | +0.52% [+0.34, +0.85] | -8.35% [-11.95, -5.56] |
+| Giant caller matching, 32 repetitions | +1.78% [-2.27, +2.20] | +1.78% [-2.38, +2.21] | +1.37% [-15.75, +11.69] |
+
+The first batch independently measured mixed caller lifecycle +1.63%
+[+1.22, +2.30] and giant invoke lifecycle +0.88% [+0.61, +1.96]. These
+regressions are not inferred from intervals crossing zero. Some tiny and
+getter intervals remain unresolved; mixed output lifecycle did not reproduce
+as a clear regression in both batches, whereas its memory increase did.
+The low-level cause of the warm matcher differences remains unproved.
+
+QQ's invocation index falls from 62,400,744 B to 31,200,372 B, but payload
+capacity rises from 58,875,724 B to 67,239,936 B. Net logical capacity falls
+by 22,836,160 B (21.78 MiB), not by the entire old payload. Live buffers fall
+from 1,651,594 to 123. Allocator effects and complete process peaks are
+separately measured. In the mixed fixture, old rows have 393,224 B of payload
+capacity versus 524,288 B globally; the small index saving cannot offset that
+capacity increase. Growth overlap is per index, not a concurrent process peak,
+and these counts alone do not explain the full measured footprint difference.
+
+Pro read the actual implementation and found no new correctness blocker.
+Its deferred-caller and positional-conflict suggestions are implemented and
+pass in both representations and under ASan/UBSan. Its ordered-getter oracle
+request was already covered by the completed relation checker on all three
+new fixtures. Review agreement is not used as performance evidence.
+
 ## Remaining candidates
 
-Contiguous invocation rows, raw source metadata and one-requirement relation
-matching still need independent decisions. The final selected combination
+Raw source metadata and one-requirement relation matching still need
+independent decisions. The final selected combination
 will be measured directly against best5.

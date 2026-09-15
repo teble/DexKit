@@ -66,3 +66,28 @@ Pro suggested small empty/allocation-failure checks and PTR without structural
 or fast-hit support; those are included in the validation follow-up. It did
 not propose using QQ savings to override full-coverage regressions. The
 measured decision is to exclude this prototype from the general combination.
+
+## Contiguous invocation row review
+
+Pro's complete 7m51 answer read fixed `b203c02` / core `a89257e`, including
+the requested headers, builder, matcher, diagnostic, CMake/Gradle and four
+invocation tools, plus Analyze and the relation getter checker. It found no
+new correctness blocker in the current publication/borrowed-range contract.
+It correctly noted that resize is not a reset operation for published rows,
+and that the existing claimed-feature protocol prevents duplicate appends.
+
+The public invoke and caller queries both request both initialization flags.
+Consequently the original public ordering tests did not exercise a real
+invokes-only admission. `aec239e` adds that internal sequence and a caller
+queued behind a live forward admission, then checks all retained spans after
+caller/full-cache publication. Its suggestion to compare ordered getters for
+all raw IDs was already fulfilled by the independent relation byte oracles
+for all three new fixtures. The new query checker also adds a true positional
+conflict (two requirements with only one eligible target) and a single-witness
+positive control. All checks pass in best5, the prototype and ASan/UBSan.
+
+Pro verified that result and setup-local destruction enter complete lifecycle.
+It distinguished persistent row compression from invoke-solver target copying,
+and per-index growth overlap from process peak. Local measurements follow
+those distinctions; reproducible adverse time/memory costs constrain the
+decision despite the independently confirmed QQ gains.

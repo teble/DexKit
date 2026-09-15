@@ -75,6 +75,8 @@ No new Goal, default enablement, upstream merge or release is implied.
   but full SSO output lifecycle regresses by about 12.5% for two repetitions
   and 2.0% for sixteen. Independent confirmation and native/JVM/AAR checks
   passed; exclude it from the generally preferred combination.
-- Contiguous invocation rows are implemented in an independent default-OFF
-  prototype, with mixed/tiny/giant-row fixtures. Full validation is in progress.
+- Contiguous invocation rows pass complete ordered oracles, 24 matcher cases,
+  five initialization sequences, ASan/UBSan, 71 JVM tests and four Android ABIs.
+  Independent QQ gains reproduce, as do mixed/giant matcher regressions and
+  mixed-row memory costs. Retain a conditional prototype, not a general win.
 - Raw source metadata and single-requirement relation matching remain.

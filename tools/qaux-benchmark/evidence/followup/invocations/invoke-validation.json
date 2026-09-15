@@ -1,0 +1,90 @@
+{
+  "best5-invoke-checks-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "b6de17fc2ea62578bd5f221f33ed313dfe13a866acd5241e9b34037c06d44a3c",
+    "bytes": 14032
+  },
+  "invoke-checks-v1-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "b6de17fc2ea62578bd5f221f33ed313dfe13a866acd5241e9b34037c06d44a3c",
+    "bytes": 14032
+  },
+  "invoke-sanitized-v1-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "b6de17fc2ea62578bd5f221f33ed313dfe13a866acd5241e9b34037c06d44a3c",
+    "bytes": 14032
+  },
+  "best5-invoke-checks-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672
+  },
+  "invoke-checks-v1-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672
+  },
+  "invoke-sanitized-v1-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672
+  },
+  "best5-invoke-checks-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "f69b88c08963d0fd412bcd1a68473299bcc4612372c4e65a7abc8f7592c7eb70",
+    "bytes": 96968
+  },
+  "invoke-checks-v1-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "f69b88c08963d0fd412bcd1a68473299bcc4612372c4e65a7abc8f7592c7eb70",
+    "bytes": 96968
+  },
+  "invoke-sanitized-v1-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "f69b88c08963d0fd412bcd1a68473299bcc4612372c4e65a7abc8f7592c7eb70",
+    "bytes": 96968
+  },
+  "best5-invoke-checks-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216
+  },
+  "invoke-checks-v1-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216
+  },
+  "invoke-sanitized-v1-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216
+  },
+  "best5-invoke-checks-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "f16d1507e9947130a54a147da084b86c9744eb330a0efbc342493b95123df373",
+    "bytes": 5168
+  },
+  "invoke-checks-v1-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "f16d1507e9947130a54a147da084b86c9744eb330a0efbc342493b95123df373",
+    "bytes": 5168
+  },
+  "invoke-sanitized-v1-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "f16d1507e9947130a54a147da084b86c9744eb330a0efbc342493b95123df373",
+    "bytes": 5168
+  },
+  "best5-invoke-checks-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096
+  },
+  "invoke-checks-v1-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096
+  },
+  "invoke-sanitized-v1-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096
+  },
+  "invoke-checks-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "invoke-checks-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  },
+  "invoke-sanitized-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "invoke-sanitized-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  }
+}

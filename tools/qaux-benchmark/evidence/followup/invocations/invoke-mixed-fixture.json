@@ -1,0 +1,14 @@
+{
+  "apk_sha256": "4b7881138498c5aaf15fc7b2c3ad6fef21b5e244535fcbdefc981cb5d7701fe4",
+  "dex_sha256": [
+    "06930f48404d6c903d764641f8600d6b8c23493f9a2117a20649402f2612b983",
+    "04c53fa49387b9a1b0bf6be86f243344bfad802304252ab716b1c03c7c38967c",
+    "ed43c5eb237094af980daecb1cec333c261872547c04b776d4efb3db7afd2c27"
+  ],
+  "methods_per_source": 64,
+  "fanout": 1024,
+  "sparse_every": 4,
+  "dense_methods": 96,
+  "forward_edges": 98306,
+  "note": "Serial loading selects the final Target definition; repeated edges retain positions."
+}

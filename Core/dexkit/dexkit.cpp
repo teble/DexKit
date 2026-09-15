@@ -191,6 +191,7 @@ Error DexKit::InitFullCache() {
 }
 
 DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
+    required_flags = NormalizeInitFlags(required_flags);
     std::unique_lock lock(query_execution_mutex);
     uint64_t shared_pool_admission_ticket = 0;
     bool required_warmup_pending = false;
@@ -317,8 +318,14 @@ bool DexKit::NeedWarmUp(uint32_t init_flags) const {
         return false;
     }
 
-    uint32_t cross_ref_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+    init_flags = NormalizeInitFlags(init_flags);
+    uint32_t cross_ref_flags = init_flags & kCrossRefIdentityFlags;
+    uint32_t aggregate_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+    uint32_t cache_flags = init_flags & ~kFieldIdentity;
+#else
     uint32_t cache_flags = init_flags & ~cross_ref_flags;
+#endif
 
     if (cache_flags != 0) {
         for (const auto &dex_item: dex_items) {
@@ -334,11 +341,9 @@ bool DexKit::NeedWarmUp(uint32_t init_flags) const {
                 return true;
             }
         }
-        auto aggregate_ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
-        if ((aggregate_ready_flags & cross_ref_flags) != cross_ref_flags) {
-            return true;
-        }
     }
+    auto aggregate_ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+    if ((aggregate_ready_flags & aggregate_flags) != aggregate_flags) return true;
 
     return false;
 }
@@ -1355,7 +1360,7 @@ DexKit::GetUsingStrings(int64_t encode_method_id) {
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetUsingFields(int64_t encode_method_id) {
-    auto execution_guard = EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
+    auto execution_guard = EnterQueryExecution(kFieldIdentity | kMethodUsingField);
 
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
@@ -1563,7 +1568,11 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
             for (const auto &pending_item: source_dex->pending_aggregate_field_work_items) {
                 auto &source_get_methods = source_dex->field_get_method_ids[pending_item.source_field_idx];
                 auto &source_put_methods = source_dex->field_put_method_ids[pending_item.source_field_idx];
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+                if (source_get_methods.empty() && source_put_methods.empty()) continue;
+#else
                 DEXKIT_CHECK(!source_get_methods.empty() || !source_put_methods.empty());
+#endif
                 work_items[pending_item.target_dex_id].push_back(FieldAggregateWorkItem{
                         .source_dex_id = source_dex_id,
                         .source_field_idx = pending_item.source_field_idx,
@@ -1643,12 +1652,19 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
 }
 
 void DexKit::InitDexCache(uint32_t init_flags) {
-    uint32_t cross_ref_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+    init_flags = NormalizeInitFlags(init_flags);
+    uint32_t cross_ref_flags = init_flags & kCrossRefIdentityFlags;
+    uint32_t requested_aggregate_flags = init_flags & (kCallerMethod | kRwFieldMethod);
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+    uint32_t cache_flags = init_flags & ~kFieldIdentity;
+#else
+    uint32_t cache_flags = init_flags;
+#endif
     auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
     std::vector<std::pair<DexItem *, uint32_t>> init_jobs;
     init_jobs.reserve(dex_items.size());
     for (auto &dex_item: dex_items) {
-        auto claimed_flags = dex_item->BeginInitCache(init_flags);
+        auto claimed_flags = dex_item->BeginInitCache(cache_flags);
         if (claimed_flags != 0) {
             init_jobs.emplace_back(dex_item.get(), claimed_flags);
         }
@@ -1664,7 +1680,7 @@ void DexKit::InitDexCache(uint32_t init_flags) {
         }
     }
     for (auto &dex_item: dex_items) {
-        dex_item->WaitInitCache(init_flags);
+        dex_item->WaitInitCache(cache_flags);
     }
 
     if (cross_ref_flags == 0) {
@@ -1692,12 +1708,12 @@ void DexKit::InitDexCache(uint32_t init_flags) {
         dex_item->WaitPutCrossRef(cross_ref_flags);
     }
 
-    auto aggregate_flags = BeginBuildCrossRefAggregates(cross_ref_flags);
+    auto aggregate_flags = BeginBuildCrossRefAggregates(requested_aggregate_flags);
     if (aggregate_flags != 0) {
         BuildCrossRefAggregates(aggregate_flags);
         FinishBuildCrossRefAggregates(aggregate_flags);
     }
-    WaitBuildCrossRefAggregates(cross_ref_flags);
+    WaitBuildCrossRefAggregates(requested_aggregate_flags);
 }
 
 void DexKit::BuildPackagesMatchTrie(

@@ -44,6 +44,19 @@ const uint32_t kMethodUsingField = 0x0800;
 const uint32_t kRwFieldMethod = 0x1000; // cross
 const uint32_t kOpSequence = 0x2000;
 const uint32_t kUsingNumber = 0x4000;
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+const uint32_t kFieldIdentity = 0x8000;
+#else
+const uint32_t kFieldIdentity = kRwFieldMethod;
+#endif
+const uint32_t kCrossRefIdentityFlags = kCallerMethod | kFieldIdentity;
+
+inline uint32_t NormalizeInitFlags(uint32_t flags) {
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+    if (flags & kRwFieldMethod) flags |= kFieldIdentity | kMethodUsingField;
+#endif
+    return flags;
+}
 
 struct AnalyzeRet {
     uint32_t need_flags = 0;

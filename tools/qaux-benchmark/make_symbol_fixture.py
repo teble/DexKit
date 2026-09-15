@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build small deterministic DEX fixtures for member identity/cache experiments.
 
-Methods are abstract; these files exercise metadata, not Android execution.
+Methods are abstract unless explicit code assemblers are provided. These
+files exercise parsing/query behavior, not Android application execution.
 The APK is a DEX ZIP container with no application manifest.
 """
 
@@ -41,7 +42,8 @@ def shorty(proto):
     return ''.join('L' if value[0] in '[L' else value for value in (proto[0], *proto[1]))
 
 
-def make_dex(classes, methods, fields, references=(), field_references=(), extras=()):
+def make_dex(classes, methods, fields, references=(), field_references=(), extras=(),
+             code=None, source_files=None, additional_strings=()):
     # method tuple: owner, name, return type, ordered parameter tuple
     all_methods = set(methods) | set(references)
     all_fields = set(fields) | set(field_references)
@@ -54,6 +56,9 @@ def make_dex(classes, methods, fields, references=(), field_references=(), extra
         type_names.update(interfaces)
     protos = {(ret, params) for _, _, ret, params in all_methods}
     strings = {'', 'Fixture.java', *type_names}
+    strings.update(additional_strings)
+    if source_files:
+        strings.update(value for value in source_files.values() if value is not None)
     strings.update(name for _, name, _, _ in all_methods)
     strings.update(name for _, name, _ in all_fields)
     strings.update(shorty(proto) for proto in protos)
@@ -113,6 +118,18 @@ def make_dex(classes, methods, fields, references=(), field_references=(), extra
     for i, (owner, name, ret, params) in enumerate(method_list):
         struct.pack_into('<HHI', image, method_off + 8 * i, type_ids[owner], proto_ids[(ret, params)], string_ids[name])
 
+    code_offsets = {}
+    for method, assembler in (code or {}).items():
+        if method not in methods or method[2:] != ('V', ()):
+            raise ValueError('Code fixtures currently support defined static ()V methods only.')
+        units = assembler(method_ids, field_ids, string_ids)
+        align()
+        if not code_offsets:
+            sections.append((0x2001, len(code), len(image)))
+        code_offsets[method_ids[method]] = len(image)
+        image.extend(struct.pack('<HHHHII', 2, 0, 0, 0, 0, len(units)))
+        image.extend(struct.pack('<' + 'H' * len(units), *units))
+
     class_data_count = 0
     class_data_start = 0
     for i, owner in enumerate(class_list):
@@ -124,21 +141,28 @@ def make_dex(classes, methods, fields, references=(), field_references=(), extra
             if not class_data_count:
                 class_data_start = class_data_off
             class_data_count += 1
-            for count in [len(owned_fields), 0, 0, len(owned_methods)]:
+            direct_methods = [idx for idx in owned_methods if idx in code_offsets]
+            virtual_methods = [idx for idx in owned_methods if idx not in code_offsets]
+            for count in [len(owned_fields), 0, len(direct_methods), len(virtual_methods)]:
                 image.extend(uleb(count))
             previous = 0
             for idx in owned_fields:
                 image.extend(uleb(idx - previous) + uleb(0x9))  # public static
                 previous = idx
             previous = 0
-            for idx in owned_methods:
+            for idx in direct_methods:
+                image.extend(uleb(idx - previous) + uleb(0x9) + uleb(code_offsets[idx]))  # public static
+                previous = idx
+            previous = 0
+            for idx in virtual_methods:
                 image.extend(uleb(idx - previous) + uleb(0x401) + uleb(0))  # public abstract, no code
                 previous = idx
         interfaces = tuple(sorted(classes[owner], key=type_ids.__getitem__))
         flags = 0x601 if owner.startswith('Lfixture/I') and owner != 'Lfixture/Implementor;' else 0x401
+        source = (source_files or {}).get(owner, 'Fixture.java')
         struct.pack_into('<8I', image, class_off + 32 * i,
                          type_ids[owner], flags, type_ids['Ljava/lang/Object;'], list_offsets[interfaces],
-                         string_ids['Fixture.java'], 0, class_data_off, 0)
+                         string_ids[source] if source is not None else 0xffffffff, 0, class_data_off, 0)
     if class_data_count:
         sections.append((0x2000, class_data_count, class_data_start))
     align()

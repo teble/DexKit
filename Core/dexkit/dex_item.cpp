@@ -523,12 +523,12 @@ void DexItem::InitCache(uint32_t init_flags) {
 }
 
 bool DexItem::NeedPutCrossRef(uint32_t need_cross_flag) const {
-    DEXKIT_CHECK((need_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((need_cross_flag & ~kCrossRefIdentityFlags) == 0);
     return (dex_cross_flag.load(std::memory_order_acquire) & need_cross_flag) != need_cross_flag;
 }
 
 uint32_t DexItem::BeginPutCrossRef(uint32_t put_cross_flag) {
-    DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);
     std::unique_lock lock(cross_ref_state_mutex);
     while (true) {
         auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
@@ -567,9 +567,9 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     DescriptorUseScope descriptor_scope(DescriptorUse::CrossReference);
 #endif
-    DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);
     bool need_caller_cross = (put_cross_flag & kCallerMethod) != 0;
-    bool need_rw_field_cross = (put_cross_flag & kRwFieldMethod) != 0;
+    bool need_rw_field_cross = (put_cross_flag & kFieldIdentity) != 0;
 
     for (int type_idx = 0; type_idx < type_names.size(); ++type_idx) {
         if (!this->type_def_flag[type_idx] && type_names[type_idx][0] != '[') {
@@ -635,13 +635,17 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
+#if !DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
                     if (!field_get_method_ids[curr_field_idx].empty() || !field_put_method_ids[curr_field_idx].empty()) {
+#endif
                         pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
                                 .source_field_idx = curr_field_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
                                 .target_field_idx = origin_field_idx
                         });
+#if !DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
                     }
+#endif
                     ++cur_i;
                 }
             }

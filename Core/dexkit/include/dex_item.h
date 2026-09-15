@@ -470,6 +470,8 @@ private:
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;
     // one-shot aggregate worklists: pre-resolved source->target bindings that also
     // carry reverse-edge payload, so BuildCrossRefAggregates can skip re-reading cross_info
+    // With field identity splitting, field bindings survive until reverse rows
+    // are built; they also include resolved fields with no eventual payload.
     std::vector<PendingAggregateMethodWorkItem> pending_aggregate_method_work_items;
     std::vector<PendingAggregateFieldWorkItem> pending_aggregate_field_work_items;
 };

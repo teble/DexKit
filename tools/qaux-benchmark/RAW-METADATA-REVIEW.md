@@ -79,6 +79,50 @@ copied. It did not execute R2 or infer R2 gains from R1 data.
   retaining Hungarian state and positional matching. The prototype follows
   this shape and still requires an interface-heavy timing counterexample.
 
-Initial R2 measurements belong to the pre-correction artifact. They remain
-recorded as exploration; the revised implementation receives fresh comparisons.
+After rebuilding the correction with identical compiler flags, the baseline,
+R1, R2, and R1+R2 native libraries are respectively byte-for-byte identical to
+their earlier artifacts. The full byte comparisons and SHA-256/source mappings
+are recorded in `revision-native-equivalence.json`. Earlier timed samples
+therefore exercise the exact same native machine code as the corrected source;
+this does not substitute for checking the revised C++ source or Android builds.
+Fresh direct combination comparisons and adverse workloads follow.
 
+## Review of corrected R2 and R3
+
+Pro reported reading fixed `6bb4d29c45d2c134611a954b531bcdfa92152a8c`: the
+corrected cache, RawTypeIds, DexItem interface paths, Hungarian/matcher changes,
+workload executable, and commit delta. The complete answer was read and copied.
+It did not execute tests or timing runs.
+
+It considers the char-array record addressing to resolve the earlier specific
+object-boundary concern, with no new blocker found. For R3 it checked defined
+versus unresolved types, existing cross-DEX forwarding, local-ID interpretation,
+interface order, positional one-to-one matching, synchronous local target
+values, and raw/Bean lifetimes. It found no new semantic discrepancy. TypeList
+resolution occurs once when entering the matcher and again for a successful
+output Bean, not once for every pair comparison.
+
+Two workload qualifications were adopted before collecting timings:
+
+- Positive and negative interface requests now retain separate timings, with
+  each returned buffer destroyed before its endpoint. The aggregate lifecycle
+  remains measured, so a gain in one branch cannot hide the other's API time.
+- The original Wide lookup has distinct names and a fast name-mismatch miss.
+  Its setup generates the hit descriptor, so the first measured call is not a
+  wholly cold lookup. A separate fixture adds 4,096 same-name overloads whose
+  long parameter prefixes agree until the final type. A separate narrow/hot
+  lookup case is also retained. Their positive and negative timings are split.
+
+The workload harness is linked separately against the frozen native core
+archives. Its own source, executable and core-archive hashes are recorded;
+updating workload instrumentation does not rebuild or replace the timed core.
+
+## JVM test execution correction
+
+The Gradle test task can report UP-TO-DATE after a native flag change because
+it does not declare the selected native library as a test input. Merely copying
+its existing 71-test XML output is not new candidate validation. The experiment
+now uses `force_tests.gradle` to disable that task's up-to-date/build-cache reuse,
+checks that it actually executed, and saves new XML/logs for each variant.
+Earlier cached invocations remain in the evidence as such; final conclusions
+use the explicitly forced executions.

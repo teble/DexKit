@@ -17,11 +17,11 @@ The three earlier experiments remain OFF during isolated comparisons.
 
 1. **Complete:** obtain Pro's complete advice against the fixed source and
    prepare a fresh baseline/calibration using the existing verified corpus.
-2. **In progress:** select concrete independent candidates from the advice, check their source
+2. **Complete:** select concrete independent candidates from the advice, check their source
    assumptions, and add default-OFF prototype switches. Record each candidate's
    representation, avoided work, expected costs, and counterexamples before
    looking at its performance samples.
-3. Compare exact results and targeted lifetime/concurrency cases, then measure
+3. **In progress:** compare exact results and targeted lifetime/concurrency cases, then measure
    complete short and reused lifecycles. Do not time builds or diagnostics
    concurrently with formal samples.
 4. Independently confirm useful candidates; investigate actual regressions.
@@ -146,3 +146,20 @@ stay unchanged. Materialize IDs only when producing ClassBean output.
 Measure independently. Cover empty lists, interface-dense classes, competing
 matchers, and repeated complex interface queries. Other metadata and relation
 tables remain separate candidates rather than being folded into this test.
+
+## Final comparisons and bounded workload scope
+
+In addition to isolated R3, directly measure R1+R2+R3 and the combination with
+previous H1/H2/H3 enabled. Each has twelve main and six confirmation pairs for
+one and eleven passes, using the same original all-flags-off machine code as
+control. These direct comparisons answer the combined cost, without adding
+individual percentages. All six switches remain OFF by default.
+
+Native-only counterexamples use six balanced pairs per case. Fixed repetition
+counts are 64 for large output, 256 for wide-name and same-name-prefix lookups,
+100,000 for narrow/hot lookup, and 2,000 for interfaces. Preserve split positive
+and negative request timings as well as complete lifecycle and process peaks.
+Lookup setup warms the selected hit; first-call timing is labeled accordingly.
+A changed workload executable has a separate source/hash manifest and links
+the already frozen core archive, so its instrumentation is consistent across
+variants. These synthetic measurements are not QQ or Android-runtime scores.

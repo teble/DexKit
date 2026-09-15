@@ -1,7 +1,7 @@
 # Raw metadata experiment results
 
-This round is in progress. R1 has completed its initial validation and paired
-confirmation. R2 and R3 are not yet performance conclusions.
+This round is in progress. R1, R2, and the R2 increment over R1 have completed
+paired measurement and confirmation. R3 and direct combinations are pending.
 
 ## R1: structural member identities
 
@@ -84,3 +84,51 @@ Committed samples, summaries, artifact manifests, diagnostics and check logs
 are under `evidence/raw-metadata/`. Full process reports, GC logs, build logs,
 verification output and copied R1 JUnit results are in the external
 `qq-9.3.55/raw-metadata/formal` data directory. No valid slow sample was removed.
+
+## R2: paged stable byte records
+
+The optional string arrays are replaced by 256-slot atomic pages and stable
+char blocks owned by eight cold-fill stripes. Each record stores its byte
+length followed by the final descriptor and NUL. Misses size and write directly
+from raw parts, with checked bounds and release publication. Blocks grow from
+4 KiB to 64 KiB; oversized records get sufficient space. Warm views survive
+growth and require no reconstruction. All allocation, padding, tails, locks,
+output serialization, and destruction remain part of the comparison.
+
+R2 and R1+R2 were first measured from `5102357`. The source-level correction
+in `6bb4d29` replaces a Record-tail address with pointers into an owning char
+array and memcpy length headers. Rebuilding with the same compiler/settings
+produces exactly the same full native library bytes, documented in
+`evidence/raw-metadata/revision-native-equivalence.json`. These measured machine
+code artifacts therefore also correspond to the corrected source. Independent
+byte-oracle and sanitizer checks validate the revised implementation separately.
+
+| Comparison | Cohort | Passes | Complete lifecycle | Peak physical footprint | Repeated API sum |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Baseline to R2 | main | 1 | -11.87% [-13.35, -9.96] | -5.20% [-5.43, -5.07] | N/A |
+| Baseline to R2 | main | 11 | -2.88% [-5.63, -2.06] | -5.16% [-5.29, -4.91] | -0.07% [-2.52, +0.87] |
+| Baseline to R2 | confirm | 1 | -11.56% [-15.50, -5.95] | -5.11% [-5.38, -4.92] | N/A |
+| Baseline to R2 | confirm | 11 | -4.21% [-5.18, -2.75] | -5.30% [-5.63, -4.77] | -0.21% [-1.29, +0.12] |
+| R1 to R1+R2 | main | 1 | -1.83% [-5.98, -0.22] | -6.92% [-7.05, -6.76] | N/A |
+| R1 to R1+R2 | main | 11 | -1.16% [-2.36, -0.34] | -6.77% [-6.85, -6.65] | -0.05% [-0.88, +0.36] |
+| R1 to R1+R2 | confirm | 1 | -3.68% [-8.35, -0.29] | -6.82% [-7.40, -6.23] | N/A |
+| R1 to R1+R2 | confirm | 11 | -1.05% [-2.69, +1.03] | -6.94% [-7.35, -6.64] | -0.17% [-1.28, +1.61] |
+
+R2 independently lowers complete lifecycle time and peak footprint in both
+cohorts. Added to R1 it consistently saves another roughly 6.8--6.9% of process
+footprint. Its incremental time improvement is small; the eleven-pass
+confirmation interval permits +1.03% complete-time regression and +1.61% warm
+API regression. This is not evidence that adding R2 is universally time-free.
+
+The diagnostic R1+R2 cache holds 1,628 records: 2,303,328 B of index/ownership
+storage and 1,183,744 B of record capacity. Of that capacity 208,549 B is used,
+including 4,649 B of alignment padding; 975,195 B remains block-tail space.
+Headers plus character bytes occupy 203,900 B. There are 1,009 pages and 289
+blocks. These costs are small relative to the R1 dense array and publication
+guards, but sparse use of a small DEX can still pay page/stripe/block overhead.
+
+Standalone R2 retains the original 1,317,599 materialized records. Its index
+occupies 30,943,584 B; block capacity is 162,226,176 B, with 142,069,715 B used
+and 137,520,049 B in headers plus character bytes. Logical cache totals do not
+equal process peaks. Instrumented lock-wait sums are diagnostic wall-clock
+samples, not production CPU costs.

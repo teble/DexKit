@@ -170,6 +170,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--wide-methods', type=int, default=4096)
+    parser.add_argument('--same-name-overloads', action='store_true')
     args = parser.parse_args()
     if args.output.exists() and any(args.output.iterdir()):
         raise SystemExit('Choose an empty fixture output directory.')
@@ -188,7 +189,11 @@ def main():
         (api, 'c', 'Ljava/lang/String;', ()), (api, '\u03bb', 'V', ('Lfixture/\u03a9;',)),
         ('Lfixture/Other;', 'a', 'I', ()),
     }
-    methods.update((wide, f'm{i:05d}', 'V', (long_type,) * 12 + ('I',)) for i in range(args.wide_methods))
+    if args.same_name_overloads:
+        methods.update((wide, 'overload', 'V', (long_type,) * 12 + (f'Lfixture/Tail{i:05d};',))
+                       for i in range(args.wide_methods))
+    else:
+        methods.update((wide, f'm{i:05d}', 'V', (long_type,) * 12 + ('I',)) for i in range(args.wide_methods))
     fields = {(api, 'a', 'I'), (api, 'a', 'J'), (api, 'c', '[I'), (api, '\u03bb', 'Lfixture/\u03a9;'),
               ('Lfixture/Other;', 'a', 'I')}
     definition, definition_info = make_dex(classes, methods, fields)

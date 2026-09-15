@@ -1,0 +1,8 @@
+// Native experiment flags are not declared as inputs of the JVM test task.
+// Force a real test execution for each separately compiled native variant.
+gradle.projectsEvaluated {
+    gradle.rootProject.project(':dexkit').tasks.named('test') {
+        outputs.upToDateWhen { false }
+        outputs.cacheIf { false }
+    }
+}

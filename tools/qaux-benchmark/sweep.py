@@ -17,8 +17,8 @@ def percentile(values, fraction):
     return ordered[lower] + (ordered[min(lower + 1, len(ordered) - 1)] - ordered[lower]) * (point - lower)
 
 
-def summarize(rows, labels, pairs, seed):
-    metrics = ['lifecycle_ms', 'create_ms', 'close_ms', 'pass0_api_ms', 'pass1_api_ms',
+def summarize(rows, labels, pairs, seed, metrics=None):
+    metrics = metrics or ['lifecycle_ms', 'create_ms', 'close_ms', 'pass0_api_ms', 'pass1_api_ms',
                'repeated_api_ms', 'max_rss_bytes', 'window_peak_rss_bytes',
                'peak_footprint_bytes', 'window_peak_footprint_bytes']
     result = {}

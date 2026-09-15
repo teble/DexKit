@@ -1,0 +1,32 @@
+[
+  {
+    "name": "symbols-all6.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  },
+  {
+    "name": "symbols-control-v2.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  },
+  {
+    "name": "symbols-r12-v2.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  },
+  {
+    "name": "symbols-r123.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  },
+  {
+    "name": "symbols-r2-v2.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  },
+  {
+    "name": "symbols-r3.oracle",
+    "size": 7853159,
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169"
+  }
+]

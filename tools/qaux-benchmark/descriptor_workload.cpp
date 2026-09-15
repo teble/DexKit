@@ -19,6 +19,7 @@ int64_t Ns(Clock::time_point start) {
 }
 struct Statistics {
     int64_t create_ns = 0, setup_ns = 0, first_ns = 0, repeated_ns = 0, close_ns = 0;
+    int64_t positive_ns = 0, negative_ns = 0;
     uint64_t checksum = 0, returned = 0;
 };
 
@@ -66,11 +67,21 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
         auto meta = flatbuffers::GetRoot<schema::ClassMeta>(data->GetBufferPointer());
         for (auto id : *meta->methods()) ids.push_back((int64_t(meta->dex_id()) << 32) | uint32_t(id));
         Require(ids.size() == 4096, "fixed wide class size");
-        if (mode == "lookup") {
+        if (mode.starts_with("lookup")) {
             auto last = bridge->GetMethodByIds({ids.back()});
             auto methods = flatbuffers::GetRoot<schema::MethodMetaArrayHolder>(last->GetBufferPointer())->methods();
             hit = methods->Get(0)->dex_descriptor()->str();
             miss = "Lfixture/Wide;->__missing__" + hit.substr(hit.find('('));
+            if (mode == "lookup-prefix") {
+                const auto tail = hit.rfind("Lfixture/Tail");
+                Require(tail != std::string::npos, "same-name overload fixture required");
+                miss = hit.substr(0, tail) + "Lfixture/Tail_missing;)V";
+            } else if (mode == "lookup-hot") {
+                hit = "Lfixture/Api;->a()I";
+                miss = "Lfixture/Api;->a()F";
+                auto warm = bridge->GetMethodData(hit);
+                Require(warm != nullptr, "narrow lookup fixture");
+            }
         }
     }
     stats.setup_ns = Ns(begin);
@@ -85,25 +96,36 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
                 stats.checksum += method->id() + method->dex_descriptor()->size();
             }
             stats.returned += methods->size();
-        } else if (mode == "lookup") {
-            auto result = bridge->GetMethodData(hit);
-            Require(result != nullptr, "wide lookup hit");
-            auto method = flatbuffers::GetRoot<schema::MethodMeta>(result->GetBufferPointer());
-            Require(method->id() == uint32_t(ids.back()) && method->dex_descriptor()->size() == hit.size(), "wide lookup identity");
-            Require(bridge->GetMethodData(miss) == nullptr, "wide lookup miss");
-            stats.checksum += method->id() + method->dex_descriptor()->size();
-            ++stats.returned;
+        } else if (mode.starts_with("lookup")) {
+            const auto hit_begin = Clock::now();
+            {
+                auto result = bridge->GetMethodData(hit);
+                Require(result != nullptr, "lookup hit");
+                auto method = flatbuffers::GetRoot<schema::MethodMeta>(result->GetBufferPointer());
+                Require(method->dex_descriptor()->string_view() == hit, "lookup descriptor identity");
+                if (mode != "lookup-hot") Require(method->id() == uint32_t(ids.back()), "wide lookup identity");
+                stats.checksum += method->id() + method->dex_descriptor()->size();
+                ++stats.returned;
+            }
+            stats.positive_ns += Ns(hit_begin);
+            const auto miss_begin = Clock::now();
+            { Require(bridge->GetMethodData(miss) == nullptr, "lookup miss"); }
+            stats.negative_ns += Ns(miss_begin);
         } else {
             for (auto *query : {positive.get(), negative.get()}) {
-                auto result = bridge->FindClass(flatbuffers::GetRoot<schema::FindClass>(query->GetBufferPointer()));
-                auto classes = flatbuffers::GetRoot<schema::ClassMetaArrayHolder>(result->GetBufferPointer())->classes();
+                const auto query_begin = Clock::now();
                 const bool should_match = query == positive.get();
-                Require(classes->size() == size_t(should_match), "one-to-one interface matching");
-                if (should_match) {
-                    Require(classes->Get(0)->interfaces()->size() == 8, "interface output list");
-                    stats.checksum += classes->Get(0)->id() + classes->Get(0)->interfaces()->size();
+                {
+                    auto result = bridge->FindClass(flatbuffers::GetRoot<schema::FindClass>(query->GetBufferPointer()));
+                    auto classes = flatbuffers::GetRoot<schema::ClassMetaArrayHolder>(result->GetBufferPointer())->classes();
+                    Require(classes->size() == size_t(should_match), "one-to-one interface matching");
+                    if (should_match) {
+                        Require(classes->Get(0)->interfaces()->size() == 8, "interface output list");
+                        stats.checksum += classes->Get(0)->id() + classes->Get(0)->interfaces()->size();
+                    }
+                    stats.returned += classes->size();
                 }
-                stats.returned += classes->size();
+                (should_match ? stats.positive_ns : stats.negative_ns) += Ns(query_begin);
             }
         }
         // Result buffer destruction occurs before taking this sample.
@@ -121,11 +143,11 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
 
 int main(int argc, char **argv) {
     if (argc != 4) {
-        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|lookup|interfaces repeats\n");
+        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|lookup|lookup-prefix|lookup-hot|interfaces repeats\n");
         return 2;
     }
     const std::string_view mode(argv[2]);
-    Require(mode == "output" || mode == "lookup" || mode == "interfaces", "mode");
+    Require(mode == "output" || mode == "lookup" || mode == "lookup-prefix" || mode == "lookup-hot" || mode == "interfaces", "mode");
     char *end = nullptr;
     const auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && *end == '\0' && repeats > 0 && repeats <= 100000, "repeat count");
@@ -134,8 +156,9 @@ int main(int argc, char **argv) {
     const auto lifecycle = Ns(begin);
     std::printf("WORKLOAD {\"mode\":\"%s\",\"repeats\":%llu,\"create_ns\":%lld,\"setup_ns\":%lld,"
         "\"first_ns\":%lld,\"repeated_ns\":%lld,\"close_ns\":%lld,\"lifecycle_ns\":%lld,"
-        "\"checksum\":%llu,\"returned\":%llu}\n", argv[2], (unsigned long long) repeats,
+        "\"positive_ns\":%lld,\"negative_ns\":%lld,\"checksum\":%llu,\"returned\":%llu}\n", argv[2], (unsigned long long) repeats,
         (long long) stats.create_ns, (long long) stats.setup_ns, (long long) stats.first_ns,
         (long long) stats.repeated_ns, (long long) stats.close_ns, (long long) lifecycle,
+        (long long) stats.positive_ns, (long long) stats.negative_ns,
         (unsigned long long) stats.checksum, (unsigned long long) stats.returned);
 }

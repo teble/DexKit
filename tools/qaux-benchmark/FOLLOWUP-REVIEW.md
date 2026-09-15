@@ -113,3 +113,35 @@ metrics options OFF, and the runner now rejects either enabled/missing option.
 This is an acceptance improvement, not evidence of contaminated old samples.
 Confirmed source-consumer regression and unresolved QQ time exclude this
 prototype from the general preference despite its logical memory saving.
+
+## Single-requirement and combination review
+
+Pro's complete 6m22 answer read fixed `a02c16d` / core `c323a10`, the original
+solver, matcher cache, Analyze, CMake/Gradle and the query/check/workload files.
+It found no new correctness blocker. It verified original count guards,
+first-witness order, Equal evaluation after the witness, positional duplicates,
+cross-DEX caller dispatch and the distinct null/empty requirement behavior.
+The skipped requirements cache owns pointers only; child caches still work.
+
+It correctly limited early-mode attribution: both variants execute the same
+positive query, but early and late modes use different predicates, so their
+absolute difference is not the optimization benefit. Requirements-cache
+lookup effects also prevent attributing the entire gain to one work array.
+
+`645ca4f` adopts the finite test suggestions: count-allowed/rejected single
+requirements; exact serial judge order and counts for late/miss/allowed/rejected
+cases; and a single caller with using_fields -> get_methods/noneOf that forces
+RW construction after field identity only. All 29 case buffers match the
+independent original-solver control in the single and combined configurations,
+including sanitizers. No production measurement binary changes: the rebuilt
+single library is byte-identical. Per-case counts are logged separately.
+
+The tiny-fixture observation needs a directional qualification. Its forward
+row has one aEarly position, so duplicate-aEarly requirements fail; its caller
+rows contain multiple run positions and the double-run case returns two
+methods. The measured multiple modes and raw case counts retain that distinction.
+
+Pro highlighted overlap between compact invocation storage and single matching:
+both can avoid the invoke target copy. The conditional combination is measured
+directly rather than adding those gains. Its field consumer and mixed-row
+counterexamples remain part of the final decision; a QQ win cannot erase them.

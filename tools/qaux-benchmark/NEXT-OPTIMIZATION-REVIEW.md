@@ -1,8 +1,9 @@
 # Further optimization opportunities
 
-Status: source review and local cross-check complete. The five proposals below
-are not implemented or benchmarked by this review. No new speed or process-peak
-improvement is claimed, and no default switch has changed.
+Follow-up: all five proposals have now been implemented as default-OFF
+experiments and individually validated. See [the measured decisions and final
+combination](FOLLOWUP-RESULTS.md). The source review below records the earlier
+planning state and does not itself claim performance improvements.
 
 The user requested another Pro review to ask whether optimization is exhausted.
 The existing completed experiment phase is not evidence of an optimization

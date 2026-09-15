@@ -1,0 +1,254 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 1,
+  "pairs": 6,
+  "seed": 2026091533,
+  "labels": [
+    "best5-single-control",
+    "combo-v1"
+  ],
+  "reversed_order": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1815.8989165,
+          "minimum": 1807.049833,
+          "maximum": 1945.301708,
+          "mad": 5.640021000000047
+        },
+        "combo-v1": {
+          "median": 1373.3666875,
+          "minimum": 1363.040666,
+          "maximum": 1402.923125,
+          "mad": 7.644395499999973
+        }
+      },
+      "paired_change_percent": [
+        -23.526223529442646,
+        -23.988855381165763,
+        -22.755587539174225,
+        -29.747120799834303,
+        -25.025327596813796,
+        -24.759747058427784
+      ],
+      "median_change_percent": -24.374301219796774,
+      "bootstrap95_percent": [
+        -27.38622419832405,
+        -23.140905534308438
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 238.70547900000003,
+          "minimum": 231.736417,
+          "maximum": 239.659208,
+          "mad": 0.4685415000000006
+        },
+        "combo-v1": {
+          "median": 234.398417,
+          "minimum": 231.568208,
+          "maximum": 244.4645,
+          "mad": 2.424729499999998
+        }
+      },
+      "paired_change_percent": [
+        -0.07258634709967904,
+        2.2009847418318795,
+        -2.6095990851990547,
+        -1.1385784100563345,
+        -2.2476068397236593,
+        -1.3474376467021099
+      ],
+      "median_change_percent": -1.2430080283792222,
+      "bootstrap95_percent": [
+        -2.428602962461357,
+        1.0641991973661002
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 465.2819375,
+          "minimum": 460.336541,
+          "maximum": 484.864375,
+          "mad": 2.273041500000005
+        },
+        "combo-v1": {
+          "median": 261.704292,
+          "minimum": 256.406916,
+          "maximum": 285.949292,
+          "mad": 1.4470215000000053
+        }
+      },
+      "paired_change_percent": [
+        -43.29002879983963,
+        -43.99783053722324,
+        -38.61784250582203,
+        -46.16039093406275,
+        -44.007749410226374,
+        -44.30011672699257
+      ],
+      "median_change_percent": -44.0027899737248,
+      "bootstrap95_percent": [
+        -45.23025383052766,
+        -40.953935652830836
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1078.9606655,
+          "minimum": 1073.995332,
+          "maximum": 1186.234753,
+          "mad": 3.2538745000000517
+        },
+        "combo-v1": {
+          "median": 839.591232,
+          "minimum": 834.361584,
+          "maximum": 853.497246,
+          "mad": 3.6469619999999736
+        }
+      },
+      "paired_change_percent": [
+        -20.783108509624736,
+        -21.81491055121271,
+        -21.14477459274593,
+        -29.663029860667045,
+        -22.68929536827342,
+        -22.322800462302006
+      ],
+      "median_change_percent": -22.06885550675736,
+      "bootstrap95_percent": [
+        -26.176162614470233,
+        -20.963941551185332
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1814913024.0,
+          "minimum": 1799536640,
+          "maximum": 1818492928,
+          "mad": 1400832.0
+        },
+        "combo-v1": {
+          "median": 1640062976.0,
+          "minimum": 1635467264,
+          "maximum": 1645494272,
+          "mad": 2580480.0
+        }
+      },
+      "paired_change_percent": [
+        -8.79774206764693,
+        -9.467626679193808,
+        -9.51329825573014,
+        -9.96085293693174,
+        -9.661425642785538,
+        -9.85399483838365
+      ],
+      "median_change_percent": -9.58736194925784,
+      "bootstrap95_percent": [
+        -9.907423887657696,
+        -9.132684373420368
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1814913024.0,
+          "minimum": 1799536640,
+          "maximum": 1818492928,
+          "mad": 1400832.0
+        },
+        "combo-v1": {
+          "median": 1640062976.0,
+          "minimum": 1635467264,
+          "maximum": 1645494272,
+          "mad": 2580480.0
+        }
+      },
+      "paired_change_percent": [
+        -8.79774206764693,
+        -9.467626679193808,
+        -9.51329825573014,
+        -9.96085293693174,
+        -9.661425642785538,
+        -9.85399483838365
+      ],
+      "median_change_percent": -9.58736194925784,
+      "bootstrap95_percent": [
+        -9.907423887657696,
+        -9.132684373420368
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1774802336.0,
+          "minimum": 1771722176,
+          "maximum": 1783780864,
+          "mad": 1851328.0
+        },
+        "combo-v1": {
+          "median": 1602458816.0,
+          "minimum": 1598198976,
+          "maximum": 1609028736,
+          "mad": 1605664.0
+        }
+      },
+      "paired_change_percent": [
+        -10.403850144677861,
+        -9.776950015978192,
+        -9.487948972875525,
+        -10.145196979036019,
+        -9.308588694142749,
+        -9.626656145600931
+      ],
+      "median_change_percent": -9.701803080789562,
+      "bootstrap95_percent": [
+        -10.27452356185694,
+        -9.398268833509137
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1774802336.0,
+          "minimum": 1771722176,
+          "maximum": 1783780864,
+          "mad": 1851328.0
+        },
+        "combo-v1": {
+          "median": 1602458816.0,
+          "minimum": 1598198976,
+          "maximum": 1609028736,
+          "mad": 1605664.0
+        }
+      },
+      "paired_change_percent": [
+        -10.403850144677861,
+        -9.776950015978192,
+        -9.487948972875525,
+        -10.145196979036019,
+        -9.308588694142749,
+        -9.626656145600931
+      ],
+      "median_change_percent": -9.701803080789562,
+      "bootstrap95_percent": [
+        -10.27452356185694,
+        -9.398268833509137
+      ]
+    }
+  }
+}

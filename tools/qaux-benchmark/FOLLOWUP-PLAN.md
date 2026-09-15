@@ -1,6 +1,6 @@
 # Incremental optimization validation
 
-Status: in progress. The user authorized individual validation of all five
+Status: complete. The user authorized individual validation of all five
 ranked candidates and continued Pro collaboration on 2026-09-15.
 
 ## Baseline and decision rule
@@ -83,5 +83,16 @@ No new Goal, default enablement, upstream merge or release is implied.
   ASan/UBSan, 71 JVM tests and four ABIs. Source matching repeats regress
   about 3.1--4.3%; QQ time remains unresolved. Exclude it from the general
   preference despite the smaller source-view table.
-- Single-requirement matching is implemented with the original ordered judge,
-  counts and Equal rules; independent validation is next.
+- Single-requirement matching is the preferred additional experiment: two
+  independent batches confirm QQ lifecycle improvements of about 6% for one
+  pass and 18--20% for eleven, with no reproduced getter/multiple control
+  regression. Native/JAR, 71 JVM tests, four ABIs, frozen oracles and ASan/UBSan
+  pass. Final 29-case checks cover judge order/counts and nested field warm-up.
+- All five independent decisions are complete. The conditional QQ combination
+  passes joint oracles, sanitizers and components. Two direct timing batches
+  confirm QQ lifecycle gains of about 22.5--24.1% and peak savings near 10.1%,
+  with explicit reverse-field and mixed-row counterexamples retained.
+- Six compressed archives preserve all 167 timing stages and 3,490 original
+  JSON/log files. Archive and member hashes were verified after writing.
+- Final results, decisions, limitations and reproduction are recorded. No
+  production default, upstream merge or release was requested or performed.

@@ -1,0 +1,118 @@
+{
+  "best5-single-checks-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "702cefcc39b36dd5dbebc0b5a2b7bf6138a63012a63982c42b0dc9166cfe2aef",
+    "bytes": 15744,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-tiny.bin"
+  },
+  "single-checks-v1-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "702cefcc39b36dd5dbebc0b5a2b7bf6138a63012a63982c42b0dc9166cfe2aef",
+    "bytes": 15744,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-tiny.bin"
+  },
+  "single-sanitized-v1-invoke-tiny-dexkit_invocation_checks": {
+    "sha256": "702cefcc39b36dd5dbebc0b5a2b7bf6138a63012a63982c42b0dc9166cfe2aef",
+    "bytes": 15744,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-tiny.bin"
+  },
+  "best5-single-checks-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-tiny-dexkit_relation_checks.bin"
+  },
+  "single-checks-v1-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-tiny-dexkit_relation_checks.bin"
+  },
+  "single-sanitized-v1-invoke-tiny-dexkit_relation_checks": {
+    "sha256": "e8774eab5d80e1c8598f85e03a400226dd1ef2029264fbf8f32c01261eaf4e39",
+    "bytes": 13672,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-tiny-dexkit_relation_checks.bin"
+  },
+  "best5-single-checks-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "d1f651c21fc9d2df49a6e1bdb80b37dc00215d1623806bfd6378a225c675317c",
+    "bytes": 107752,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-mixed.bin"
+  },
+  "single-checks-v1-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "d1f651c21fc9d2df49a6e1bdb80b37dc00215d1623806bfd6378a225c675317c",
+    "bytes": 107752,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-mixed.bin"
+  },
+  "single-sanitized-v1-invoke-mixed-dexkit_invocation_checks": {
+    "sha256": "d1f651c21fc9d2df49a6e1bdb80b37dc00215d1623806bfd6378a225c675317c",
+    "bytes": 107752,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-mixed.bin"
+  },
+  "best5-single-checks-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-mixed-dexkit_relation_checks.bin"
+  },
+  "single-checks-v1-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-mixed-dexkit_relation_checks.bin"
+  },
+  "single-sanitized-v1-invoke-mixed-dexkit_relation_checks": {
+    "sha256": "6deb9eeb4dbaa0985073af166e732e63f3d5e2e758d41fe6a77ed3f9ae9fcbe6",
+    "bytes": 20886216,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-mixed-dexkit_relation_checks.bin"
+  },
+  "best5-single-checks-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "79121bdb68887b04b363c2afb6588fb5e4fe2cbae9d1aa2eb21e8f293cec7735",
+    "bytes": 5800,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-giant.bin"
+  },
+  "single-checks-v1-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "79121bdb68887b04b363c2afb6588fb5e4fe2cbae9d1aa2eb21e8f293cec7735",
+    "bytes": 5800,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-giant.bin"
+  },
+  "single-sanitized-v1-invoke-giant-dexkit_invocation_checks": {
+    "sha256": "79121bdb68887b04b363c2afb6588fb5e4fe2cbae9d1aa2eb21e8f293cec7735",
+    "bytes": 5800,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-v2-invoke-giant.bin"
+  },
+  "best5-single-checks-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-giant-dexkit_relation_checks.bin"
+  },
+  "single-checks-v1-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-giant-dexkit_relation_checks.bin"
+  },
+  "single-sanitized-v1-invoke-giant-dexkit_relation_checks": {
+    "sha256": "0ce7771d89e076f640bfa3151084d2911d406d437093d4daad98c0fe817f6de5",
+    "bytes": 54529096,
+    "independent_frozen_oracle": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/best5-invoke-checks-invoke-giant-dexkit_relation_checks.bin"
+  },
+  "single-checks-v1-sources-small": {
+    "sha256": "b9829b51f25c14323de26dcd73a3ed1776754132e926d6c091f771680c4a99e1",
+    "bytes": 11376,
+    "raw_sentinel_guards": true
+  },
+  "single-sanitized-v1-sources-small": {
+    "sha256": "b9829b51f25c14323de26dcd73a3ed1776754132e926d6c091f771680c4a99e1",
+    "bytes": 11376,
+    "raw_sentinel_guards": true
+  },
+  "single-checks-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "single-checks-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  },
+  "single-sanitized-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "single-sanitized-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  }
+}

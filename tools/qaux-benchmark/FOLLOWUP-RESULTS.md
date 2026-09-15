@@ -1,7 +1,30 @@
 # Incremental optimization results
 
-Status: work in progress. The first four candidates have scoped
-decisions; one remains to be validated. All switches remain OFF by default.
+Status: complete. All five candidates were validated independently against
+best5, followed by a direct combination measurement and independent confirmation.
+All experiment switches remain OFF by default.
+
+The preferred additional experiment is **SINGLE_RELATION**. Its confirmation
+reduces QQ lifecycle by 5.87% for one pass and 18.33% for eleven passes. A
+separate **QQ-conditional combination** adds field identity splitting and
+contiguous invocation rows: confirmation reduces lifecycle by 22.50% and
+24.11%, with peak footprint down about 10.1%. It retains a reverse-field
+consumer cost and mixed-row memory increases, so it is not the general choice.
+
+| Candidate | Decision | Evidence that determines the scope |
+| --- | --- | --- |
+| Field identity/reverse split | Conditional | QQ wins; reverse consumers still cost about 1.5--2% independently. |
+| Dense descriptor pointers | Exclude from general preference | Full SSO output lifecycle regresses about 12.5% for two repetitions. |
+| Contiguous invocation rows | Conditional | QQ wins; mixed/giant matcher costs and mixed-row memory increases reproduce. |
+| Raw source-file views | Exclude from general preference | Wide source matching warm cost reproduces at about 3.1--4.3%. |
+| Single-requirement relation matching | Preferred addition for evaluated workloads | QQ and single-requirement gains reproduce; control regressions do not reproduce. |
+
+Performance measurements are from this macOS arm64 host and the frozen QQ
+9.3.55/QAuxiliary workload. Four Android ABIs were built; Android device
+performance was not measured. Lifecycle includes create, initialization,
+queries, result release and close, under the existing benchmark protocol.
+Intervals are exploratory paired bootstraps, not universal guarantees.
+See [reproduction](FOLLOWUP-REPRODUCE.md) and the detailed decisions below.
 
 ## Field decision after the bounded follow-up
 
@@ -68,7 +91,8 @@ Initial measurements use six balanced fresh-process pairs, seed 2026091521.
 Percentages compare the field split with best5, and include 95% exploratory
 paired-median bootstrap intervals. Positive values are regressions. All valid
 samples are retained. QQ uses one or eleven complete passes; the synthetic
-consumer workload uses five repetitions. Independent confirmation is pending.
+consumer workload uses five repetitions. This historical batch was followed by
+the revised independent confirmation reported above.
 
 | Workload | Complete lifecycle change | Repeated API change | Peak footprint change |
 | --- | ---: | ---: | ---: |
@@ -78,8 +102,8 @@ consumer workload uses five repetitions. Independent confirmation is pending.
 | Synthetic forward then reverse | +4.95% [+2.51, +6.72] | +5.53% [+2.54, +8.35] | +0.47% [+0.07, +0.73] |
 | Synthetic full-cache first | +1.80% [+0.17, +7.19] | +2.32% [+0.50, +10.23] | +0.18% [-0.86, +1.83] |
 
-This is not yet a general no-time-regression choice. The consumer cases must
-be investigated/confirmed instead of being hidden by QQ's unused-graph win.
+This first batch was not a general no-time-regression choice. Its consumer
+cases prompted the bounded investigation and revised confirmation above.
 In the field workload reports, `negative_ns` is the reverse getter leg, not a
 negative query. Full-cache setup, delayed construction, all result destruction
 and close are charged to complete lifecycle.
@@ -232,11 +256,6 @@ pass in both representations and under ASan/UBSan. Its ordered-getter oracle
 request was already covered by the completed relation checker on all three
 new fixtures. Review agreement is not used as performance evidence.
 
-## Remaining candidates
-
-One-requirement relation matching still needs an independent decision. The
-final selected combination will be measured directly against best5.
-
 ## Raw source-file metadata decision
 
 Do not include this in the generally preferred combination. The removed
@@ -297,3 +316,138 @@ fixture guard is added, and an independent raw DEX parse confirms Absent uses
 workload manifests were checked to have diagnostics and both metrics options
 OFF; workload_sweep now enforces both metrics gates itself. The new checks
 do not change any already frozen measurement binary.
+
+## Single-requirement relation matching decision
+
+Retain SINGLE_RELATION as the preferred additional experiment for the evaluated
+workloads. It has independently confirmed QQ and single-requirement gains,
+with no reproduced regression in the exercised getter/multiple-requirement
+controls. Small intervals that include regressions remain uncertainty, not
+proof of universal non-increase. The switch remains OFF by default.
+
+Production source `c323a10` takes the original ordered judge directly when
+there is exactly one requirement, after the original count/size checks.
+It checks Equal only after a witness is found. Null, empty and multiple
+requirements keep the original paths. This avoids requirements preparation,
+right-side copying and generic solver work arrays. The old one-row solver
+already stopped at its first witness; this does not automatically reduce
+predicate calls. The normal library SHA256 is
+`7e132b063d7c1178bd43361f8583bdb299ffc2b22ae52b8d14474198065ef131`.
+The final diagnostic-only additions in `645ca4f` rebuild to exactly that same
+normal library. All other follow-up switches are OFF in this comparison.
+
+Two independent batches, seeds 2026091531 and 2026091532, each use six balanced
+fresh-process pairs and the same repetition counts. Both QQ modes and all
+24 native cases were repeated: 52 complete stage summaries and every valid
+sample are in `evidence/followup/single/`. Early-hit workloads run only the
+same positive query in both variants; late/miss workloads use a different,
+nested predicate. Only each mode's own A/B comparison measures the change.
+These include full scans, output and teardown; they are not pure solver
+microbenchmarks.
+
+| Confirmation vs best5 | Complete lifecycle | Repeated APIs | Peak footprint |
+| --- | ---: | ---: | ---: |
+| QQ, 1 pass | -5.87% [-9.72, -4.83] | n/a | -0.13% [-0.51, +0.15] |
+| QQ, 11 passes | -18.33% [-19.66, -17.49] | -23.25% [-25.10, -22.00] | -0.40% [-1.66, +0.07] |
+| Tiny invoke late/miss, 1,024 repetitions | -20.83% [-22.32, -16.11] | -21.04% [-22.47, -16.30] | -7.21% [-8.26, -2.27] |
+| Tiny caller late/miss, 1,024 repetitions | -9.12% [-11.66, -7.19] | -9.25% [-11.76, -7.40] | -7.01% [-8.33, -5.16] |
+| Mixed invoke early, 1,024 repetitions | -44.98% [-47.98, -43.67] | -45.56% [-48.66, -44.28] | -1.32% [-5.21, -0.67] |
+| Mixed caller early, 1,024 repetitions | -66.24% [-70.34, -64.60] | -68.04% [-71.98, -66.38] | -21.26% [-24.37, -11.18] |
+| Giant invoke early, 1,024 repetitions | -77.35% [-77.76, -76.18] | -80.29% [-80.68, -79.15] | -17.72% [-18.00, -14.72] |
+| Giant caller early, 1,024 repetitions | -85.81% [-86.30, -84.65] | -87.89% [-88.55, -87.52] | -1.28% [-12.73, +0.00] |
+
+The first QQ batch independently measured lifecycle -6.00% and -20.12%.
+Confirmation late/miss lifecycle gains on mixed and giant rows are smaller,
+about 1.8--2.9%. Multiple-requirement controls remain unresolved or slightly
+faster. The first giant invoke getter's +5.61% [+0.05, +12.51] lifecycle did
+not reproduce: confirmation is +0.45% [-0.86, +2.78]. Getter controls do not
+support a getter speedup claim. QQ peak memory is likewise unresolved; the
+preferred addition is principally a time improvement.
+
+Both normal libraries pass all eleven frozen QQ passes. The initial 24-case
+and complete ordered-getter oracles match frozen best5 results on all three
+fixtures, including ASan/UBSan. Both old symbol oracles and concurrency checks
+pass. Native/JAR, 71 freshly executed JVM tests and all four release Android
+ABIs pass with SINGLE_RELATION enabled.
+
+`645ca4f` adds count-allowed and count-rejected single requirements, checks the
+exact judge order for late/miss/allowed/rejected rows, and adds a single caller
+whose nested field predicate requires reverse-field initialization. All
+29 cases pass against the independent original-solver control, the single
+prototype and the conditional combination, including both sanitizer builds.
+The previous 24 case buffers are unchanged. Rejected counts record zero judge
+calls; the allowed early case records one. The field-split combination starts
+with forward field identity only and verifies actual RW readiness after the
+nested caller query. Held invocation spans remain unchanged after late
+caller/full initialization.
+
+Untimed case counts clarify the multiple-workload labels: tiny forward rows
+have only one aEarly position and fail the duplicate-aEarly requirements;
+tiny caller rows can have several run positions and succeed (two returned
+methods in the fixture). Mixed/giant forward rows supply successful repeated
+positions. Variant 10 is the separate single-position conflict. No timed
+workload binary was altered to add these diagnostic records.
+
+## Direct conditional combination
+
+The conditional configuration is best5 plus FIELD_IDENTITY_SPLIT,
+COMPACT_INVOKES and SINGLE_RELATION. POINTER_DESCRIPTORS and RAW_SOURCE_FILES
+remain OFF. Its normal artifact, built from `645ca4f`, is
+`2347a204a16ecf3b0855189ee2c3e62b27e8c1cdff476146ecb7964e6d7422ba`.
+It is compared directly with the unchanged best5 `331f615...`; no individual
+percentages are added. The single-requirement and combination figures come
+from their respective paired experiments, not an indirect incremental estimate.
+
+Two independent six-pair batches, seeds 2026091533 and 2026091534, cover QQ
+and nineteen native consumer cases. All 42 stage summaries and samples are
+in `evidence/followup/combinations/`. Confirmation results follow.
+
+| Combination vs best5 | Complete lifecycle | Repeated APIs | Peak footprint |
+| --- | ---: | ---: | ---: |
+| QQ, 1 pass | -22.50% [-24.62, -11.19] | n/a | -10.12% [-10.46, -9.76] |
+| QQ, 11 passes | -24.11% [-25.63, -22.72] | -23.72% [-24.36, -22.84] | -10.18% [-10.52, -9.83] |
+| Field forward only, 64 repetitions | -3.57% [-7.45, -1.61] | -1.64% [-6.79, +1.41] | -22.34% [-22.89, -22.11] |
+| Field forward then reverse, 64 repetitions | +2.35% [+0.70, +5.29] | +2.25% [+0.42, +5.12] | +3.19% [+0.53, +8.30] |
+| Field full-cache first, 64 repetitions | -0.18% [-2.71, +1.52] | +0.07% [-2.88, +1.18] | -5.18% [-7.29, -2.49] |
+| Mixed invoke output, 4 repetitions | +2.76% [-3.44, +6.99] | +0.52% [-0.31, +30.81] | +21.81% [+14.72, +23.88] |
+| Mixed invoke multiple, 32 repetitions | -1.87% [-4.00, -0.12] | -1.92% [-3.56, -0.37] | +9.50% [+1.80, +16.08] |
+| Giant invoke late/miss, 32 repetitions | -0.15% [-1.15, +0.63] | -0.10% [-1.25, +0.73] | -14.27% [-17.02, -11.94] |
+
+The first batch independently measured QQ lifecycle -24.37%/-24.03% and
+peak footprint -9.70%/-10.00%. The forward-then-reverse cost also reproduced:
+first lifecycle +2.26% [+1.97, +2.93]. Mixed invoke output memory increased
+in both batches (first +17.48% [+5.18, +21.81]). These are real restrictions
+on the combination's scope. First-batch full-first field and giant invoke
+matching time regressions did not reproduce as clear regressions in the
+second batch; their results are retained as uncertainty, not silently omitted.
+
+The combination passes all eleven frozen QQ verification passes, the final
+29-case/6-sequence invocation checker, all ordered getter oracles on three
+invocation and two field fixtures, both source metadata oracles, and both
+old symbol oracles. ASan/UBSan runs pass the same relevant checks. Joint
+validation includes actual delayed caller publication, retained spans, count
+rejection without predicate calls, and nested reverse-field initialization.
+Native/JAR, 71 freshly executed JVM tests and all four release Android ABIs
+pass with the combined flags. The JAR SHA256 remains
+`aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a`.
+
+## Evidence and completion
+
+Each of the five individual configurations and the conditional combination
+passed the required native/JAR/JVM/Android build checks. Sanitizer claims here
+are ASan/UBSan with the recorded options; no ThreadSanitizer or Android-device
+runtime performance claim is implied. All full byte expectations remain
+unchanged except for explicitly additional test cases, whose original buffers
+are checked against the earlier frozen oracles.
+
+`evidence/followup/process-records/` contains six deterministic compressed
+archives for all 167 timing stages: 3,490 original JSON/log files. Every
+archive and every member was read back and verified against its SHA256 and
+size in `archive.json`. Diagnostic logs, fixture manifests, component logs,
+compiler/native manifests and independent byte oracles are retained in the
+corresponding candidate directories. APKs and generated native/JVM binaries
+are not committed.
+
+Production defaults, public APIs and schema are unchanged. The experiment
+branch contains the scoped prototypes and reproducible evidence; it does not
+constitute upstream adoption or a release.

@@ -1,0 +1,312 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 11,
+  "pairs": 6,
+  "seed": 2026091531,
+  "labels": [
+    "best5-single-control",
+    "single-v1"
+  ],
+  "reversed_order": [
+    1,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 7087.115729,
+          "minimum": 6909.718208,
+          "maximum": 7316.550458,
+          "mad": 54.455625000000055
+        },
+        "single-v1": {
+          "median": 5624.734854,
+          "minimum": 5574.8695,
+          "maximum": 5767.270042,
+          "mad": 36.368437000000085
+        }
+      },
+      "paired_change_percent": [
+        -18.793304385358812,
+        -23.61732042879051,
+        -20.36487075705843,
+        -18.871339270792543,
+        -19.873116603037964,
+        -20.692397023074882
+      ],
+      "median_change_percent": -20.1189936800482,
+      "bootstrap95_percent": [
+        -22.154858725932698,
+        -18.832321828075678
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 239.0899795,
+          "minimum": 236.949083,
+          "maximum": 334.845375,
+          "mad": 0.37408299999999883
+        },
+        "single-v1": {
+          "median": 241.07187499999998,
+          "minimum": 233.738083,
+          "maximum": 250.613333,
+          "mad": 3.61441649999999
+        }
+      },
+      "paired_change_percent": [
+        4.741246463185789,
+        -29.54840215427792,
+        2.545958787272462,
+        1.5922224819185926,
+        -2.1651899191447277,
+        0.24646394681948625
+      ],
+      "median_change_percent": 0.9193432143690394,
+      "bootstrap95_percent": [
+        -15.856796036711323,
+        3.6436026252291254
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 527.808896,
+          "minimum": 495.142292,
+          "maximum": 581.347333,
+          "mad": 20.253625
+        },
+        "single-v1": {
+          "median": 479.4522915,
+          "minimum": 469.118458,
+          "maximum": 513.353875,
+          "mad": 9.637208000000015
+        }
+      },
+      "paired_change_percent": [
+        -6.221841152706753,
+        -9.482682849604506,
+        -16.76945518384051,
+        -1.2720728621411048,
+        -16.032354791932978,
+        -4.974445406493377
+      ],
+      "median_change_percent": -7.85226200115563,
+      "bootstrap95_percent": [
+        -16.400904987886744,
+        -3.123259134317241
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1136.3895825,
+          "minimum": 1103.708877,
+          "maximum": 1345.499082,
+          "mad": 27.299268499999926
+        },
+        "single-v1": {
+          "median": 1003.2352695,
+          "minimum": 984.535165,
+          "maximum": 1056.835915,
+          "mad": 9.819936499999983
+        }
+      },
+      "paired_change_percent": [
+        -9.708384743308995,
+        -26.09017937627994,
+        -10.797567590824041,
+        -8.072860383901892,
+        -9.497126500068642,
+        -19.974888913125145
+      ],
+      "median_change_percent": -10.252976167066517,
+      "bootstrap95_percent": [
+        -23.032534144702545,
+        -8.784993441985268
+      ]
+    },
+    "pass1_api_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 506.1738955,
+          "minimum": 496.916795,
+          "maximum": 514.948334,
+          "mad": 5.713541500000019
+        },
+        "single-v1": {
+          "median": 389.43066550000003,
+          "minimum": 383.924711,
+          "maximum": 393.889208,
+          "mad": 1.4536860000000047
+        }
+      },
+      "paired_change_percent": [
+        -22.063318065150117,
+        -22.595479917428907,
+        -23.340211344402505,
+        -23.508984883908767,
+        -23.898405909105215,
+        -23.454565053227505
+      ],
+      "median_change_percent": -23.397388198815005,
+      "bootstrap95_percent": [
+        -23.70369539650699,
+        -22.329398991289512
+      ]
+    },
+    "repeated_api_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 5073.8349585,
+          "minimum": 4971.243175,
+          "maximum": 5159.694409,
+          "mad": 16.971038500000304
+        },
+        "single-v1": {
+          "median": 3868.9549225,
+          "minimum": 3803.481048,
+          "maximum": 3911.034252,
+          "mad": 26.204124000000093
+        }
+      },
+      "paired_change_percent": [
+        -23.490344082795744,
+        -23.91456818438411,
+        -24.09649338000488,
+        -24.20027346623427,
+        -23.55802663893045,
+        -23.59528591907446
+      ],
+      "median_change_percent": -23.754927051729283,
+      "bootstrap95_percent": [
+        -24.148383423119576,
+        -23.524185360863097
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1717862400.0,
+          "minimum": 1601519616,
+          "maximum": 1822785536,
+          "mad": 58507264.0
+        },
+        "single-v1": {
+          "median": 1822597120.0,
+          "minimum": 1419165696,
+          "maximum": 1830699008,
+          "mad": 6193152.0
+        }
+      },
+      "paired_change_percent": [
+        -4.875978676533698,
+        13.663566890709888,
+        0.2247110216261783,
+        -16.40625753964041,
+        0.5588609709193726,
+        6.579612548765246
+      ],
+      "median_change_percent": 0.39178599627277544,
+      "bootstrap95_percent": [
+        -10.641118108087054,
+        10.121589719737567
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1717862400.0,
+          "minimum": 1601519616,
+          "maximum": 1822785536,
+          "mad": 58507264.0
+        },
+        "single-v1": {
+          "median": 1822597120.0,
+          "minimum": 1419165696,
+          "maximum": 1830699008,
+          "mad": 6193152.0
+        }
+      },
+      "paired_change_percent": [
+        -4.875978676533698,
+        13.663566890709888,
+        0.2247110216261783,
+        -16.40625753964041,
+        0.5588609709193726,
+        6.579612548765246
+      ],
+      "median_change_percent": 0.39178599627277544,
+      "bootstrap95_percent": [
+        -10.641118108087054,
+        10.121589719737567
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1798206912.0,
+          "minimum": 1788564928,
+          "maximum": 1805276544,
+          "mad": 5234656.0
+        },
+        "single-v1": {
+          "median": 1793512960.0,
+          "minimum": 1788417472,
+          "maximum": 1804686784,
+          "mad": 5046272.0
+        }
+      },
+      "paired_change_percent": [
+        -0.17096917904705355,
+        -0.9338775300677726,
+        0.20153274525127607,
+        0.39465406940903947,
+        -0.5774590244570055,
+        0.27185130009550473
+      ],
+      "median_change_percent": 0.015281783102111257,
+      "bootstrap95_percent": [
+        -0.755668277262389,
+        0.3332526847522721
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1798206912.0,
+          "minimum": 1788564928,
+          "maximum": 1805276544,
+          "mad": 5234656.0
+        },
+        "single-v1": {
+          "median": 1793512960.0,
+          "minimum": 1788417472,
+          "maximum": 1804686784,
+          "mad": 5046272.0
+        }
+      },
+      "paired_change_percent": [
+        -0.17096917904705355,
+        -0.9338775300677726,
+        0.20153274525127607,
+        0.39465406940903947,
+        -0.5774590244570055,
+        0.27185130009550473
+      ],
+      "median_change_percent": 0.015281783102111257,
+      "bootstrap95_percent": [
+        -0.755668277262389,
+        0.3332526847522721
+      ]
+    }
+  }
+}

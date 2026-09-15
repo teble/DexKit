@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import struct
 import subprocess
 import zipfile
 
@@ -15,6 +16,51 @@ QUERY_COUNT = 24
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def decoded_rows(data, info):
+    # This deliberately decodes the fixture's small instruction subset without
+    # calling either the native field extractor or the generator's assembler.
+    def uleb(offset):
+        value, shift = 0, 0
+        while True:
+            byte = data[offset]; offset += 1
+            value |= (byte & 127) << shift
+            if byte < 128: return value, offset
+            shift += 7
+            assert shift < 35
+    methods = {m['id']: m['descriptor'] for m in info['methods']}
+    fields = {f['id']: f['descriptor'] for f in info['fields']}
+    count, offset = struct.unpack_from('<2I', data, 96)
+    rows = {}
+    for index in range(count):
+        cursor = struct.unpack_from('<I', data, offset + 32 * index + 24)[0]
+        if not cursor: continue
+        sizes = []
+        for _ in range(4):
+            size, cursor = uleb(cursor); sizes.append(size)
+        for _ in range(sizes[0] + sizes[1]):
+            _, cursor = uleb(cursor); _, cursor = uleb(cursor)
+        for size in sizes[2:]:
+            method_id = 0
+            for _ in range(size):
+                delta, cursor = uleb(cursor); method_id += delta
+                _, cursor = uleb(cursor); code, cursor = uleb(cursor)
+                uses = []
+                if code:
+                    units = struct.unpack_from('<I', data, code + 12)[0]
+                    start, end = code + 16, code + 16 + units * 2
+                    while start < end:
+                        op = data[start]
+                        if op in (0x60, 0x67):
+                            field_id = struct.unpack_from('<H', data, start + 2)[0]
+                            uses.append(dict(field=fields[field_id], get=op == 0x60)); start += 4
+                        else:
+                            assert op in (0x12, 0x0e)
+                            start += 2
+                    assert start == end
+                rows[methods[method_id]] = (bool(code), uses)
+    return rows
 
 
 def expected(fixture):
@@ -53,8 +99,13 @@ def expected(fixture):
 
     methods = {(dex, m['descriptor']): m['id'] for dex, info in enumerate(manifest['dexes']) for m in info['methods']}
     with zipfile.ZipFile(fixture / 'fields.apk') as archive:
-        classes = {dex: class_ids(archive.read('classes.dex' if dex == 0 else f'classes{dex + 1}.dex'))
-                   for dex in range(len(manifest['dexes']))}
+        classes = {}
+        for dex, info in enumerate(manifest['dexes']):
+            data = archive.read('classes.dex' if dex == 0 else f'classes{dex + 1}.dex')
+            actual_rows = decoded_rows(data, info)
+            wanted_rows = {r['descriptor']: (r['code'], r['uses']) for r in rows if r['dex'] == dex}
+            assert actual_rows == wanted_rows, 'Encoded field-use rows differ from the intended fixture'
+            classes[dex] = class_ids(data)
     answers = {}
     for is_class in (False, True):
         for variant in range(QUERY_COUNT):

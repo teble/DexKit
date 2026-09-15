@@ -25,3 +25,15 @@ Status: implementation and correctness checks in progress.
 
 Compact forward-field rows and the reverse-only instruction walk follow this
 phase as independent experiments; neither is part of this candidate.
+
+## Progress
+
+The normal control and candidate build successfully. The rebuilt control
+native SHA256 remains 1406de12c38e356b1771209f2006c73a189975e4f90c892dcf75f48c3b4fab16.
+All 24 method and 24 nested class queries pass the independent small-fixture
+oracle and complete ordered bytes agree (SHA256
+901032d49eb7440a836a356f70402fef41c42cc10e52edb7658e406625db74d4).
+The oracle separately decodes the generated DEX instruction rows, preserving
+field-use order and duplicates before evaluating the expected predicates.
+Expanded fixtures, diagnostic/standalone/sanitized builds, QQ verification,
+JVM/Android checks, source review and formal timing are pending.

@@ -187,7 +187,8 @@ def main():
         options = manifest['cmake_options']
         if any(options.get(key, 'OFF') not in ('OFF', '0', 'FALSE') for key in
                ['DEXKIT_BENCHMARK_DIAGNOSTICS', 'DEXKIT_ENABLE_INTERNAL_METRICS',
-                'DEXKIT_ENABLE_INTERNAL_METRICS_API']):
+                'DEXKIT_ENABLE_INTERNAL_METRICS_API', 'DEXKIT_BENCHMARK_STRING_TRACE',
+                'DEXKIT_BENCHMARK_BATCH_TRACE']):
             raise SystemExit('Formal measurement requires diagnostics and internal metrics compiled out.')
         if not args.verified_run or args.profile == 'diagnostics':
             raise SystemExit('Measurement requires a successful verification run for this profile.')

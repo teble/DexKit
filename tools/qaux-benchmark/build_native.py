@@ -77,7 +77,8 @@ def main():
                 'cmake_options': settings, 'configure_command': configure,
                 'compiler': subprocess.check_output([compiler, '--version'], text=True).strip(),
                 'diagnostics': any(settings.get(key, 'OFF') == 'ON' for key in
-                                   ['DEXKIT_BENCHMARK_DIAGNOSTICS', 'DEXKIT_BENCHMARK_STRING_TRACE'])}
+                                   ['DEXKIT_BENCHMARK_DIAGNOSTICS', 'DEXKIT_BENCHMARK_STRING_TRACE',
+                                    'DEXKIT_BENCHMARK_BATCH_TRACE'])}
     (output / 'artifact.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print('Native SHA256:', manifest['native_sha256'])
 

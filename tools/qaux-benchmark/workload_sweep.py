@@ -28,7 +28,8 @@ def main():
                                          'source-output', 'source-match', 'source-hot',
                                          'string-eq', 'string-eq-long', 'string-prefix', 'string-prefix-long',
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
-                                         'string-class', 'string-sparse', 'string-contains', 'string-multiple'], required=True)
+                                         'string-class', 'string-sparse', 'string-contains', 'string-multiple',
+                                         'batch-method', 'batch-class'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
@@ -49,8 +50,10 @@ def main():
         invocation = args.mode.startswith(('invoke-', 'caller-'))
         source = args.mode.startswith('source-')
         string = args.mode.startswith('string-')
+        batch = args.mode.startswith('batch-')
         relation = args.mode.startswith('field-') or invocation
-        executable = artifact / ('build/Core/dexkit_string_workload' if string else
+        executable = artifact / ('build/Core/dexkit_batch_workload' if batch else
+                                 'build/Core/dexkit_string_workload' if string else
                                  'build/Core/dexkit_source_workload' if source else
                                  'build/Core/dexkit_invocation_workload' if invocation else
                                  'build/Core/dexkit_relation_workload' if relation else 'build/Core/dexkit_descriptor_workload')
@@ -59,7 +62,8 @@ def main():
         if any(manifest['cmake_options'].get(key) != 'OFF' for key in
                ['DEXKIT_ENABLE_INTERNAL_METRICS', 'DEXKIT_ENABLE_INTERNAL_METRICS_API']):
             raise SystemExit('Timed workload artifacts must disable both internal metrics options.')
-        option = ('DEXKIT_BENCHMARK_STRING_WORKLOAD' if string else
+        option = ('DEXKIT_BENCHMARK_BATCH_WORKLOAD' if batch else
+                  'DEXKIT_BENCHMARK_STRING_WORKLOAD' if string else
                   'DEXKIT_BENCHMARK_SOURCE_WORKLOAD' if source else 'DEXKIT_BENCHMARK_RELATION_WORKLOAD'
                   if relation else 'DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD')
         if manifest['cmake_options'][option] != 'ON':

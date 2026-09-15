@@ -45,6 +45,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT=${providers.gradleProperty('experimentSingleStringDirect').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_SINGLE_STRING_ID=${providers.gradleProperty('experimentSingleStringId').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX=${providers.gradleProperty('experimentSingleStringPrefix').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES=${providers.gradleProperty('experimentBatchStringIncludes').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}"
                 def flags = [
                         "-funwind-tables",

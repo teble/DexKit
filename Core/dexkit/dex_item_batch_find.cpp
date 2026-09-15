@@ -19,6 +19,7 @@
 
 #include "dex_item.h"
 #include "benchmark_diagnostics.h"
+#include "batch_group_diagnostics.h"
 #if DEXKIT_EXPERIMENT_NEGATIVE_STRINGS
 #include "negative_string_memo.h"
 #endif
@@ -65,6 +66,9 @@ DexItem::BatchFindClassUsingStrings(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_BATCH_TRACE
+    BatchGroupTrace group_trace{query_context.GetQueryId(), dex_id, true};
+#endif
 
     std::map<std::string_view, std::vector<uint32_t>> find_result;
     for (int type_idx = 0; type_idx < this->type_names.size(); ++type_idx) {
@@ -76,7 +80,9 @@ DexItem::BatchFindClassUsingStrings(
             if (query->search_packages() && !(hit >> 1)) continue;
         }
 
+        DEXKIT_BATCH_COUNT(candidates, 1);
         if (keywords_map.empty()) {
+            DEXKIT_BATCH_COUNT(fallback_candidates, 1);
             std::vector<std::string_view> using_strings;
             for (auto method_idx: class_method_ids[type_idx]) {
                 auto &&method_using_strings = method_using_string_ids[method_idx];
@@ -126,13 +132,25 @@ DexItem::BatchFindClassUsingStrings(
             }
         }
         if (search_set.empty()) continue;
+        DEXKIT_BATCH_COUNT(active_candidates, 1);
 
         for (auto &[key, matched_set]: keywords_map) {
+            DEXKIT_BATCH_COUNT(group_checks, 1);
+#if DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES
+            const bool matched = std::includes(search_set.begin(), search_set.end(),
+                                               matched_set.begin(), matched_set.end());
+#else
             std::vector<std::string_view> vec;
             std::set_intersection(search_set.begin(), search_set.end(),
                                   matched_set.begin(), matched_set.end(),
                                   std::inserter(vec, vec.begin()));
-            if (vec.size() == matched_set.size()) {
+            DEXKIT_BATCH_COUNT(nonempty_intersections, !vec.empty());
+            DEXKIT_BATCH_COUNT(intersection_items, vec.size());
+            DEXKIT_BATCH_COUNT(capacity_bytes, vec.capacity() * sizeof(std::string_view));
+            const bool matched = vec.size() == matched_set.size();
+#endif
+            if (matched) {
+                DEXKIT_BATCH_COUNT(matched_groups, 1);
                 find_result[key].emplace_back(type_idx);
             }
         }
@@ -165,6 +183,9 @@ DexItem::BatchFindMethodUsingStrings(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_BATCH_TRACE
+    BatchGroupTrace group_trace{query_context.GetQueryId(), dex_id, false};
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     BatchScanDiagnostics scan_diagnostics(dex_id, strings.size(), query->matchers()->size());
 #endif
@@ -187,7 +208,9 @@ DexItem::BatchFindMethodUsingStrings(
             auto code = this->method_codes[method_idx];
             if (code == nullptr) continue;
 
+            DEXKIT_BATCH_COUNT(candidates, 1);
             if (keywords_map.empty()) {
+                DEXKIT_BATCH_COUNT(fallback_candidates, 1);
                 std::vector<std::string_view> using_strings;
                 auto &&using_string_ids = method_using_string_ids[method_idx];
                 using_strings.reserve(using_string_ids.size());
@@ -250,13 +273,25 @@ DexItem::BatchFindMethodUsingStrings(
                 }
             }
             if (search_set.empty()) continue;
+            DEXKIT_BATCH_COUNT(active_candidates, 1);
 
             for (auto &[key, matched_set]: keywords_map) {
+                DEXKIT_BATCH_COUNT(group_checks, 1);
+#if DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES
+                const bool matched = std::includes(search_set.begin(), search_set.end(),
+                                                   matched_set.begin(), matched_set.end());
+#else
                 std::vector<std::string_view> vec;
                 std::set_intersection(search_set.begin(), search_set.end(),
                                       matched_set.begin(), matched_set.end(),
                                       std::inserter(vec, vec.begin()));
-                if (vec.size() == matched_set.size()) {
+                DEXKIT_BATCH_COUNT(nonempty_intersections, !vec.empty());
+                DEXKIT_BATCH_COUNT(intersection_items, vec.size());
+                DEXKIT_BATCH_COUNT(capacity_bytes, vec.capacity() * sizeof(std::string_view));
+                const bool matched = vec.size() == matched_set.size();
+#endif
+                if (matched) {
+                    DEXKIT_BATCH_COUNT(matched_groups, 1);
                     find_result[key].emplace_back(method_idx);
                 }
             }

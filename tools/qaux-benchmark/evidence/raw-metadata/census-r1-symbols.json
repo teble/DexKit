@@ -1,0 +1,406 @@
+{
+  "census": [
+    {
+      "phase": "create",
+      "dexes": 41,
+      "method_ids": 2600031,
+      "field_ids": 1492869,
+      "mapped_bytes": 411819364,
+      "slot_sizes": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "phase": "create",
+      "category": "aggregate_work",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "annotations",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "base_arrays",
+      "index_bytes": 160614118,
+      "payload_capacity_bytes": 0,
+      "entries": 17414998,
+      "nonempty_or_ready": 0,
+      "live_buffers": 492
+    },
+    {
+      "phase": "create",
+      "category": "callers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "class_members",
+      "index_bytes": 49971888,
+      "payload_capacity_bytes": 18459808,
+      "entries": 2082162,
+      "nonempty_or_ready": 1001975,
+      "live_buffers": 1002098
+    },
+    {
+      "phase": "create",
+      "category": "descriptor_publication",
+      "index_bytes": 4176868,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 82
+    },
+    {
+      "phase": "create",
+      "category": "descriptors",
+      "index_bytes": 130972800,
+      "payload_capacity_bytes": 0,
+      "entries": 4092900,
+      "nonempty_or_ready": 0,
+      "live_buffers": 82
+    },
+    {
+      "phase": "create",
+      "category": "field_readers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "field_writers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "full_numbers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "full_opcodes",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "invokes",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "lazy_numbers",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "create",
+      "category": "lazy_opcodes",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "create",
+      "category": "lazy_strings",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "create",
+      "category": "pending_cross_refs",
+      "index_bytes": 33314592,
+      "payload_capacity_bytes": 3404028,
+      "entries": 1388108,
+      "nonempty_or_ready": 245172,
+      "live_buffers": 245254
+    },
+    {
+      "phase": "create",
+      "category": "using_fields",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "category": "using_strings",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "create",
+      "diagnostic_ns": 14413875
+    },
+    {
+      "phase": "pre_close",
+      "dexes": 41,
+      "method_ids": 2600031,
+      "field_ids": 1492869,
+      "mapped_bytes": 411819364,
+      "slot_sizes": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "phase": "pre_close",
+      "category": "aggregate_work",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "annotations",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "base_arrays",
+      "index_bytes": 160614118,
+      "payload_capacity_bytes": 0,
+      "entries": 17414998,
+      "nonempty_or_ready": 0,
+      "live_buffers": 492
+    },
+    {
+      "phase": "pre_close",
+      "category": "callers",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 105407848,
+      "entries": 2600031,
+      "nonempty_or_ready": 1315612,
+      "live_buffers": 1315653
+    },
+    {
+      "phase": "pre_close",
+      "category": "class_members",
+      "index_bytes": 49971888,
+      "payload_capacity_bytes": 18459808,
+      "entries": 2082162,
+      "nonempty_or_ready": 1001975,
+      "live_buffers": 1002098
+    },
+    {
+      "phase": "pre_close",
+      "category": "descriptor_publication",
+      "index_bytes": 4176868,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 82
+    },
+    {
+      "phase": "pre_close",
+      "category": "descriptors",
+      "index_bytes": 130972800,
+      "payload_capacity_bytes": 196369,
+      "entries": 4092900,
+      "nonempty_or_ready": 1628,
+      "live_buffers": 1705
+    },
+    {
+      "phase": "pre_close",
+      "category": "field_readers",
+      "index_bytes": 35828856,
+      "payload_capacity_bytes": 37585880,
+      "entries": 1492869,
+      "nonempty_or_ready": 1110126,
+      "live_buffers": 1110167
+    },
+    {
+      "phase": "pre_close",
+      "category": "field_writers",
+      "index_bytes": 35828856,
+      "payload_capacity_bytes": 13206512,
+      "entries": 1492869,
+      "nonempty_or_ready": 1096109,
+      "live_buffers": 1096150
+    },
+    {
+      "phase": "pre_close",
+      "category": "full_numbers",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "full_opcodes",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "invokes",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 58875724,
+      "entries": 2600031,
+      "nonempty_or_ready": 1651553,
+      "live_buffers": 1651594
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_numbers",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 680,
+      "entries": 2600031,
+      "nonempty_or_ready": 9,
+      "live_buffers": 59
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_opcodes",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "pre_close",
+      "category": "lazy_strings",
+      "index_bytes": 41600496,
+      "payload_capacity_bytes": 0,
+      "entries": 2600031,
+      "nonempty_or_ready": 0,
+      "live_buffers": 41
+    },
+    {
+      "phase": "pre_close",
+      "category": "pending_cross_refs",
+      "index_bytes": 0,
+      "payload_capacity_bytes": 0,
+      "entries": 0,
+      "nonempty_or_ready": 0,
+      "live_buffers": 0
+    },
+    {
+      "phase": "pre_close",
+      "category": "using_fields",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 55446792,
+      "entries": 2600031,
+      "nonempty_or_ready": 1540649,
+      "live_buffers": 1540690
+    },
+    {
+      "phase": "pre_close",
+      "category": "using_strings",
+      "index_bytes": 62400744,
+      "payload_capacity_bytes": 10561680,
+      "entries": 2600031,
+      "nonempty_or_ready": 552475,
+      "live_buffers": 552516
+    },
+    {
+      "phase": "pre_close",
+      "diagnostic_ns": 23318000
+    }
+  ],
+  "descriptors": [
+    {
+      "reason": "output",
+      "method_builds": 0,
+      "field_builds": 0,
+      "materialized_bytes": 0
+    },
+    {
+      "reason": "cross_reference",
+      "method_builds": 0,
+      "field_builds": 0,
+      "materialized_bytes": 0
+    },
+    {
+      "reason": "lookup",
+      "method_builds": 0,
+      "field_builds": 0,
+      "materialized_bytes": 0
+    },
+    {
+      "method_comparisons": 0,
+      "field_comparisons": 0
+    },
+    {
+      "reason": "output",
+      "method_builds": 1628,
+      "field_builds": 0,
+      "materialized_bytes": 189248
+    },
+    {
+      "reason": "cross_reference",
+      "method_builds": 0,
+      "field_builds": 0,
+      "materialized_bytes": 0
+    },
+    {
+      "reason": "lookup",
+      "method_builds": 0,
+      "field_builds": 0,
+      "materialized_bytes": 0
+    },
+    {
+      "method_comparisons": 1503972,
+      "field_comparisons": 418558
+    }
+  ]
+}

@@ -58,7 +58,8 @@ void Descriptors(Counts &count, const std::vector<std::optional<std::string>> &v
     }
 }
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
-void Descriptors(Counts &count, const PagedDescriptorCache &values) {
+void Descriptors(Counts &count, const PagedDescriptorCache &values, const char *phase,
+                 uint32_t dex_id, const char *kind) {
     const auto stats = values.GetStatistics();
     count.index_bytes += stats.index_bytes;
     count.payload_bytes += stats.record_capacity_bytes;
@@ -66,10 +67,10 @@ void Descriptors(Counts &count, const PagedDescriptorCache &values) {
     count.ready += stats.records;
     count.buffers += stats.buffers;
     std::fprintf(stderr,
-        "BENCH_DESCRIPTOR_STORAGE {\"entries\":%zu,\"records\":%zu,\"pages\":%zu,\"blocks\":%zu,"
+        "BENCH_DESCRIPTOR_STORAGE {\"phase\":\"%s\",\"dex\":%u,\"kind\":\"%s\",\"entries\":%zu,\"records\":%zu,\"pages\":%zu,\"blocks\":%zu,"
         "\"capacity_bytes\":%zu,\"used_bytes\":%zu,\"character_bytes\":%zu,\"record_bytes\":%zu,"
         "\"cold_lock_count\":%llu,\"cold_lock_wait_ns\":%llu}\n",
-        values.size(), stats.records, stats.pages, stats.blocks, stats.record_capacity_bytes,
+        phase, dex_id, kind, values.size(), stats.records, stats.pages, stats.blocks, stats.record_capacity_bytes,
         stats.record_used_bytes, stats.character_bytes, stats.record_bytes,
         (unsigned long long) stats.cold_lock_count, (unsigned long long) stats.cold_lock_wait_ns);
 }
@@ -92,8 +93,13 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+        Descriptors(counts["descriptors"], item.method_descriptors, phase, item.dex_id, "method");
+        Descriptors(counts["descriptors"], item.field_descriptors, phase, item.dex_id, "field");
+#else
         Descriptors(counts["descriptors"], item.method_descriptors);
         Descriptors(counts["descriptors"], item.field_descriptors);
+#endif
         for (size_t reason = 0; reason < method_builds.size(); ++reason) {
             method_builds[reason] += item.descriptor_diagnostics.method_builds[reason].load(std::memory_order_relaxed);
             field_builds[reason] += item.descriptor_diagnostics.field_builds[reason].load(std::memory_order_relaxed);
@@ -105,6 +111,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         auto &publication = counts["descriptor_publication"];
         publication.index_bytes += (item.reader.MethodIds().size() + item.reader.FieldIds().size())
                 * sizeof(std::atomic<uint8_t>) + sizeof(item.descriptor_mutexes);
+        publication.entries += item.reader.MethodIds().size() + item.reader.FieldIds().size();
         publication.buffers += 2;
 #endif
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS

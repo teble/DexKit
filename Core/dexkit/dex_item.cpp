@@ -752,7 +752,7 @@ std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     DescriptorUseScope descriptor_scope(DescriptorUse::Lookup);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP
     const auto descriptor = internal::ParseMethodDescriptorView(method_descriptor);
     if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
 #endif
@@ -761,7 +761,7 @@ std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
         descriptor_diagnostics.method_comparisons.fetch_add(1, std::memory_order_relaxed);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP
         if (MatchesDescriptor(method_idx, *descriptor)) {
 #else
         if (this->GetMethodDescriptor(method_idx) == method_descriptor) {
@@ -776,7 +776,7 @@ std::optional<FieldBean> DexItem::GetFieldBean(uint32_t type_idx, std::string_vi
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     DescriptorUseScope descriptor_scope(DescriptorUse::Lookup);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP
     const auto descriptor = internal::ParseFieldDescriptorView(method_descriptor);
     if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
 #endif
@@ -785,7 +785,7 @@ std::optional<FieldBean> DexItem::GetFieldBean(uint32_t type_idx, std::string_vi
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
         descriptor_diagnostics.field_comparisons.fetch_add(1, std::memory_order_relaxed);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP
         if (MatchesDescriptor(field_idx, *descriptor)) {
 #else
         if (this->GetFieldDescriptor(field_idx) == method_descriptor) {

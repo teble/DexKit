@@ -35,6 +35,7 @@ cmake {
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=${providers.gradleProperty('experimentStructuralDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=${providers.gradleProperty('experimentPagedDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_INTERFACES=${providers.gradleProperty('experimentRawInterfaces').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}")
         }
     }
 }

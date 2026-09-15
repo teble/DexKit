@@ -140,6 +140,15 @@ AC work, which is a separate selective-filtering hypothesis. In a batch,
 rejecting one group does not reject its other independent Contains groups.
 Require evidence of actual avoided scanning before pursuing this mixed case.
 
+The user's subsequent scope decision excludes all batch APIs from the
+ID/range experiment, even pure Equal/StartWith batches. The batch audit above
+remains evidence about observed strings, not an implementation target. Focus
+on ordinary FindMethod/FindClass usingStrings, starting with one explicit
+Equal or StartWith condition. Ordinary simple usingStrings conditions currently
+also use AC; only the fallback calls IsStringMatched, whose Contains branch
+uses KMP and whose Equal/StartWith branches perform direct comparisons.
+The implementation comparison must follow that actual dispatch path.
+
 ## Reproduction
 
 Use the saved metadata of the existing confirmation run to resolve and verify

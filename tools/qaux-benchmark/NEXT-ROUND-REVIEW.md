@@ -2,9 +2,11 @@
 
 Status: planning only. No candidate below has been implemented or assigned a
 new performance gain. The first priority is a narrow exact-string experiment
-comparing the current AC path, direct comparison and a sorted-pool ID lookup,
-preceded by focused attribution. Prefix ranges need their own workload;
-batch containment is the next independent experiment.
+in ordinary FindMethod/FindClass usingStrings, comparing the current path,
+direct comparison and a sorted-pool ID lookup, preceded by focused attribution.
+The user excluded all batch APIs from this ID/range experiment, including pure
+prefix batches. Prefix ranges need an ordinary-find workload. Batch containment
+remains a separate mechanism from the earlier ranked proposals.
 
 The subsequent [string-witness audit](STRING-SEMANTICS.md) corrects the coverage
 inference from explicit modes: default Contains frequently has complete or
@@ -244,13 +246,20 @@ follows from the asymptotic argument.
 
 ### First-round routing decision
 
-Following the user's further cost objection, the first ID/range experiment
-must fully replace AC for the relevant using-string predicate. Accept only
-pure Equal, pure StartWith or their mixture within the existing ASCII and
-case-sensitive boundary. Keep mixed Contains/EndWith batches on the current
-AC path, without an additional ID scan or speculative positive shortcut.
-Eligibility depends on the declared conditions, not the API being ordinary
-matcher versus batch. Start with one requirement before expanding pattern count.
+Following the user's final scope decision, restrict the ID/range experiment
+to ordinary FindMethod/FindClass usingStrings. All batch APIs are excluded,
+including pure Equal/StartWith batches. Start with one nonempty,
+case-sensitive ASCII Equal requirement, then one StartWith requirement.
+Multiple requirements and unchanged Contains predicates keep their existing
+paths in this first prototype; mixed-query filtering is deferred.
+
+Locate the experiment by its actual native path. IsMethodUsingStringsMatched
+and IsClassUsingStringsMatched currently send simple eligible usingStrings
+conditions to the keyword AC path, including ordinary find APIs. Their
+fallback invokes IsStringMatched. In that helper, Contains uses kmp::FindIndex,
+while Equal and StartWith use direct byte comparisons despite sharing the
+kmp namespace. Consequently, do not label every ordinary query baseline KMP
+or change only the fallback and assume the ordinary literal path benefits.
 
 Removing AC is an opportunity, not a proof that binary lookup wins. Compare
 query preparation, reference visits and group matching together. Many ranges

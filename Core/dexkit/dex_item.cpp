@@ -570,6 +570,13 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
     DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);
     bool need_caller_cross = (put_cross_flag & kCallerMethod) != 0;
     bool need_rw_field_cross = (put_cross_flag & kFieldIdentity) != 0;
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+    // InitDexCache has already published all requested local caches. Preserve
+    // the original payload filter when reverse rows exist in this same warmup.
+    const bool keep_empty_field_bindings = (dex_flag.load(std::memory_order_acquire) & kRwFieldMethod) == 0;
+#else
+    constexpr bool keep_empty_field_bindings = false;
+#endif
 
     for (int type_idx = 0; type_idx < type_names.size(); ++type_idx) {
         if (!this->type_def_flag[type_idx] && type_names[type_idx][0] != '[') {
@@ -635,17 +642,14 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
-#if !DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
-                    if (!field_get_method_ids[curr_field_idx].empty() || !field_put_method_ids[curr_field_idx].empty()) {
-#endif
+                    if (keep_empty_field_bindings || !field_get_method_ids[curr_field_idx].empty()
+                            || !field_put_method_ids[curr_field_idx].empty()) {
                         pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
                                 .source_field_idx = curr_field_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
                                 .target_field_idx = origin_field_idx
                         });
-#if !DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
                     }
-#endif
                     ++cur_i;
                 }
             }

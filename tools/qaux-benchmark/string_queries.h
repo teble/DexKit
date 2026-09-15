@@ -10,7 +10,7 @@ namespace string_fixture {
 using namespace dexkit;
 using Builder = flatbuffers::FlatBufferBuilder;
 inline std::string LongNeedle() { return "LongPrefix/" + std::string(192, 'x') + "/Needle"; }
-inline constexpr int QueryCount = 34;
+inline constexpr int QueryCount = 45;
 
 struct Atom {
     std::string value;
@@ -43,7 +43,7 @@ inline std::vector<Atom> Atoms(int variant) {
         case 19: return {{"AbsentEveryPool"}};
         case 20: return {{"Needle"}, {"Second"}};
         case 21: return {{"Needle", T::Contains}, {"Second"}};
-        case 22: case 23: case 24: case 25: return {};
+        case 22: case 23: case 24: case 25: case 37: case 38: return {};
         case 26: return {{"Needle"}};
         case 28: return {{"^Needle$", T::SimilarRegex}};
         case 29: return {{"\177Needle"}};
@@ -51,6 +51,15 @@ inline std::vector<Atom> Atoms(int variant) {
         case 31: return {{"Needle\300\200tail"}};
         case 32: return {{"Needle", T::StartWith, true}};
         case 33: return {{"Needle"}, {"Needle"}};
+        case 34: return {{LongNeedle(), T::StartWith}};
+        case 35: return {{"Needle", T::StartWith}, {"Need", T::StartWith}};
+        case 36: return {{"AbsentEveryPool", T::StartWith}};
+        case 39: return {{"\316\273Needle", T::StartWith}};
+        case 40: return {{"\177", T::StartWith}};
+        case 41: return {{"^Needle", T::SimilarRegex}};
+        case 42: return {{"OnlySecond", T::StartWith}};
+        case 43: return {{std::string("Needle\0", 7), T::StartWith}};
+        case 44: return {{"Needle\300\200", T::StartWith}};
         default: std::abort();
     }
 }
@@ -77,6 +86,8 @@ inline flatbuffers::Offset<schema::ClassMatcher> ClassNode(Builder &b, int varia
     if (variant == 23) { none = {ClassNode(b, 1)}; all = {ClassNode(b, 3)}; }
     if (variant == 24) { all = {ClassNode(b, 1)}; any = {ClassNode(b, 19), ClassNode(b, 20)}; }
     if (variant == 25) all = {ClassNode(b, 1)};
+    if (variant == 37) any = {ClassNode(b, 36), ClassNode(b, 42)};
+    if (variant == 38) { none = {ClassNode(b, 2)}; all = {ClassNode(b, 3)}; }
     auto all_vec = b.CreateVector(all), any_vec = b.CreateVector(any), none_vec = b.CreateVector(none);
     auto name = variant == 26 ? schema::CreateStringMatcher(b, b.CreateString("strings.Sparse"), schema::StringMatchType::Equal)
                              : flatbuffers::Offset<schema::StringMatcher>{};
@@ -95,6 +106,8 @@ inline flatbuffers::Offset<schema::MethodMatcher> MethodNode(Builder &b, int var
     if (variant == 22) { any = {MethodNode(b, 19), MethodNode(b, 17)}; }
     if (variant == 23) { none = {MethodNode(b, 1)}; all = {MethodNode(b, 3)}; }
     if (variant == 24) { all = {MethodNode(b, 1)}; any = {MethodNode(b, 19), MethodNode(b, 20)}; }
+    if (variant == 37) any = {MethodNode(b, 36), MethodNode(b, 42)};
+    if (variant == 38) { none = {MethodNode(b, 2)}; all = {MethodNode(b, 3)}; }
     auto owner = variant == 25 ? ClassNode(b, 1) : variant == 26 ? NamedClass(b, "strings.Sparse")
                             : flatbuffers::Offset<schema::ClassMatcher>{};
     auto all_vec = b.CreateVector(all), any_vec = b.CreateVector(any), none_vec = b.CreateVector(none);
@@ -110,21 +123,22 @@ inline std::unique_ptr<Builder> Query(bool classes, int variant) {
     auto b = std::make_unique<Builder>();
     if (classes) {
         auto matcher = ClassNode(*b, variant);
-        schema::FindClassBuilder query(*b); query.add_matcher(matcher); query.add_find_first(variant == 27);
+        schema::FindClassBuilder query(*b); query.add_matcher(matcher); query.add_find_first(variant == 27 || variant == 42);
         b->Finish(query.Finish());
     } else {
         auto matcher = MethodNode(*b, variant);
-        schema::FindMethodBuilder query(*b); query.add_matcher(matcher); query.add_find_first(variant == 27);
+        schema::FindMethodBuilder query(*b); query.add_matcher(matcher); query.add_find_first(variant == 27 || variant == 42);
         b->Finish(query.Finish());
     }
     return b;
 }
 
 inline std::unique_ptr<Builder> WorkQuery(bool classes, const std::string &needle,
-        schema::StringMatchType type, bool sparse = false, bool multiple = false) {
+        schema::StringMatchType type, bool sparse = false, bool multiple = false, bool prefix_multiple = false) {
     auto b = std::make_unique<Builder>();
     std::vector<Atom> atoms{{needle, type}};
     if (multiple) atoms.push_back({"Needle", schema::StringMatchType::Contains});
+    if (prefix_multiple) atoms.push_back({"LongPrefix/", schema::StringMatchType::StartWith});
     auto strings = Strings(*b, atoms);
     if (classes) {
         auto name = sparse ? schema::CreateStringMatcher(*b, b->CreateString("strings.Sparse"), schema::StringMatchType::Equal)

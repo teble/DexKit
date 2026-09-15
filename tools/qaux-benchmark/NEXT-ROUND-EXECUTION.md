@@ -1,8 +1,8 @@
 # Ordered next-round experiments
 
-Status: active. The user authorized starting the ordered experiments after
-the ordinary usingStrings dispatch and scope discussion. No new candidate
-has a measured gain yet.
+Status: active. Equal measurements and confirmation are complete. The ordinary
+StartWith extension is now being built and checked; subsequent ranked
+mechanisms remain independent experiments against the nine-switch control.
 
 ## Controls and sequence
 
@@ -51,3 +51,26 @@ source and evidence review after meaningful increments.
 * Hoisted Equal/StartWith dispatch out of reference loops before timing, and
   wired the experimental switches through desktop and Android Gradle builds.
   Rebuilding this revision and adding wide-pool checks precede paired timing.
+* Completed the source review and fixed DEX-ID narrowing and accidental bulk
+  fixture witnesses before formal measurement; see SINGLE-STRING-REVIEW.
+  The corrected 32-bit per-DEX publication component passes eight concurrent
+  callers at IDs 0 and 65536. Wide ordered oracles, ASan/UBSan, 11 frozen QQ
+  rounds, both 71-test JVM runs and both four-ABI AAR builds pass.
+* Separate diagnostics confirm one plan per query and one range per visited
+  DEX across multiple tasks. A QQ SettingEntry query allocates 3,976 logical
+  plan/entry bytes, performs 656 pool comparisons/1,691 decoded units across
+  41 DEXes, and visits 55,665 reference IDs. These are work counts, not timing
+  estimates; ordinary prefilter and batch AC are outside this trace scope.
+* Started balanced six-pair QQ 1/11-round and bounded native measurements,
+  followed by an independently ordered confirmation batch. Corrected native
+  fixtures cover first/last witnesses, bulk misses, sparse access, class
+  matching and unchanged Contains/multiple-requirement paths.
+* Completed all 48 Equal sweeps (576 process samples), including independent
+  confirmation and DIRECT/ID head-to-head comparisons. Both paths improve QQ
+  repeated queries; ID's additional Equal API improvement is measurable, while
+  the extra whole-QQ benefit is not consistently resolved. Long late/miss
+  workloads favor ID; sparse access favors DIRECT. See SINGLE-STRING-RESULTS.
+* Added proper-prefix bulk witnesses and eleven additional query cases for
+  the isolated StartWith phase. The 45 method/45 class cases include prefix
+  OR/NOT, overlapping requirements, non-ASCII/NUL fallback and unique findFirst.
+  Prefix extension remains outside every Batch API.

@@ -12,6 +12,7 @@ import struct
 import subprocess
 
 LONG = b'LongPrefix/' + b'x' * 192 + b'/Needle'
+QUERY_COUNT = 45
 FOLD = bytes.maketrans(bytes(range(65, 91)), bytes(range(97, 123)))
 
 
@@ -26,6 +27,9 @@ def predicate(rows, variant):
     if variant == 23: return not predicate(rows, 1) and predicate(rows, 3)
     if variant == 24: return predicate(rows, 1) and (predicate(rows, 19) or predicate(rows, 20))
     if variant == 25: return predicate(rows, 1)
+    if variant == 35: return predicate(rows, 2) and any(row.startswith(b'Need') for row in rows)
+    if variant == 37: return predicate(rows, 36) or predicate(rows, 42)
+    if variant == 38: return not predicate(rows, 2) and predicate(rows, 3)
     values = {
         1: b'Needle', 2: b'Needle', 3: b'Needle', 4: b'Needle', 5: b'needle', 6: b'needle',
         7: b'', 10: b'\xce\xbbNeedle', 11: b'\xef\xbf\xbf', 12: b'\xed\xa0\x80',
@@ -33,6 +37,8 @@ def predicate(rows, variant):
         16: LONG, 17: b'OnlySecond', 18: b'UnusedNeedle', 19: b'AbsentEveryPool',
         26: b'Needle', 27: b'OnlySecond', 28: b'Needle', 29: b'\x7fNeedle',
         30: b'Needle\0tail', 31: b'Needle\xc0\x80tail', 32: b'Needle', 33: b'Needle',
+        34: LONG, 36: b'AbsentEveryPool', 39: b'\xce\xbbNeedle', 40: b'\x7f',
+        41: b'Needle', 42: b'OnlySecond', 43: b'Needle\0', 44: b'Needle\xc0\x80',
     }
     if variant == 20: return b'Needle' in rows and b'Second' in rows
     if variant == 21: return any(b'Needle' in row for row in rows) and b'Second' in rows
@@ -40,7 +46,7 @@ def predicate(rows, variant):
     if variant in (5, 32):
         value = value.translate(FOLD)
         rows = [row.translate(FOLD) for row in rows]
-    if variant in (2, 15, 32): return any(row.startswith(value) for row in rows)
+    if variant in (2, 15, 32, 34, 36, 39, 40, 41, 42, 43, 44): return any(row.startswith(value) for row in rows)
     if variant == 3: return any(value in row for row in rows)
     if variant == 4: return any(row.endswith(value) for row in rows)
     return value in rows
@@ -68,7 +74,7 @@ def expected(fixture):
     independent = json.loads((fixture / 'oracle-rows.json').read_text())
     answer = {}
     for classes in (False, True):
-        for variant in range(34):
+        for variant in range(QUERY_COUNT):
             result, seen = [], set()
             for dex, (info, record) in enumerate(zip(manifest['dexes'], independent)):
                 rows = {key: [base64.b64decode(v) for v in values] for key, values in record['method_rows'].items()}
@@ -85,7 +91,7 @@ def expected(fixture):
                     if predicate(values, variant) and (classes or descriptor not in seen):
                         seen.add(descriptor)
                         result.append([dex, identity, descriptor])
-            if variant == 27:
+            if variant in (27, 42):
                 assert len(result) == 1
             answer[(classes, variant)] = result
     return answer
@@ -112,6 +118,14 @@ def main():
         destination.mkdir()
         command = [str(executable), '--dump', str(args.fixture / 'strings.apk')]
         if index == 0 and args.reuse_control:
+            prior = json.loads((args.reuse_control.parent / 'validation.json').read_text())
+            assert prior['fixture_sha256'] == sha(args.fixture / 'strings.apk'), 'Reused fixture differs'
+            matches = [r for r in prior['records'] if r['label'] == args.reuse_control.name]
+            assert len(matches) == 1 and matches[0]['passed']
+            old = matches[0]
+            assert old['native_sha256'] == manifest['native_sha256'], 'Reused native artifact differs'
+            assert old['executable_sha256'] == sha(executable), 'Reused checker executable differs'
+            assert old['ordered_results_sha256'] == sha(args.reuse_control / 'oracle.bin'), 'Reused output changed'
             for name in ('oracle.bin', 'stderr.log'): shutil.copyfile(args.reuse_control / name, destination / name)
         else:
             with (destination / 'oracle.bin').open('wb') as out, (destination / 'stderr.log').open('wb') as err:
@@ -120,6 +134,7 @@ def main():
         assert data, 'Incomplete native check output'
         reports = [json.loads(line) for line in re.findall(r'^STRING_RESULTS (.+)$', (destination / 'stderr.log').read_text(), re.M)]
         assert len(reports) == len(oracle)
+        assert {(r['classes'], r['variant']) for r in reports} == set(oracle), 'Missing or duplicate query reports'
         for report in reports:
             key = (report['classes'], report['variant'])
             if report['results'] != oracle[key]:
@@ -133,7 +148,7 @@ def main():
         print(json.dumps(records[-1]), flush=True)
     result = {'fixture_sha256': sha(args.fixture / 'strings.apk'), 'independent_rows_sha256': sha(args.fixture / 'oracle-rows.json'),
               'checker_script_sha256': sha(Path(__file__)), 'records': records,
-              'coverage': '34 method + 34 class queries, all UTF-16 units in range oracle, cold/full/repeated/concurrent sequences, ordered serialized equality'}
+              'coverage': '45 method + 45 class queries, all UTF-16 units in range oracle, cold/full/repeated/concurrent sequences, ordered serialized equality'}
     (args.output / 'validation.json').write_text(json.dumps(result, indent=2) + '\n')
 
 

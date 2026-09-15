@@ -27,6 +27,7 @@ def main():
                                          'invoke-early', 'caller-early', 'invoke-multiple', 'caller-multiple',
                                          'source-output', 'source-match', 'source-hot',
                                          'string-eq', 'string-eq-long', 'string-prefix', 'string-prefix-long',
+                                         'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)

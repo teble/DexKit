@@ -32,13 +32,15 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
     s.create_ns = Ns(begin);
     begin = Clock::now();
     bridge->SetThreadNum(4);
-    const bool classes = mode == "string-class", sparse = mode == "string-sparse";
-    auto type = mode == "string-prefix" || mode == "string-prefix-long" ? schema::StringMatchType::StartWith
+    const bool classes = mode == "string-class" || mode == "string-prefix-class";
+    const bool sparse = mode == "string-sparse" || mode == "string-prefix-sparse";
+    auto type = mode.starts_with("string-prefix") ? schema::StringMatchType::StartWith
               : mode == "string-contains" ? schema::StringMatchType::Contains : schema::StringMatchType::Equal;
-    const auto needle = mode == "string-eq-long" || mode == "string-multiple" ? LongNeedle()
+    const auto needle = mode == "string-eq-long" || mode == "string-multiple"
+                      || mode == "string-prefix-tail" || mode == "string-prefix-multiple" ? LongNeedle()
                       : mode == "string-prefix-long" ? std::string("LongPrefix/") : std::string("Needle");
-    auto positive = WorkQuery(classes, needle, type, sparse, mode == "string-multiple");
-    auto negative = WorkQuery(classes, "AbsentEveryPool", type, sparse, mode == "string-multiple");
+    auto positive = WorkQuery(classes, needle, type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
+    auto negative = WorkQuery(classes, "AbsentEveryPool", type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
     s.setup_ns = Ns(begin);
     for (size_t i = 0; i < repeats; ++i) {
         begin = Clock::now();
@@ -60,7 +62,8 @@ int main(int argc, char **argv) {
     const std::string_view mode(argv[2]);
     Require(mode == "string-eq" || mode == "string-eq-long" || mode == "string-prefix"
         || mode == "string-prefix-long" || mode == "string-class" || mode == "string-sparse"
-        || mode == "string-contains" || mode == "string-multiple");
+        || mode == "string-contains" || mode == "string-multiple" || mode == "string-prefix-tail"
+        || mode == "string-prefix-multiple" || mode == "string-prefix-class" || mode == "string-prefix-sparse");
     char *end = nullptr;
     auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && !*end && repeats > 0 && repeats <= 100000);

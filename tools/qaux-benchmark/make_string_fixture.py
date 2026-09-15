@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--references', type=int, default=32)
     parser.add_argument('--padding-strings', type=int, default=0)
     parser.add_argument('--layout', choices=['early', 'late', 'miss', 'dense'], default='late')
+    parser.add_argument('--prefix-hit-suffix', action='store_true', help='Use distinct proper extensions of LONG as bulk witnesses')
     args = parser.parse_args()
     if not 0 <= args.bulk_methods <= 20000 or not 1 <= args.references <= 1024:
         raise SystemExit('Fixture dimensions out of range.')
@@ -49,6 +50,10 @@ def main():
     manifest = {'scope': 'DEX parser/query fixture, not executable Android code.',
                 'bulk_methods_per_dex': args.bulk_methods, 'references': args.references,
                 'layout': args.layout, 'dexes': []}
+    positions = {'early': [0], 'late': [args.references - 1], 'miss': [],
+                 'dense': list(range(args.references))}[args.layout]
+    manifest['bulk_long_witness_positions'] = positions
+    manifest['bulk_prefix_hit_suffix'] = args.prefix_hit_suffix
     oracle = []
     with zipfile.ZipFile(args.output / 'strings.apk', 'w') as archive:
         for dex in range(3):
@@ -83,10 +88,13 @@ def main():
             for i in range(args.bulk_methods):
                 # The last byte must never recreate LONG's lowercase 'e'.
                 filler = LONG[:-1] + chr(ord('A') + (i % 20))
+                hit = LONG + f'-tail-{dex}-{i:05d}' if args.prefix_hit_suffix else LONG
                 values = [filler] * args.references
-                if args.layout == 'early': values[0] = LONG
-                elif args.layout == 'late': values[-1] = LONG
-                elif args.layout == 'dense': values = [LONG] * args.references
+                if args.layout == 'early': values[0] = hit
+                elif args.layout == 'late': values[-1] = hit
+                elif args.layout == 'dense': values = [hit] * args.references
+                assert [pos for pos, value in enumerate(values)
+                        if (value.startswith(LONG) if args.prefix_hit_suffix else value == LONG)] == positions
                 rows[(f'Lstrings/Bulk{dex};', f'm{i:05d}', 'V', ())] = values
             classes = {m[0]: [] for m in rows}
             classes[f'Lstrings/NoMethods{dex};'] = []

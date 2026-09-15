@@ -38,12 +38,16 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--fanout', type=int, default=64)
     parser.add_argument('--methods', type=int, default=8)
+    parser.add_argument('--unused-fields', type=int, default=0)
+    parser.add_argument('--field-repeats', type=int, default=1)
     args = parser.parse_args()
-    if not 0 <= args.fanout <= 2000000 or not 1 <= args.methods <= 10000:
+    if (not 0 <= args.fanout <= 2000000 or not 1 <= args.methods <= 10000
+            or not 0 <= args.unused_fields <= 50000 or not 1 <= args.field_repeats <= 100000):
         raise SystemExit('Fixture dimensions exceed the bounded supported range.')
     args.output.mkdir(parents=True, exist_ok=True)
     target, blocked, absent = 'Lrelations/Target;', 'Lrelations/Blocked;', 'Lrelations/Absent;'
     value, unused = (target, 'value', 'I'), (target, 'unused', 'I')
+    unused_fields = {(target, f'unused{i:05d}', 'I') for i in range(args.unused_fields)}
     blocked_defined = (blocked, 'zLater', 'I')
     blocked_missing = (blocked, 'aMissing', 'I')
     missing = (absent, 'value', 'I')
@@ -53,7 +57,7 @@ def main():
     rows = []
     all_strings = ('field-seed', 'call-seed', 'deep-negative')
     data, manifest = make_dex(
-        {target: (), blocked: ()}, {leaf, local, sparse}, {value, unused, blocked_defined},
+        {target: (), blocked: ()}, {leaf, local, sparse}, {value, unused, blocked_defined, *unused_fields},
         code={leaf: assemble([]), sparse: assemble([]),
               local: assemble([('get', value), ('get', value), ('put', value), ('invoke', leaf)])},
         source_files={blocked: None}, additional_strings=all_strings)
@@ -64,8 +68,9 @@ def main():
         methods = {method(owner, f'run{i:04d}') for i in range(args.methods)}
         cold = method(owner, 'cold')
         methods.add(cold)
-        operations = [('string', 'field-seed'), ('get', value), ('put', value),
-                      ('get', value), ('get', blocked_missing), ('get', blocked_defined),
+        operations = [('string', 'field-seed')]
+        operations += [('get', value), ('put', value), ('get', value)] * args.field_repeats
+        operations += [('get', blocked_missing), ('get', blocked_defined),
                       ('put', missing), ('get', own_field)]
         operations += [('invoke', leaf)] * args.fanout
         code = {m: assemble(operations) for m in methods if m != cold}
@@ -76,11 +81,11 @@ def main():
         fields = {own_field}
         if dex == 2:
             classes[target] = ()
-            fields.update([value, unused])
+            fields.update([value, unused, *unused_fields])
             methods.add(leaf)
             code[leaf] = assemble([])
         data, manifest = make_dex(classes, methods, fields, references={leaf},
-            field_references={value, unused, blocked_missing, blocked_defined, missing},
+            field_references={value, unused, blocked_missing, blocked_defined, missing, *unused_fields},
             extras=(f'Lrelations/UnusedType{dex};',), code=code,
             additional_strings=all_strings)
         rows.append((data, manifest))
@@ -93,6 +98,7 @@ def main():
             archive.writestr(info, data)
     result = dict(apk_sha256=hashlib.sha256(apk.read_bytes()).hexdigest(),
                   fanout=args.fanout, methods_per_source=args.methods,
+                  unused_fields=args.unused_fields, field_repeats=args.field_repeats,
                   dexes=[m for _, m in rows])
     (args.output / 'manifest.json').write_text(json.dumps(result, indent=2) + '\n')
     print(apk)

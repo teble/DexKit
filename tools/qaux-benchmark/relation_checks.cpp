@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <latch>
+#include <chrono>
 #include <string>
 #include <thread>
 
@@ -100,7 +101,7 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
     const auto expected_forward = Forward(reference, methods);
     const auto expected_reverse = Reverse(reference, fields);
     const auto expected_calls = Calls(reference, methods);
-    for (int sequence = 0; sequence < 4; ++sequence) {
+    for (int sequence = 0; sequence < 6; ++sequence) {
         DexKit bridge(apk, 1);
         bridge.SetThreadNum(4);
         if (sequence == 1) {
@@ -112,6 +113,32 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
             std::thread c([&] { start.wait(); bridge.InitFullCache(); });
             start.count_down();
             a.join(); b.join(); c.join();
+        } else if (sequence == 4) {
+            std::thread reverse;
+            {
+                // Hold a real forward admission while reverse warm-up queues.
+                auto guard = bridge.EnterQueryExecution(kFieldIdentity | kMethodUsingField);
+                reverse = std::thread([&] { Require(Reverse(bridge, fields) == expected_reverse, "queued reverse"); });
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+                while (true) {
+                    bool queued;
+                    {
+                        std::lock_guard lock(bridge.query_execution_mutex);
+                        queued = (bridge.pending_warmup_flags & kRwFieldMethod) != 0;
+                    }
+                    if (queued) break;
+                    Require(std::chrono::steady_clock::now() < deadline, "reverse warm-up queued behind active forward");
+                    std::this_thread::yield();
+                }
+#endif
+            }
+            reverse.join();
+        } else if (sequence == 5) {
+            // Reverse state is definitely ready before another thread enters.
+            auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
+            std::thread forward([&] { Require(Forward(bridge, methods) == expected_forward, "forward after reverse admission"); });
+            forward.join();
         }
         Require(Forward(bridge, methods) == expected_forward, "forward results/order");
 #if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
@@ -136,7 +163,7 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
         for (const auto *data : {&expected_forward, &expected_reverse, &expected_calls})
             Require(std::fwrite(data->data(), 1, data->size(), stdout) == data->size(), "write oracle");
     } else {
-        std::printf("CHECK_RELATIONS {\"methods\":%zu,\"fields\":%zu,\"sequences\":4,\"passed\":true}\n",
+        std::printf("CHECK_RELATIONS {\"methods\":%zu,\"fields\":%zu,\"sequences\":6,\"passed\":true}\n",
                     methods.size(), fields.size());
     }
 }

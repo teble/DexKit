@@ -21,7 +21,8 @@ def main():
     parser.add_argument('--fixture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--variant', nargs=2, action='append', metavar=('LABEL', 'ARTIFACT'), required=True)
-    parser.add_argument('--mode', choices=['output', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces'], required=True)
+    parser.add_argument('--mode', choices=['output', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
+                                         'field-forward', 'field-late', 'field-full-first'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
@@ -39,10 +40,12 @@ def main():
     for label, directory in args.variant:
         artifact = Path(directory).resolve()
         manifest = json.loads((artifact / 'artifact.json').read_text())
-        executable = artifact / 'build/Core/dexkit_descriptor_workload'
+        relation = args.mode.startswith('field-')
+        executable = artifact / ('build/Core/dexkit_relation_workload' if relation else 'build/Core/dexkit_descriptor_workload')
         if manifest['diagnostics'] or manifest['native_sha256'] != sha(artifact / 'libdexkit.dylib'):
             raise SystemExit('Require unchanged, non-diagnostic native artifacts.')
-        if manifest['cmake_options']['DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD'] != 'ON':
+        option = 'DEXKIT_BENCHMARK_RELATION_WORKLOAD' if relation else 'DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD'
+        if manifest['cmake_options'][option] != 'ON':
             raise SystemExit('Artifact must include the workload executable.')
         variants.append(dict(label=label, executable=str(executable), executable_sha256=sha(executable), artifact=manifest))
     order = [pair % 2 for pair in range(args.pairs)]

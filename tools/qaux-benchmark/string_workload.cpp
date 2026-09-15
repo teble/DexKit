@@ -91,4 +91,5 @@ int main(int argc, char **argv) {
         (long long)s.create_ns, (long long)s.setup_ns, (long long)s.first_ns, (long long)s.repeated_ns,
         (long long)s.close_ns, (long long)lifecycle, (long long)s.positive_ns, (long long)s.negative_ns,
         (unsigned long long)s.checksum, (unsigned long long)s.returned);
+    return 0;
 }

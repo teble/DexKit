@@ -539,9 +539,48 @@ bool DexItem::CanUseInvertedStrings(const StringMatcherVector *matchers) const {
     return true;
 }
 
-bool DexItem::BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes,
-        inverted_string::Bits &hits) {
-    if (!CanUseInvertedStrings(matchers)) return false;
+inverted_string::QueryPlan DexItem::PlanRootStringCandidates(const schema::MethodMatcher *matcher) const {
+    if (!matcher) return {};
+    const bool strings_only = !matcher->method_name() && !matcher->access_flags() && !matcher->declaring_class()
+            && !matcher->return_type() && !matcher->parameters() && !matcher->annotations() && !matcher->op_codes()
+            && !matcher->using_fields() && !matcher->using_numbers() && !matcher->invoking_methods()
+            && !matcher->method_callers() && !matcher->proto_shorty() && !HasLogicalGroups(matcher);
+    return PlanRootStringCandidates(matcher->using_strings(), false, strings_only);
+}
+
+inverted_string::QueryPlan DexItem::PlanRootStringCandidates(const schema::ClassMatcher *matcher) const {
+    if (!matcher) return {};
+    const bool strings_only = !matcher->smali_source() && !matcher->class_name() && !matcher->access_flags()
+            && !matcher->super_class() && !matcher->interfaces() && !matcher->annotations()
+            && !matcher->fields() && !matcher->methods() && !HasLogicalGroups(matcher);
+    return PlanRootStringCandidates(matcher->using_strings(), true, strings_only);
+}
+
+inverted_string::QueryPlan DexItem::PlanRootStringCandidates(const StringMatcherVector *matchers,
+        bool classes, bool strings_only) const {
+    using Plan = inverted_string::QueryPlan;
+    Plan plan;
+    plan.reason = Plan::Reason::Ineligible;
+    if (!matchers || matchers->size() == 0) return plan;
+    if (!strings_only) {
+        // This is a conservative admission rule, not a guess that a name,
+        // flag, or relation is selective. Keep its existing filtering order
+        // and parallel slices unless an already-published range is bounded.
+        plan.reason = Plan::Reason::ExtraConditions;
+#if !DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES
+        return plan;
+#else
+        plan.index_ready = inverted_strings_ready.load(std::memory_order_acquire);
+        plan.reason = Plan::Reason::ColdIndex;
+        if (!plan.index_ready) return plan;
+#endif
+    } else {
+        plan.index_ready = inverted_strings_ready.load(std::memory_order_acquire);
+    }
+    plan.reason = Plan::Reason::Ineligible;
+    if (!strings_only && matchers->size() != 1) return plan;
+    if (!CanUseInvertedStrings(matchers)) return plan;
+    const auto entities = classes ? type_names.size() : reader.MethodIds().size();
     if (matchers->size() == 1) {
         const auto *matcher = matchers->Get(0);
         const auto type = matcher->match_type();
@@ -550,17 +589,50 @@ bool DexItem::BuildRootStringCandidates(const StringMatcherVector *matchers, boo
             const auto range = single_string::FindIds(strings, matcher->value()->string_view(),
                     type == schema::StringMatchType::StartWith);
             if (range.valid) {
-                const auto entities = classes ? type_names.size() : reader.MethodIds().size();
-                if (inverted_string::WordCount(entities) > inverted_string::kBitmapBudget / sizeof(uint64_t)) return false;
-                hits = inverted_string::Bits(entities);
-                if (range.begin == range.end) return true;
-                if (!EnsureInvertedStrings()) return false;
-                inverted_strings.VisitRange(range.begin, range.end, [&](uint32_t method) {
-                    hits.Set(classes ? reader.MethodIds()[method].class_idx : method);
-                });
-                return true;
+                plan.begin = range.begin;
+                plan.end = range.end;
+                if (plan.index_ready) plan.postings = inverted_strings.CountRange(range.begin, range.end);
+                if (!strings_only && plan.postings > 1) {
+                    plan.reason = Plan::Reason::PostingBound;
+                    return plan;
+                }
+                plan.reason = strings_only ? Plan::Reason::PureStrings : Plan::Reason::SmallRange;
+                if (range.begin == range.end || (plan.index_ready && plan.postings == 0)) {
+                    plan.route = Plan::Route::Empty;
+                    return plan;
+                }
+                if (inverted_string::WordCount(entities) > inverted_string::kBitmapBudget / sizeof(uint64_t)) {
+                    plan.reason = Plan::Reason::BitmapBudget;
+                    return plan;
+                }
+                plan.route = Plan::Route::Range;
+                return plan;
             }
         }
+    }
+    if (!strings_only) return plan;
+    // Raw keyword count is an upper bound on the canonical planes. Reject
+    // before collapsing slices, without building an AC trie to estimate cost.
+    if (!inverted_string::BitmapPlanBytes(entities, type_names.size(), matchers->size(), 1)) {
+        plan.reason = Plan::Reason::BitmapBudget;
+        return plan;
+    }
+    plan.route = Plan::Route::Keywords;
+    plan.reason = Plan::Reason::PureStrings;
+    return plan;
+}
+
+bool DexItem::BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+        const inverted_string::QueryPlan &plan, inverted_string::Bits &hits) {
+    using Route = inverted_string::QueryPlan::Route;
+    if (plan.route == Route::Legacy || plan.route == Route::Empty) return false;
+    if (plan.route == Route::Range) {
+        if (!plan.index_ready && !EnsureInvertedStrings()) return false;
+        hits = inverted_string::Bits(classes ? type_names.size() : reader.MethodIds().size());
+        inverted_strings.VisitRange(plan.begin, plan.end, [&](uint32_t method) {
+            hits.Set(classes ? reader.MethodIds()[method].class_idx : method);
+        });
+        return true;
     }
     auto *cache = GetUsingStringsKeywordsCache(classes ? MatcherCacheScope::ClassUsingStringsKeywords
             : MatcherCacheScope::MethodUsingStringsKeywords, matchers);

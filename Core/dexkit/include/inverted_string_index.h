@@ -12,6 +12,19 @@ namespace dexkit::inverted_string {
 inline constexpr size_t kBitmapBudget = 16 * 1024 * 1024;
 inline size_t WordCount(size_t entities) { return entities / 64 + (entities % 64 != 0); }
 
+// Chosen on the submitting thread, before changing task granularity. In
+// particular, Legacy must not turn into an inverse scan after publication by
+// another query. A range selected from a published index never waits/builds.
+struct QueryPlan {
+    enum class Route { Legacy, Keywords, Range, Empty };
+    enum class Reason { Restricted, Ineligible, ExtraConditions, ColdIndex, PostingBound, BitmapBudget, PureStrings, SmallRange };
+    Route route = Route::Legacy;
+    Reason reason = Reason::Restricted;
+    size_t begin = 0, end = 0, postings = 0;
+    bool index_ready = false;
+    bool Admitted() const { return route != Route::Legacy; }
+};
+
 // Per-DEX requested bitmap bytes, not allocator capacity or a process limit.
 // Check both construction and consumption: a method batch retains its groups
 // while adding a method union and a differently sized type union.
@@ -135,6 +148,13 @@ public:
             for (size_t i = a - ma; i < b - mb; ++i) visit(one32[i]);
             for (size_t i = offsets[ma]; i < offsets[mb]; ++i) visit(many32[i]);
         }
+    }
+    // Counts distinct (method, string) edges, not the union of method IDs.
+    // Two matching strings in the same method therefore count twice.
+    size_t CountRange(size_t begin, size_t end) const {
+        const auto a = presence.Rank(begin), b = presence.Rank(end);
+        const auto ma = multiple.Rank(a), mb = multiple.Rank(b);
+        return size_t(b - a) - (mb - ma) + size_t(offsets[mb]) - offsets[ma];
     }
     template<class Visit> void EachString(Visit &&visit) const { presence.Each(visit); }
     bool Ready() const { return ready; }

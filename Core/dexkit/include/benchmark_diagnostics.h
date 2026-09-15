@@ -21,6 +21,7 @@ struct BenchmarkDiagnostics {
     static void CheckInvocations(std::string_view apk, bool dump);
     static void CheckSources(std::string_view apk, bool dump);
     static void CheckInvertedStrings(std::string_view apk);
+    static void CheckStringAdmission(std::string_view apk);
 };
 
 // Only attached by the serial row-level checker, never by timed builds.

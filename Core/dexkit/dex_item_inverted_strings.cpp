@@ -12,6 +12,7 @@ bool DexItem::EnsureInvertedStrings() {
     DEXKIT_CHECK((dex_flag.load(std::memory_order_acquire) & kUsingString) != 0);
     std::call_once(inverted_strings_once, [this] {
         inverted_strings.Build(strings.size(), reader.MethodIds().size(), method_using_string_ids);
+        if (inverted_strings.Ready()) inverted_strings_ready.store(true, std::memory_order_release);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
         std::fprintf(stderr, "BENCH_STRING_INVERSE_INDEX dex=%u ready=%d narrow=%d bytes=%zu scratch_bytes=%zu used=%u singletons=%zu edges=%zu\n",
                 dex_id, inverted_strings.Ready(), inverted_strings.Narrow(), inverted_strings.Bytes(),

@@ -128,6 +128,9 @@ public:
             uint32_t start,
             uint32_t end,
             QueryContext &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+            , const inverted_string::QueryPlan &string_plan = {}
+#endif
     );
     std::vector<MethodBean> FindMethod(
             const schema::FindMethod *query,
@@ -137,6 +140,9 @@ public:
             uint32_t start,
             uint32_t end,
             QueryContext &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+            , const inverted_string::QueryPlan &string_plan = {}
+#endif
     );
     std::vector<FieldBean> FindField(
             const schema::FindField *query,
@@ -301,13 +307,19 @@ private:
     using StringMatcherVector = flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>>;
     using StringCandidateGroups = std::vector<std::pair<std::string_view, inverted_string::Bits>>;
     bool CanUseInvertedStrings(const StringMatcherVector *matchers) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const schema::MethodMatcher *matcher) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const schema::ClassMatcher *matcher) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+            bool strings_only) const;
     bool EnsureInvertedStrings();
-    bool BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes, inverted_string::Bits &hits);
+    bool BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+            const inverted_string::QueryPlan &plan, inverted_string::Bits &hits);
     bool BuildStringCandidateGroups(acdat::AhoCorasickDoubleArrayTrie<std::string_view> &trie,
             const std::map<std::string_view, std::set<std::string_view>> &groups,
             const phmap::flat_hash_map<std::string_view, schema::StringMatchType> &types,
             bool classes, StringCandidateGroups &result);
     std::once_flag inverted_strings_once;
+    std::atomic<bool> inverted_strings_ready{false};
     inverted_string::Index inverted_strings;
 #endif
 #if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS

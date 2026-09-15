@@ -11,6 +11,11 @@ import subprocess
 
 from sweep import summarize
 
+ADMISSION_MODES = ['string-admission-' + case + suffix
+                   for case in ['rare', 'wide', 'nested-rare', 'nested-wide', 'flags', 'return',
+                                'equal-one', 'prefix-one', 'equal-two', 'prefix-two']
+                   for suffix in ['', '-warm']]
+
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -30,7 +35,7 @@ def main():
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple', 'string-nested-broad',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
-                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'], required=True)
+                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES, required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
@@ -51,11 +56,13 @@ def main():
         invocation = args.mode.startswith(('invoke-', 'caller-'))
         source = args.mode.startswith('source-')
         string = args.mode.startswith('string-')
+        admission = args.mode.startswith('string-admission-')
         batch = args.mode.startswith('batch-')
         field = args.mode.startswith('using-')
         relation = args.mode.startswith('field-') or invocation
         executable = artifact / ('build/Core/dexkit_field_workload' if field else
                                  'build/Core/dexkit_batch_workload' if batch else
+                                 'build/Core/dexkit_string_admission_workload' if admission else
                                  'build/Core/dexkit_string_workload' if string else
                                  'build/Core/dexkit_source_workload' if source else
                                  'build/Core/dexkit_invocation_workload' if invocation else

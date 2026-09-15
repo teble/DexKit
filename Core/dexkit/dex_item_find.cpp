@@ -22,10 +22,22 @@
 #include "internal/using_strings_prefilter.h"
 #include "string_query_diagnostics.h"
 #include "field_query_diagnostics.h"
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+#include <cstdio>
+#endif
 
 namespace dexkit {
 
 namespace {
+
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+void TraceStringAdmission(uint64_t query, uint32_t dex, bool classes,
+        const inverted_string::QueryPlan &plan, uint32_t original_slice, uint32_t tasks) {
+    std::fprintf(stderr, "BENCH_STRING_ADMISSION query=%llu dex=%u classes=%d route=%d reason=%d ready=%d postings=%zu original_slice=%u tasks=%u\n",
+            static_cast<unsigned long long>(query), dex, classes, int(plan.route), int(plan.reason),
+            plan.index_ready, plan.postings, original_slice, tasks);
+}
+#endif
 
 template<bool kEarlyExit, typename MatchFn>
 void ScanFindRange(
@@ -75,9 +87,11 @@ DexItem::FindClass(
     uint32_t split_count;
     auto should_stop_submission = query_context.IsEarlyExitEnabled();
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    const auto original_slice = slice_size;
+    inverted_string::QueryPlan string_plan;
     if (!should_stop_submission && !query->in_classes() && !query->search_packages()
-            && !query->exclude_packages() && query->matcher()
-            && CanUseInvertedStrings(query->matcher()->using_strings())) slice_size = 0;
+            && !query->exclude_packages()) string_plan = PlanRootStringCandidates(query->matcher());
+    if (string_plan.Admitted()) slice_size = 0;
 #endif
     if (slice_size > 0) {
         split_count = (this->reader.ClassDefs().size() + slice_size - 1) / slice_size;
@@ -85,16 +99,27 @@ DexItem::FindClass(
         split_count = 1;
         slice_size = this->reader.ClassDefs().size();
     }
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+    TraceStringAdmission(query_context.GetQueryId(), dex_id, true, string_plan, original_slice, split_count);
+#endif
     futures.reserve(split_count);
     for (auto i = 0; i < split_count; ++i) {
         if (should_stop_submission && executor.ShouldSkipTask()) break;
         query_context.MarkTaskSubmitted();
         futures.emplace_back(SubmitQueryTask(executor,
-                [this, query, &in_class_set, &packageTrie, i, slice_size, &query_context] {
+                [this, query, &in_class_set, &packageTrie, i, slice_size, &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+                        , string_plan
+#endif
+                ] {
                     auto task_scope = query_context.TrackTaskExecution();
                     auto result = FindClass(query, in_class_set, packageTrie, i * slice_size,
                                             std::min((i + 1) * slice_size, (uint32_t) this->reader.ClassDefs().size()),
-                                            query_context);
+                                            query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+                                            , string_plan
+#endif
+                    );
                     query_context.MarkTaskCompleted();
                     return result;
                 }
@@ -117,9 +142,11 @@ DexItem::FindMethod(
     uint32_t split_count;
     auto should_stop_submission = query_context.IsEarlyExitEnabled();
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    const auto original_slice = slice_size;
+    inverted_string::QueryPlan string_plan;
     if (!should_stop_submission && !query->in_classes() && !query->in_methods() && !query->search_packages()
-            && !query->exclude_packages() && query->matcher()
-            && CanUseInvertedStrings(query->matcher()->using_strings())) slice_size = 0;
+            && !query->exclude_packages()) string_plan = PlanRootStringCandidates(query->matcher());
+    if (string_plan.Admitted()) slice_size = 0;
 #endif
     if (slice_size > 0) {
         split_count = (this->reader.MethodIds().size() + slice_size - 1) / slice_size;
@@ -127,16 +154,27 @@ DexItem::FindMethod(
         split_count = 1;
         slice_size = this->reader.MethodIds().size();
     }
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
+    TraceStringAdmission(query_context.GetQueryId(), dex_id, false, string_plan, original_slice, split_count);
+#endif
     futures.reserve(split_count);
     for (auto i = 0; i < split_count; ++i) {
         if (should_stop_submission && executor.ShouldSkipTask()) break;
         query_context.MarkTaskSubmitted();
         futures.emplace_back(SubmitQueryTask(executor,
-                [this, query, &in_class_set, &in_method_set, &packageTrie, i, slice_size, &query_context] {
+                [this, query, &in_class_set, &in_method_set, &packageTrie, i, slice_size, &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+                        , string_plan
+#endif
+                ] {
                     auto task_scope = query_context.TrackTaskExecution();
                     auto result = FindMethod(query, in_class_set, in_method_set, packageTrie, i * slice_size,
                                              std::min((i + 1) * slice_size, (uint32_t) this->reader.MethodIds().size()),
-                                             query_context);
+                                             query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+                                             , string_plan
+#endif
+                    );
                     query_context.MarkTaskCompleted();
                     return result;
                 }
@@ -190,8 +228,15 @@ DexItem::FindClass(
         uint32_t start,
         uint32_t end,
         QueryContext &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+        , const inverted_string::QueryPlan &string_plan
+#endif
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    DEXKIT_CHECK(!string_plan.Admitted() || (start == 0 && end == reader.ClassDefs().size()));
+    if (string_plan.route == inverted_string::QueryPlan::Route::Empty) return {};
+#endif
 #if DEXKIT_BENCHMARK_FIELD_TRACE
     FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
 #endif
@@ -217,9 +262,8 @@ DexItem::FindClass(
 
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     inverted_string::Bits candidates;
-    const bool inverted = !query_context.IsEarlyExitEnabled() && start == 0 && end == reader.ClassDefs().size()
-            && !query->in_classes() && !query->search_packages() && !query->exclude_packages() && query->matcher()
-            && BuildRootStringCandidates(query->matcher()->using_strings(), true, candidates);
+    const bool inverted = string_plan.Admitted()
+            && BuildRootStringCandidates(query->matcher()->using_strings(), true, string_plan, candidates);
     inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
             true, inverted ? &candidates : nullptr);
     if (inverted) {
@@ -256,8 +300,15 @@ DexItem::FindMethod(
         uint32_t start,
         uint32_t end,
         QueryContext &query_context
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+        , const inverted_string::QueryPlan &string_plan
+#endif
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_EXPERIMENT_INVERTED_STRINGS
+    DEXKIT_CHECK(!string_plan.Admitted() || (start == 0 && end == reader.MethodIds().size()));
+    if (string_plan.route == inverted_string::QueryPlan::Route::Empty) return {};
+#endif
 #if DEXKIT_BENCHMARK_FIELD_TRACE
     FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
 #endif
@@ -285,10 +336,8 @@ DexItem::FindMethod(
 
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     inverted_string::Bits candidates;
-    const bool inverted = !query_context.IsEarlyExitEnabled() && start == 0 && end == reader.MethodIds().size()
-            && !query->in_classes() && !query->in_methods() && !query->search_packages()
-            && !query->exclude_packages() && query->matcher()
-            && BuildRootStringCandidates(query->matcher()->using_strings(), false, candidates);
+    const bool inverted = string_plan.Admitted()
+            && BuildRootStringCandidates(query->matcher()->using_strings(), false, string_plan, candidates);
     inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
             false, inverted ? &candidates : nullptr);
     if (inverted) {

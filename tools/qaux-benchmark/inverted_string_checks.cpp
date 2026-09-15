@@ -34,6 +34,7 @@ void Check(size_t strings, size_t methods, uint32_t seed) {
         std::vector<uint32_t> actual;
         index.VisitRange(id, id + 1, [&](uint32_t method) { actual.push_back(method); });
         Require(std::equal(actual.begin(), actual.end(), reverse[id].begin(), reverse[id].end()));
+        Require(index.CountRange(id, id + 1) == reverse[id].size());
     }
     Require(index.UsedStrings() == used && index.Singletons() == singles && index.Edges() == edges);
     std::vector<uint32_t> actual_strings, expected_strings;
@@ -45,9 +46,12 @@ void Check(size_t strings, size_t methods, uint32_t seed) {
         size_t end = i == 0 ? strings : random() % (strings + 1);
         if (begin > end) std::swap(begin, end);
         Bits expected(methods), actual(methods);
+        size_t expected_visits = 0, actual_visits = 0;
+        for (size_t id = begin; id < end; ++id) expected_visits += reverse[id].size();
         for (size_t id = begin; id < end; ++id) for (auto method : reverse[id]) expected.Set(method);
-        index.VisitRange(begin, end, [&](uint32_t method) { actual.Set(method); });
+        index.VisitRange(begin, end, [&](uint32_t method) { ++actual_visits; actual.Set(method); });
         Require(actual.words == expected.words);
+        Require(actual_visits == expected_visits && index.CountRange(begin, end) == expected_visits);
     }
 }
 }

@@ -163,3 +163,13 @@ Lookup setup warms the selected hit; first-call timing is labeled accordingly.
 A changed workload executable has a separate source/hash manifest and links
 the already frozen core archive, so its instrumentation is consistent across
 variants. These synthetic measurements are not QQ or Android-runtime scores.
+
+## Counterexample-triggered revision
+
+The first native counterexamples show a large repeated-lookup regression for
+R1 and a repeated-large-output regression for R2. Before direct final QQ
+combinations, separate raw cross-reference comparison from raw input lookup,
+and test whether aligning R2 character bodies fixes the output regression.
+Retain the current immutable artifacts and all adverse samples. Only these
+concrete findings justify further tuning; no generic new compression project
+is being opened. R3 still awaits its QQ comparison.

@@ -1,0 +1,1294 @@
+
+> Task :dexkit:cmakemain_mac-aarch64
+-- Disable dexkit log
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64
+
+> Task :dexkit:main_mac-aarch64_runGeneratorNinja
+[0/2] Re-checking globbed directories...
+[1/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/dex_format.cc.o
+[2/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/dex_bytecode.cc.o
+[3/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/dex_utf8.cc.o
+[4/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/common.cc.o
+[5/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/control_flow_graph.cc.o
+[6/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/debuginfo_encoder.cc.o
+[7/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/dex_ir_builder.cc.o
+[8/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/bytecode_encoder.cc.o
+[9/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/benchmark_diagnostics.cpp.o
+[10/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/common.cpp.o
+[11/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/descriptor_checks.cpp.o
+[12/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/tryblocks_encoder.cc.o
+[13/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/analyze.cpp.o
+[14/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/code_ir.cc.o
+[15/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/instrumentation.cc.o
+[16/28] Building CXX object CMakeFiles/dexkit.dir/native-bridge.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:32:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: warning: if statement has empty body [-Wempty-body]
+  406 |                 if ((ex_end - ex) > 0 && all_zero(ex, size_t(ex_end - ex)));
+      |                                                                            ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: note: put the semicolon on a separate line to silence this warning
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: warning: if statement has empty body [-Wempty-body]
+  413 |                 if (all_zero(ex, size_t(ex_end - ex)));
+      |                                                       ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: note: put the semicolon on a separate line to silence this warning
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+4 warnings generated.
+[17/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/beans.cpp.o
+[18/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/writer.cc.o
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:58:13: warning: shift count >= width of type [-Wshift-count-overflow]
+   58 |       value >>= 8;
+      |             ^   ~
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:107:7: note: in instantiation of function template specialization 'dex::WriteIntValue<signed char>' requested here
+  107 |       WriteIntValue(type, ir_value->u.byte_value, data);
+      |       ^
+1 warning generated.
+[19/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/dex_ir.cc.o
+[20/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/third_party/slicer/reader.cc.o
+[21/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/dex_item_batch_find.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_batch_find.cpp:20:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[22/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/dex_item_find.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_find.cpp:21:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[23/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/using_strings_prefilter.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/using_strings_prefilter.cpp:21:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[24/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/dex_item.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item.cpp:21:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[25/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/dex_item_matcher.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_matcher.cpp:21:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[26/28] Building CXX object Core/CMakeFiles/dexkit_static.dir/dexkit/dexkit.cpp.o
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dexkit.cpp:21:
+In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+   74 |     DexItem(DexItem &&) = default;
+      |     ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+   43 |   Reader(const Reader&) = delete;
+      |   ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+   74 |     DexItem(DexItem &&) = default;
+      |                           ^~~~~~~
+      |                           delete
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |              ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+  368 |     dex::Reader reader;
+      |                 ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+   44 |   Reader& operator=(const Reader&) = delete;
+      |           ^
+/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+   75 |     DexItem &operator=(DexItem &&) = default;
+      |                                      ^~~~~~~
+      |                                      delete
+2 warnings generated.
+[27/28] Linking CXX static library Core/libdexkit_static.a
+[28/28] Linking CXX shared library libdexkit.dylib
+
+> Task :dexkit:cmakeBuild
+> Task :dexkit:checkKotlinGradlePluginConfigurationErrors
+> Task :dexkit:compileKotlin UP-TO-DATE
+> Task :dexkit:compileJava UP-TO-DATE
+> Task :dexkit:processResources NO-SOURCE
+> Task :dexkit:classes UP-TO-DATE
+> Task :dexkit:copyLibrary
+> Task :dexkit:jar UP-TO-DATE
+> Task :dexkit:compileTestKotlin UP-TO-DATE
+> Task :dexkit:compileTestJava UP-TO-DATE
+> Task :demo:buildKotlinToolingMetadata UP-TO-DATE
+> Task :demo:checkKotlinGradlePluginConfigurationErrors
+> Task :demo:preBuild UP-TO-DATE
+> Task :demo:preReleaseBuild UP-TO-DATE
+> Task :dexkit-android:preBuild UP-TO-DATE
+> Task :dexkit-android:preReleaseBuild UP-TO-DATE
+> Task :dexkit-android:writeReleaseAarMetadata UP-TO-DATE
+> Task :demo:checkReleaseAarMetadata UP-TO-DATE
+> Task :demo:generateReleaseResValues UP-TO-DATE
+> Task :dexkit-android:generateReleaseResValues UP-TO-DATE
+> Task :dexkit-android:generateReleaseResources UP-TO-DATE
+> Task :dexkit-android:packageReleaseResources UP-TO-DATE
+> Task :demo:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :demo:generateReleaseResources UP-TO-DATE
+> Task :demo:mergeReleaseResources UP-TO-DATE
+> Task :demo:packageReleaseResources UP-TO-DATE
+> Task :demo:parseReleaseLocalResources UP-TO-DATE
+> Task :demo:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :demo:extractDeepLinksRelease UP-TO-DATE
+> Task :dexkit-android:extractDeepLinksRelease UP-TO-DATE
+> Task :dexkit-android:processReleaseManifest UP-TO-DATE
+> Task :demo:processReleaseMainManifest UP-TO-DATE
+> Task :demo:processReleaseManifest UP-TO-DATE
+> Task :demo:processReleaseManifestForPackage UP-TO-DATE
+> Task :dexkit-android:parseReleaseLocalResources UP-TO-DATE
+> Task :dexkit-android:generateReleaseRFile UP-TO-DATE
+> Task :demo:processReleaseResources UP-TO-DATE
+> Task :dexkit-android:checkKotlinGradlePluginConfigurationErrors
+> Task :dexkit-android:compileReleaseKotlin UP-TO-DATE
+> Task :dexkit-android:javaPreCompileRelease UP-TO-DATE
+> Task :dexkit-android:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :dexkit-android:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :demo:compileReleaseKotlin UP-TO-DATE
+> Task :demo:javaPreCompileRelease UP-TO-DATE
+> Task :demo:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :demo:extractProguardFiles UP-TO-DATE
+> Task :dexkit-android:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :dexkit-android:processReleaseJavaRes UP-TO-DATE
+> Task :dexkit-android:createFullJarRelease UP-TO-DATE
+> Task :dexkit-android:configureCMakeRelease[arm64-v8a]
+
+> Task :dexkit-android:buildCMakeRelease[arm64-v8a]
+C/C++: ninja: Entering directory `/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/123i1r4e/arm64-v8a'
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:32:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if ((ex_end - ex) > 0 && all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                                            ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: note: put the semicolon on a separate line to silence this warning
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if (all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                       ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: note: put the semicolon on a separate line to silence this warning
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 4 warnings generated.
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:58:13: warning: shift count >= width of type [-Wshift-count-overflow]
+C/C++:       value >>= 8;
+C/C++:             ^   ~
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:107:7: note: in instantiation of function template specialization 'dex::WriteIntValue<signed char>' requested here
+C/C++:       WriteIntValue(type, ir_value->u.byte_value, data);
+C/C++:       ^
+C/C++: 1 warning generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_batch_find.cpp:20:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_find.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/using_strings_prefilter.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_matcher.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dexkit.cpp:21:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+
+> Task :dexkit-android:configureCMakeRelease[armeabi-v7a]
+
+> Task :dexkit-android:buildCMakeRelease[armeabi-v7a]
+C/C++: ninja: Entering directory `/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/123i1r4e/armeabi-v7a'
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:58:13: warning: shift count >= width of type [-Wshift-count-overflow]
+C/C++:       value >>= 8;
+C/C++:             ^   ~
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:107:7: note: in instantiation of function template specialization 'dex::WriteIntValue<signed char>' requested here
+C/C++:       WriteIntValue(type, ir_value->u.byte_value, data);
+C/C++:       ^
+C/C++: 1 warning generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:32:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if ((ex_end - ex) > 0 && all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                                            ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: note: put the semicolon on a separate line to silence this warning
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if (all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                       ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: note: put the semicolon on a separate line to silence this warning
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 4 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_batch_find.cpp:20:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_find.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/using_strings_prefilter.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_matcher.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dexkit.cpp:21:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+
+> Task :dexkit-android:configureCMakeRelease[x86]
+
+> Task :dexkit-android:buildCMakeRelease[x86]
+C/C++: ninja: Entering directory `/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/123i1r4e/x86'
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:32:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if ((ex_end - ex) > 0 && all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                                            ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: note: put the semicolon on a separate line to silence this warning
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if (all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                       ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: note: put the semicolon on a separate line to silence this warning
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 4 warnings generated.
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:58:13: warning: shift count >= width of type [-Wshift-count-overflow]
+C/C++:       value >>= 8;
+C/C++:             ^   ~
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:107:7: note: in instantiation of function template specialization 'dex::WriteIntValue<signed char>' requested here
+C/C++:       WriteIntValue(type, ir_value->u.byte_value, data);
+C/C++:       ^
+C/C++: 1 warning generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_batch_find.cpp:20:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_find.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/using_strings_prefilter.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_matcher.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dexkit.cpp:21:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+
+> Task :dexkit-android:configureCMakeRelease[x86_64]
+
+> Task :dexkit-android:buildCMakeRelease[x86_64]
+C/C++: ninja: Entering directory `/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/123i1r4e/x86_64'
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:58:13: warning: shift count >= width of type [-Wshift-count-overflow]
+C/C++:       value >>= 8;
+C/C++:             ^   ~
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/writer.cc:107:7: note: in instantiation of function template specialization 'dex::WriteIntValue<signed char>' requested here
+C/C++:       WriteIntValue(type, ir_value->u.byte_value, data);
+C/C++:       ^
+C/C++: 1 warning generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:32:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if ((ex_end - ex) > 0 && all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                                            ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:406:76: note: put the semicolon on a separate line to silence this warning
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: warning: if statement has empty body [-Wempty-body]
+C/C++:                 if (all_zero(ex, size_t(ex_end - ex)));
+C/C++:                                                       ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/zip_archive.h:413:55: note: put the semicolon on a separate line to silence this warning
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp/native-bridge.cpp:22:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 4 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_batch_find.cpp:20:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_find.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/using_strings_prefilter.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dex_item_matcher.cpp:21:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/dexkit.cpp:21:
+C/C++: In file included from /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dexkit.h:34:
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:5: warning: explicitly defaulted move constructor is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:     ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move constructor of 'DexItem' is implicitly deleted because field 'reader' has a deleted move constructor
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:43:3: note: 'Reader' has been explicitly marked deleted here
+C/C++:   Reader(const Reader&) = delete;
+C/C++:   ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:74:27: note: replace 'default' with 'delete'
+C/C++:     DexItem(DexItem &&) = default;
+C/C++:                           ^~~~~~~
+C/C++:                           delete
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:14: warning: explicitly defaulted move assignment operator is implicitly deleted [-Wdefaulted-function-deleted]
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:              ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:368:17: note: move assignment operator of 'DexItem' is implicitly deleted because field 'reader' has a deleted move assignment operator
+C/C++:     dex::Reader reader;
+C/C++:                 ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export/slicer/reader.h:44:11: note: 'operator=' has been explicitly marked deleted here
+C/C++:   Reader& operator=(const Reader&) = delete;
+C/C++:           ^
+C/C++: /Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include/dex_item.h:75:38: note: replace 'default' with 'delete'
+C/C++:     DexItem &operator=(DexItem &&) = default;
+C/C++:                                      ^~~~~~~
+C/C++:                                      delete
+C/C++: 2 warnings generated.
+
+> Task :dexkit-android:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :dexkit-android:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :dexkit-android:mergeReleaseNativeLibs
+> Task :dexkit-android:extractReleaseAnnotations UP-TO-DATE
+> Task :dexkit-android:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :dexkit-android:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :dexkit-android:mergeReleaseShaders UP-TO-DATE
+> Task :dexkit-android:compileReleaseShaders NO-SOURCE
+> Task :dexkit-android:generateReleaseAssets UP-TO-DATE
+> Task :dexkit-android:packageReleaseAssets UP-TO-DATE
+> Task :lint-rules:checkKotlinGradlePluginConfigurationErrors
+> Task :lint-rules:compileKotlin UP-TO-DATE
+> Task :lint-rules:compileJava NO-SOURCE
+> Task :lint-rules:processResources NO-SOURCE
+> Task :lint-rules:classes UP-TO-DATE
+> Task :lint-rules:jar UP-TO-DATE
+> Task :dexkit-android:prepareLintJarForPublish UP-TO-DATE
+> Task :dexkit-android:prepareReleaseArtProfile UP-TO-DATE
+> Task :dexkit-android:mergeReleaseJavaResource UP-TO-DATE
+> Task :dexkit-android:syncReleaseLibJars UP-TO-DATE
+> Task :dexkit-android:extractProguardFiles UP-TO-DATE
+> Task :dexkit-android:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :dexkit-android:generateReleaseLintVitalModel UP-TO-DATE
+> Task :dexkit-android:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :demo:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :dexkit-android:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :dexkit-android:stripReleaseDebugSymbols
+> Task :demo:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :dexkit-android:copyReleaseJniLibsProjectOnly
+> Task :demo:mergeReleaseArtProfile UP-TO-DATE
+> Task :demo:expandReleaseArtProfileWildcards UP-TO-DATE
+> Task :demo:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :dexkit-android:copyReleaseJniLibsProjectAndLocalJars
+> Task :demo:processReleaseJavaRes UP-TO-DATE
+> Task :demo:mergeReleaseNativeLibs
+> Task :dexkit-android:bundleReleaseLocalLintAar
+> Task :demo:mergeReleaseJavaResource UP-TO-DATE
+> Task :demo:minifyReleaseWithR8 UP-TO-DATE
+> Task :demo:compileReleaseArtProfile UP-TO-DATE
+> Task :demo:mergeReleaseShaders UP-TO-DATE
+> Task :demo:compileReleaseShaders NO-SOURCE
+> Task :demo:generateReleaseAssets UP-TO-DATE
+> Task :demo:mergeReleaseAssets UP-TO-DATE
+> Task :demo:compressReleaseAssets UP-TO-DATE
+> Task :demo:processApplicationManifestReleaseForBundle UP-TO-DATE
+> Task :demo:bundleReleaseResources UP-TO-DATE
+> Task :demo:shrinkReleaseRes UP-TO-DATE
+> Task :demo:optimizeReleaseResources UP-TO-DATE
+> Task :demo:collectReleaseDependencies UP-TO-DATE
+> Task :demo:sdkReleaseDependencyData UP-TO-DATE
+> Task :demo:writeReleaseAppMetadata UP-TO-DATE
+> Task :demo:writeReleaseSigningConfigVersions UP-TO-DATE
+> Task :dexkit:processTestResources NO-SOURCE
+> Task :demo:stripReleaseDebugSymbols
+> Task :dexkit-android:bundleReleaseAar
+> Task :dexkit-android:generateReleaseLintModel
+> Task :demo:generateReleaseLintVitalReportModel UP-TO-DATE
+> Task :dexkit-android:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :dexkit-android:mergeReleaseResources UP-TO-DATE
+> Task :dexkit-android:verifyReleaseResources UP-TO-DATE
+> Task :dexkit-android:assembleRelease
+> Task :demo:extractReleaseNativeSymbolTables
+> Task :demo:mergeReleaseNativeDebugMetadata
+> Task :demo:lintVitalAnalyzeRelease
+> Task :demo:lintVitalReportRelease UP-TO-DATE
+> Task :demo:lintVitalRelease
+> Task :demo:packageRelease
+> Task :demo:createReleaseApkListingFileRedirect UP-TO-DATE
+> Task :demo:assembleRelease
+> Task :dexkit:copyReleaseDemo
+> Task :dexkit:testClasses
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-qaux-benchmark/dexkit/apk/demo.apk
+> Task :dexkit:test
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 33s
+111 actionable tasks: 31 executed, 80 up-to-date

@@ -132,3 +132,39 @@ occupies 30,943,584 B; block capacity is 162,226,176 B, with 142,069,715 B used
 and 137,520,049 B in headers plus character bytes. Logical cache totals do not
 equal process peaks. Instrumented lock-wait sums are diagnostic wall-clock
 samples, not production CPU costs.
+
+## Adverse workload findings before tuning
+
+The bounded native-only workloads reveal regressions that QQ does not expose.
+These prevent treating the combined switches as a general no-regression choice.
+Every comparison below contains six balanced fresh-process pairs, with all
+valid samples retained. They link the frozen `6bb4d29` core with the split-timer
+workload at `cba4e7d`. Full results are in `evidence/raw-metadata/workload-*`.
+
+| Comparison and workload | Complete lifecycle change [95% interval] | Repeated API change [95% interval] |
+| --- | ---: | ---: |
+| R1, large repeated output | -0.05% [-6.58, +1.91] | -0.12% [-6.14, +1.58] |
+| R1, distinct-name wide lookup | -15.74% [-18.04, -12.46] | +12.88% [+10.68, +20.37] |
+| R1, same-name long-prefix lookup | +169.69% [+168.45, +173.31] | +180.78% [+179.66, +185.04] |
+| R1, narrow/hot lookup | +24.76% [+22.55, +29.55] | +26.71% [+24.37, +31.84] |
+| R2, large repeated output | +15.11% [+14.60, +17.64] | +17.63% [+17.15, +20.42] |
+| R1 to R12, large repeated output | +14.19% [+8.07, +17.84] | +16.91% [+10.58, +20.78] |
+| R3, interface queries | +0.05% [-0.59, +1.03] | +0.12% [-1.09, +1.15] |
+
+R1's same-name-prefix miss also has a different total descriptor byte length,
+which lets the legacy cached-string path reject on length before comparing
+bytes. The raw path repeatedly walks the shared parameter prefix. This is a
+valid adverse input but is not an equal-length, last-byte mismatch experiment.
+The narrow/hot case additionally exposes parsing and raw-comparison overhead.
+The next bounded revision will separate cross-reference identity optimization
+from lookup behavior instead of bundling both into an adoption claim.
+
+R2 improves first output and close but regresses repeated large output. Its
+records in this fixed long-descriptor fixture place character bodies eight
+bytes off a 16-byte boundary, unlike the baseline allocations. Whether body
+alignment explains the regression is a hypothesis to test, not a causal claim.
+A focused storage revision will be checked before final combined QQ runs.
+
+Positive and negative interface times are individually retained: the isolated
+R3 intervals are [-1.26%, +2.18%] and [-1.89%, +1.89%] respectively. This fixture
+has not resolved a small speed tradeoff; it does not prove zero regression.

@@ -94,7 +94,11 @@ def main():
     parser.add_argument('--verified-run', type=Path)
     parser.add_argument('--native-library', type=Path)
     parser.add_argument('--memory-probe', type=Path)
+    parser.add_argument('--final-field-rw', help='After all QQ passes, fetch this field and its readers/writers once before close.')
+    parser.add_argument('--field-rw-expected', type=Path, help='Frozen final_field_rw object from an independent control verification.')
     args = parser.parse_args()
+    if args.field_rw_expected and not args.final_field_rw:
+        raise SystemExit('--field-rw-expected requires --final-field-rw.')
     root, corpus, apk, output = [p.resolve() for p in
                                   (args.dexkit_root, args.corpus, args.apk, args.output)]
     if output.exists() and any(output.iterdir()):
@@ -147,6 +151,8 @@ def main():
            str(classes) + os.pathsep + classpath, 'QueryReplay', str(apk),
            str(corpus / 'groups.tsv'), str(output / 'report.json'),
            str(args.threads), str(args.passes), args.profile, args.mode]
+    if args.final_field_rw:
+        cmd.append(args.final_field_rw)
     if args.memory_probe:
         cmd.insert(1, f'-Dqaux.memory.probe={args.memory_probe.resolve()}')
     if platform.system() == 'Darwin':
@@ -165,6 +171,8 @@ def main():
         'memory_probe_sha256': sha256(args.memory_probe) if args.memory_probe else None,
         'jars_sha256': {str(p): sha256(p) for p in jars}, 'command': cmd,
         'mode': args.mode, 'profile': args.profile, 'threads': args.threads, 'passes': args.passes,
+        'final_field_rw': args.final_field_rw,
+        'field_rw_expected_sha256': sha256(args.field_rw_expected) if args.field_rw_expected else None,
         'purpose': 'Controlled host query-API workload; verification is separate from measurement.'}
     manifest_path = library.parent / 'artifact.json'
     if manifest_path.is_file():
@@ -183,6 +191,8 @@ def main():
             raise SystemExit('Formal measurement requires diagnostics and internal metrics compiled out.')
         if not args.verified_run or args.profile == 'diagnostics':
             raise SystemExit('Measurement requires a successful verification run for this profile.')
+        if args.final_field_rw and not args.field_rw_expected:
+            raise SystemExit('Final field measurement requires an independent frozen reader/writer oracle.')
         verified = json.loads((args.verified_run / 'run-metadata.json').read_text())
         if verified.get('mode') != 'verify' or verified.get('exit_code') != 0 or verified.get('baseline_results_equal') is not True:
             raise SystemExit('The supplied run did not pass full baseline verification.')
@@ -191,6 +201,7 @@ def main():
         keys = ['apk_sha256', 'qaux_commit', 'groups_sha256', 'adapter_sha256', 'native_sha256',
                 'jars_sha256', 'expected_sha256', 'profile', 'threads', 'jvm_options', 'memory_probe_sha256']
         keys += ['java_identity', 'injected_java_options']
+        keys += ['final_field_rw', 'field_rw_expected_sha256']
         if any(verified.get(key) != metadata[key] for key in keys):
             raise SystemExit('The verified input, binary, adapter or profile differs from this measurement.')
         metadata['verified_run'] = str(args.verified_run.resolve())
@@ -230,6 +241,22 @@ def main():
         try:
             report = json.loads(report_file.read_text())
             validate_report(report, args.profile, args.mode, args.passes, args.threads)
+            if args.final_field_rw:
+                tail = report.get('final_field_rw', {})
+                if tail.get('descriptor') != args.final_field_rw:
+                    raise ValueError('Missing or wrong final field operation.')
+                if any(not isinstance(tail.get(k), int) or tail[k] <= 0 for k in
+                       ['api_ns', 'lookup_ns', 'readers_ns', 'writers_ns', 'readers_count', 'writers_count']):
+                    raise ValueError('Final field operation must return nonempty readers and writers with timings.')
+                if args.field_rw_expected:
+                    tail_expected = json.loads(args.field_rw_expected.read_text())
+                    tail_keys = ['descriptor', 'readers_count', 'writers_count']
+                    if args.mode == 'verify': tail_keys += ['readers', 'writers']
+                    if any(tail.get(k) != tail_expected.get(k) for k in tail_keys):
+                        raise ValueError('Final field results differ from the independent ordered oracle.')
+                    metadata['final_field_rw_results_equal'] = True
+            elif 'final_field_rw' in report:
+                raise ValueError('Unexpected final field operation.')
         except (ValueError, KeyError, TypeError) as error:
             metadata['report_error'] = str(error)
             report = None

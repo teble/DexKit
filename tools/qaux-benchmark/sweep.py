@@ -20,7 +20,7 @@ def percentile(values, fraction):
 def summarize(rows, labels, pairs, seed, metrics=None):
     metrics = metrics or ['lifecycle_ms', 'create_ms', 'close_ms', 'pass0_api_ms', 'pass1_api_ms',
                'repeated_api_ms', 'max_rss_bytes', 'window_peak_rss_bytes',
-               'peak_footprint_bytes', 'window_peak_footprint_bytes']
+               'peak_footprint_bytes', 'window_peak_footprint_bytes', 'final_field_rw_ms']
     result = {}
     for metric in metrics:
         if any(row.get(metric) is None or row.get(metric) <= 0 for row in rows):
@@ -58,6 +58,8 @@ def main():
     parser.add_argument('--profile', choices=['all', 'chains', 'batch'], default='all')
     parser.add_argument('--seed', type=int, default=20260915)
     parser.add_argument('--memory-probe', type=Path)
+    parser.add_argument('--final-field-rw')
+    parser.add_argument('--field-rw-expected', type=Path)
     args = parser.parse_args()
     if len(args.variant) != 2 or args.pairs < 2:
         raise SystemExit('Supply exactly two variants and at least two pairs.')
@@ -82,6 +84,8 @@ def main():
                    '--mode', 'measure', '--profile', args.profile,
                    '--threads', str(args.threads), '--passes', str(args.passes)]
             if args.memory_probe:cmd += ['--memory-probe', str(args.memory_probe)]
+            if args.final_field_rw:cmd += ['--final-field-rw', args.final_field_rw]
+            if args.field_rw_expected:cmd += ['--field-rw-expected', str(args.field_rw_expected)]
             run = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             (args.output / f'pair-{pair:02d}-{label}-launcher.log').write_text(run.stdout)
             if run.returncode:
@@ -96,6 +100,7 @@ def main():
                        window_peak_rss_bytes=report.get('window_peak_rss_bytes'),
                        peak_footprint_bytes=metadata.get('process_peak_footprint_bytes'),
                        window_peak_footprint_bytes=report.get('window_peak_footprint_bytes'))
+            if args.final_field_rw:row['final_field_rw_ms'] = report['final_field_rw']['api_ns'] / 1e6
             for number in range(args.passes):
                 row[f'pass{number}_api_ms'] = sum(s['api_ns'] for s in report['stages'] if s['pass'] == number) / 1e6
             row['repeated_api_ms'] = sum(s['api_ns'] for s in report['stages'] if s['pass'] > 0) / 1e6
@@ -104,6 +109,7 @@ def main():
             print(f'pair={pair:02d} {label} lifecycle={row["lifecycle_ms"]:.2f} ms close={row["close_ms"]:.2f} ms', flush=True)
     result = dict(profile=args.profile, threads=args.threads, passes=args.passes,
                   pairs=args.pairs, seed=args.seed, labels=labels, reversed_order=order,
+                  final_field_rw=args.final_field_rw,
                   notes='Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.',
                   metrics=summarize(rows, labels, args.pairs, args.seed))
     (args.output / 'summary.json').write_text(json.dumps(result, indent=2) + '\n')

@@ -18,6 +18,7 @@ import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
+import org.luckypray.dexkit.result.FieldData;
 import org.luckypray.dexkit.result.MethodData;
 import org.luckypray.dexkit.result.MethodDataList;
 
@@ -364,9 +365,29 @@ public final class QueryReplay {
                 .usingStrings("em_bas_view_the_original_picture")));
     }
 
+    private static Map<String, Object> finalFieldRw(DexKitBridge bridge, String descriptor) {
+        long begin = System.nanoTime();
+        FieldData field = bridge.getFieldData(descriptor);
+        if (field == null) throw new IllegalStateException("Missing final field: " + descriptor);
+        long found = System.nanoTime();
+        MethodDataList readers = field.getReaders();
+        long read = System.nanoTime();
+        MethodDataList writers = field.getWriters();
+        long written = System.nanoTime();
+        Map<String, Object> result = obj("descriptor", field.getDescriptor(),
+                "lookup_ns", found - begin, "readers_ns", read - found,
+                "writers_ns", written - read, "api_ns", written - begin,
+                "readers_count", readers.size(), "writers_count", writers.size());
+        if (!measure) {
+            result.put("readers", descriptors(readers));
+            result.put("writers", descriptors(writers));
+        }
+        return result;
+    }
+
     public static void main(String[] args) throws Exception {
-        if (args.length < 3 || args.length > 7) throw new IllegalArgumentException(
-                "Usage: QueryReplay apk groups.tsv report.json [threads=4] [passes=2] [all|chains|batch|diagnostics] [verify|measure]");
+        if (args.length < 3 || args.length > 8) throw new IllegalArgumentException(
+                "Usage: QueryReplay apk groups.tsv report.json [threads=4] [passes=2] [all|chains|batch|diagnostics] [verify|measure] [final-field-descriptor]");
         int threads = args.length > 3 ? Integer.parseInt(args[3]) : 4;
         int passes = args.length > 4 ? Integer.parseInt(args[4]) : 2;
         String profile = args.length > 5 ? args[5] : "all";
@@ -402,6 +423,7 @@ public final class QueryReplay {
                 if (profile.equals("all") || profile.equals("chains")) chains(bridge);
                 if (profile.equals("diagnostics")) diagnostics(bridge);
             }
+            if (args.length > 7) report.put("final_field_rw", finalFieldRw(bridge, args[7]));
         } finally {
             long beforeClose = System.nanoTime();
             bridge.close();

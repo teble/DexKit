@@ -4,14 +4,33 @@
 #include <bit>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <vector>
 
 namespace dexkit::inverted_string {
 
+inline constexpr size_t kBitmapBudget = 16 * 1024 * 1024;
+inline size_t WordCount(size_t entities) { return entities / 64 + (entities % 64 != 0); }
+
+// Per-DEX requested bitmap bytes, not allocator capacity or a process limit.
+// Check both construction and consumption: a method batch retains its groups
+// while adding a method union and a differently sized type union.
+inline std::optional<size_t> BitmapPlanBytes(size_t entities, size_t types, size_t keywords, size_t groups) {
+    const auto words = WordCount(entities), type_words = WordCount(types);
+    if (!words || !keywords || !groups || words > kBitmapBudget / sizeof(uint64_t)
+            || type_words > kBitmapBudget / sizeof(uint64_t)) return std::nullopt;
+    const auto bytes = words * sizeof(uint64_t), type_bytes = type_words * sizeof(uint64_t);
+    const auto slots = kBitmapBudget / bytes;
+    if (keywords > slots || groups > slots - keywords || slots - keywords - groups < 2) return std::nullopt;
+    const auto consumer_slots = (kBitmapBudget - type_bytes) / bytes;
+    if (groups >= consumer_slots) return std::nullopt;
+    return std::max((keywords + groups + 2) * bytes, (groups + 1) * bytes + type_bytes);
+}
+
 class Bits {
 public:
     Bits() = default;
-    explicit Bits(size_t count) : words((count + 63) / 64) {}
+    explicit Bits(size_t count) : words(WordCount(count)) {}
     void Set(size_t id) { words[id / 64] |= uint64_t{1} << (id % 64); }
     bool Has(size_t id) const { return words[id / 64] & (uint64_t{1} << (id % 64)); }
     void Or(const Bits &other) {

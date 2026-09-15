@@ -15,6 +15,20 @@ struct Statistics {
     int64_t positive_ns = 0, negative_ns = 0;
     uint64_t checksum = 0, returned = 0;
 };
+std::unique_ptr<Builder> NestedBroadQuery(bool absent) {
+    auto b = std::make_unique<Builder>();
+    auto strings = Strings(*b, {{absent ? "AbsentEveryPool" : "Needle", schema::StringMatchType::Contains}});
+    std::vector<flatbuffers::Offset<schema::MethodMatcher>> children;
+    for (auto value : {"LongPrefix/", "Needle"}) {
+        auto nested = Strings(*b, {{value, schema::StringMatchType::Contains}});
+        schema::MethodMatcherBuilder child(*b); child.add_using_strings(nested);
+        children.push_back(child.Finish());
+    }
+    auto all = b->CreateVector(children);
+    schema::MethodMatcherBuilder root(*b); root.add_using_strings(strings); root.add_all_of(all);
+    b->Finish(schema::CreateFindMethod(*b, 0, 0, false, 0, 0, false, root.Finish()));
+    return b;
+}
 void Consume(Statistics &s, std::unique_ptr<Builder> data, bool classes) {
     Require(data != nullptr);
     const auto visit = [&](const auto *values) {
@@ -39,8 +53,10 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
     const auto needle = mode == "string-eq-long" || mode == "string-multiple"
                       || mode == "string-prefix-tail" || mode == "string-prefix-multiple" ? LongNeedle()
                       : mode == "string-prefix-long" ? std::string("LongPrefix/") : std::string("Needle");
-    auto positive = WorkQuery(classes, needle, type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
-    auto negative = WorkQuery(classes, "AbsentEveryPool", type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
+    auto positive = mode == "string-nested-broad" ? NestedBroadQuery(false)
+            : WorkQuery(classes, needle, type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
+    auto negative = mode == "string-nested-broad" ? NestedBroadQuery(true)
+            : WorkQuery(classes, "AbsentEveryPool", type, sparse, mode == "string-multiple", mode == "string-prefix-multiple");
     s.setup_ns = Ns(begin);
     for (size_t i = 0; i < repeats; ++i) {
         begin = Clock::now();
@@ -63,7 +79,8 @@ int main(int argc, char **argv) {
     Require(mode == "string-eq" || mode == "string-eq-long" || mode == "string-prefix"
         || mode == "string-prefix-long" || mode == "string-class" || mode == "string-sparse"
         || mode == "string-contains" || mode == "string-multiple" || mode == "string-prefix-tail"
-        || mode == "string-prefix-multiple" || mode == "string-prefix-class" || mode == "string-prefix-sparse");
+        || mode == "string-prefix-multiple" || mode == "string-prefix-class" || mode == "string-prefix-sparse"
+        || mode == "string-nested-broad");
     char *end = nullptr;
     auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && !*end && repeats > 0 && repeats <= 100000);

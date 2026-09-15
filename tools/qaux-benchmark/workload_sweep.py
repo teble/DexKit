@@ -28,7 +28,7 @@ def main():
                                          'source-output', 'source-match', 'source-hot',
                                          'string-eq', 'string-eq-long', 'string-prefix', 'string-prefix-long',
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
-                                         'string-class', 'string-sparse', 'string-contains', 'string-multiple',
+                                         'string-class', 'string-sparse', 'string-contains', 'string-multiple', 'string-nested-broad',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
                                          'using-sparse', 'using-multiple', 'using-class', 'using-output'], required=True)
     parser.add_argument('--repeats', type=int, required=True)

@@ -550,7 +550,9 @@ bool DexItem::BuildRootStringCandidates(const StringMatcherVector *matchers, boo
             const auto range = single_string::FindIds(strings, matcher->value()->string_view(),
                     type == schema::StringMatchType::StartWith);
             if (range.valid) {
-                hits = inverted_string::Bits(classes ? type_names.size() : reader.MethodIds().size());
+                const auto entities = classes ? type_names.size() : reader.MethodIds().size();
+                if (inverted_string::WordCount(entities) > inverted_string::kBitmapBudget / sizeof(uint64_t)) return false;
+                hits = inverted_string::Bits(entities);
                 if (range.begin == range.end) return true;
                 if (!EnsureInvertedStrings()) return false;
                 inverted_strings.VisitRange(range.begin, range.end, [&](uint32_t method) {

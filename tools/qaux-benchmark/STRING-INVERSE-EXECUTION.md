@@ -1,6 +1,7 @@
 # String inverse index experiment
 
-Status: implementation complete, validation in progress, based on `9432879`.
+Status: budget revision and integration checks complete; final measurements pending.
+The first measured prototype is `3ccb765`, based on `9432879`.
 
 The user requested an engine implementation and another benchmark after the
 QQ string-reference census. Work remains on the existing isolated experiment
@@ -44,13 +45,50 @@ branch. The new `DEXKIT_EXPERIMENT_INVERTED_STRINGS` flag defaults to OFF.
   2,001,450 distinct edges, and 713,828 singleton rows. This exactly matches the
   independent census. Largest build scratch is 784,736 bytes; largest query
   bitmap budget usage observed is 2,733,456 bytes per DEX task.
-- Trace, sanitizer, and standalone builds succeeded. Their execution checks,
-  JVM/Android validation, source review, and formal timing remain pending.
+- All six builds pass these checks. JVM validation passes 71 tests, and the
+  Android release AAR contains all four expected ABIs.
+- The first prototype completed 24 sweeps / 288 samples, including independent
+  confirmation. QQ lifecycle improvement repeated, as did an eleven-pass
+  process-peak increase. Preserve this evidence under `string-inverse-v1`;
+  final measurements will use the budget revision and an added one-DEX guard.
 
 The reverse index stays bridge-owned; candidate bitmaps are query-local. The
-16 MiB budget applies to bitmap planes, with keyword-map metadata separate.
+16 MiB budget is per DEX task and applies to requested bitmap storage, with
+keyword-map metadata and allocator effects separate. It checks both keyword
+construction and group consumption, including the type-sized union after a
+method batch. Single ASCII range candidates also check their bitmap request.
+`bitmap_budget_bytes` is a formula value, not a measured capacity/peak census.
 Top-level candidate traversal is limited to unscoped, non-findFirst queries.
 Local root methods cannot carry cross-DEX bindings: the binding writer visits
 only undefined owner types, which the existing root finder already excludes.
 Recursive matching retains its original cross-DEX resolution, and the scoped
 predicate shortcut checks the owning DEX, entity kind, and exact matcher vector.
+
+## Source-review revision
+
+The review of `3ccb765` found a concrete budget gap for a method batch with a
+much larger type table. The revised checked helper rejects the reported
+4096-method / 60000-type / 1-keyword / 32765-group counterexample, and tests the
+exact accepted/rejected boundary plus extreme `size_t` inputs. It uses division
+and subtraction before bounded arithmetic. Ordinary fallback keeps the already
+selected one-task-per-DEX scheduling; this remains a performance limitation.
+
+The new small fixture exercises eight root-plus-child queries, including a
+local caller and a remote target with equal numeric method IDs and opposite
+string truth values. The remote nested query deliberately reuses the root
+FlatBuffer vector. Four fresh bridges prewarm only `kUsingString`, assert that
+the inverse index is absent, and start ordinary Contains and Batch together.
+They check complete results and one index construction per DEX. Control,
+candidate, ASan/UBSan and standalone diagnostic builds pass these checks.
+
+Additional cold/warm budget-fallback and reversed-ClassDefs tests pass on the
+first prototype and are repeated for the revision. `class_method_ids` is already
+sorted by InitBaseCache; the batch path retains that existing row order.
+No allocation-failure injection has been performed, and no general OOM fallback
+is promised.
+
+The final finite matrix has 13 sweeps per batch, six pairs per sweep, plus an
+independent confirmation (26 sweeps / 312 samples). It repeats the original
+12 workloads and adds a one-DEX, broad-root, expensive-nested-condition case to
+expose the loss of method-range parallelism. No build or diagnostic workload
+runs concurrently with formal measurement.

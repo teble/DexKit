@@ -28,13 +28,10 @@ bool DexItem::BuildStringCandidateGroups(
         const phmap::flat_hash_map<std::string_view, schema::StringMatchType> &types,
         bool classes, StringCandidateGroups &result) {
     const size_t entities = classes ? type_names.size() : reader.MethodIds().size();
-    const size_t words = (entities + 63) / 64;
     // Includes keyword planes, output groups, and two working bitmaps. Fall
-    // back before building the index when bitmap storage exceeds the budget.
-    constexpr size_t budget = 16 * 1024 * 1024;
-    if (groups.empty() || types.empty() || !words
-            || types.size() > budget / (words * sizeof(uint64_t))
-            || groups.size() + 2 > budget / (words * sizeof(uint64_t)) - types.size()) return false;
+    // back before building the index when either phase exceeds the budget.
+    const auto bitmap_bytes = inverted_string::BitmapPlanBytes(entities, type_names.size(), types.size(), groups.size());
+    if (!bitmap_bytes) return false;
     if (!EnsureInvertedStrings()) return false;
     phmap::flat_hash_map<std::string_view, size_t> ids;
     std::vector<inverted_string::Bits> planes;
@@ -101,10 +98,10 @@ bool DexItem::BuildStringCandidateGroups(
         result.emplace_back(key, std::move(matched));
     }
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
-    std::fprintf(stderr, "BENCH_STRING_INVERSE_QUERY dex=%u classes=%d strings=%llu bytes=%llu accepted=%llu postings=%llu bitmap_bytes=%zu\n",
+    std::fprintf(stderr, "BENCH_STRING_INVERSE_QUERY dex=%u classes=%d strings=%llu bytes=%llu accepted=%llu postings=%llu bitmap_budget_bytes=%zu\n",
             dex_id, classes, static_cast<unsigned long long>(scans), static_cast<unsigned long long>(bytes),
             static_cast<unsigned long long>(accepted), static_cast<unsigned long long>(postings),
-            words * sizeof(uint64_t) * (types.size() + groups.size() + 2));
+            *bitmap_bytes);
 #endif
     return true;
 }

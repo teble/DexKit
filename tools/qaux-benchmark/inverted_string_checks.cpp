@@ -53,6 +53,14 @@ void Check(size_t strings, size_t methods, uint32_t seed) {
 }
 
 int main() {
+    Require(!BitmapPlanBytes(4096, 60000, 1, 32765));
+    Require(BitmapPlanBytes(4096, 60000, 1, 32752) == 16777040);
+    Require(!BitmapPlanBytes(4096, 60000, 1, 32753));
+    Require(!BitmapPlanBytes(4096, 60000, SIZE_MAX, 1));
+    Require(!BitmapPlanBytes(4096, 60000, 1, SIZE_MAX));
+    Require(!BitmapPlanBytes(SIZE_MAX, 60000, 1, 1));
+    Require(!BitmapPlanBytes(4096, SIZE_MAX, 1, 1));
+    Require(WordCount(SIZE_MAX) == SIZE_MAX / 64 + 1);
     for (size_t strings : {size_t{0}, size_t{1}, size_t{63}, size_t{64}, size_t{65}, size_t{129}, size_t{1024}})
         for (size_t methods : {size_t{0}, size_t{1}, size_t{67}, size_t{65536}, size_t{65537}})
             Check(strings, methods, 20260916);
@@ -63,5 +71,5 @@ int main() {
         Require(!too_large.Build(size_t{UINT32_MAX} + 1, 0, empty));
         Require(!too_large.Build(0, size_t{UINT32_MAX} + 1, empty));
     }
-    std::printf("CHECK_INVERTED_STRINGS {\"layouts\":51,\"intervals\":5100,\"width_boundary\":65536,\"passed\":true}\n");
+    std::printf("CHECK_INVERTED_STRINGS {\"layouts\":51,\"intervals\":5100,\"budget_boundaries\":8,\"width_boundary\":65536,\"passed\":true}\n");
 }

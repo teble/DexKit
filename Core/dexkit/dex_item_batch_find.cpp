@@ -251,8 +251,8 @@ DexItem::BatchFindMethodUsingStrings(
             DEXKIT_BATCH_COUNT(candidates, 1);
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
             if (inverted) {
-                // Traverse the original direct/virtual order within candidate
-                // classes, which can differ from numeric method-ID order.
+                // Preserve the existing class-method row order (InitBaseCache
+                // sorts it after decoding direct and virtual methods).
                 for (const auto &[key, hits] : candidate_groups) {
                     if (hits.Has(method_idx)) find_result[key].emplace_back(method_idx);
                 }

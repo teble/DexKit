@@ -30,7 +30,9 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
     bridge->SetThreadNum(4);
     const bool classes = mode == "using-class";
     auto query = Query(classes, mode == "using-multiple" ? 10 : mode == "using-sparse" ? 23 : 2,
-                       mode == "using-late" ? "late" : mode == "using-miss" ? "miss"
+                       // The zero-padded bulk family excludes the separate
+                       // "missing" method that intentionally uses an absent owner.
+                       mode == "using-late" ? "late" : mode == "using-miss" ? "miss0"
                        : mode == "using-sparse" ? "early00000" : "early", mode == "using-sparse");
     s.setup_ns = Ns(begin);
     for (size_t i = 0; i < repeats; ++i) {

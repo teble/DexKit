@@ -35,5 +35,19 @@ oracle and complete ordered bytes agree (SHA256
 901032d49eb7440a836a356f70402fef41c42cc10e52edb7658e406625db74d4).
 The oracle separately decodes the generated DEX instruction rows, preserving
 field-use order and duplicates before evaluating the expected predicates.
-Expanded fixtures, diagnostic/standalone/sanitized builds, QQ verification,
-JVM/Android checks, source review and formal timing are pending.
+The short and long fixtures also pass both normal builds. The small fixture
+passes both traced builds, standalone and ASan/UBSan; the long fixture passes
+standalone and ASan/UBSan. Both relation lifecycle fixtures produce identical
+ordered bytes in control/candidate traced builds and the sanitized candidate.
+Both normal native libraries pass eleven frozen QQ verification rounds.
+
+The trace preflight caught a workload selection error before formal timing:
+the prefix "miss" also selected the separate "missing" unresolved-owner
+method, which has an alpha witness. Restrict the bounded, zero-padded bulk
+family to "miss0". No engine, fixture data or semantic checker change is
+required. Relink the corrected workload against the immutable Core archives
+and rerun its diagnostic preflight before measurement. The first early/late
+traces have equal judges and 614,400 prepared target items over two passes in
+the control; diagnostic times are not performance evidence.
+
+JVM/Android checks, source review and formal timing remain in progress/pending.

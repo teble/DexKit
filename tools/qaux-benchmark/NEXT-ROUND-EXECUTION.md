@@ -1,8 +1,8 @@
 # Ordered next-round experiments
 
-Status: active. Equal measurements and confirmation are complete. The ordinary
-StartWith extension is now being built and checked; subsequent ranked
-mechanisms remain independent experiments against the nine-switch control.
+Status: active. Equal and StartWith measurements and independent confirmation
+are complete. Batch boolean containment is next; subsequent ranked mechanisms
+remain independent experiments against the nine-switch control.
 
 ## Controls and sequence
 
@@ -74,3 +74,9 @@ source and evidence review after meaningful increments.
   the isolated StartWith phase. The 45 method/45 class cases include prefix
   OR/NOT, overlapping requirements, non-ASCII/NUL fallback and unique findFirst.
   Prefix extension remains outside every Batch API.
+* Completed all 48 StartWith sweeps (576 process samples), standalone and
+  combined ordered-result checks, ASan/UBSan, both JVM configurations and both
+  four-ABI AAR builds. ID benefits long late-prefix matching, regresses sparse
+  access and has no confirmed extra broad-positive or broad lifecycle benefit.
+  QQ's incremental PREFIX-on guard has no stable lifecycle change. Retain the
+  small ID multiple-prefix fallback peak cost. See SINGLE-STRING-RESULTS.

@@ -78,3 +78,34 @@ its executable bit. Running the same wrapper through bash then exposed the
 missing SDK environment in this worktree. Explicit existing SDK/JDK paths
 resolved configuration; the successful runs above supersede those failed
 launches. No local.properties or generated sources were edited.
+
+## Prefix extension and completed Equal evidence review
+
+The same authorized Pro conversation completed a further review of fixed
+`d67fe1c4a5cb5ac27995b31905811d8463cffa5c` after 7m 31s. It read the specified
+single-string source, fixture/query tools and reports, and sampled the Equal
+summary and SettingEntry head-to-head evidence. It did not independently run
+the 576 measurements or certify later results. No additional source blocker
+was identified in that review.
+
+The review rechecked 32-bit DEX isolation, mutex publication, query ownership
+and prefix lower/upper bounds. `DexRanges::Get` relies on its caller keeping
+the pool and predicate fixed for each matcher-owned instance; it does not
+revalidate that contract on every call. The ordinary-query gate still excludes
+all batch APIs, multiple requirements, SimilarRegex and unsupported patterns.
+
+The new fixture uses distinct proper extensions of the long prefix. The broad
+prefix matches every bulk row's references, not the entire DEX string pool.
+The class and sparse workloads use a separate short prefix. Overlapping
+multiple-prefix queries exercise unchanged AC fallback; they do not evaluate
+a multi-prefix range algorithm. Pool and matched-range counters are summed
+per query/matcher range construction, not globally deduplicated pool size or
+method hit rate.
+
+The review agrees with Equal's conditional result: ID has a reproducible extra
+SettingEntry API benefit, without a consistently resolved extra whole-QQ
+benefit, and sparse access favors DIRECT. ID's empty-range rejection also
+avoids reference visits, so its benefit is not solely integer-versus-byte
+comparison. Prefix reporting must separate positive and fully absent queries
+and include lifecycle costs. QQ contains no explicit StartWith query and is
+therefore an incremental PREFIX-on overhead guard against Equal-only builds.

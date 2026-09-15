@@ -97,7 +97,10 @@ cost or a reason to remove the control results.
 Separate diagnostics show that one QQ Equal query reaches 2,049,726 method
 matchers. AC visits 2,071,884 string references, DIRECT 2,071,882 and ID 55,665.
 Thus early exit saves only two references in this real query; DIRECT's main
-gain comes from avoiding AC/hit-set work. ID creates one query-owned plan with
+gain comes from avoiding AC/hit-set work. ID can reject a DEX whose pool has
+no matching ID before visiting its method reference rows; this explains the
+large reduction in references and must not be attributed solely to integer
+comparison. ID creates one query-owned plan with
 3,976 bytes of object/entry storage and 41 ranges, using 656 comparisons and
 1,691 decoded UTF-16 units. This storage figure excludes allocator overhead
 and shared cache containers. It is not a whole-process memory saving.
@@ -109,11 +112,105 @@ both four-ABI Android builds and eleven frozen QQ verification rounds. The
 initial small-input checks also passed. The narrowing and fixture-witness bugs were fixed before formal timing.
 See SINGLE-STRING-REVIEW for review scope and evidence limitations.
 
-## StartWith: active
+## StartWith: completed
 
-The next isolated comparison enables the existing PREFIX switch. Proper
-extensions of the long needle, a broad prefix, sparse access, class matching
-and overlapping multiple prefixes have separate controlled workloads. The
-QQ adapter has no explicit StartWith query, so its check compares PREFIX ON
-against the corresponding Equal-only implementation to detect added overhead;
-Equal's QQ improvement must not be attributed to StartWith.
+Both paths avoid substantial ordinary single-prefix AC work. ID is faster
+for a long prefix with late witnesses and slower for sparse access. A broad
+prefix does not show a confirmed additional lifecycle benefit over DIRECT.
+Both implementations remain default OFF with no automatic dispatch threshold.
+
+The same nine-switch AC control is byte-identical (`2347a204...`). DIRECT+PREFIX
+and ID+PREFIX are `53e87cea...` and `ac756bc2...`; production source is unchanged
+since `1b9dd37`, with diagnostic-only pool counters added at `d67fe1c`.
+All 48 sweeps / 576 samples, identities, checks and fixtures are retained in
+`evidence/next-round/strings-prefix`. The measurement boundaries and exploratory
+interval method are the same as Equal above: two batches of six balanced
+fresh-process pairs, including construction, preparation, output and close.
+
+### Positive, absent and complete workload costs
+
+The long prefix has 210 ASCII bytes. Each bulk witness is a distinct proper
+extension with a DEX/method suffix, with first/last positions asserted during
+fixture generation. The broad 11-byte `LongPrefix/` prefix matches every bulk
+reference, not the entire pool. Sparse and class queries use six-byte `Needle`.
+Each iteration runs the positive query followed by a completely absent query.
+The bulk-miss fixture still contains four fixed positive correctness methods.
+
+Confirmation changes relative to AC are shown as DIRECT / ID:
+
+| Workload | Positive APIs | Fully absent APIs | Create through close |
+| --- | ---: | ---: | ---: |
+| Early long prefix, 16 iterations | -90.42% / -90.98% | -99.41% / -99.56% | -93.80% / -94.15% |
+| Late long prefix, 16 iterations | -82.06% / -91.00% | -99.34% / -99.56% | -89.25% / -94.17% |
+| Bulk miss, 16 iterations | -89.31% / -99.45% | -99.55% / -99.66% | -93.59% / -98.71% |
+| Broad prefix, 16 iterations | -92.76% / -92.81% | -99.42% / -99.57% | -94.79% / -94.87% |
+| Sparse declared class, 16,384 iterations | -52.31% / -38.61% | -52.36% / -35.54% | -47.46% / -34.04% |
+| Class usingStrings, 16 iterations | -99.58% / -99.69% | -99.71% / -99.92% | -98.80% / -99.00% |
+
+These are concentrated native fixtures, not projected QQ/application gains.
+The head-to-head samples provide the actual ID-versus-DIRECT comparison:
+
+| ID relative to DIRECT | First lifecycle batch | Confirmation lifecycle, with interval | Confirmation positive API |
+| --- | ---: | ---: | ---: |
+| Early long prefix | -6.07% | -7.51% [-8.78, -5.82] | -6.92% [-8.21, -5.21] |
+| Late long prefix | -45.29% | -45.60% [-46.10, -33.38] | -49.65% [-50.08, -37.62] |
+| Broad prefix | -0.94% | -1.72% [-4.83, +0.91] | -0.02% [-2.24, +1.04] |
+| Sparse declared class | +29.68% | +25.63% [+24.87, +27.47] | +29.92% [+27.26, +31.52] |
+
+Broad-prefix repeated combined APIs improve by 1.76% [-3.94, -0.83], while the
+positive API remains unresolved; its absent query improves by 35.13%. Thus this
+small combined gain is not evidence that integer comparison improves broad
+positive matching. Sparse fully absent APIs also regress by 35.04% with ID:
+with so few reference visits, directory/range construction can cost more than
+the scan it replaces. No runtime crossover threshold is selected from this
+limited matrix.
+
+### Unchanged workload guards
+
+QQ contains no explicit StartWith query. Its PREFIX-on comparison therefore
+uses the corresponding Equal-only build as control. Confirmation eleven-round
+lifecycle is DIRECT +1.55% [-1.59, +3.24] and ID -0.15% [-1.64, +3.30]; repeated
+API changes are +0.68% [-0.82, +3.13] and +0.03% [-1.93, +2.38]. The first
+lifecycle batch is +0.37% / -1.75%, both intervals crossing zero. DIRECT's
+first-batch first API increase does not repeat. No stable extra QQ lifecycle
+gain, regression or peak-memory improvement is established.
+
+Multiple prefixes, mixed Equal/Contains requirements and pure Contains retain
+AC. Their confirmation lifecycle changes are respectively DIRECT +4.04%
+[-3.84, +9.24] / ID +0.72% [-3.43, +2.43], DIRECT -0.37% [-2.14, +0.80] / ID
+-0.19% [-14.24, +1.17], and DIRECT +0.15% [-3.68, +0.54] / ID +0.79%
+[-0.30, +9.67]. These intervals do not prove zero routing cost.
+
+There is a small repeated process-peak cost in the ID multiple-prefix fallback:
++1.85% [+0.48, +5.30] initially and +1.92% [+0.96, +2.51] in confirmation.
+Diagnostics create no single-string plans in this workload, so this measurement
+is retained without attributing it to range storage. Some other memory deltas
+appear in only one batch; all are available in the raw summaries. The affected
+single-prefix synthetic workloads reduce peak footprint against AC, but that
+does not establish a whole-QQ saving or a universal ID memory advantage.
+
+### Work counts and validation
+
+Two-iteration diagnostics produce four query-owned plans and twelve ranges
+for early/late long-prefix methods. Their ID reference visits are 9,224 versus
+144,224, with 384 pool comparisons and 19,626 decoded units. The summed pool
+count is 877,236 and summed matched range length 9,012. These counts sum over
+range constructions, not globally unique strings. Both layouts use 1,312
+logical plan/entry bytes across their four plans, excluding allocator and
+shared-container overhead. Completely absent ranges skip reference rows;
+the positive query and absence optimization must be distinguished.
+
+The broad case has summed matched range length 9,132 and 1,146 decoded units.
+Sparse queries construct only four ranges in the visited DEX, although each
+plan owns a three-DEX directory. Multiple-prefix and mixed controls have zero
+single-string plans/ranges and preserve AC results. Trace is disabled for all
+formal timings.
+
+The independent oracle passes 45 method and 45 class cases on small and wide
+pools for control, DIRECT and ID, including standalone builds without the nine
+control switches. The original 68-result subset is byte-identical to the Equal
+oracle. ID ASan/UBSan, all UTF-16 ordering checks, concurrent DEX-ID isolation,
+both 71-test JVM runs, both four-ABI AAR builds and eleven frozen QQ verification
+rounds pass. Desktop Gradle native hashes match the measurement artifacts.
+There is no Android runtime performance claim. The source review scope is
+recorded in SINGLE-STRING-REVIEW.

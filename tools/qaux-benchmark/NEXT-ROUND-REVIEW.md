@@ -1,7 +1,8 @@
 # Next round after the completed optimization stack
 
 Status: the user authorized the [ordered experiments](NEXT-ROUND-EXECUTION.md).
-No new candidate has a measured gain yet. The first priority is a narrow exact-string experiment
+Equal and StartWith now have completed [results](SINGLE-STRING-RESULTS.md).
+The ranking below records the original prioritization. Its first priority was a narrow exact-string experiment
 in ordinary FindMethod/FindClass usingStrings, comparing the current path,
 direct comparison and a sorted-pool ID lookup, preceded by focused attribution.
 The user excluded all batch APIs from this ID/range experiment, including pure

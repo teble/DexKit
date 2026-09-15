@@ -168,3 +168,57 @@ A focused storage revision will be checked before final combined QQ runs.
 Positive and negative interface times are individually retained: the isolated
 R3 intervals are [-1.26%, +2.18%] and [-1.89%, +1.89%] respectively. This fixture
 has not resolved a small speed tradeoff; it does not prove zero regression.
+
+## Cross-reference-only revision
+
+`aae3956` separates raw descriptor-input lookup into a default-OFF switch. R1
+alone now retains legacy cached-text lookup and still publishes cold descriptors
+safely. Six balanced pairs at seed 2026091514 produce the following. Positive
+values are regressions; all samples, including an output outlier, are retained.
+
+| Workload | Lifecycle change [95% interval] | Repeated API change [95% interval] | Negative request change [95% interval] |
+| --- | ---: | ---: | ---: |
+| lookup | +7.46% [+4.22, +12.27] | +11.06% [+5.45, +19.04] | +12.49% [+10.92, +13.19] |
+| lookup-hot | +1.43% [+1.07, +3.04] | +1.40% [+1.19, +3.17] | +3.74% [+2.74, +7.11] |
+| lookup-prefix | +0.49% [-1.08, +3.26] | +0.63% [-1.13, +3.22] | +12.97% [+10.77, +15.05] |
+| output | +0.73% [+0.24, +15.30] | +1.06% [+0.04, +11.18] | n/a |
+
+The catastrophic prefix and hot regressions shrink substantially, but warm
+negative lookup still regresses. This revision is not yet a general no-time-
+regression choice. The ready-byte acquire and extra optional-value check are
+present in its hot generated code; no single cause is established by timings.
+
+## Isolated body alignment and final cache-hit revision
+
+The aligned/unaligned pair uses the same `534e225` source and differs only by
+`DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS`. Both retain char-array ownership,
+checked offsets and atomic publication. Alignment changes actual record-body
+addresses, not just header strides. ASan/UBSan cache checks pass both layouts.
+
+- workload-align-r2-unaligned-v3-output: lifecycle -0.17% [-1.83, +0.30].
+- workload-align-workload-control-v2-output: lifecycle +15.62% [+13.83, +17.40].
+
+Alignment does not resolve the output regression. `8971df6` separately adds
+`DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS`: a short published-cache hit wrapper
+with a distinct cold construction function. It retains ready-byte acquire or
+two-level acquire publication; it does not remove synchronization. The dense
+ready byte proves optional engagement, so this path avoids a redundant checked
+optional access. The following comparisons are against the frozen baseline.
+
+| Candidate/workload | Lifecycle change [95% interval] | Repeated API change [95% interval] | Negative request change [95% interval] |
+| --- | ---: | ---: | ---: |
+| r1-fast/lookup | -18.37% [-22.63, -9.12] | -27.19% [-32.48, -14.13] | -44.99% [-45.89, -44.44] |
+| r1-fast/lookup-hot | -2.81% [-3.46, -1.63] | -3.18% [-3.94, -1.87] | -11.27% [-12.57, -8.79] |
+| r1-fast/lookup-prefix | -0.22% [-1.23, +0.88] | -0.37% [-1.82, +0.71] | -42.98% [-46.51, -39.23] |
+| r1-fast/output | -3.89% [-11.48, -0.64] | -4.15% [-11.77, -0.89] | n/a |
+| r2-fast/lookup | -14.82% [-15.57, -13.55] | +2.69% [-0.15, +3.01] | +36.35% [+33.96, +43.47] |
+| r2-fast/lookup-hot | +2.04% [+1.61, +3.58] | +2.35% [+1.29, +3.96] | +13.32% [+11.05, +16.03] |
+| r2-fast/output | +16.33% [+12.91, +18.02] | +18.75% [+14.77, +20.80] | n/a |
+
+These six-pair exploratory results favor the revised R1 over the regressing raw
+lookup bundle. Some positive-path confidence intervals still admit about 2%
+slowdown; no universal zero-regression guarantee follows. R2 still regresses
+complete repeated output and hot negative lookup, so it is excluded from the
+preferred final combinations. The final measured candidates retain the dense
+output-string cache, R1 fast hits and R3 borrowed interface IDs. A separate
+combination additionally enables H1/H2/H3. No further storage tuning is planned.

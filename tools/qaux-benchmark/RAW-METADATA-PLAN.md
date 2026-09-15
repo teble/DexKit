@@ -149,11 +149,14 @@ tables remain separate candidates rather than being folded into this test.
 
 ## Final comparisons and bounded workload scope
 
-In addition to isolated R3, directly measure R1+R2+R3 and the combination with
-previous H1/H2/H3 enabled. Each has twelve main and six confirmation pairs for
-one and eleven passes, using the same original all-flags-off machine code as
-control. These direct comparisons answer the combined cost, without adding
-individual percentages. All six switches remain OFF by default.
+The adverse workloads narrow the final candidates. Measure R3 alone, the
+revised R1 with fast cache hits, R1+R3, and their combination with H1/H2/H3.
+Each has twelve main and six confirmation pairs for one and eleven passes,
+using the original all-flags-off machine code as control. Raw descriptor-input
+lookup, paged descriptor storage and body alignment are excluded from the
+preferred combinations because of demonstrated time regressions. Preserve
+their code and evidence as default-OFF experiments. Direct comparisons measure
+combined costs without adding isolated percentages. All switches stay OFF.
 
 Native-only counterexamples use six balanced pairs per case. Fixed repetition
 counts are 64 for large output, 256 for wide-name and same-name-prefix lookups,
@@ -173,3 +176,9 @@ and test whether aligning R2 character bodies fixes the output regression.
 Retain the current immutable artifacts and all adverse samples. Only these
 concrete findings justify further tuning; no generic new compression project
 is being opened. R3 still awaits its QQ comparison.
+
+The body-alignment test failed to resolve R2 repeated output. One final bounded
+revision separates published cache hits from cold descriptor construction.
+This fixes the observed R1 lookup regression but leaves R2 output slower. No
+additional storage design is part of this round. Final work is artifact-specific
+correctness, component checks, and QQ comparison of the narrowed candidates.

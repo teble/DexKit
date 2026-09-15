@@ -126,3 +126,19 @@ now uses `force_tests.gradle` to disable that task's up-to-date/build-cache reus
 checks that it actually executed, and saves new XML/logs for each variant.
 Earlier cached invocations remain in the evidence as such; final conclusions
 use the explicitly forced executions.
+
+## Review of adverse results and bounded revisions
+
+Pro read fixed `853b6ba`, the adverse summaries, lookup and cache source. The
+complete response was read and copied. It recommends separating cross-reference
+identity comparison from descriptor-input lookup, retaining cold publication,
+and avoiding speculative mixed cached/raw lookup or a new global index. A zero
+lookup construction count is not evidence of zero lookup calls; QQ must rerun.
+
+For the isolated body-alignment experiment, use std::align on the actual
+char-array address, keep memcpy headers and base-pointer ownership, and reserve
+15 extra bytes even for oversized records. A shared positioning function must
+control both fit checking and final writes. Padding, capacity and output costs
+remain charged. Do not simultaneously change atomics, block sizing or serializer.
+If alignment fails, a paged string cache is a possible separate candidate; its
+extra allocations and indirection must be measured, not presumed harmless.

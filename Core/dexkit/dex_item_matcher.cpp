@@ -20,6 +20,10 @@
 
 #include "dex_item.h"
 #include "benchmark_diagnostics.h"
+#include "string_query_diagnostics.h"
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+#include "single_string_index.h"
+#endif
 #include <type_traits>
 #include "matcher_thread_cache_registry.h"
 #include "utils/dex_descriptor_util.h"
@@ -168,6 +172,9 @@ enum class MatcherCacheScope : uint8_t {
     MethodUsingStringsKeywords,
     UsingFieldMatchers,
     UsingNumbers,
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    SingleUsingString,
+#endif
 };
 
 namespace {
@@ -521,6 +528,110 @@ static PersistentUsingStringsKeywordsCache *GetUsingStringsKeywordsCache(
     );
     return cache_ref->get();
 }
+
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+namespace {
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+struct SingleStringDexEntry {
+    std::atomic<bool> ready{false};
+    std::mutex mutex;
+    single_string::IdRange range;
+};
+#endif
+
+struct SingleUsingStringPlan {
+    std::string_view needle;
+    bool prefix;
+    bool eligible;
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    size_t dex_count = 0;
+    std::unique_ptr<SingleStringDexEntry[]> dex_entries;
+#endif
+
+    SingleUsingStringPlan(std::string_view value, bool is_prefix, const DexKit *bridge)
+            : needle(value), prefix(is_prefix), eligible(single_string::IsNonemptyAscii(value)) {
+        DEXKIT_STRING_COUNT(plans, 1);
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+        if (eligible) {
+            dex_count = static_cast<size_t>(bridge->GetDexNum());
+            dex_entries = std::make_unique<SingleStringDexEntry[]>(dex_count);
+        }
+#else
+        (void)bridge;
+#endif
+    }
+
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    template<typename Strings>
+    const single_string::IdRange *RangeFor(uint16_t dex_id, const Strings &strings) {
+        if (dex_id >= dex_count) return nullptr;
+        auto &entry = dex_entries[dex_id];
+        if (!entry.ready.load(std::memory_order_acquire)) {
+            std::lock_guard lock(entry.mutex);
+            if (!entry.ready.load(std::memory_order_relaxed)) {
+                entry.range = single_string::FindIds(strings, needle, prefix);
+                entry.ready.store(true, std::memory_order_release);
+            }
+        }
+        return entry.range.valid ? &entry.range : nullptr;
+    }
+#endif
+};
+
+static SingleUsingStringPlan *GetSingleUsingStringPlan(
+        const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *matchers,
+        const DexKit *bridge) {
+    if (matchers == nullptr || matchers->size() != 1) return nullptr;
+    const auto *matcher = matchers->Get(0);
+    if (matcher == nullptr || matcher->value() == nullptr || matcher->value()->size() == 0
+            || matcher->ignore_case()) return nullptr;
+    const auto type = matcher->match_type();
+    bool prefix = false;
+    if (type != schema::StringMatchType::Equal) {
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX
+        if (type != schema::StringMatchType::StartWith) return nullptr;
+        prefix = true;
+#else
+        return nullptr;
+#endif
+    }
+    const auto *context = QueryContext::Current();
+    if (context == nullptr || (context->GetKind() != QueryKind::FindMethod
+            && context->GetKind() != QueryKind::FindClass)) return nullptr;
+    auto *plan = GetMatcherCache<SingleUsingStringPlan>(
+            MatcherCacheScope::SingleUsingString, POINT_CASE(matchers), [&] {
+                return SingleUsingStringPlan(matcher->value()->string_view(), prefix, bridge);
+            });
+    return plan->eligible ? plan : nullptr;
+}
+
+template<typename Strings, typename VisitReferences>
+std::optional<bool> TrySingleUsingString(
+        const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *matchers,
+        const DexKit *bridge, uint16_t dex_id, const Strings &strings,
+        VisitReferences &&visit) {
+    auto *plan = GetSingleUsingStringPlan(matchers, bridge);
+    if (plan == nullptr) return std::nullopt;
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT
+    DEXKIT_STRING_COUNT(direct_calls, 1);
+    return visit([&](uint32_t string_id) {
+        DEXKIT_STRING_COUNT(direct_refs, 1);
+        const auto value = strings[string_id];
+        return plan->prefix ? kmp::starts_with(value, plan->needle) : kmp::equals(value, plan->needle);
+    });
+#else
+    const auto *range = plan->RangeFor(dex_id, strings);
+    if (range == nullptr) return std::nullopt;
+    DEXKIT_STRING_COUNT(index_calls, 1);
+    if (range->begin == range->end) return false;
+    return visit([&](uint32_t string_id) {
+        DEXKIT_STRING_COUNT(index_refs, 1);
+        return range->begin <= string_id && string_id < range->end;
+    });
+#endif
+}
+}
+#endif
 
 void RegisterMatcherThreadLocalCache(
         std::thread::id thread_id,
@@ -1128,6 +1239,18 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
+    DEXKIT_STRING_COUNT(class_calls, 1);
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    if (auto matched = TrySingleUsingString(matcher->using_strings(), dexkit, dex_id, strings,
+            [&](auto &&predicate) {
+                for (auto method_idx : class_method_ids[type_idx]) {
+                    for (auto string_id : method_using_string_ids[method_idx]) {
+                        if (predicate(string_id)) return true;
+                    }
+                }
+                return false;
+            })) return *matched;
+#endif
 
     if (!CanUseKeywordUsingStringsMatchers(matcher->using_strings())) {
         std::vector<std::string_view> using_strings;
@@ -1158,6 +1281,7 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
             MatcherCacheScope::ClassUsingStringsKeywords,
             matcher->using_strings()
     );
+    DEXKIT_STRING_COUNT(keyword_calls, 1);
     auto &acTrie = keywords_cache->ac_trie;
     auto &match_type_map = keywords_cache->match_type_map;
     auto &real_keywords = keywords_cache->real_keywords;
@@ -1170,6 +1294,9 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
             if (idx == this->empty_string_id) ++using_empty_string_count;
             auto str = this->strings[idx];
             auto hits = acTrie->ParseText(str);
+            DEXKIT_STRING_COUNT(ac_refs, 1);
+            DEXKIT_STRING_COUNT(ac_bytes, str.size());
+            DEXKIT_STRING_COUNT(hits, hits.size());
             for (auto &hit: hits) {
                 auto match_type = match_type_map->find(hit.value)->second;
                 bool match;
@@ -1195,6 +1322,7 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     if (search_set.size() < real_keywords->size()) {
         return false;
     }
+    DEXKIT_STRING_COUNT(intersections, 1);
     std::vector<std::string_view> unique_vec;
     std::set_intersection(search_set.begin(), search_set.end(),
                           real_keywords->begin(), real_keywords->end(),
@@ -1555,6 +1683,16 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
     if (matcher->using_strings() == nullptr) {
         return true;
     }
+    DEXKIT_STRING_COUNT(method_calls, 1);
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    if (auto matched = TrySingleUsingString(matcher->using_strings(), dexkit, dex_id, strings,
+            [&](auto &&predicate) {
+                for (auto string_id : method_using_string_ids[method_idx]) {
+                    if (predicate(string_id)) return true;
+                }
+                return false;
+            })) return *matched;
+#endif
 
     if (!CanUseKeywordUsingStringsMatchers(matcher->using_strings())) {
         auto &&using_string_ids = this->method_using_string_ids[method_idx];
@@ -1578,6 +1716,7 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
             MatcherCacheScope::MethodUsingStringsKeywords,
             matcher->using_strings()
     );
+    DEXKIT_STRING_COUNT(keyword_calls, 1);
     auto &acTrie = keywords_cache->ac_trie;
     auto &match_type_map = keywords_cache->match_type_map;
     auto &real_keywords = keywords_cache->real_keywords;
@@ -1589,6 +1728,9 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
         if (idx == this->empty_string_id) ++using_empty_string_count;
         auto str = this->strings[idx];
         auto hits = acTrie->ParseText(str);
+        DEXKIT_STRING_COUNT(ac_refs, 1);
+        DEXKIT_STRING_COUNT(ac_bytes, str.size());
+        DEXKIT_STRING_COUNT(hits, hits.size());
         for (auto &hit: hits) {
             auto match_type = match_type_map->find(hit.value)->second;
             bool match;
@@ -1613,6 +1755,7 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
     if (search_set.size() < real_keywords->size()) {
         return false;
     }
+    DEXKIT_STRING_COUNT(intersections, 1);
     std::vector<std::string_view> unique_vec;
     std::set_intersection(search_set.begin(), search_set.end(),
                           real_keywords->begin(), real_keywords->end(),

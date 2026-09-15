@@ -1,7 +1,7 @@
 # Next round after the completed optimization stack
 
-Status: planning only. No candidate below has been implemented or assigned a
-new performance gain. The first priority is a narrow exact-string experiment
+Status: the user authorized the [ordered experiments](NEXT-ROUND-EXECUTION.md).
+No new candidate has a measured gain yet. The first priority is a narrow exact-string experiment
 in ordinary FindMethod/FindClass usingStrings, comparing the current path,
 direct comparison and a sorted-pool ID lookup, preceded by focused attribution.
 The user excluded all batch APIs from this ID/range experiment, including pure
@@ -88,7 +88,7 @@ comparison, returning after the first witness. A second candidate resolves
 the required string ID once per DEX and query, then compares integers in the
 same row. Restrict that initial ID candidate to ASCII without embedded NUL;
 see the sorted-pool correctness constraints below. Keep null/empty inputs,
-composite string predicates, other modes and multiple requirements on their
+nullable matcher entries, other modes and multiple requirements on their
 existing paths. Do not change Analyze, the existing prefilter, candidate
 order or the public API, and do not build a new global string index.
 

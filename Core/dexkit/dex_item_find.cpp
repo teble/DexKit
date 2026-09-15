@@ -20,6 +20,7 @@
 
 #include "dex_item.h"
 #include "internal/using_strings_prefilter.h"
+#include "string_query_diagnostics.h"
 
 namespace dexkit {
 
@@ -181,6 +182,9 @@ DexItem::FindClass(
 ) {
     auto query_binding = query_context.BindToCurrentThread();
     auto *prefilter_plan = internal::GetClassUsingStringsPrefilterPlan(query->matcher(), query_context);
+#if DEXKIT_BENCHMARK_STRING_TRACE
+    StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     std::vector<uint32_t> find_result;
     auto try_match_class = [&](uint32_t i) {
@@ -208,6 +212,7 @@ DexItem::FindClass(
     for (auto idx: find_result) {
         result.emplace_back(GetClassBean(idx));
     }
+    DEXKIT_STRING_COUNT(beans, result.size());
     return result;
 }
 
@@ -223,6 +228,9 @@ DexItem::FindMethod(
 ) {
     auto query_binding = query_context.BindToCurrentThread();
     auto *prefilter_plan = internal::GetMethodUsingStringsPrefilterPlan(query->matcher(), query_context);
+#if DEXKIT_BENCHMARK_STRING_TRACE
+    StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     std::vector<uint32_t> find_result;
     auto try_match_method = [&](uint32_t method_idx) {
@@ -252,6 +260,7 @@ DexItem::FindMethod(
     for (auto idx: find_result) {
         result.emplace_back(GetMethodBean(idx));
     }
+    DEXKIT_STRING_COUNT(beans, result.size());
     return result;
 }
 
@@ -307,6 +316,9 @@ DexItem::FindClass(
 ) {
     auto query_binding = query_context.BindToCurrentThread();
     auto *prefilter_plan = internal::GetClassUsingStringsPrefilterPlan(query->matcher(), query_context);
+#if DEXKIT_BENCHMARK_STRING_TRACE
+    StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     if (query->in_classes() && !in_class_set.contains(type_idx)) {
         return {};
@@ -335,6 +347,7 @@ DexItem::FindClass(
     for (auto idx: find_result) {
         result.emplace_back(GetClassBean(idx));
     }
+    DEXKIT_STRING_COUNT(beans, result.size());
     return result;
 }
 
@@ -349,6 +362,9 @@ DexItem::FindMethod(
 ) {
     auto query_binding = query_context.BindToCurrentThread();
     auto *prefilter_plan = internal::GetMethodUsingStringsPrefilterPlan(query->matcher(), query_context);
+#if DEXKIT_BENCHMARK_STRING_TRACE
+    StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     if (query->in_classes() && !in_class_set.contains(type_idx)) {
         return {};
@@ -379,6 +395,7 @@ DexItem::FindMethod(
     for (auto idx: find_result) {
         result.emplace_back(GetMethodBean(idx));
     }
+    DEXKIT_STRING_COUNT(beans, result.size());
     return result;
 }
 

@@ -62,7 +62,7 @@ def make_dex(classes, methods, fields, references=(), field_references=(), extra
     strings.update(name for _, name, _, _ in all_methods)
     strings.update(name for _, name, _ in all_fields)
     strings.update(shorty(proto) for proto in protos)
-    strings = sorted(strings, key=lambda value: value.encode('utf-16-be'))
+    strings = sorted(strings, key=lambda value: value.encode('utf-16-be', errors='surrogatepass'))
     string_ids = {value: i for i, value in enumerate(strings)}
     types = sorted(type_names, key=string_ids.__getitem__)
     type_ids = {value: i for i, value in enumerate(types)}

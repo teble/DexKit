@@ -37,6 +37,16 @@ option(DEXKIT_EXPERIMENT_COMPACT_INVOKES "Build forward invocation rows in conti
 option(DEXKIT_EXPERIMENT_RAW_SOURCE_FILES "Read source file views through existing ClassDef indexes" OFF)
 option(DEXKIT_EXPERIMENT_SINGLE_RELATION "Match one invocation or caller requirement without a general solver" OFF)
 option(DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT "Resolve field identity without building reverse field graphs" OFF)
+option(DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT "Direct comparison for one ordinary usingStrings condition" OFF)
+option(DEXKIT_EXPERIMENT_SINGLE_STRING_ID "Sorted-pool ID lookup for one ordinary usingStrings condition" OFF)
+option(DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX "Include StartWith in the single usingStrings experiment" OFF)
+option(DEXKIT_BENCHMARK_STRING_TRACE "Count ordinary usingStrings work per query task" OFF)
+if (DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT AND DEXKIT_EXPERIMENT_SINGLE_STRING_ID)
+    message(FATAL_ERROR "Choose one single-string matching experiment")
+endif ()
+if (DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX AND NOT (DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT OR DEXKIT_EXPERIMENT_SINGLE_STRING_ID))
+    message(FATAL_ERROR "The prefix extension requires a single-string experiment")
+endif ()
 set(DEXKIT_EXPERIMENT_STRING_MEMO_BYTES 1048576 CACHE STRING "Per-query negative string memo payload budget")
 if (NOT DEXKIT_EXPERIMENT_STRING_MEMO_BYTES MATCHES "^[0-9]+$")
     message(FATAL_ERROR "String memo budget must be a nonnegative integer")
@@ -87,6 +97,10 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_RAW_SOURCE_FILES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_SOURCE_FILES}>
         DEXKIT_EXPERIMENT_SINGLE_RELATION=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_RELATION}>
         DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=$<BOOL:${DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT}>
+        DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT}>
+        DEXKIT_EXPERIMENT_SINGLE_STRING_ID=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_STRING_ID}>
+        DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX}>
+        DEXKIT_BENCHMARK_STRING_TRACE=$<BOOL:${DEXKIT_BENCHMARK_STRING_TRACE}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
     target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_INTERNAL_METRICS=1)
@@ -107,6 +121,13 @@ option(DEXKIT_BENCHMARK_RELATION_CHECKS "Build cross-DEX field and invoke lifecy
 option(DEXKIT_BENCHMARK_RELATION_WORKLOAD "Build adverse field and invoke workloads" OFF)
 option(DEXKIT_BENCHMARK_SOURCE_CHECKS "Build raw source metadata checks" OFF)
 option(DEXKIT_BENCHMARK_SOURCE_WORKLOAD "Build source matcher and class output workloads" OFF)
+option(DEXKIT_BENCHMARK_STRING_WORKLOAD "Build ordinary usingStrings checks and workloads" OFF)
+if (DEXKIT_BENCHMARK_STRING_WORKLOAD)
+    add_executable(dexkit_string_checks ../tools/qaux-benchmark/string_checks.cpp)
+    target_link_libraries(dexkit_string_checks PRIVATE dexkit_static)
+    add_executable(dexkit_string_workload ../tools/qaux-benchmark/string_workload.cpp)
+    target_link_libraries(dexkit_string_workload PRIVATE dexkit_static)
+endif ()
 if (DEXKIT_BENCHMARK_SOURCE_WORKLOAD)
     add_executable(dexkit_source_workload ../tools/qaux-benchmark/source_workload.cpp)
     target_link_libraries(dexkit_source_workload PRIVATE dexkit_static)

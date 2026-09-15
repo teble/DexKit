@@ -76,7 +76,8 @@ def main():
                 'native_sha256': hashlib.sha256(library.read_bytes()).hexdigest(),
                 'cmake_options': settings, 'configure_command': configure,
                 'compiler': subprocess.check_output([compiler, '--version'], text=True).strip(),
-                'diagnostics': settings.get('DEXKIT_BENCHMARK_DIAGNOSTICS', 'OFF') == 'ON'}
+                'diagnostics': any(settings.get(key, 'OFF') == 'ON' for key in
+                                   ['DEXKIT_BENCHMARK_DIAGNOSTICS', 'DEXKIT_BENCHMARK_STRING_TRACE'])}
     (output / 'artifact.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print('Native SHA256:', manifest['native_sha256'])
 

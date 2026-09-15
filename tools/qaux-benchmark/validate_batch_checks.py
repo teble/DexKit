@@ -12,7 +12,7 @@ import subprocess
 
 from validate_string_checks import FOLD, LONG, class_ids
 
-QUERY_COUNT = 16
+QUERY_COUNT = 18
 
 
 def sha(path):
@@ -48,6 +48,11 @@ def groups(variant):
                               ('fold-two', [atom(b'needle', 'equal', True), atom(b'second', 'equal', True)])]
     if variant in (13, 14): return [('equal', [needle]), ('empty', [])]
     if variant == 15: return [('', [needle]), ('z', [needle]), ('', [needle])]
+    # Frozen existing collision behavior: the final mode for a normalized
+    # literal applies across groups. These two explicit controls do not claim
+    # that the general predicate helper models arbitrary mode collisions.
+    if variant == 16: return [('A', [atom(b'Needle', 'contains')]), ('B', [atom(b'Needle', 'contains')])]
+    if variant == 17: return [('B', [needle]), ('A', [needle])]
     raise AssertionError(variant)
 
 
@@ -169,7 +174,7 @@ def main():
         print(json.dumps(records[-1]), flush=True)
     result = {'fixture_sha256': sha(args.fixture / 'strings.apk'), 'independent_rows_sha256': sha(args.fixture / 'oracle-rows.json'),
               'checker_script_sha256': sha(Path(__file__)), 'records': records,
-              'coverage': '16 method + 16 class batches; independent raw-row predicates and code-presence parsing; cold/full/repeated/concurrent complete ordered bytes'}
+              'coverage': '18 method + 18 class batches; independent raw-row predicates and code-presence parsing, two explicit old mode-collision controls; cold/full/repeated/concurrent complete ordered bytes'}
     (args.output / 'validation.json').write_text(json.dumps(result, indent=2) + '\n')
 
 

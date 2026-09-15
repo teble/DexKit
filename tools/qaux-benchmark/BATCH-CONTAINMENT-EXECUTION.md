@@ -17,7 +17,7 @@ capacity bytes summed over those vectors. These are not allocator-call counts,
 peak live bytes or CPU timing. Timed builds disable all diagnostics and metrics.
 
 The native oracle uses independent encoded fixture rows and code-presence
-parsing for 16 method/16 class batches, then checks complete ordered serialized
+parsing for 18 method/18 class batches, then checks complete ordered serialized
 results across control and candidate. Cases include empty groups, mixed empty
 groups, overlapping and repeated atoms, duplicate/empty keys, all literal
 boundaries, SimilarRegex normalization, ASCII case folding, MUTF-8 values,
@@ -45,3 +45,10 @@ schema: StringMatcher has no logical children, and HasComposite(StringMatcher)
 is always false. Missing using-string lists/values are dereferenced by existing
 batch preprocessing, so they are not labeled valid batch DSL cases here. No
 schema or native semantic change is made to accommodate a test fixture.
+
+The completed source review requested two additional existing-behavior controls:
+Equal and Contains of the same literal in separate groups, in both request
+orders. The existing global mode map uses the last mode for that literal. These
+explicit expectations preserve that behavior; the oracle is not advertised as
+a general model for arbitrary mode/ignoreCase collisions. Only checker inputs
+change after formal timing, and immutable measured core archives are reused.

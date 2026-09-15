@@ -7,7 +7,7 @@ using namespace dexkit;
 using string_fixture::Atom;
 using string_fixture::Builder;
 using T = schema::StringMatchType;
-inline constexpr int QueryCount = 16;
+inline constexpr int QueryCount = 18;
 
 struct Group {
     std::string key;
@@ -46,6 +46,8 @@ inline std::vector<Group> Groups(int variant) {
                          {"fold-two", {{"needle", T::Equal, true}, {"second", T::Equal, true}}}};
         case 13: case 14: return {{"equal", {{"Needle"}}}, {"empty", {}}};
         case 15: return {{"", {{"Needle"}}}, {"z", {{"Needle"}}}, {"", {{"Needle"}}}};
+        case 16: return {{"A", {{"Needle", T::Equal}}}, {"B", {{"Needle", T::Contains}}}};
+        case 17: return {{"B", {{"Needle", T::Contains}}}, {"A", {{"Needle", T::Equal}}}};
         default: std::abort();
     }
 }

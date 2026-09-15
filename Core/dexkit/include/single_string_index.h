@@ -71,6 +71,7 @@ template<typename Strings>
 IdRange FindIds(const Strings &strings, std::string_view ascii, bool prefix) {
     if (!IsNonemptyAscii(ascii)) return {};
     DEXKIT_STRING_COUNT(ranges, 1);
+    DEXKIT_STRING_COUNT(pool_ids, strings.size());
     auto bound = [&](bool upper) -> std::optional<size_t> {
         size_t left = 0, right = strings.size();
         while (left < right) {
@@ -86,10 +87,12 @@ IdRange FindIds(const Strings &strings, std::string_view ascii, bool prefix) {
     if (!begin) return {};
     if (!prefix) {
         if (*begin == strings.size() || strings[*begin] != ascii) return {0, 0, true};
+        DEXKIT_STRING_COUNT(matched_pool_ids, 1);
         return {*begin, *begin + 1, true};
     }
     const auto end = bound(true);
     if (!end) return {};
+    DEXKIT_STRING_COUNT(matched_pool_ids, *end - *begin);
     return {*begin, *end, true};
 }
 

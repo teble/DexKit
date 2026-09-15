@@ -9,7 +9,8 @@ struct StringQueryCounts {
     uint64_t method_calls = 0, class_calls = 0, keyword_calls = 0;
     uint64_t ac_refs = 0, ac_bytes = 0, hits = 0, intersections = 0;
     uint64_t direct_calls = 0, direct_refs = 0, index_calls = 0, index_refs = 0;
-    uint64_t plans = 0, plan_bytes = 0, ranges = 0, comparisons = 0, decoded_units = 0, beans = 0;
+    uint64_t plans = 0, plan_bytes = 0, ranges = 0, pool_ids = 0, matched_pool_ids = 0;
+    uint64_t comparisons = 0, decoded_units = 0, beans = 0;
     inline static thread_local StringQueryCounts *current = nullptr;
 };
 
@@ -29,7 +30,8 @@ public:
             "\"method_calls\":%llu,\"class_calls\":%llu,\"keyword_calls\":%llu,"
             "\"ac_refs\":%llu,\"ac_bytes\":%llu,\"hits\":%llu,\"intersections\":%llu,"
             "\"direct_calls\":%llu,\"direct_refs\":%llu,\"index_calls\":%llu,\"index_refs\":%llu,"
-            "\"plans\":%llu,\"plan_bytes\":%llu,\"ranges\":%llu,\"comparisons\":%llu,\"decoded_units\":%llu,\"beans\":%llu}\n",
+            "\"plans\":%llu,\"plan_bytes\":%llu,\"ranges\":%llu,\"pool_ids\":%llu,\"matched_pool_ids\":%llu,"
+            "\"comparisons\":%llu,\"decoded_units\":%llu,\"beans\":%llu}\n",
             (unsigned long long)query_, dex_, unsigned(kind_),
             (unsigned long long)counts_.method_calls, (unsigned long long)counts_.class_calls,
             (unsigned long long)counts_.keyword_calls, (unsigned long long)counts_.ac_refs,
@@ -37,7 +39,8 @@ public:
             (unsigned long long)counts_.intersections, (unsigned long long)counts_.direct_calls,
             (unsigned long long)counts_.direct_refs, (unsigned long long)counts_.index_calls,
             (unsigned long long)counts_.index_refs, (unsigned long long)counts_.plans, (unsigned long long)counts_.plan_bytes,
-            (unsigned long long)counts_.ranges, (unsigned long long)counts_.comparisons,
+            (unsigned long long)counts_.ranges, (unsigned long long)counts_.pool_ids,
+            (unsigned long long)counts_.matched_pool_ids, (unsigned long long)counts_.comparisons,
             (unsigned long long)counts_.decoded_units, (unsigned long long)counts_.beans);
     }
     StringQueryTraceScope(const StringQueryTraceScope &) = delete;

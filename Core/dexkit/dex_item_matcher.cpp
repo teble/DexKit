@@ -19,6 +19,7 @@
 // <https://github.com/LuckyPray/DexKit/blob/master/LICENSE>.
 
 #include "dex_item.h"
+#include "benchmark_diagnostics.h"
 #include <type_traits>
 #include "matcher_thread_cache_registry.h"
 #include "utils/dex_descriptor_util.h"
@@ -1763,6 +1764,9 @@ bool DexItem::IsInvokingMethodsMatched(uint32_t method_idx, const schema::Method
             return false;
         }
         auto IsMethodMatched = [this](uint32_t method_idx, const schema::MethodMatcher *matcher) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            RelationJudgeTrace::Observe(this->dex_id, method_idx);
+#endif
             return this->IsMethodMatched(method_idx, matcher);
         };
 
@@ -1824,6 +1828,9 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
             return false;
         }
         auto IsMethodMatched = [this](std::pair<uint16_t, uint32_t> method_info, const schema::MethodMatcher *matcher) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            RelationJudgeTrace::Observe(method_info.first, method_info.second);
+#endif
             if (method_info.first == this->dex_id) {
                 return this->IsMethodMatched(method_info.second, matcher);
             } else {

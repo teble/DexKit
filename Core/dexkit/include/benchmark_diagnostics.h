@@ -22,6 +22,14 @@ struct BenchmarkDiagnostics {
     static void CheckSources(std::string_view apk, bool dump);
 };
 
+// Only attached by the serial row-level checker, never by timed builds.
+struct RelationJudgeTrace {
+    inline static thread_local std::vector<int64_t> *current = nullptr;
+    static void Observe(uint32_t dex, uint32_t method) {
+        if (current) current->push_back((int64_t(dex) << 32) | method);
+    }
+};
+
 // Diagnostic builds only: no counters or clocks enter a measurement binary.
 struct BatchScanDiagnostics {
     using Clock = std::chrono::steady_clock;

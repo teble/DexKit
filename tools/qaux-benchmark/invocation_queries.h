@@ -45,7 +45,8 @@ inline std::unique_ptr<Builder> Query(bool callers, int variant) {
         requirements.push_back(Named(*b, variant == 4 ? "impossible" : (callers ? "run" : "aEarly"),
                                      schema::StringMatchType::StartWith));
     }
-    if (variant == 9) requirements.push_back(Named(*b, callers ? "run" : "aEarly", schema::StringMatchType::StartWith));
+    if (variant == 9 || variant == 12 || variant == 13)
+        requirements.push_back(Named(*b, callers ? "run" : "aEarly", schema::StringMatchType::StartWith));
     if (variant == 10 || variant == 11) {
         auto name = schema::CreateStringMatcher(*b, b->CreateString(callers ? "zRun" : "zLate"), schema::StringMatchType::Equal);
         auto owner_name = schema::CreateStringMatcher(*b, b->CreateString("relations.Source1"), schema::StringMatchType::Equal);
@@ -62,7 +63,8 @@ inline std::unique_ptr<Builder> Query(bool callers, int variant) {
     }
     auto matchers = variant == 8 ? flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<schema::MethodMatcher>>>{}
                                 : b->CreateVector(requirements);
-    auto range = variant == 7 ? schema::CreateIntRange(*b, 0, 0)
+    auto range = variant == 12 ? schema::CreateIntRange(*b, 1, INT32_MAX)
+               : variant == 7 || variant == 13 ? schema::CreateIntRange(*b, 0, 0)
                : variant == 6 ? schema::CreateIntRange(*b, 1, 1) : flatbuffers::Offset<schema::IntRange>{};
     auto relation = schema::CreateMethodsMatcher(*b, matchers,
         variant == 2 || variant == 5 ? schema::MatchType::Equal : schema::MatchType::Contains, range);
@@ -73,6 +75,28 @@ inline std::unique_ptr<Builder> Query(bool callers, int variant) {
     schema::FindMethodBuilder query(*b);
     query.add_matcher(matcher);
     b->Finish(query.Finish());
+    return b;
+}
+
+inline std::unique_ptr<Builder> NestedFieldCallerQuery() {
+    auto b = std::make_unique<Builder>();
+    auto no_methods = schema::CreateMethodsMatcher(*b, 0, schema::MatchType::Contains, schema::CreateIntRange(*b, 0, 0));
+    schema::FieldMatcherBuilder no_readers(*b);
+    no_readers.add_get_methods(no_methods);
+    auto excluded = b->CreateVector(std::vector{no_readers.Finish()});
+    auto name = schema::CreateStringMatcher(*b, b->CreateString("value"), schema::StringMatchType::Equal);
+    schema::FieldMatcherBuilder field(*b);
+    field.add_field_name(name); field.add_none_of(excluded);
+    auto uses = b->CreateVector(std::vector{schema::CreateUsingFieldMatcher(*b, field.Finish())});
+    schema::MethodMatcherBuilder caller(*b);
+    caller.add_using_fields(uses);
+    auto requirements = b->CreateVector(std::vector{caller.Finish()});
+    auto callers = schema::CreateMethodsMatcher(*b, requirements);
+    schema::MethodMatcherBuilder method(*b);
+    method.add_method_callers(callers);
+    auto matcher = method.Finish();
+    schema::FindMethodBuilder query(*b);
+    query.add_matcher(matcher); b->Finish(query.Finish());
     return b;
 }
 } // namespace invocation_fixture

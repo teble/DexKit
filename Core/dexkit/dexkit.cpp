@@ -342,8 +342,10 @@ bool DexKit::NeedWarmUp(uint32_t init_flags) const {
             }
         }
     }
-    auto aggregate_ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
-    if ((aggregate_ready_flags & aggregate_flags) != aggregate_flags) return true;
+    if (aggregate_flags != 0) {
+        auto aggregate_ready_flags = cross_ref_aggregate_flag.load(std::memory_order_acquire);
+        if ((aggregate_ready_flags & aggregate_flags) != aggregate_flags) return true;
+    }
 
     return false;
 }

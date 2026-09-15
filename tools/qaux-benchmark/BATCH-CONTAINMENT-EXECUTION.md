@@ -1,8 +1,10 @@
 # Batch containment experiment
 
-Status: implementation and checks in progress, after the completed Equal and
-StartWith experiments. The incremental control is the nine-switch combination;
-all single-string switches are OFF in this phase.
+Status: complete. Ten sweeps / 120 process samples, independent confirmation,
+diagnostics, expanded 36-case ordered checks, standalone/sanitizer verification,
+JVM tests and four-ABI Android builds are complete. See BATCH-CONTAINMENT-RESULTS
+and BATCH-CONTAINMENT-REVIEW. The incremental control is the nine-switch
+combination; all single-string switches are OFF in this phase.
 
 Only the two batch group checks change: replace an intersection vector plus
 size comparison with `std::includes`, keeping the same default string-view

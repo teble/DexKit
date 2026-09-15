@@ -109,3 +109,8 @@ avoids reference visits, so its benefit is not solely integer-versus-byte
 comparison. Prefix reporting must separate positive and fully absent queries
 and include lifecycle costs. QQ contains no explicit StartWith query and is
 therefore an incremental PREFIX-on overhead guard against Equal-only builds.
+
+The subsequent completed review of `a997da6` read the final Prefix results and
+found its workload-specific conclusions and narrowed attribution consistent
+with the submitted report. It did not independently recompute the samples.
+See BATCH-CONTAINMENT-REVIEW for that review's actual scope and limits.

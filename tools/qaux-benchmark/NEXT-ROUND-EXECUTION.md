@@ -1,7 +1,8 @@
 # Ordered next-round experiments
 
 Status: active. Equal and StartWith measurements and independent confirmation
-are complete. Batch boolean containment is next; subsequent ranked mechanisms
+are complete. Batch boolean containment is complete; one using-field requirement
+is next. Subsequent ranked mechanisms
 remain independent experiments against the nine-switch control.
 
 ## Controls and sequence
@@ -80,3 +81,9 @@ source and evidence review after meaningful increments.
   access and has no confirmed extra broad-positive or broad lifecycle benefit.
   QQ's incremental PREFIX-on guard has no stable lifecycle change. Retain the
   small ID multiple-prefix fallback peak cost. See SINGLE-STRING-RESULTS.
+* Completed independent batch containment: ten sweeps / 120 samples, expanded
+  36-case small/wide ordered checks, standalone/ASan/UBSan, eleven frozen QQ
+  rounds, 71 JVM tests and four-ABI AAR assembly. QQ's 149-group repeated API
+  improves 4.45% in confirmation, while whole-QQ lifecycle and process peak
+  remain unresolved. The high-overlap method/class fixture improves; no-hit
+  guards do not establish a change. Keep this separate from later field work.

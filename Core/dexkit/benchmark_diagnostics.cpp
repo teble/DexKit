@@ -137,7 +137,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Rows(counts["full_numbers"], item.method_using_numbers);
         Rows(counts["class_members"], item.class_method_ids);
         Rows(counts["class_members"], item.class_field_ids);
+#if !DEXKIT_EXPERIMENT_RAW_INTERFACES
         Rows(counts["class_members"], item.class_interface_ids);
+#endif
         Rows(counts["pending_cross_refs"], item.pending_cross_ref_method_ids);
         Rows(counts["pending_cross_refs"], item.pending_cross_ref_field_ids);
         Flat(counts["aggregate_work"], item.pending_aggregate_method_work_items);

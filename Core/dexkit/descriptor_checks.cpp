@@ -8,8 +8,36 @@
 #include <map>
 #include <set>
 #include <thread>
+#include <type_traits>
 
 namespace dexkit {
+
+// Run this in a separate all-flags-off artifact and freeze stdout. Comparing
+// its complete bytes with experimental artifacts is an independent oracle for
+// descriptors and metadata, including local IDs and ordered interface lists.
+void BenchmarkDiagnostics::DumpSymbols(std::string_view apk) {
+    DexKit bridge(apk, 1);
+    std::puts("DEXKIT_SYMBOL_ORACLE_V1");
+    const auto write = [](char kind, size_t dex, uint32_t id, const auto &bean) {
+        flatbuffers::FlatBufferBuilder builder;
+        if constexpr (std::is_same_v<std::decay_t<decltype(bean)>, ClassBean>)
+            builder.Finish(bean.CreateClassMeta(builder));
+        else if constexpr (std::is_same_v<std::decay_t<decltype(bean)>, MethodBean>)
+            builder.Finish(bean.CreateMethodMeta(builder));
+        else
+            builder.Finish(bean.CreateFieldMeta(builder));
+        std::printf("%c %zu %u %zu\n", kind, dex, id, builder.GetSize());
+        std::fwrite(builder.GetBufferPointer(), 1, builder.GetSize(), stdout);
+        std::putchar('\n');
+    };
+    for (size_t d = 0; d < bridge.dex_items.size(); ++d) {
+        auto &item = *bridge.dex_items[d];
+        for (uint32_t c = 0; c < item.reader.TypeIds().size(); ++c) write('C', d, c, item.GetClassBean(c));
+        for (uint32_t m = 0; m < item.reader.MethodIds().size(); ++m) write('M', d, m, item.GetMethodBean(m));
+        for (uint32_t f = 0; f < item.reader.FieldIds().size(); ++f) write('F', d, f, item.GetFieldBean(f));
+    }
+    if (std::ferror(stdout)) std::abort();
+}
 
 void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     const auto require = [](bool condition, const char *message) {

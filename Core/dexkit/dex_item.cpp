@@ -139,7 +139,9 @@ void DexItem::InitBaseCache() {
     type_def_idx.resize(reader.TypeIds().size());
     class_source_files.resize(reader.TypeIds().size());
     class_access_flags.resize(reader.TypeIds().size());
+#if !DEXKIT_EXPERIMENT_RAW_INTERFACES
     class_interface_ids.resize(reader.TypeIds().size());
+#endif
     class_method_ids.resize(reader.TypeIds().size());
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
@@ -180,6 +182,7 @@ void DexItem::InitBaseCache() {
         type_def_idx[class_def.class_idx] = def_idx;
         class_access_flags[class_def.class_idx] = class_def.access_flags;
 
+#if !DEXKIT_EXPERIMENT_RAW_INTERFACES
         if (class_def.interfaces_off) {
             auto interface_type_list = this->reader.dataPtr<dex::TypeList>(class_def.interfaces_off);
             if (interface_type_list != nullptr) {
@@ -190,6 +193,7 @@ void DexItem::InitBaseCache() {
                 }
             }
         }
+#endif
 
         if (class_def.class_data_off == 0) {
             continue;
@@ -675,12 +679,27 @@ ClassBean DexItem::GetClassBean(uint32_t type_idx) {
         bean.source_file = this->class_source_files[type_idx];
         bean.access_flags = class_def.access_flags;
         bean.super_class_id = class_def.superclass_idx;
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+        const auto interfaces = GetInterfaceTypeIds(type_idx);
+        bean.interface_ids.resize(interfaces.size());
+        for (size_t i = 0; i < interfaces.size(); ++i) bean.interface_ids[i] = interfaces[i];
+#else
         bean.interface_ids = this->class_interface_ids[type_idx];
+#endif
         bean.field_ids = this->class_field_ids[type_idx];
         bean.method_ids = this->class_method_ids[type_idx];
     }
     return bean;
 }
+
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+RawTypeIds DexItem::GetInterfaceTypeIds(uint32_t type_idx) const {
+    if (!type_def_flag[type_idx]) return {};
+    const auto &definition = reader.ClassDefs()[type_def_idx[type_idx]];
+    return RawTypeIds(definition.interfaces_off
+            ? reader.dataPtr<dex::TypeList>(definition.interfaces_off) : nullptr);
+}
+#endif
 
 // NOLINTNEXTLINE
 MethodBean DexItem::GetMethodBean(uint32_t method_idx) {

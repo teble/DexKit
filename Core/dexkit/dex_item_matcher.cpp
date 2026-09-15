@@ -19,6 +19,7 @@
 // <https://github.com/LuckyPray/DexKit/blob/master/LICENSE>.
 
 #include "dex_item.h"
+#include <type_traits>
 #include "matcher_thread_cache_registry.h"
 #include "utils/dex_descriptor_util.h"
 
@@ -27,18 +28,30 @@
 
 namespace dexkit {
 
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+template<typename T, typename U, typename Targets = std::vector<T>>
+#else
 template<typename T, typename U>
+#endif
 class Hungarian {
 private:
     std::vector<U> left;
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+    Targets right;
+#else
     std::vector<T> right;
+#endif
     std::vector<std::vector<int8_t>> map;
     std::vector<int> p;
     std::vector<bool> vis;
     std::function<bool(T&, U&)> judge;
     bool fast_fail = false;
 public:
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+    Hungarian(const Targets &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
+#else
     Hungarian(const std::vector<T> &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
+#endif
         if (matchers.size() > targets.size()) {
             fast_fail = true;
             return;
@@ -58,7 +71,17 @@ public:
     bool dfs(int i) {
         for (int j = 0; j < right.size(); ++j) {
             if (vis[j]) continue;
-            if (!map[i][j]) map[i][j] = judge(right[j], left[i]) ? 1 : -1;
+            if (!map[i][j]) {
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+                if constexpr (std::is_same_v<Targets, RawTypeIds>) {
+                    auto target = right[j];
+                    map[i][j] = judge(target, left[i]) ? 1 : -1;
+                } else
+#endif
+                {
+                    map[i][j] = judge(right[j], left[i]) ? 1 : -1;
+                }
+            }
             if (map[i][j] > 0) {
                 vis[j] = true;
                 if (p[j] < 0 || dfs(p[j])) {
@@ -1192,7 +1215,11 @@ bool DexItem::IsInterfacesMatched(uint32_t type_idx, const schema::InterfacesMat
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+    const auto interfaces = GetInterfaceTypeIds(type_idx);
+#else
     const auto &interfaces = this->class_interface_ids[type_idx];
+#endif
     if (matcher->interface_count()) {
         if (interfaces.size() < matcher->interface_count()->min()
         || interfaces.size() > matcher->interface_count()->max()) {
@@ -1215,7 +1242,11 @@ bool DexItem::IsInterfacesMatched(uint32_t type_idx, const schema::InterfacesMat
         });
 
         auto &interface_matchers = *ptr;
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+        Hungarian<uint32_t, const schema::ClassMatcher *, RawTypeIds> hungarian(interfaces, interface_matchers, IsClassMatched);
+#else
         Hungarian<uint32_t, const schema::ClassMatcher *> hungarian(interfaces, interface_matchers, IsClassMatched);
+#endif
         auto count = hungarian.solve();
         if (count != interface_matchers.size()) {
             return false;

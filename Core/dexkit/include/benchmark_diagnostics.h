@@ -15,6 +15,7 @@ struct BenchmarkDiagnostics {
     static void Dump(const DexKit &bridge, const char *phase);
     static void CheckMetadata(std::string_view apk);
     static void CheckSymbols(std::string_view apk);
+    static void DumpSymbols(std::string_view apk);
 };
 
 // Diagnostic builds only: no counters or clocks enter a measurement binary.

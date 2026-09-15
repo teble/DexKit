@@ -45,6 +45,9 @@
 #include "dexkit.h"
 #include "analyze.h"
 #include "descriptor_diagnostics.h"
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+#include "raw_type_ids.h"
+#endif
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
 #include "paged_descriptor_cache.h"
 #endif
@@ -285,6 +288,9 @@ private:
 
 private:
     friend class DexKit;
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES
+    RawTypeIds GetInterfaceTypeIds(uint32_t type_idx) const;
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
     DescriptorDiagnostics descriptor_diagnostics;
@@ -392,7 +398,9 @@ private:
     // class source file name, eg: "HelloWorld.java", maybe obfuscated
     std::vector<std::string_view> class_source_files;
     std::vector<uint32_t /*access_flag*/> class_access_flags;
+#if !DEXKIT_EXPERIMENT_RAW_INTERFACES
     std::vector<std::vector<uint32_t>> class_interface_ids;
+#endif
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     PagedDescriptorCache method_descriptors;
 #else

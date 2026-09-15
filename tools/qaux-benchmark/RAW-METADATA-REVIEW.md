@@ -51,7 +51,34 @@ global symbol interning table was adopted.
 
 ## Validation status
 
-Implementation and measurement are in progress. This initial review covers the
-source base and design, not a review of later prototype source or a guarantee
-of performance. Subsequent source review and actual evidence will be recorded
-here when complete.
+Implementation and measurement are in progress. No review substitutes for the
+local checks or artifact-specific measurements below.
+
+## Review of R1 and initial R2 source
+
+Pro reported reading fixed `5102357f670a8a1ab89781be0edaac6beb395fa7`, including
+paged storage, descriptor parsing and generation, initialization, checks,
+CMake, both Gradle files, and the R1 evidence. The complete reply was read and
+copied. It did not execute R2 or infer R2 gains from R1 data.
+
+- It found no specific new R1 identity/lookup-domain discrepancy in legal DEX
+  input. It checked dense-cache publication and the R2 macro substitution.
+- It identified a portability concern with deriving the body from a Record
+  object's one-past pointer. The revision uses an owning char array, publishes
+  a pointer derived from that array, and reads/writes the length with memcpy.
+  Alignment and block growth policy stay fixed to isolate this correction.
+- It identified that same-artifact descriptor comparisons were not independent
+  of the R2 generator. The added dump mode freezes every class/method/field
+  FlatBuffer from the all-flags-off artifact and compares complete bytes with
+  each candidate, including descriptors, semantic IDs, and interface order.
+- It requested exact block boundaries, oversized records, page boundaries,
+  and concurrent retained reads during growth. A standalone cache checker
+  adds these cases, plus empty/short/embedded-NUL records and invalid-use
+  subprocess checks. ASan/UBSan supplement the explicit layout reasoning.
+- For R3, it recommends resolving the TypeList once per interface matcher and
+  retaining Hungarian state and positional matching. The prototype follows
+  this shape and still requires an interface-heavy timing counterexample.
+
+Initial R2 measurements belong to the pre-correction artifact. They remain
+recorded as exploration; the revised implementation receives fresh comparisons.
+

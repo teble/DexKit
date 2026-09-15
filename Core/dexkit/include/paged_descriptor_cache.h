@@ -10,7 +10,6 @@
 #include <limits>
 #include <memory>
 #include <mutex>
-#include <new>
 #include <string_view>
 #include <vector>
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -22,25 +21,26 @@ namespace dexkit {
 // Integer-indexed cache whose published views stay valid until destruction.
 // Pages and byte blocks are allocated only on cold misses and never move.
 class PagedDescriptorCache {
-    struct Record {
+    // Slots point into an owning char array. Read the length header with
+    // memcpy; no Record object or pointer arithmetic beyond an object is used.
+    static std::string_view ReadView(const char *record) {
         size_t length;
-        char *data() { return reinterpret_cast<char *>(this + 1); }
-        const char *data() const { return reinterpret_cast<const char *>(this + 1); }
-        std::string_view view() const { return {data(), length}; }
-    };
+        std::memcpy(&length, record, sizeof(length));
+        return {record + sizeof(length), length};
+    }
     static constexpr size_t kPageSize = 256;
     static constexpr size_t kStripeCount = 8;
     static constexpr size_t kInitialBlockSize = 4096;
     static constexpr size_t kMaximumBlockSize = 65536;
     struct Page {
-        std::array<std::atomic<Record *>, kPageSize> slots{};
+        std::array<std::atomic<const char *>, kPageSize> slots{};
     };
     struct Block {
-        std::unique_ptr<std::byte[]> data;
+        std::unique_ptr<char[]> data;
         size_t capacity;
         size_t used = 0;
         // Deliberately do not value-initialize (touch) the entire byte block.
-        explicit Block(size_t bytes) : data(new std::byte[bytes]), capacity(bytes) {}
+        explicit Block(size_t bytes) : data(new char[bytes]), capacity(bytes) {}
     };
     struct Stripe {
         mutable std::mutex mutex;
@@ -63,7 +63,7 @@ class PagedDescriptorCache {
         return value + extra;
     }
     static size_t AlignRecord(size_t value) {
-        constexpr size_t alignment = alignof(Record);
+        constexpr size_t alignment = alignof(size_t);
         return CheckedAdd(value, alignment - 1) & ~(alignment - 1);
     }
     static Block &GetBlock(Stripe &stripe, size_t needed) {
@@ -101,7 +101,7 @@ public:
         const auto slot = index % kPageSize;
         auto *page = directory_[page_index].load(std::memory_order_acquire);
         if (page) {
-            if (auto *record = page->slots[slot].load(std::memory_order_acquire)) return record->view();
+            if (auto *record = page->slots[slot].load(std::memory_order_acquire)) return ReadView(record);
         }
         auto &stripe = stripes_[page_index % kStripeCount];
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -120,15 +120,16 @@ public:
             stripe.pages.push_back(std::move(owned));
             directory_[page_index].store(page, std::memory_order_release);
         }
-        if (auto *record = page->slots[slot].load(std::memory_order_relaxed)) return record->view();
+        if (auto *record = page->slots[slot].load(std::memory_order_relaxed)) return ReadView(record);
 
         size_t length = 0;
         visit([&](std::string_view part) { length = CheckedAdd(length, part.size()); });
-        const auto needed = CheckedAdd(sizeof(Record), CheckedAdd(length, 1));
+        const auto needed = CheckedAdd(sizeof(size_t), CheckedAdd(length, 1));
         auto &block = GetBlock(stripe, needed);
         const auto offset = AlignRecord(block.used);
-        auto *record = ::new (static_cast<void *>(block.data.get() + offset)) Record{length};
-        char *out = record->data();
+        char *record = block.data.get() + offset;
+        std::memcpy(record, &length, sizeof(length));
+        char *out = record + sizeof(length);
         size_t remaining = length;
         visit([&](std::string_view part) {
             if (part.size() > remaining) std::abort();
@@ -141,7 +142,7 @@ public:
         block.used = offset + needed;
         page->slots[slot].store(record, std::memory_order_release);
         on_built(length);
-        return record->view();
+        return ReadView(record);
     }
 
     struct Statistics {
@@ -171,8 +172,9 @@ public:
             for (const auto &page : stripe.pages) for (const auto &slot : page->slots) {
                 if (const auto *record = slot.load(std::memory_order_relaxed)) {
                     ++result.records;
-                    result.character_bytes += record->length + 1;
-                    result.record_bytes += sizeof(Record) + record->length + 1;
+                    const auto length = ReadView(record).size();
+                    result.character_bytes += length + 1;
+                    result.record_bytes += sizeof(size_t) + length + 1;
                 }
             }
 #if DEXKIT_BENCHMARK_DIAGNOSTICS

@@ -1,0 +1,387 @@
+I/DexKit: apkPath -> /Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":0,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":1,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":2,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":3,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":4,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":5,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":6,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":7,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":8,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":9,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":10,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":11,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":12,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":13,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":14,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":15,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":16,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":17,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":18,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":19,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":20,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":21,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":22,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":23,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":24,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":25,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":26,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":27,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":28,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":29,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":30,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":31,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":32,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":33,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":34,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":35,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":36,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":37,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":38,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":39,"sso_records":0}
+BENCH_POINTER_DESCRIPTORS {"phase":"create","dex":40,"sso_records":0}
+BENCH_CENSUS {"phase":"create","dexes":41,"method_ids":2600031,"field_ids":1492869,"mapped_bytes":411819364,"slot_sizes":[16,16,16]}
+BENCH_CENSUS {"phase":"create","category":"aggregate_work","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"annotations","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"base_arrays","index_bytes":160614118,"payload_capacity_bytes":0,"entries":17414998,"nonempty_or_ready":0,"live_buffers":492}
+BENCH_CENSUS {"phase":"create","category":"callers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"class_members","index_bytes":33314592,"payload_capacity_bytes":17512000,"entries":1388108,"nonempty_or_ready":772500,"live_buffers":772582}
+BENCH_CENSUS {"phase":"create","category":"descriptor_publication","index_bytes":83968,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"descriptors","index_bytes":32743200,"payload_capacity_bytes":0,"entries":4092900,"nonempty_or_ready":0,"live_buffers":82}
+BENCH_CENSUS {"phase":"create","category":"field_readers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"field_writers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"full_numbers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"full_opcodes","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"invokes","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"lazy_numbers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"lazy_opcodes","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"lazy_strings","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"pending_cross_refs","index_bytes":33314592,"payload_capacity_bytes":3404028,"entries":1388108,"nonempty_or_ready":245172,"live_buffers":245254}
+BENCH_CENSUS {"phase":"create","category":"using_fields","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"create","category":"using_strings","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_DESCRIPTOR {"reason":"output","method_builds":0,"field_builds":0,"materialized_bytes":0}
+BENCH_DESCRIPTOR {"reason":"cross_reference","method_builds":0,"field_builds":0,"materialized_bytes":0}
+BENCH_DESCRIPTOR {"reason":"lookup","method_builds":0,"field_builds":0,"materialized_bytes":0}
+BENCH_DESCRIPTOR {"method_comparisons":0,"field_comparisons":0}
+BENCH_FIELD_REVERSE {"phase":"create","get_matcher":0,"put_matcher":0,"get_metadata":0,"put_metadata":0}
+BENCH_WARMUP {"phase":"create","local_init_calls":0,"resolve_calls":0,"aggregate_calls":0}
+BENCH_CENSUS {"phase":"create","diagnostic_ns":7750250}
+BENCH_MEMO {"dex":1,"bytes":8776,"probes":47208,"hits":26621}
+BENCH_SCAN {"dex":1,"groups":149,"visits":47208,"unique":20534,"bytes":662878,"unique_bytes":420959,"samples":28,"sample_wall_ns":6998,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":615,"negative_samples":28,"long_samples":0,"empty_clock_ns":416}
+BENCH_MEMO {"dex":2,"bytes":8952,"probes":57199,"hits":27293}
+BENCH_SCAN {"dex":2,"groups":149,"visits":57199,"unique":29450,"bytes":1035182,"unique_bytes":722644,"samples":27,"sample_wall_ns":8251,"duplicate_samples":1,"duplicate_sample_wall_ns":208,"seed":20260915,"sampled_bytes":721,"negative_samples":26,"long_samples":0,"empty_clock_ns":500}
+BENCH_MEMO {"dex":3,"bytes":10544,"probes":69048,"hits":31911}
+BENCH_SCAN {"dex":3,"groups":149,"visits":69048,"unique":36970,"bytes":1200777,"unique_bytes":841426,"samples":32,"sample_wall_ns":7915,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":731,"negative_samples":32,"long_samples":0,"empty_clock_ns":541}
+BENCH_MEMO {"dex":0,"bytes":12264,"probes":74357,"hits":34862}
+BENCH_SCAN {"dex":0,"groups":149,"visits":74357,"unique":39338,"bytes":1298181,"unique_bytes":885124,"samples":29,"sample_wall_ns":6457,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":594,"negative_samples":29,"long_samples":0,"empty_clock_ns":794}
+BENCH_MEMO {"dex":4,"bytes":9568,"probes":51474,"hits":23318}
+BENCH_SCAN {"dex":4,"groups":149,"visits":51474,"unique":28062,"bytes":967175,"unique_bytes":690401,"samples":35,"sample_wall_ns":9959,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":953,"negative_samples":35,"long_samples":0,"empty_clock_ns":793}
+BENCH_MEMO {"dex":5,"bytes":8440,"probes":48902,"hits":24058}
+BENCH_SCAN {"dex":5,"groups":149,"visits":48902,"unique":24618,"bytes":834808,"unique_bytes":554641,"samples":26,"sample_wall_ns":6208,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":715,"negative_samples":26,"long_samples":0,"empty_clock_ns":293}
+BENCH_MEMO {"dex":6,"bytes":7720,"probes":46243,"hits":23408}
+BENCH_SCAN {"dex":6,"groups":149,"visits":46243,"unique":22492,"bytes":984448,"unique_bytes":704373,"samples":23,"sample_wall_ns":6252,"duplicate_samples":1,"duplicate_sample_wall_ns":250,"seed":20260915,"sampled_bytes":551,"negative_samples":22,"long_samples":0,"empty_clock_ns":457}
+BENCH_MEMO {"dex":7,"bytes":11032,"probes":83659,"hits":44004}
+BENCH_SCAN {"dex":7,"groups":149,"visits":83659,"unique":39367,"bytes":1320218,"unique_bytes":850773,"samples":44,"sample_wall_ns":11622,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":1009,"negative_samples":44,"long_samples":0,"empty_clock_ns":750}
+BENCH_MEMO {"dex":8,"bytes":10272,"probes":60561,"hits":28777}
+BENCH_SCAN {"dex":8,"groups":149,"visits":60561,"unique":31680,"bytes":1103393,"unique_bytes":792519,"samples":25,"sample_wall_ns":7250,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":617,"negative_samples":25,"long_samples":0,"empty_clock_ns":459}
+BENCH_MEMO {"dex":9,"bytes":8080,"probes":49959,"hits":24347}
+BENCH_SCAN {"dex":9,"groups":149,"visits":49959,"unique":25496,"bytes":1124722,"unique_bytes":682116,"samples":29,"sample_wall_ns":9121,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":780,"negative_samples":29,"long_samples":0,"empty_clock_ns":500}
+BENCH_MEMO {"dex":10,"bytes":10288,"probes":46925,"hits":21682}
+BENCH_SCAN {"dex":10,"groups":149,"visits":46925,"unique":25191,"bytes":795580,"unique_bytes":556601,"samples":26,"sample_wall_ns":5166,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":418,"negative_samples":25,"long_samples":0,"empty_clock_ns":456}
+BENCH_MEMO {"dex":11,"bytes":7496,"probes":36864,"hits":20429}
+BENCH_SCAN {"dex":11,"groups":149,"visits":36864,"unique":16185,"bytes":628997,"unique_bytes":412285,"samples":19,"sample_wall_ns":4540,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":361,"negative_samples":19,"long_samples":0,"empty_clock_ns":374}
+BENCH_MEMO {"dex":12,"bytes":5792,"probes":60257,"hits":37723}
+BENCH_SCAN {"dex":12,"groups":149,"visits":60257,"unique":22090,"bytes":623261,"unique_bytes":344207,"samples":18,"sample_wall_ns":2460,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":246,"negative_samples":18,"long_samples":0,"empty_clock_ns":208}
+BENCH_MEMO {"dex":13,"bytes":8120,"probes":58086,"hits":33164}
+BENCH_SCAN {"dex":13,"groups":149,"visits":58086,"unique":24504,"bytes":844358,"unique_bytes":495410,"samples":20,"sample_wall_ns":3415,"duplicate_samples":1,"duplicate_sample_wall_ns":208,"seed":20260915,"sampled_bytes":309,"negative_samples":19,"long_samples":0,"empty_clock_ns":209}
+BENCH_MEMO {"dex":15,"bytes":6304,"probes":44432,"hits":27288}
+BENCH_SCAN {"dex":15,"groups":149,"visits":44432,"unique":16599,"bytes":706728,"unique_bytes":372385,"samples":12,"sample_wall_ns":2874,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":291,"negative_samples":12,"long_samples":0,"empty_clock_ns":334}
+BENCH_MEMO {"dex":16,"bytes":6400,"probes":46076,"hits":28349}
+BENCH_SCAN {"dex":16,"groups":149,"visits":46076,"unique":17041,"bytes":752963,"unique_bytes":394072,"samples":25,"sample_wall_ns":6832,"duplicate_samples":2,"duplicate_sample_wall_ns":416,"seed":20260915,"sampled_bytes":638,"negative_samples":23,"long_samples":0,"empty_clock_ns":458}
+BENCH_MEMO {"dex":17,"bytes":8760,"probes":54734,"hits":27211}
+BENCH_SCAN {"dex":17,"groups":149,"visits":54734,"unique":27433,"bytes":886348,"unique_bytes":599990,"samples":19,"sample_wall_ns":4543,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":385,"negative_samples":19,"long_samples":0,"empty_clock_ns":125}
+BENCH_MEMO {"dex":14,"bytes":7488,"probes":55260,"hits":30237}
+BENCH_SCAN {"dex":14,"groups":149,"visits":55260,"unique":24899,"bytes":2526498,"unique_bytes":1692711,"samples":25,"sample_wall_ns":12165,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":1497,"negative_samples":25,"long_samples":0,"empty_clock_ns":251}
+BENCH_MEMO {"dex":18,"bytes":6608,"probes":54506,"hits":34168}
+BENCH_SCAN {"dex":18,"groups":149,"visits":54506,"unique":19864,"bytes":823357,"unique_bytes":409832,"samples":23,"sample_wall_ns":5040,"duplicate_samples":3,"duplicate_sample_wall_ns":750,"seed":20260915,"sampled_bytes":446,"negative_samples":20,"long_samples":0,"empty_clock_ns":418}
+BENCH_MEMO {"dex":19,"bytes":7224,"probes":56343,"hits":30431}
+BENCH_SCAN {"dex":19,"groups":149,"visits":56343,"unique":25804,"bytes":2194579,"unique_bytes":1246541,"samples":25,"sample_wall_ns":8917,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":961,"negative_samples":25,"long_samples":0,"empty_clock_ns":543}
+BENCH_MEMO {"dex":22,"bytes":6408,"probes":49891,"hits":30894}
+BENCH_SCAN {"dex":22,"groups":149,"visits":49891,"unique":18280,"bytes":805746,"unique_bytes":408443,"samples":26,"sample_wall_ns":6086,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":588,"negative_samples":26,"long_samples":0,"empty_clock_ns":543}
+BENCH_MEMO {"dex":20,"bytes":6536,"probes":49331,"hits":27426}
+BENCH_SCAN {"dex":20,"groups":149,"visits":49331,"unique":21736,"bytes":1330540,"unique_bytes":837743,"samples":30,"sample_wall_ns":7330,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":622,"negative_samples":30,"long_samples":0,"empty_clock_ns":669}
+BENCH_MEMO {"dex":21,"bytes":8176,"probes":55667,"hits":29239}
+BENCH_SCAN {"dex":21,"groups":149,"visits":55667,"unique":26248,"bytes":1205607,"unique_bytes":813291,"samples":32,"sample_wall_ns":31706,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":3794,"negative_samples":30,"long_samples":1,"empty_clock_ns":664}
+BENCH_MEMO {"dex":24,"bytes":5784,"probes":40901,"hits":25263}
+BENCH_SCAN {"dex":24,"groups":149,"visits":40901,"unique":15046,"bytes":685125,"unique_bytes":345460,"samples":16,"sample_wall_ns":3789,"duplicate_samples":2,"duplicate_sample_wall_ns":417,"seed":20260915,"sampled_bytes":348,"negative_samples":13,"long_samples":0,"empty_clock_ns":334}
+BENCH_MEMO {"dex":23,"bytes":8312,"probes":63663,"hits":38283}
+BENCH_SCAN {"dex":23,"groups":149,"visits":63663,"unique":25025,"bytes":926403,"unique_bytes":533773,"samples":23,"sample_wall_ns":5251,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":516,"negative_samples":23,"long_samples":0,"empty_clock_ns":541}
+BENCH_MEMO {"dex":25,"bytes":8032,"probes":47006,"hits":23811}
+BENCH_SCAN {"dex":25,"groups":149,"visits":47006,"unique":22996,"bytes":788790,"unique_bytes":511480,"samples":24,"sample_wall_ns":5792,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":538,"negative_samples":24,"long_samples":0,"empty_clock_ns":499}
+BENCH_MEMO {"dex":26,"bytes":9080,"probes":79576,"hits":45708}
+BENCH_SCAN {"dex":26,"groups":149,"visits":79576,"unique":33708,"bytes":1271784,"unique_bytes":768148,"samples":28,"sample_wall_ns":7707,"duplicate_samples":1,"duplicate_sample_wall_ns":208,"seed":20260915,"sampled_bytes":681,"negative_samples":27,"long_samples":0,"empty_clock_ns":416}
+BENCH_MEMO {"dex":28,"bytes":7568,"probes":58604,"hits":33860}
+BENCH_SCAN {"dex":28,"groups":149,"visits":58604,"unique":24140,"bytes":938186,"unique_bytes":536078,"samples":30,"sample_wall_ns":7126,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":729,"negative_samples":30,"long_samples":0,"empty_clock_ns":497}
+BENCH_MEMO {"dex":27,"bytes":7784,"probes":57538,"hits":33889}
+BENCH_SCAN {"dex":27,"groups":149,"visits":57538,"unique":22391,"bytes":927181,"unique_bytes":498509,"samples":21,"sample_wall_ns":4583,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":423,"negative_samples":20,"long_samples":0,"empty_clock_ns":458}
+BENCH_MEMO {"dex":29,"bytes":8872,"probes":68317,"hits":40019}
+BENCH_SCAN {"dex":29,"groups":149,"visits":68317,"unique":27940,"bytes":1036673,"unique_bytes":601128,"samples":28,"sample_wall_ns":5875,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":524,"negative_samples":28,"long_samples":0,"empty_clock_ns":458}
+BENCH_MEMO {"dex":30,"bytes":7848,"probes":44387,"hits":22393}
+BENCH_SCAN {"dex":30,"groups":149,"visits":44387,"unique":21860,"bytes":821042,"unique_bytes":537481,"samples":22,"sample_wall_ns":5874,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":486,"negative_samples":22,"long_samples":0,"empty_clock_ns":458}
+BENCH_MEMO {"dex":31,"bytes":7184,"probes":37113,"hits":16931}
+BENCH_SCAN {"dex":31,"groups":149,"visits":37113,"unique":20128,"bytes":747062,"unique_bytes":497414,"samples":17,"sample_wall_ns":5125,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":445,"negative_samples":17,"long_samples":0,"empty_clock_ns":208}
+BENCH_MEMO {"dex":32,"bytes":7128,"probes":46743,"hits":26186}
+BENCH_SCAN {"dex":32,"groups":149,"visits":46743,"unique":20405,"bytes":1115213,"unique_bytes":710991,"samples":20,"sample_wall_ns":3209,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":335,"negative_samples":20,"long_samples":0,"empty_clock_ns":292}
+BENCH_MEMO {"dex":33,"bytes":8176,"probes":54622,"hits":29219}
+BENCH_SCAN {"dex":33,"groups":149,"visits":54622,"unique":25220,"bytes":859573,"unique_bytes":565301,"samples":17,"sample_wall_ns":3999,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":334,"negative_samples":17,"long_samples":0,"empty_clock_ns":251}
+BENCH_MEMO {"dex":36,"bytes":5824,"probes":22514,"hits":9380}
+BENCH_SCAN {"dex":36,"groups":149,"visits":22514,"unique":13126,"bytes":432121,"unique_bytes":306721,"samples":13,"sample_wall_ns":3249,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":329,"negative_samples":13,"long_samples":0,"empty_clock_ns":208}
+BENCH_MEMO {"dex":35,"bytes":7576,"probes":36373,"hits":18127}
+BENCH_SCAN {"dex":35,"groups":149,"visits":36373,"unique":18211,"bytes":744669,"unique_bytes":484936,"samples":19,"sample_wall_ns":4872,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":370,"negative_samples":19,"long_samples":0,"empty_clock_ns":502}
+BENCH_MEMO {"dex":34,"bytes":8632,"probes":56261,"hits":28432}
+BENCH_SCAN {"dex":34,"groups":149,"visits":56261,"unique":27677,"bytes":1028911,"unique_bytes":677982,"samples":21,"sample_wall_ns":5580,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":503,"negative_samples":21,"long_samples":0,"empty_clock_ns":252}
+BENCH_MEMO {"dex":37,"bytes":4560,"probes":22928,"hits":13040}
+BENCH_SCAN {"dex":37,"groups":149,"visits":22928,"unique":9699,"bytes":358417,"unique_bytes":236258,"samples":17,"sample_wall_ns":5167,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":421,"negative_samples":17,"long_samples":0,"empty_clock_ns":292}
+BENCH_MEMO {"dex":40,"bytes":2056,"probes":7314,"hits":3593}
+BENCH_SCAN {"dex":40,"groups":149,"visits":7314,"unique":3709,"bytes":143379,"unique_bytes":70890,"samples":1,"sample_wall_ns":209,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":18,"negative_samples":1,"long_samples":0,"empty_clock_ns":41}
+BENCH_MEMO {"dex":39,"bytes":7792,"probes":38697,"hits":20718}
+BENCH_SCAN {"dex":39,"groups":149,"visits":38697,"unique":17875,"bytes":770987,"unique_bytes":440516,"samples":18,"sample_wall_ns":4668,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":484,"negative_samples":18,"long_samples":0,"empty_clock_ns":250}
+BENCH_MEMO {"dex":38,"bytes":8584,"probes":32345,"hits":15295}
+BENCH_SCAN {"dex":38,"groups":149,"visits":32345,"unique":16945,"bytes":938542,"unique_bytes":635753,"samples":19,"sample_wall_ns":4876,"duplicate_samples":1,"duplicate_sample_wall_ns":209,"seed":20260915,"sampled_bytes":434,"negative_samples":18,"long_samples":0,"empty_clock_ns":291}
+pass=0 batch groups=149 raw-hit-targets=94/139 api=211.866 ms
+pass=0 AIOMsgItem_initContentDescription/find_seed count=1 api=4.624 ms
+pass=0 AIOMsgItem_initContentDescription/find_callee_using_seed_as_caller count=1 api=344.700 ms
+{"pass":0,"feature":"AIOMsgItem_initContentDescription","scope":"exact finder query chain","selected":["Lcom/tencent/mobileqq/aio/msg/AIOMsgItem;->y1()Ljava/lang/String;"],"status":"resolved","observed_ns":350954667}
+pass=0 EmotionDetailAi/find_classes count=1 api=15.939 ms
+pass=0 EmotionDetailAi/find_method_in_classes count=1 api=8.702 ms
+{"pass":0,"feature":"EmotionDetailAi","scope":"exact finder query chain","selected":["Lcom/tencent/mobileqq/emotionintegrate/al;->n()Z"],"status":"resolved","observed_ns":26265792}
+pass=0 Hd_HideEmoReplyLayout_Method/find_classes count=1 api=4.631 ms
+pass=0 Hd_HideEmoReplyLayout_Method/find_method_in_classes count=1 api=7.727 ms
+{"pass":0,"feature":"Hd_HideEmoReplyLayout_Method","scope":"exact finder; Android type represented by its name","selected":["Lcom/tencent/mobileqq/aio/msglist/holder/template/g;->i()Landroid/view/View;"],"status":"resolved","observed_ns":13539125}
+pass=0 BlockPicByMd5_LoadImagePathV2/find_method count=0 api=20.699 ms
+{"pass":0,"feature":"BlockPicByMd5_LoadImagePathV2","scope":"exact finder query","status":"unresolved","reason":"method: expected one, got 0","observed_ns":24008750}
+pass=0 BlockPicByMd5_PicPathResolverV2/find_method count=1 api=19.497 ms
+{"pass":0,"feature":"BlockPicByMd5_PicPathResolverV2","scope":"exact finder with nested invoke matcher","selected":["Lcom/tencent/mobileqq/aio/utils/ap;->a(Lcom/tencent/qqnt/kernel/nativeinterface/PicElement;)Ljava/lang/String;"],"status":"resolved","observed_ns":20012125}
+pass=0 ReplyNoAtHook/reply_new_signature count=1 api=20.150 ms
+pass=0 ReplyNoAtHook/optional_has_info count=1 api=268.964 ms
+{"pass":0,"feature":"ReplyNoAtHook","scope":"exact ordered fallback queries; optional has-info lookup","selected":["Lcom/tencent/mobileqq/aio/input/reply/i;->f(Lcom/tencent/mvi/base/route/MsgIntent;)V","Lcom/tencent/mobileqq/aio/utils/AIOMsgItemExtKt;->m(Lcom/tencent/mobileqq/aio/msg/AIOMsgItem;)Z"],"status":"resolved","observed_ns":290837459}
+pass=0 MultiForwardAvatarHook/find_avatar_listener count=0 api=0.320 ms
+{"pass":0,"feature":"MultiForwardAvatarHook","scope":"exact finder query; hook installation excluded","status":"unresolved","reason":"method: expected one, got 0","observed_ns":755417}
+pass=0 SettingEntryHook/find_processor count=1 api=72.898 ms
+{"pass":0,"feature":"SettingEntryHook","scope":"exact discovery query only; later reflection excluded","selected":["Lcom/tencent/mobileqq/setting/processor/i;->z(Lcom/tencent/mobileqq/setting/processor/i;Landroid/view/View;)V"],"status":"resolved","observed_ns":73601916}
+pass=0 HideMiniAppPullEntry/resolve_direct_conversation_class count=1 api=1.777 ms
+BENCH_MEMO {"dex":1,"bytes":8776,"probes":47208,"hits":26674}
+BENCH_SCAN {"dex":1,"groups":3,"visits":47208,"unique":20534,"bytes":662878,"unique_bytes":420959,"samples":28,"sample_wall_ns":3170,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":615,"negative_samples":28,"long_samples":0,"empty_clock_ns":581}
+BENCH_MEMO {"dex":2,"bytes":8952,"probes":57199,"hits":27749}
+BENCH_SCAN {"dex":2,"groups":3,"visits":57199,"unique":29450,"bytes":1035182,"unique_bytes":722644,"samples":26,"sample_wall_ns":3623,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":714,"negative_samples":26,"long_samples":0,"empty_clock_ns":584}
+BENCH_MEMO {"dex":3,"bytes":10544,"probes":69048,"hits":32078}
+BENCH_SCAN {"dex":3,"groups":3,"visits":69048,"unique":36970,"bytes":1200777,"unique_bytes":841426,"samples":32,"sample_wall_ns":4042,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":731,"negative_samples":32,"long_samples":0,"empty_clock_ns":623}
+BENCH_MEMO {"dex":0,"bytes":12264,"probes":74357,"hits":35019}
+BENCH_SCAN {"dex":0,"groups":3,"visits":74357,"unique":39338,"bytes":1298181,"unique_bytes":885124,"samples":29,"sample_wall_ns":3540,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":594,"negative_samples":29,"long_samples":0,"empty_clock_ns":461}
+BENCH_MEMO {"dex":4,"bytes":9568,"probes":51474,"hits":23412}
+BENCH_SCAN {"dex":4,"groups":3,"visits":51474,"unique":28062,"bytes":967175,"unique_bytes":690401,"samples":35,"sample_wall_ns":4874,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":953,"negative_samples":35,"long_samples":0,"empty_clock_ns":499}
+BENCH_MEMO {"dex":5,"bytes":8440,"probes":48902,"hits":24284}
+BENCH_SCAN {"dex":5,"groups":3,"visits":48902,"unique":24618,"bytes":834808,"unique_bytes":554641,"samples":26,"sample_wall_ns":3584,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":715,"negative_samples":26,"long_samples":0,"empty_clock_ns":627}
+BENCH_MEMO {"dex":6,"bytes":7720,"probes":46243,"hits":23751}
+BENCH_SCAN {"dex":6,"groups":3,"visits":46243,"unique":22492,"bytes":984448,"unique_bytes":704373,"samples":22,"sample_wall_ns":3043,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":534,"negative_samples":22,"long_samples":0,"empty_clock_ns":458}
+BENCH_MEMO {"dex":7,"bytes":11032,"probes":83659,"hits":44292}
+BENCH_SCAN {"dex":7,"groups":3,"visits":83659,"unique":39367,"bytes":1320218,"unique_bytes":850773,"samples":44,"sample_wall_ns":5629,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":1009,"negative_samples":44,"long_samples":0,"empty_clock_ns":1081}
+BENCH_MEMO {"dex":8,"bytes":10272,"probes":60561,"hits":28881}
+BENCH_SCAN {"dex":8,"groups":3,"visits":60561,"unique":31680,"bytes":1103393,"unique_bytes":792519,"samples":25,"sample_wall_ns":3791,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":617,"negative_samples":25,"long_samples":0,"empty_clock_ns":625}
+BENCH_MEMO {"dex":9,"bytes":8080,"probes":49959,"hits":24463}
+BENCH_SCAN {"dex":9,"groups":3,"visits":49959,"unique":25496,"bytes":1124722,"unique_bytes":682116,"samples":29,"sample_wall_ns":4419,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":780,"negative_samples":29,"long_samples":0,"empty_clock_ns":708}
+BENCH_MEMO {"dex":10,"bytes":10288,"probes":46925,"hits":21734}
+BENCH_SCAN {"dex":10,"groups":3,"visits":46925,"unique":25191,"bytes":795580,"unique_bytes":556601,"samples":26,"sample_wall_ns":2709,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":418,"negative_samples":26,"long_samples":0,"empty_clock_ns":292}
+BENCH_MEMO {"dex":11,"bytes":7496,"probes":36864,"hits":20679}
+BENCH_SCAN {"dex":11,"groups":3,"visits":36864,"unique":16185,"bytes":628997,"unique_bytes":412285,"samples":19,"sample_wall_ns":2083,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":361,"negative_samples":19,"long_samples":0,"empty_clock_ns":293}
+BENCH_MEMO {"dex":12,"bytes":5792,"probes":60257,"hits":38167}
+BENCH_SCAN {"dex":12,"groups":3,"visits":60257,"unique":22090,"bytes":623261,"unique_bytes":344207,"samples":18,"sample_wall_ns":1542,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":246,"negative_samples":18,"long_samples":0,"empty_clock_ns":375}
+BENCH_MEMO {"dex":13,"bytes":8120,"probes":58086,"hits":33582}
+BENCH_SCAN {"dex":13,"groups":3,"visits":58086,"unique":24504,"bytes":844358,"unique_bytes":495410,"samples":19,"sample_wall_ns":1580,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":302,"negative_samples":19,"long_samples":0,"empty_clock_ns":334}
+BENCH_MEMO {"dex":15,"bytes":6304,"probes":44432,"hits":27833}
+BENCH_SCAN {"dex":15,"groups":3,"visits":44432,"unique":16599,"bytes":706728,"unique_bytes":372385,"samples":12,"sample_wall_ns":1500,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":291,"negative_samples":12,"long_samples":0,"empty_clock_ns":252}
+BENCH_MEMO {"dex":16,"bytes":6400,"probes":46076,"hits":29035}
+BENCH_SCAN {"dex":16,"groups":3,"visits":46076,"unique":17041,"bytes":752963,"unique_bytes":394072,"samples":23,"sample_wall_ns":2960,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":608,"negative_samples":23,"long_samples":0,"empty_clock_ns":457}
+BENCH_MEMO {"dex":18,"bytes":6608,"probes":54506,"hits":34642}
+BENCH_SCAN {"dex":18,"groups":3,"visits":54506,"unique":19864,"bytes":823357,"unique_bytes":409832,"samples":20,"sample_wall_ns":2210,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":405,"negative_samples":20,"long_samples":0,"empty_clock_ns":456}
+BENCH_MEMO {"dex":17,"bytes":8760,"probes":54734,"hits":27301}
+BENCH_SCAN {"dex":17,"groups":3,"visits":54734,"unique":27433,"bytes":886348,"unique_bytes":599990,"samples":19,"sample_wall_ns":1959,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":385,"negative_samples":19,"long_samples":0,"empty_clock_ns":335}
+BENCH_MEMO {"dex":14,"bytes":7488,"probes":55260,"hits":30361}
+BENCH_SCAN {"dex":14,"groups":3,"visits":55260,"unique":24899,"bytes":2526498,"unique_bytes":1692711,"samples":25,"sample_wall_ns":7503,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":1497,"negative_samples":25,"long_samples":0,"empty_clock_ns":416}
+BENCH_MEMO {"dex":19,"bytes":7224,"probes":56343,"hits":30539}
+BENCH_SCAN {"dex":19,"groups":3,"visits":56343,"unique":25804,"bytes":2194579,"unique_bytes":1246541,"samples":25,"sample_wall_ns":4789,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":961,"negative_samples":25,"long_samples":0,"empty_clock_ns":461}
+BENCH_MEMO {"dex":20,"bytes":6536,"probes":49331,"hits":27595}
+BENCH_SCAN {"dex":20,"groups":3,"visits":49331,"unique":21736,"bytes":1330540,"unique_bytes":837743,"samples":30,"sample_wall_ns":3125,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":622,"negative_samples":30,"long_samples":0,"empty_clock_ns":542}
+BENCH_MEMO {"dex":22,"bytes":6408,"probes":49891,"hits":31611}
+BENCH_SCAN {"dex":22,"groups":3,"visits":49891,"unique":18280,"bytes":805746,"unique_bytes":408443,"samples":26,"sample_wall_ns":3045,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":588,"negative_samples":26,"long_samples":0,"empty_clock_ns":541}
+BENCH_MEMO {"dex":21,"bytes":8176,"probes":55667,"hits":29419}
+BENCH_SCAN {"dex":21,"groups":3,"visits":55667,"unique":26248,"bytes":1205607,"unique_bytes":813291,"samples":32,"sample_wall_ns":16709,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":3794,"negative_samples":32,"long_samples":1,"empty_clock_ns":541}
+BENCH_MEMO {"dex":24,"bytes":5784,"probes":40901,"hits":25855}
+BENCH_SCAN {"dex":24,"groups":3,"visits":40901,"unique":15046,"bytes":685125,"unique_bytes":345460,"samples":14,"sample_wall_ns":2167,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":326,"negative_samples":14,"long_samples":0,"empty_clock_ns":209}
+BENCH_MEMO {"dex":23,"bytes":8312,"probes":63663,"hits":38638}
+BENCH_SCAN {"dex":23,"groups":3,"visits":63663,"unique":25025,"bytes":926403,"unique_bytes":533773,"samples":23,"sample_wall_ns":3541,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":516,"negative_samples":23,"long_samples":0,"empty_clock_ns":541}
+BENCH_MEMO {"dex":25,"bytes":8032,"probes":47006,"hits":24010}
+BENCH_SCAN {"dex":25,"groups":3,"visits":47006,"unique":22996,"bytes":788790,"unique_bytes":511480,"samples":24,"sample_wall_ns":3248,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":538,"negative_samples":24,"long_samples":0,"empty_clock_ns":416}
+BENCH_MEMO {"dex":26,"bytes":9080,"probes":79576,"hits":45868}
+BENCH_SCAN {"dex":26,"groups":3,"visits":79576,"unique":33708,"bytes":1271784,"unique_bytes":768148,"samples":27,"sample_wall_ns":4332,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":666,"negative_samples":27,"long_samples":0,"empty_clock_ns":707}
+BENCH_MEMO {"dex":27,"bytes":7784,"probes":57538,"hits":35147}
+BENCH_SCAN {"dex":27,"groups":3,"visits":57538,"unique":22391,"bytes":927181,"unique_bytes":498509,"samples":21,"sample_wall_ns":2293,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":423,"negative_samples":21,"long_samples":0,"empty_clock_ns":375}
+BENCH_MEMO {"dex":28,"bytes":7568,"probes":58604,"hits":34464}
+BENCH_SCAN {"dex":28,"groups":3,"visits":58604,"unique":24140,"bytes":938186,"unique_bytes":536078,"samples":30,"sample_wall_ns":3710,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":729,"negative_samples":30,"long_samples":0,"empty_clock_ns":539}
+BENCH_MEMO {"dex":29,"bytes":8872,"probes":68317,"hits":40377}
+BENCH_SCAN {"dex":29,"groups":3,"visits":68317,"unique":27940,"bytes":1036673,"unique_bytes":601128,"samples":28,"sample_wall_ns":3084,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":524,"negative_samples":28,"long_samples":0,"empty_clock_ns":583}
+BENCH_MEMO {"dex":31,"bytes":7184,"probes":37113,"hits":16985}
+BENCH_SCAN {"dex":31,"groups":3,"visits":37113,"unique":20128,"bytes":747062,"unique_bytes":497414,"samples":17,"sample_wall_ns":2416,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":445,"negative_samples":17,"long_samples":0,"empty_clock_ns":335}
+BENCH_MEMO {"dex":30,"bytes":7848,"probes":44387,"hits":22527}
+BENCH_SCAN {"dex":30,"groups":3,"visits":44387,"unique":21860,"bytes":821042,"unique_bytes":537481,"samples":22,"sample_wall_ns":2252,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":486,"negative_samples":22,"long_samples":0,"empty_clock_ns":250}
+BENCH_MEMO {"dex":32,"bytes":7128,"probes":46743,"hits":26338}
+BENCH_SCAN {"dex":32,"groups":3,"visits":46743,"unique":20405,"bytes":1115213,"unique_bytes":710991,"samples":20,"sample_wall_ns":1874,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":335,"negative_samples":20,"long_samples":0,"empty_clock_ns":460}
+BENCH_MEMO {"dex":33,"bytes":8176,"probes":54622,"hits":29402}
+BENCH_SCAN {"dex":33,"groups":3,"visits":54622,"unique":25220,"bytes":859573,"unique_bytes":565301,"samples":17,"sample_wall_ns":1915,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":334,"negative_samples":17,"long_samples":0,"empty_clock_ns":250}
+BENCH_MEMO {"dex":35,"bytes":7576,"probes":36373,"hits":18162}
+BENCH_SCAN {"dex":35,"groups":3,"visits":36373,"unique":18211,"bytes":744669,"unique_bytes":484936,"samples":19,"sample_wall_ns":2084,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":370,"negative_samples":19,"long_samples":0,"empty_clock_ns":332}
+BENCH_MEMO {"dex":36,"bytes":5824,"probes":22514,"hits":9388}
+BENCH_SCAN {"dex":36,"groups":3,"visits":22514,"unique":13126,"bytes":432121,"unique_bytes":306721,"samples":13,"sample_wall_ns":1706,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":329,"negative_samples":13,"long_samples":0,"empty_clock_ns":251}
+BENCH_MEMO {"dex":34,"bytes":8632,"probes":56261,"hits":28584}
+BENCH_SCAN {"dex":34,"groups":3,"visits":56261,"unique":27677,"bytes":1028911,"unique_bytes":677982,"samples":21,"sample_wall_ns":2794,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":503,"negative_samples":21,"long_samples":0,"empty_clock_ns":249}
+BENCH_MEMO {"dex":37,"bytes":4560,"probes":22928,"hits":13229}
+BENCH_SCAN {"dex":37,"groups":3,"visits":22928,"unique":9699,"bytes":358417,"unique_bytes":236258,"samples":17,"sample_wall_ns":2209,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":421,"negative_samples":17,"long_samples":0,"empty_clock_ns":374}
+BENCH_MEMO {"dex":40,"bytes":2056,"probes":7314,"hits":3605}
+BENCH_SCAN {"dex":40,"groups":3,"visits":7314,"unique":3709,"bytes":143379,"unique_bytes":70890,"samples":1,"sample_wall_ns":83,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":18,"negative_samples":1,"long_samples":0,"empty_clock_ns":0}
+BENCH_MEMO {"dex":38,"bytes":8584,"probes":32345,"hits":15400}
+BENCH_SCAN {"dex":38,"groups":3,"visits":32345,"unique":16945,"bytes":938542,"unique_bytes":635753,"samples":18,"sample_wall_ns":2207,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":419,"negative_samples":18,"long_samples":0,"empty_clock_ns":250}
+BENCH_MEMO {"dex":39,"bytes":7792,"probes":38697,"hits":20822}
+BENCH_SCAN {"dex":39,"groups":3,"visits":38697,"unique":17875,"bytes":770987,"unique_bytes":440516,"samples":18,"sample_wall_ns":2543,"duplicate_samples":0,"duplicate_sample_wall_ns":0,"seed":20260915,"sampled_bytes":484,"negative_samples":18,"long_samples":0,"empty_clock_ns":251}
+pass=0 HideMiniAppPullEntry/legacy_string_groups count=1 api=50.576 ms
+pass=0 HideMiniAppPullEntry/nt_invoke_fallback count=1 api=151.229 ms
+{"pass":0,"feature":"HideMiniAppPullEntry","scope":"QQ 9.3.55 query fallback; direct Conversation class resolved from DEX instead of the host ClassLoader","selected":["Lcom/tencent/mobileqq/activity/home/Conversation;->initMiniAppView()V"],"status":"resolved","observed_ns":205324875}
+pass=0 AutoReceiveOriginalPhoto_cache_miss/nt_on_init_view count=0 api=9.060 ms
+{"pass":0,"feature":"AutoReceiveOriginalPhoto_cache_miss","scope":"QQ 9.3.55 doFind query path with absent CAIOPictureView cache; class loading excluded","status":"unresolved","reason":"nt_on_init_view: empty","observed_ns":10045125}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":0,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":0,"growths":18,"moved_id_bytes":524284,"peak_overlap_bytes":786432,"ids":74357,"capacity":131072}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":1,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":1,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":47208,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":2,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":2,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":57199,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":3,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":3,"growths":18,"moved_id_bytes":524284,"peak_overlap_bytes":786432,"ids":69048,"capacity":131072}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":4,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":4,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":51474,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":5,"sso_records":1}
+BENCH_GROWTH {"phase":"pre_close","dex":5,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":48902,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":6,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":6,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":46243,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":7,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":7,"growths":18,"moved_id_bytes":524284,"peak_overlap_bytes":786432,"ids":83659,"capacity":131072}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":8,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":8,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":60561,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":9,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":9,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":49959,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":10,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":10,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":46925,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":11,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":11,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":36864,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":12,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":12,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":60257,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":13,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":13,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":58086,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":14,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":14,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":55260,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":15,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":15,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":44432,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":16,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":16,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":46076,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":17,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":17,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":54734,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":18,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":18,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":54506,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":19,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":19,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":56343,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":20,"sso_records":2}
+BENCH_GROWTH {"phase":"pre_close","dex":20,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":49331,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":21,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":21,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":55667,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":22,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":22,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":49891,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":23,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":23,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":63663,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":24,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":24,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":40901,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":25,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":25,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":47006,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":26,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":26,"growths":18,"moved_id_bytes":524284,"peak_overlap_bytes":786432,"ids":79576,"capacity":131072}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":27,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":27,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":57538,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":28,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":28,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":58604,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":29,"sso_records":1}
+BENCH_GROWTH {"phase":"pre_close","dex":29,"growths":18,"moved_id_bytes":524284,"peak_overlap_bytes":786432,"ids":68317,"capacity":131072}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":30,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":30,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":44387,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":31,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":31,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":37113,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":32,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":32,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":46743,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":33,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":33,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":54622,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":34,"sso_records":1}
+BENCH_GROWTH {"phase":"pre_close","dex":34,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":56261,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":35,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":35,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":36373,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":36,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":36,"growths":16,"moved_id_bytes":131068,"peak_overlap_bytes":196608,"ids":22514,"capacity":32768}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":37,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":37,"growths":16,"moved_id_bytes":131068,"peak_overlap_bytes":196608,"ids":22928,"capacity":32768}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":38,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":38,"growths":16,"moved_id_bytes":131068,"peak_overlap_bytes":196608,"ids":32345,"capacity":32768}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":39,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":39,"growths":17,"moved_id_bytes":262140,"peak_overlap_bytes":393216,"ids":38697,"capacity":65536}
+BENCH_POINTER_DESCRIPTORS {"phase":"pre_close","dex":40,"sso_records":0}
+BENCH_GROWTH {"phase":"pre_close","dex":40,"growths":14,"moved_id_bytes":32764,"peak_overlap_bytes":49152,"ids":7314,"capacity":8192}
+BENCH_CENSUS {"phase":"pre_close","dexes":41,"method_ids":2600031,"field_ids":1492869,"mapped_bytes":411819364,"slot_sizes":[16,16,16]}
+BENCH_CENSUS {"phase":"pre_close","category":"aggregate_work","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"annotations","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"base_arrays","index_bytes":160614118,"payload_capacity_bytes":0,"entries":17414998,"nonempty_or_ready":0,"live_buffers":492}
+BENCH_CENSUS {"phase":"pre_close","category":"callers","index_bytes":62400744,"payload_capacity_bytes":105407848,"entries":2600031,"nonempty_or_ready":1315612,"live_buffers":1315653}
+BENCH_CENSUS {"phase":"pre_close","category":"class_members","index_bytes":33314592,"payload_capacity_bytes":17512000,"entries":1388108,"nonempty_or_ready":772500,"live_buffers":772582}
+BENCH_CENSUS {"phase":"pre_close","category":"descriptor_publication","index_bytes":83968,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"descriptors","index_bytes":32743200,"payload_capacity_bytes":235441,"entries":4092900,"nonempty_or_ready":1628,"live_buffers":3333}
+BENCH_CENSUS {"phase":"pre_close","category":"field_readers","index_bytes":35828856,"payload_capacity_bytes":37585880,"entries":1492869,"nonempty_or_ready":1110126,"live_buffers":1110167}
+BENCH_CENSUS {"phase":"pre_close","category":"field_writers","index_bytes":35828856,"payload_capacity_bytes":13206512,"entries":1492869,"nonempty_or_ready":1096109,"live_buffers":1096150}
+BENCH_CENSUS {"phase":"pre_close","category":"full_numbers","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"full_opcodes","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"invokes","index_bytes":62400744,"payload_capacity_bytes":58875724,"entries":2600031,"nonempty_or_ready":1651553,"live_buffers":1651594}
+BENCH_CENSUS {"phase":"pre_close","category":"lazy_numbers","index_bytes":1046128,"payload_capacity_bytes":680,"entries":65383,"nonempty_or_ready":9,"live_buffers":19}
+BENCH_CENSUS {"phase":"pre_close","category":"lazy_opcodes","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"lazy_strings","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"pending_cross_refs","index_bytes":0,"payload_capacity_bytes":0,"entries":0,"nonempty_or_ready":0,"live_buffers":0}
+BENCH_CENSUS {"phase":"pre_close","category":"using_fields","index_bytes":62400744,"payload_capacity_bytes":55446792,"entries":2600031,"nonempty_or_ready":1540649,"live_buffers":1540690}
+BENCH_CENSUS {"phase":"pre_close","category":"using_strings","index_bytes":31200372,"payload_capacity_bytes":11436032,"entries":2600031,"nonempty_or_ready":552475,"live_buffers":123}
+BENCH_DESCRIPTOR {"reason":"output","method_builds":1628,"field_builds":0,"materialized_bytes":189248}
+BENCH_DESCRIPTOR {"reason":"cross_reference","method_builds":0,"field_builds":0,"materialized_bytes":0}
+BENCH_DESCRIPTOR {"reason":"lookup","method_builds":0,"field_builds":0,"materialized_bytes":0}
+BENCH_DESCRIPTOR {"method_comparisons":1503972,"field_comparisons":418558}
+BENCH_FIELD_REVERSE {"phase":"pre_close","get_matcher":0,"put_matcher":0,"get_metadata":0,"put_metadata":0}
+BENCH_WARMUP {"phase":"pre_close","local_init_calls":123,"resolve_calls":82,"aggregate_calls":2}
+BENCH_CENSUS {"phase":"pre_close","diagnostic_ns":25157250}
+BENCH_CLOSE {"worker_shutdown_ns":89083}
+BENCH_CLOSE {"native_delete_ns":489769250}
+        2.66 real         6.44 user         0.59 sys
+          1479245824  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              155192  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+               19736  involuntary context switches
+         52922698156  instructions retired
+         19940155536  cycles elapsed
+          1741575552  peak memory footprint

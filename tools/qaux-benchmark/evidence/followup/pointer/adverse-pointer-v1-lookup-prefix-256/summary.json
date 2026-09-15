@@ -1,0 +1,491 @@
+{
+  "mode": "lookup-prefix",
+  "repeats": 256,
+  "pairs": 6,
+  "seed": 2026091525,
+  "fixture_sha256": "7032127fd0f48f53f637f915e8efb869b1035544923a5c13ae6fb86b2779309a",
+  "variants": [
+    {
+      "label": "best5-pointer-control",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/best5-pointer-control/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "e55e5bc7312ff460d0892975001691eb62f5de3e1cb2b2c010dfb099a786bbbc",
+      "artifact": {
+        "engine_commit": "55604039c2657492a7119601e2a909b96fbc7a5f",
+        "source_trees": {
+          "Core": "f8289cd5f45167c022ba4a2280d4baf5c72337c6",
+          "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+          "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+        },
+        "source_patch_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "untracked_source_sha256": {},
+        "native_sha256": "331f61535e1821da655eae1d39bc0edd691a4b09270175cb13da86277e34e22f",
+        "cmake_options": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_CXX_COMPILER": "/Library/Developer/CommandLineTools/usr/bin/c++",
+          "CMAKE_CXX_FLAGS": "",
+          "CMAKE_CXX_FLAGS_DEBUG": "-g",
+          "CMAKE_CXX_FLAGS_MINSIZEREL": "-Os -DNDEBUG",
+          "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+          "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g -DNDEBUG",
+          "CMAKE_C_COMPILER": "/Library/Developer/CommandLineTools/usr/bin/cc",
+          "CMAKE_C_FLAGS": "",
+          "CMAKE_C_FLAGS_DEBUG": "-g",
+          "CMAKE_C_FLAGS_MINSIZEREL": "-Os -DNDEBUG",
+          "CMAKE_C_FLAGS_RELEASE": "-O3 -DNDEBUG",
+          "CMAKE_C_FLAGS_RELWITHDEBINFO": "-O2 -g -DNDEBUG",
+          "CMAKE_OSX_ARCHITECTURES": "arm64",
+          "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+          "CMAKE_OSX_SYSROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+          "DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD": "ON",
+          "DEXKIT_BENCHMARK_DIAGNOSTICS": "OFF",
+          "DEXKIT_BENCHMARK_MEMO_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_METADATA_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_RELATION_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_RELATION_WORKLOAD": "ON",
+          "DEXKIT_BENCHMARK_SYMBOL_CHECKS": "OFF",
+          "DEXKIT_ENABLE_INTERNAL_METRICS": "OFF",
+          "DEXKIT_ENABLE_INTERNAL_METRICS_API": "OFF",
+          "DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS": "OFF",
+          "DEXKIT_EXPERIMENT_COMPACT_STRINGS": "ON",
+          "DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS": "ON",
+          "DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT": "OFF",
+          "DEXKIT_EXPERIMENT_LAZY_DIRECTORIES": "ON",
+          "DEXKIT_EXPERIMENT_NEGATIVE_STRINGS": "ON",
+          "DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS": "OFF",
+          "DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS": "OFF",
+          "DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP": "OFF",
+          "DEXKIT_EXPERIMENT_RAW_INTERFACES": "ON",
+          "DEXKIT_EXPERIMENT_STRING_MEMO_BYTES": "1048576",
+          "DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS": "ON",
+          "CMAKE_CXX_FLAGS-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_DEBUG-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_RELEASE-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED": "1",
+          "CMAKE_C_FLAGS-ADVANCED": "1",
+          "CMAKE_C_FLAGS_DEBUG-ADVANCED": "1",
+          "CMAKE_C_FLAGS_MINSIZEREL-ADVANCED": "1",
+          "CMAKE_C_FLAGS_RELEASE-ADVANCED": "1",
+          "CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED": "1"
+        },
+        "configure_command": [
+          "cmake",
+          "-S",
+          "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp",
+          "-B",
+          "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/best5-pointer-control/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_OSX_ARCHITECTURES=arm64",
+          "-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG",
+          "-DCMAKE_CXX_FLAGS_RELEASE=-O3 -DNDEBUG",
+          "-DDEXKIT_ENABLE_INTERNAL_METRICS=OFF",
+          "-DDEXKIT_ENABLE_INTERNAL_METRICS_API=OFF",
+          "-DDEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD=ON",
+          "-DDEXKIT_BENCHMARK_RELATION_WORKLOAD=ON",
+          "-DDEXKIT_EXPERIMENT_LAZY_DIRECTORIES=ON",
+          "-DDEXKIT_EXPERIMENT_COMPACT_STRINGS=ON",
+          "-DDEXKIT_EXPERIMENT_NEGATIVE_STRINGS=ON",
+          "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+          "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=ON",
+          "-DDEXKIT_EXPERIMENT_RAW_INTERFACES=ON"
+        ],
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+        "diagnostics": false
+      }
+    },
+    {
+      "label": "pointer-v1",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/pointer-v1/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "3f1e5cb34fcd17a7523275df71faa221ce041afafc4b9a613bf1b6d063ff49ef",
+      "artifact": {
+        "engine_commit": "55604039c2657492a7119601e2a909b96fbc7a5f",
+        "source_trees": {
+          "Core": "f8289cd5f45167c022ba4a2280d4baf5c72337c6",
+          "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+          "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+        },
+        "source_patch_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "untracked_source_sha256": {},
+        "native_sha256": "f39deafcea582d0d835e2ae6e8ea8fac8c6d4d713930ac58bfe4b4c38c313212",
+        "cmake_options": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_CXX_COMPILER": "/Library/Developer/CommandLineTools/usr/bin/c++",
+          "CMAKE_CXX_FLAGS": "",
+          "CMAKE_CXX_FLAGS_DEBUG": "-g",
+          "CMAKE_CXX_FLAGS_MINSIZEREL": "-Os -DNDEBUG",
+          "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+          "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g -DNDEBUG",
+          "CMAKE_C_COMPILER": "/Library/Developer/CommandLineTools/usr/bin/cc",
+          "CMAKE_C_FLAGS": "",
+          "CMAKE_C_FLAGS_DEBUG": "-g",
+          "CMAKE_C_FLAGS_MINSIZEREL": "-Os -DNDEBUG",
+          "CMAKE_C_FLAGS_RELEASE": "-O3 -DNDEBUG",
+          "CMAKE_C_FLAGS_RELWITHDEBINFO": "-O2 -g -DNDEBUG",
+          "CMAKE_OSX_ARCHITECTURES": "arm64",
+          "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+          "CMAKE_OSX_SYSROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+          "DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD": "ON",
+          "DEXKIT_BENCHMARK_DIAGNOSTICS": "OFF",
+          "DEXKIT_BENCHMARK_MEMO_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_METADATA_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_RELATION_CHECKS": "OFF",
+          "DEXKIT_BENCHMARK_RELATION_WORKLOAD": "ON",
+          "DEXKIT_BENCHMARK_SYMBOL_CHECKS": "OFF",
+          "DEXKIT_ENABLE_INTERNAL_METRICS": "OFF",
+          "DEXKIT_ENABLE_INTERNAL_METRICS_API": "OFF",
+          "DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS": "OFF",
+          "DEXKIT_EXPERIMENT_COMPACT_STRINGS": "ON",
+          "DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS": "ON",
+          "DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT": "OFF",
+          "DEXKIT_EXPERIMENT_LAZY_DIRECTORIES": "ON",
+          "DEXKIT_EXPERIMENT_NEGATIVE_STRINGS": "ON",
+          "DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS": "OFF",
+          "DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS": "ON",
+          "DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP": "OFF",
+          "DEXKIT_EXPERIMENT_RAW_INTERFACES": "ON",
+          "DEXKIT_EXPERIMENT_STRING_MEMO_BYTES": "1048576",
+          "DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS": "ON",
+          "CMAKE_CXX_FLAGS-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_DEBUG-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_RELEASE-ADVANCED": "1",
+          "CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED": "1",
+          "CMAKE_C_FLAGS-ADVANCED": "1",
+          "CMAKE_C_FLAGS_DEBUG-ADVANCED": "1",
+          "CMAKE_C_FLAGS_MINSIZEREL-ADVANCED": "1",
+          "CMAKE_C_FLAGS_RELEASE-ADVANCED": "1",
+          "CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED": "1"
+        },
+        "configure_command": [
+          "cmake",
+          "-S",
+          "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/src/main/cpp",
+          "-B",
+          "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/pointer-v1/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_OSX_ARCHITECTURES=arm64",
+          "-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG",
+          "-DCMAKE_CXX_FLAGS_RELEASE=-O3 -DNDEBUG",
+          "-DDEXKIT_ENABLE_INTERNAL_METRICS=OFF",
+          "-DDEXKIT_ENABLE_INTERNAL_METRICS_API=OFF",
+          "-DDEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD=ON",
+          "-DDEXKIT_BENCHMARK_RELATION_WORKLOAD=ON",
+          "-DDEXKIT_EXPERIMENT_LAZY_DIRECTORIES=ON",
+          "-DDEXKIT_EXPERIMENT_COMPACT_STRINGS=ON",
+          "-DDEXKIT_EXPERIMENT_NEGATIVE_STRINGS=ON",
+          "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+          "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=ON",
+          "-DDEXKIT_EXPERIMENT_RAW_INTERFACES=ON",
+          "-DDEXKIT_EXPERIMENT_POINTER_DESCRIPTORS=ON"
+        ],
+        "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+        "diagnostics": false
+      }
+    }
+  ],
+  "reversed_order": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  "notes": "Native-only fixture; includes setup, output serialization/destruction and bridge close. Balanced fresh processes; file caches are not flushed. Negative changes favor the second label. Paired bootstrap intervals are exploratory, not a proof of zero regression.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 71.289604,
+          "minimum": 69.175709,
+          "maximum": 72.549459,
+          "mad": 0.8123955000000009
+        },
+        "pointer-v1": {
+          "median": 72.0663335,
+          "minimum": 70.099875,
+          "maximum": 73.087542,
+          "mad": 0.4755210000000005
+        }
+      },
+      "paired_change_percent": [
+        0.9468550592524938,
+        4.025677568407726,
+        -0.520047985471539,
+        -1.2648836058793744,
+        1.031463390990739,
+        1.225180456368391
+      ],
+      "median_change_percent": 0.9891592251216164,
+      "bootstrap95_percent": [
+        -0.8924657956754567,
+        2.6254290123880586
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 0.6586045,
+          "minimum": 0.63425,
+          "maximum": 0.784125,
+          "mad": 0.014791500000000013
+        },
+        "pointer-v1": {
+          "median": 0.6485835,
+          "minimum": 0.628625,
+          "maximum": 0.659959,
+          "mad": 0.009354499999999988
+        }
+      },
+      "paired_change_percent": [
+        -17.439821457038096,
+        4.053448955459205,
+        -2.3639650580296157,
+        -7.52672512581073,
+        -1.372093792572504,
+        -0.06397952655149419
+      ],
+      "median_change_percent": -1.8680294253010599,
+      "bootstrap95_percent": [
+        -12.483273291424414,
+        1.9947347144538552
+      ]
+    },
+    "setup_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 0.0328335,
+          "minimum": 0.032084,
+          "maximum": 0.036583,
+          "mad": 0.0006245000000000001
+        },
+        "pointer-v1": {
+          "median": 0.0350205,
+          "minimum": 0.031166,
+          "maximum": 0.035291,
+          "mad": 0.00024999999999999675
+        }
+      },
+      "paired_change_percent": [
+        -7.539815124178628,
+        6.995419847328255,
+        9.145172264489387,
+        -4.327146488806255,
+        -2.861239246976688,
+        7.0875231643223735
+      ],
+      "median_change_percent": 2.067090300175783,
+      "bootstrap95_percent": [
+        -5.933480806492442,
+        8.11634771440588
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 0.1105415,
+          "minimum": 0.103917,
+          "maximum": 0.120208,
+          "mad": 0.0037085000000000035
+        },
+        "pointer-v1": {
+          "median": 0.1723335,
+          "minimum": 0.165083,
+          "maximum": 0.523417,
+          "mad": 0.0070209999999999995
+        }
+      },
+      "paired_change_percent": [
+        38.44086916012246,
+        68.82452667569589,
+        372.2573601725118,
+        49.73514739229026,
+        354.83008849557524,
+        59.302135358026106
+      ],
+      "median_change_percent": 64.063331016861,
+      "bootstrap95_percent": [
+        44.08800827620636,
+        363.54372433404353
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 2.5386875,
+          "minimum": 2.504708,
+          "maximum": 2.994959,
+          "mad": 0.030583500000000097
+        },
+        "pointer-v1": {
+          "median": 2.5966455,
+          "minimum": 2.553875,
+          "maximum": 3.19725,
+          "mad": 0.014083000000000068
+        }
+      },
+      "paired_change_percent": [
+        27.304399761098953,
+        4.356795283122827,
+        -13.666030152666542,
+        2.1956479121740813,
+        1.0685134800890506,
+        -11.980230530390035
+      ],
+      "median_change_percent": 1.632080696131566,
+      "bootstrap95_percent": [
+        -12.823130341528287,
+        15.83059752211089
+      ]
+    },
+    "repeated_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 67.73183700000001,
+          "minimum": 65.891741,
+          "maximum": 68.944201,
+          "mad": 0.6593739999999997
+        },
+        "pointer-v1": {
+          "median": 68.4258935,
+          "minimum": 66.658795,
+          "maximum": 69.036626,
+          "mad": 0.5996294999999989
+        }
+      },
+      "paired_change_percent": [
+        0.1340576852866704,
+        3.9077461923490597,
+        -0.534465426868147,
+        -1.413592835510813,
+        0.4621742410620744,
+        1.717541241971654
+      ],
+      "median_change_percent": 0.2981159631743724,
+      "bootstrap95_percent": [
+        -0.97402913118948,
+        2.812643717160357
+      ]
+    },
+    "positive_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 69.38278199999999,
+          "minimum": 67.310461,
+          "maximum": 70.66934,
+          "mad": 0.7527045000000001
+        },
+        "pointer-v1": {
+          "median": 69.87645549999999,
+          "minimum": 68.15934,
+          "maximum": 71.013082,
+          "mad": 0.6169599999999988
+        }
+      },
+      "paired_change_percent": [
+        0.9577476114100758,
+        3.8984727797362506,
+        -1.2041572766917086,
+        -1.3377948690987629,
+        0.553453243360158,
+        1.1005061448555953
+      ],
+      "median_change_percent": 0.7556004273851169,
+      "bootstrap95_percent": [
+        -1.2709760728952357,
+        2.499489462295923
+      ]
+    },
+    "negative_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1.0819714999999999,
+          "minimum": 1.064127,
+          "maximum": 1.112241,
+          "mad": 0.01682249999999985
+        },
+        "pointer-v1": {
+          "median": 1.1354549999999999,
+          "minimum": 1.06991,
+          "maximum": 1.207796,
+          "mad": 0.023832000000000075
+        }
+      },
+      "paired_change_percent": [
+        9.59171099922238,
+        5.710602726769887,
+        6.902183667926853,
+        2.387609492285936,
+        -3.805919760195864,
+        4.346730998908277
+      ],
+      "median_change_percent": 5.028666862839081,
+      "bootstrap95_percent": [
+        -0.709155133954964,
+        8.246947333574617
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 12517376.0,
+          "minimum": 12500992,
+          "maximum": 12566528,
+          "mad": 8192.0
+        },
+        "pointer-v1": {
+          "median": 12582912.0,
+          "minimum": 12533760,
+          "maximum": 12599296,
+          "mad": 8192.0
+        }
+      },
+      "paired_change_percent": [
+        0.39215686274509665,
+        0.654450261780104,
+        0.1303780964797996,
+        0.2621231979030192,
+        0.654450261780104,
+        0.5235602094240788
+      ],
+      "median_change_percent": 0.4578585360845877,
+      "bootstrap95_percent": [
+        0.1962506471914094,
+        0.654450261780104
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 11723744.0,
+          "minimum": 11699136,
+          "maximum": 11781120,
+          "mad": 16416.0
+        },
+        "pointer-v1": {
+          "median": 11797440.0,
+          "minimum": 11731904,
+          "maximum": 11797504,
+          "mad": 64.0
+        }
+      },
+      "paired_change_percent": [
+        0.4183735727359972,
+        0.6992433967933032,
+        -0.0005432420686624084,
+        0.280089059568156,
+        0.5580649384655745,
+        0.6997896806970605
+      ],
+      "median_change_percent": 0.48821925560078583,
+      "bootstrap95_percent": [
+        0.1397729087497468,
+        0.6995165387451818
+      ]
+    }
+  }
+}

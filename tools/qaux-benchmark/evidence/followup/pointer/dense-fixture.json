@@ -1,0 +1,10 @@
+{
+  "apk_sha256": "8fd8214d29a861bb078524392807c6e8cb587207f01391d685dac3fd240e9c03",
+  "dex_sha256": "9bb67169acc3f9fc71d22724b7fb8d22fa6cc62d92b5623b9b9f1d0323bf19f5",
+  "methods": 60000,
+  "fields": 60000,
+  "owner": "LA;",
+  "method_pattern": "LA;->m%05d()V",
+  "field_pattern": "LA;->f%05d:I",
+  "purpose": "Full cache coverage with descriptors short enough for the tested standard library SSO."
+}

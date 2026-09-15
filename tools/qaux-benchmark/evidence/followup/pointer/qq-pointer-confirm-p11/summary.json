@@ -1,0 +1,312 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 11,
+  "pairs": 6,
+  "seed": 2026091526,
+  "labels": [
+    "best5-pointer-control",
+    "pointer-v1"
+  ],
+  "reversed_order": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 6853.928771,
+          "minimum": 6707.133083,
+          "maximum": 6930.457041,
+          "mad": 36.13929150000013
+        },
+        "pointer-v1": {
+          "median": 6977.0322915,
+          "minimum": 6708.673334,
+          "maximum": 7101.4015,
+          "mad": 101.05141650000041
+        }
+      },
+      "paired_change_percent": [
+        4.06863168842837,
+        -1.7465250477460281,
+        2.5412039519237206,
+        0.6289039343603031,
+        3.0175053126958007,
+        -0.6423339401960826
+      ],
+      "median_change_percent": 1.5850539431420119,
+      "bootstrap95_percent": [
+        -1.1944294939710554,
+        3.5430685005620854
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 239.7329375,
+          "minimum": 236.579042,
+          "maximum": 245.218666,
+          "mad": 2.1115415000000013
+        },
+        "pointer-v1": {
+          "median": 234.202854,
+          "minimum": 226.589292,
+          "maximum": 239.820209,
+          "mad": 4.1296040000000005
+        }
+      },
+      "paired_change_percent": [
+        -1.9500978849206207,
+        0.4845557819316948,
+        -2.6627360755301144,
+        -6.086472226384276,
+        -2.474943611799685,
+        -4.222584517862737
+      ],
+      "median_change_percent": -2.5688398436648994,
+      "bootstrap95_percent": [
+        -5.154528372123506,
+        -0.732771051494463
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 504.85389599999996,
+          "minimum": 476.221625,
+          "maximum": 571.1635,
+          "mad": 10.31547950000001
+        },
+        "pointer-v1": {
+          "median": 517.4973540000001,
+          "minimum": 445.882084,
+          "maximum": 570.4675,
+          "mad": 33.98754149999991
+        }
+      },
+      "paired_change_percent": [
+        11.168329451649761,
+        -11.6715801943442,
+        -6.768851475978421,
+        13.622072703343857,
+        -3.2749640093704846,
+        -9.33793894486923
+      ],
+      "median_change_percent": -5.021907742674452,
+      "bootstrap95_percent": [
+        -10.504759569606716,
+        12.395201077496809
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1102.540333,
+          "minimum": 1076.674957,
+          "maximum": 1145.458413,
+          "mad": 19.473646999999914
+        },
+        "pointer-v1": {
+          "median": 1097.763958,
+          "minimum": 1083.877832,
+          "maximum": 1124.622417,
+          "mad": 9.84075150000001
+        }
+      },
+      "paired_change_percent": [
+        0.6689925267761243,
+        -4.420471701577178,
+        3.2276589464867333,
+        -2.441312050505162,
+        -1.0819910468568006,
+        -0.03370087238704356
+      ],
+      "median_change_percent": -0.5578459596219221,
+      "bootstrap95_percent": [
+        -3.43089187604117,
+        1.9483257366314288
+      ]
+    },
+    "pass1_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 494.29168749999997,
+          "minimum": 489.562502,
+          "maximum": 512.016956,
+          "mad": 3.2243344999999977
+        },
+        "pointer-v1": {
+          "median": 496.4708135,
+          "minimum": 491.166421,
+          "maximum": 501.029584,
+          "mad": 2.310955999999976
+        }
+      },
+      "paired_change_percent": [
+        1.6261627407076373,
+        -0.23056561930151487,
+        1.2613204782016219,
+        0.5489560536056759,
+        -3.2418680290736357,
+        -0.5751854214398056
+      ],
+      "median_change_percent": 0.15919521715208051,
+      "bootstrap95_percent": [
+        -1.9085267252567206,
+        1.4437416094546296
+      ]
+    },
+    "repeated_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 4943.7708299999995,
+          "minimum": 4875.347705,
+          "maximum": 5001.381589,
+          "mad": 37.812366999999995
+        },
+        "pointer-v1": {
+          "median": 5055.860836,
+          "minimum": 4888.849504,
+          "maximum": 5216.803752,
+          "mad": 80.53623149999976
+        }
+      },
+      "paired_change_percent": [
+        4.445459136744789,
+        -0.19866128221985857,
+        3.74305975361906,
+        0.36511487226176254,
+        4.877118854371365,
+        0.28508040933949985
+      ],
+      "median_change_percent": 2.0540873129404114,
+      "bootstrap95_percent": [
+        0.04320956355982064,
+        4.661288995558078
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1736294400.0,
+          "minimum": 1582563328,
+          "maximum": 1830371328,
+          "mad": 77832192.0
+        },
+        "pointer-v1": {
+          "median": 1721204736.0,
+          "minimum": 1714995200,
+          "maximum": 1726300160,
+          "mad": 4734976.0
+        }
+      },
+      "paired_change_percent": [
+        -6.084123275777187,
+        8.899287725691574,
+        -3.981446042247616,
+        -0.28085876136525467,
+        5.899209684879447,
+        -2.095122293410656
+      ],
+      "median_change_percent": -1.1879905273879554,
+      "bootstrap95_percent": [
+        -5.0327846590124015,
+        7.39924870528551
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1736294400.0,
+          "minimum": 1582563328,
+          "maximum": 1830371328,
+          "mad": 77832192.0
+        },
+        "pointer-v1": {
+          "median": 1721204736.0,
+          "minimum": 1714995200,
+          "maximum": 1726300160,
+          "mad": 4734976.0
+        }
+      },
+      "paired_change_percent": [
+        -6.084123275777187,
+        8.899287725691574,
+        -3.981446042247616,
+        -0.28085876136525467,
+        5.899209684879447,
+        -2.095122293410656
+      ],
+      "median_change_percent": -1.1879905273879554,
+      "bootstrap95_percent": [
+        -5.0327846590124015,
+        7.39924870528551
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1796462016.0,
+          "minimum": 1794872768,
+          "maximum": 1804883392,
+          "mad": 991232.0
+        },
+        "pointer-v1": {
+          "median": 1696093440.0,
+          "minimum": 1680872832,
+          "maximum": 1701958976,
+          "mad": 5652512.0
+        }
+      },
+      "paired_change_percent": [
+        -5.200359694799273,
+        -6.870835010708543,
+        -5.69182452327075,
+        -5.482166218211349,
+        -5.455383002075975,
+        -5.993256383051692
+      ],
+      "median_change_percent": -5.586995370741049,
+      "bootstrap95_percent": [
+        -6.432045696880118,
+        -5.327871348437624
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1796462016.0,
+          "minimum": 1794872768,
+          "maximum": 1804883392,
+          "mad": 991232.0
+        },
+        "pointer-v1": {
+          "median": 1696093440.0,
+          "minimum": 1680872832,
+          "maximum": 1701958976,
+          "mad": 5652512.0
+        }
+      },
+      "paired_change_percent": [
+        -5.200359694799273,
+        -6.870835010708543,
+        -5.69182452327075,
+        -5.482166218211349,
+        -5.455383002075975,
+        -5.993256383051692
+      ],
+      "median_change_percent": -5.586995370741049,
+      "bootstrap95_percent": [
+        -6.432045696880118,
+        -5.327871348437624
+      ]
+    }
+  }
+}

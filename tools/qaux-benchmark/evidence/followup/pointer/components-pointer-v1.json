@@ -1,0 +1,32 @@
+{
+  "command": [
+    "bash",
+    "gradlew",
+    "-I",
+    "tools/qaux-benchmark/force_tests.gradle",
+    ":dexkit:cmakeBuild",
+    ":dexkit:jar",
+    ":dexkit:test",
+    ":dexkit-android:assembleRelease",
+    "--max-workers=2",
+    "--console=plain",
+    "-PexperimentLazyDirectories=ON",
+    "-PexperimentCompactStrings=ON",
+    "-PexperimentNegativeStrings=ON",
+    "-PexperimentStructuralDescriptors=ON",
+    "-PexperimentDescriptorFastHits=ON",
+    "-PexperimentRawInterfaces=ON",
+    "-PexperimentPointerDescriptors=ON",
+    "-PexperimentPagedDescriptors=OFF",
+    "-PexperimentAlignedDescriptors=OFF",
+    "-PexperimentRawDescriptorLookup=OFF",
+    "-PexperimentFieldIdentitySplit=OFF",
+    "-PexperimentCompactInvokes=OFF"
+  ],
+  "tests": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

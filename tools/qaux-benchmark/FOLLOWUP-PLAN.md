@@ -71,5 +71,10 @@ No new Goal, default enablement, upstream merge or release is implied.
   six lifecycle-order checks, independent byte oracles, ASan/UBSan, 71 JVM tests,
   four Android ABIs and revised paired timings. Keep it conditional: QQ wins,
   but reverse-consumer workloads still regress about 1.5--2%.
-- Dense descriptor pointers are next; a high-coverage short-descriptor fixture
-  is prepared. The remaining four candidates are not yet implemented.
+- Dense descriptor pointers are validated: sparse QQ peak memory improves,
+  but full SSO output lifecycle regresses by about 12.5% for two repetitions
+  and 2.0% for sixteen. Independent confirmation and native/JVM/AAR checks
+  passed; exclude it from the generally preferred combination.
+- Contiguous invocation rows are implemented in an independent default-OFF
+  prototype, with mixed/tiny/giant-row fixtures. Full validation is in progress.
+- Raw source metadata and single-requirement relation matching remain.

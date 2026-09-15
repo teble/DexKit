@@ -1,0 +1,42 @@
+{
+  "pointer-checks-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "pointer-checks-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  },
+  "pointer-checks-v1-dense": {
+    "sha256": "1cc4f02e803894ffc8b3c056ea2843f2c46cb52f90bebc56141b03cde4af54fb",
+    "bytes": 10778237
+  },
+  "pointer-checks-v1-relations": {
+    "sha256": "3c9dd580a506dc88a1d7b62e1d65bbd54ccd968f33a0f952ac576bda08e8398d",
+    "bytes": 239800
+  },
+  "pointer-checks-v1-field-adverse": {
+    "sha256": "b9988af78a2fb0980264fd850d801bae7f041a298d5c2e6a03218b7cc593c04d",
+    "bytes": 12049336
+  },
+  "pointer-sanitized-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "pointer-sanitized-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  },
+  "pointer-sanitized-v1-dense": {
+    "sha256": "1cc4f02e803894ffc8b3c056ea2843f2c46cb52f90bebc56141b03cde4af54fb",
+    "bytes": 10778237
+  },
+  "pointer-sanitized-v1-relations": {
+    "sha256": "3c9dd580a506dc88a1d7b62e1d65bbd54ccd968f33a0f952ac576bda08e8398d",
+    "bytes": 239800
+  },
+  "pointer-sanitized-v1-field-adverse": {
+    "sha256": "b9988af78a2fb0980264fd850d801bae7f041a298d5c2e6a03218b7cc593c04d",
+    "bytes": 12049336
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "command": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/pointer-component-checks",
+  "compiler_flags": "-std=c++20 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -DDEXKIT_BENCHMARK_DIAGNOSTICS=0",
+  "executable_sha256": "edf93b6f5f3c0a8bf98f002057166ed21a53023fe4be1819d1aa3cb2d57e2243",
+  "output": "CHECK_POINTER_DESCRIPTOR_COMPONENT {\"passed\":true}\n"
+}

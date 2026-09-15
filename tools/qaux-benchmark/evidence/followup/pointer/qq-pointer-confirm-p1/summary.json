@@ -1,0 +1,254 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 1,
+  "pairs": 6,
+  "seed": 2026091526,
+  "labels": [
+    "best5-pointer-control",
+    "pointer-v1"
+  ],
+  "reversed_order": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1840.3751665,
+          "minimum": 1834.59975,
+          "maximum": 1945.827916,
+          "mad": 3.149770999999987
+        },
+        "pointer-v1": {
+          "median": 1825.1986875,
+          "minimum": 1807.287041,
+          "maximum": 1917.581958,
+          "mad": 12.454041500000017
+        }
+      },
+      "paired_change_percent": [
+        -5.865320363715032,
+        -1.1853699674823304,
+        -0.41012602824077593,
+        4.2031069689800304,
+        -4.933166512615195,
+        -1.4887557354131387
+      ],
+      "median_change_percent": -1.3370628514477345,
+      "bootstrap95_percent": [
+        -5.399243438165113,
+        1.8964904703696273
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 240.19291650000002,
+          "minimum": 234.507917,
+          "maximum": 296.529291,
+          "mad": 3.539770500000003
+        },
+        "pointer-v1": {
+          "median": 236.423708,
+          "minimum": 231.177333,
+          "maximum": 241.959167,
+          "mad": 1.955292
+        }
+      },
+      "paired_change_percent": [
+        -20.478808617931776,
+        1.0880408783811024,
+        -3.249768466815317,
+        1.6423402010328214,
+        -2.836609434326065,
+        -3.7911682631055044
+      ],
+      "median_change_percent": -3.0431889505706913,
+      "bootstrap95_percent": [
+        -12.13498844051864,
+        1.365190539706962
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 471.92589599999997,
+          "minimum": 464.517416,
+          "maximum": 482.174291,
+          "mad": 1.5447709999999972
+        },
+        "pointer-v1": {
+          "median": 456.962708,
+          "minimum": 451.651125,
+          "maximum": 500.849625,
+          "mad": 3.6627285000000427
+        }
+      },
+      "paired_change_percent": [
+        -5.299596323769984,
+        -4.446468678733762,
+        0.4366630679784933,
+        6.296059206217097,
+        -3.8867058752870998,
+        -2.7543369780611893
+      ],
+      "median_change_percent": -3.3205214266741443,
+      "bootstrap95_percent": [
+        -4.873032501251873,
+        3.3663611370977953
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1098.0687090000001,
+          "minimum": 1088.114581,
+          "maximum": 1152.458374,
+          "mad": 5.96346050000011
+        },
+        "pointer-v1": {
+          "median": 1093.6530625,
+          "minimum": 1081.761623,
+          "maximum": 1137.342998,
+          "mad": 9.105186500000059
+        }
+      },
+      "paired_change_percent": [
+        -2.3545522799173435,
+        -0.5306621755312824,
+        -0.18690572331262478,
+        3.6732200860029485,
+        -5.7244292278447295,
+        -0.5838500936327318
+      ],
+      "median_change_percent": -0.5572561345820071,
+      "bootstrap95_percent": [
+        -4.0394907538810365,
+        1.7431571813451618
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1816109056.0,
+          "minimum": 1414840320,
+          "maximum": 1824604160,
+          "mad": 5070848.0
+        },
+        "pointer-v1": {
+          "median": 1711611904.0,
+          "minimum": 1708294144,
+          "maximum": 1714421760,
+          "mad": 1310720.0
+        }
+      },
+      "paired_change_percent": [
+        21.11516414799375,
+        -5.746597350084837,
+        -5.365862513387432,
+        -5.849639918159122,
+        -5.786450490094408,
+        -6.038701566919591
+      ],
+      "median_change_percent": -5.766523920089623,
+      "bootstrap95_percent": [
+        -5.944170742539356,
+        7.874650817303158
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1816109056.0,
+          "minimum": 1414840320,
+          "maximum": 1824604160,
+          "mad": 5070848.0
+        },
+        "pointer-v1": {
+          "median": 1711611904.0,
+          "minimum": 1708294144,
+          "maximum": 1714421760,
+          "mad": 1310720.0
+        }
+      },
+      "paired_change_percent": [
+        21.11516414799375,
+        -5.746597350084837,
+        -5.365862513387432,
+        -5.849639918159122,
+        -5.786450490094408,
+        -6.038701566919591
+      ],
+      "median_change_percent": -5.766523920089623,
+      "bootstrap95_percent": [
+        -5.944170742539356,
+        7.874650817303158
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1784018336.0,
+          "minimum": 1775375872,
+          "maximum": 1793791488,
+          "mad": 6037472.0
+        },
+        "pointer-v1": {
+          "median": 1671550272.0,
+          "minimum": 1667634496,
+          "maximum": 1672484032,
+          "mad": 876544.0
+        }
+      },
+      "paired_change_percent": [
+        -6.846651733024611,
+        -5.899774219754628,
+        -6.204548956028056,
+        -6.300822766892756,
+        -6.228564718032836,
+        -6.56634384982776
+      ],
+      "median_change_percent": -6.264693742462796,
+      "bootstrap95_percent": [
+        -6.706497791426186,
+        -6.052161587891342
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-pointer-control": {
+          "median": 1784018336.0,
+          "minimum": 1775375872,
+          "maximum": 1793791488,
+          "mad": 6037472.0
+        },
+        "pointer-v1": {
+          "median": 1671550272.0,
+          "minimum": 1667634496,
+          "maximum": 1672484032,
+          "mad": 876544.0
+        }
+      },
+      "paired_change_percent": [
+        -6.846651733024611,
+        -5.899774219754628,
+        -6.204548956028056,
+        -6.300822766892756,
+        -6.228564718032836,
+        -6.56634384982776
+      ],
+      "median_change_percent": -6.264693742462796,
+      "bootstrap95_percent": [
+        -6.706497791426186,
+        -6.052161587891342
+      ]
+    }
+  }
+}

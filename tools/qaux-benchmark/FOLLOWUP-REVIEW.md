@@ -49,3 +49,20 @@ The revised checks pass, but repeatable consumer regressions remain. The
 candidate is therefore classified as conditional, and the next representation
 experiment proceeds independently against best5. No further field-only tuning
 or universal no-regression claim is inferred from the review.
+
+## Dense descriptor pointer review
+
+Pro read actual fixed `5560403`, including pointer cache ownership, both
+getters, macro gates, diagnostics, the dense checker and SSO workload. The
+complete 6m40 response found no new correctness blocker under the existing
+quiescence contract. It confirmed release/acquire, locked rechecks, exception
+ownership, zero-initialized C++20 atomic pointers and independent PTR mode.
+
+It correctly separated logical object/character capacity from allocator
+rounding, and noted simultaneous method/field output buffers in the workload.
+The comparison includes their destruction in both variants. Actual diagnostic
+SSO counts, not length assumptions, confirm 120,000 SSO records on this host.
+Pro suggested small empty/allocation-failure checks and PTR without structural
+or fast-hit support; those are included in the validation follow-up. It did
+not propose using QQ savings to override full-coverage regressions. The
+measured decision is to exclude this prototype from the general combination.

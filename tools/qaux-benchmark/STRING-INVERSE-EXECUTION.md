@@ -1,6 +1,6 @@
 # String inverse index experiment
 
-Status: budget revision and integration checks complete; final measurements pending.
+Status: implementation, validation, two source reviews and final measurements complete.
 The first measured prototype is `3ccb765`, based on `9432879`.
 
 The user requested an engine implementation and another benchmark after the
@@ -50,7 +50,7 @@ branch. The new `DEXKIT_EXPERIMENT_INVERTED_STRINGS` flag defaults to OFF.
 - The first prototype completed 24 sweeps / 288 samples, including independent
   confirmation. QQ lifecycle improvement repeated, as did an eleven-pass
   process-peak increase. Preserve this evidence under `string-inverse-v1`;
-  final measurements will use the budget revision and an added one-DEX guard.
+  final measurements use the budget revision and an added one-DEX guard.
 
 The reverse index stays bridge-owned; candidate bitmaps are query-local. The
 16 MiB budget is per DEX task and applies to requested bitmap storage, with
@@ -73,7 +73,7 @@ exact accepted/rejected boundary plus extreme `size_t` inputs. It uses division
 and subtraction before bounded arithmetic. Ordinary fallback keeps the already
 selected one-task-per-DEX scheduling; this remains a performance limitation.
 
-The new small fixture exercises eight root-plus-child queries, including a
+The new small fixture exercises one root-only control and seven root/child queries, including a
 local caller and a remote target with equal numeric method IDs and opposite
 string truth values. The remote nested query deliberately reuses the root
 FlatBuffer vector. Four fresh bridges prewarm only `kUsingString`, assert that
@@ -87,8 +87,15 @@ sorted by InitBaseCache; the batch path retains that existing row order.
 No allocation-failure injection has been performed, and no general OOM fallback
 is promised.
 
-The final finite matrix has 13 sweeps per batch, six pairs per sweep, plus an
+The completed final matrix has 13 sweeps per batch, six pairs per sweep, plus an
 independent confirmation (26 sweeps / 312 samples). It repeats the original
 12 workloads and adds a one-DEX, broad-root, expensive-nested-condition case to
 expose the loss of method-range parallelism. No build or diagnostic workload
 runs concurrently with formal measurement.
+
+The corrected engine is `cc9f893`; all six native configurations and the second
+71-test/four-ABI Gradle validation pass. See STRING-INVERSE-RESULTS.md for the
+final paired results, including the real method-name-selective QQ regression,
+the broad nested positive-leg regression, increased QQ peak and unresolved
+single-pass lifecycle confirmation. Post-measurement shape assertions use the
+same query builder and immutable archives without replacing measured binaries.

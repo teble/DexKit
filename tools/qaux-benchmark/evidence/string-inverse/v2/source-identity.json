@@ -1,0 +1,111 @@
+[
+  {
+    "artifact": "string-inverse-control-trace-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "d87f13d62be23edc9a704c66789d12d4b18d1dddd025aac26e6566a5d2b98524",
+    "enabled_experiments": [
+      "COMPACT_INVOKES",
+      "COMPACT_STRINGS",
+      "DESCRIPTOR_FAST_HITS",
+      "FIELD_IDENTITY_SPLIT",
+      "LAZY_DIRECTORIES",
+      "NEGATIVE_STRINGS",
+      "RAW_INTERFACES",
+      "SINGLE_RELATION",
+      "STRUCTURAL_DESCRIPTORS"
+    ],
+    "normal_measurement": false,
+    "passed": true
+  },
+  {
+    "artifact": "string-inverse-control-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "1406de12c38e356b1771209f2006c73a189975e4f90c892dcf75f48c3b4fab16",
+    "enabled_experiments": [
+      "COMPACT_INVOKES",
+      "COMPACT_STRINGS",
+      "DESCRIPTOR_FAST_HITS",
+      "FIELD_IDENTITY_SPLIT",
+      "LAZY_DIRECTORIES",
+      "NEGATIVE_STRINGS",
+      "RAW_INTERFACES",
+      "SINGLE_RELATION",
+      "STRUCTURAL_DESCRIPTORS"
+    ],
+    "normal_measurement": true,
+    "passed": true
+  },
+  {
+    "artifact": "string-inverse-inverse-sanitized-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "1f4dea6b149e841057924153196e0ad3261640800c18a0481a991854405c9a40",
+    "enabled_experiments": [
+      "COMPACT_INVOKES",
+      "COMPACT_STRINGS",
+      "DESCRIPTOR_FAST_HITS",
+      "FIELD_IDENTITY_SPLIT",
+      "INVERTED_STRINGS",
+      "LAZY_DIRECTORIES",
+      "NEGATIVE_STRINGS",
+      "RAW_INTERFACES",
+      "SINGLE_RELATION",
+      "STRUCTURAL_DESCRIPTORS"
+    ],
+    "normal_measurement": false,
+    "passed": true
+  },
+  {
+    "artifact": "string-inverse-inverse-standalone-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "137f7ed2c7b95ca4b1efc1df26b23115ecbbaab415db07d03e1669eacc42f557",
+    "enabled_experiments": [
+      "INVERTED_STRINGS"
+    ],
+    "normal_measurement": false,
+    "passed": true
+  },
+  {
+    "artifact": "string-inverse-inverse-trace-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "8536cc0cbbd6c33d8d4db514281aff86b1ba6a985c3637a5aabdd32ce4deb4c3",
+    "enabled_experiments": [
+      "COMPACT_INVOKES",
+      "COMPACT_STRINGS",
+      "DESCRIPTOR_FAST_HITS",
+      "FIELD_IDENTITY_SPLIT",
+      "INVERTED_STRINGS",
+      "LAZY_DIRECTORIES",
+      "NEGATIVE_STRINGS",
+      "RAW_INTERFACES",
+      "SINGLE_RELATION",
+      "STRUCTURAL_DESCRIPTORS"
+    ],
+    "normal_measurement": false,
+    "passed": true
+  },
+  {
+    "artifact": "string-inverse-inverse-v2",
+    "built_base": "3ccb765c5d81efa3441af8e3ade80ce5c9d57f84",
+    "reconstructed_source_commit": "cc9f893ce30ad4a31f5c5e0cf19ef338e8b15086",
+    "native_sha256": "2c73406611fc8eba1d5541bd47187523c1cd1b1676a33a87cd2a1b7650e741ba",
+    "enabled_experiments": [
+      "COMPACT_INVOKES",
+      "COMPACT_STRINGS",
+      "DESCRIPTOR_FAST_HITS",
+      "FIELD_IDENTITY_SPLIT",
+      "INVERTED_STRINGS",
+      "LAZY_DIRECTORIES",
+      "NEGATIVE_STRINGS",
+      "RAW_INTERFACES",
+      "SINGLE_RELATION",
+      "STRUCTURAL_DESCRIPTORS"
+    ],
+    "normal_measurement": true,
+    "passed": true
+  }
+]

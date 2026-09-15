@@ -1,0 +1,82 @@
+[
+  {
+    "fixture": "small",
+    "name": "control-nested",
+    "positive_count": 4,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "7a483745a134c6e1d27f7c9258803bee8bee6d8ab58700b84ae5e64ccbb70664",
+    "passed": true
+  },
+  {
+    "fixture": "small",
+    "name": "control-flat",
+    "positive_count": 4,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "7a483745a134c6e1d27f7c9258803bee8bee6d8ab58700b84ae5e64ccbb70664",
+    "passed": true
+  },
+  {
+    "fixture": "small",
+    "name": "inverse-nested",
+    "positive_count": 4,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "7a483745a134c6e1d27f7c9258803bee8bee6d8ab58700b84ae5e64ccbb70664",
+    "passed": true
+  },
+  {
+    "fixture": "small",
+    "name": "inverse-flat",
+    "positive_count": 4,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "7a483745a134c6e1d27f7c9258803bee8bee6d8ab58700b84ae5e64ccbb70664",
+    "passed": true
+  },
+  {
+    "fixture": "small",
+    "name": "inverse-root",
+    "positive_count": 45,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "ea8cf93bf427f3dd6ef3be973a4b346c9610dfe5507db045bb45a4067e83b5f8",
+    "passed": true
+  },
+  {
+    "fixture": "broad",
+    "name": "control-nested",
+    "positive_count": 4500,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "dc2c469f76444866a3c778c4c8ab701dd5167b9c76e29fee27c3a007717c9ee0",
+    "passed": true
+  },
+  {
+    "fixture": "broad",
+    "name": "control-flat",
+    "positive_count": 4500,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "dc2c469f76444866a3c778c4c8ab701dd5167b9c76e29fee27c3a007717c9ee0",
+    "passed": true
+  },
+  {
+    "fixture": "broad",
+    "name": "inverse-nested",
+    "positive_count": 4500,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "dc2c469f76444866a3c778c4c8ab701dd5167b9c76e29fee27c3a007717c9ee0",
+    "passed": true
+  },
+  {
+    "fixture": "broad",
+    "name": "inverse-flat",
+    "positive_count": 4500,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "dc2c469f76444866a3c778c4c8ab701dd5167b9c76e29fee27c3a007717c9ee0",
+    "passed": true
+  },
+  {
+    "fixture": "broad",
+    "name": "inverse-root",
+    "positive_count": 4500,
+    "negative_count": 0,
+    "ordered_bytes_sha256": "dc2c469f76444866a3c778c4c8ab701dd5167b9c76e29fee27c3a007717c9ee0",
+    "passed": true
+  }
+]

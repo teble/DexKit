@@ -40,4 +40,18 @@ nested workload measures that tradeoff. Gains include candidate traversal,
 less repeated matching, scheduling changes, and removal of the Batch negative
 memo on the new path; they cannot be attributed solely to fewer AC scans.
 
-The narrow budget revision is awaiting a final incremental source check.
+The final incremental review read `3ccb765..cc9f893` and completed after 6m52s.
+It confirmed the budget arithmetic/call sites and the actual new TLS and cold
+concurrent paths, with no new source blocker. Of the eight integration queries,
+one is a root-only control and seven have child predicates. The start latch
+establishes concurrent cold entry, not a forced simultaneous pause inside
+call_once; the once-per-DEX log checks are limited to their marked windows.
+
+The remaining nonblocking recommendation was adopted after measurement:
+`string_nested_shape_checks.cpp` reuses the exact measured query builder and
+links the unchanged Core archives. Across control, candidate, sanitizer and
+standalone variants, every one of sixteen positive calls returns the ordered
+4500 IDs/descriptors and every negative call returns zero. All 24 timed broad
+samples also equal the independently calculated aggregate identity. No timed
+engine or workload binary was replaced, and no additional engine change or
+review round was needed.

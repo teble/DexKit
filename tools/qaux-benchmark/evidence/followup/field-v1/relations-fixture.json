@@ -1,0 +1,226 @@
+{
+  "apk_sha256": "f7a983a7952c421f153fedf3514c056c10d0a43aea04c842ea26a73d7539e389",
+  "fanout": 64,
+  "methods_per_source": 8,
+  "dexes": [
+    {
+      "methods": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Target;->leaf()V",
+          "defined": true
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Target;->local()V",
+          "defined": true
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Target;->sparse()V",
+          "defined": true
+        }
+      ],
+      "fields": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Blocked;->zLater:I",
+          "defined": true
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Target;->unused:I",
+          "defined": true
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Target;->value:I",
+          "defined": true
+        }
+      ],
+      "class_interfaces": {
+        "Lrelations/Target;": [],
+        "Lrelations/Blocked;": []
+      }
+    },
+    {
+      "methods": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Source1;->cold()V",
+          "defined": true
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Source1;->run0000()V",
+          "defined": true
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Source1;->run0001()V",
+          "defined": true
+        },
+        {
+          "id": 3,
+          "descriptor": "Lrelations/Source1;->run0002()V",
+          "defined": true
+        },
+        {
+          "id": 4,
+          "descriptor": "Lrelations/Source1;->run0003()V",
+          "defined": true
+        },
+        {
+          "id": 5,
+          "descriptor": "Lrelations/Source1;->run0004()V",
+          "defined": true
+        },
+        {
+          "id": 6,
+          "descriptor": "Lrelations/Source1;->run0005()V",
+          "defined": true
+        },
+        {
+          "id": 7,
+          "descriptor": "Lrelations/Source1;->run0006()V",
+          "defined": true
+        },
+        {
+          "id": 8,
+          "descriptor": "Lrelations/Source1;->run0007()V",
+          "defined": true
+        },
+        {
+          "id": 9,
+          "descriptor": "Lrelations/Target;->leaf()V",
+          "defined": false
+        }
+      ],
+      "fields": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Absent;->value:I",
+          "defined": false
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Blocked;->aMissing:I",
+          "defined": false
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Blocked;->zLater:I",
+          "defined": false
+        },
+        {
+          "id": 3,
+          "descriptor": "Lrelations/Source1;->localValue:I",
+          "defined": true
+        },
+        {
+          "id": 4,
+          "descriptor": "Lrelations/Target;->unused:I",
+          "defined": false
+        },
+        {
+          "id": 5,
+          "descriptor": "Lrelations/Target;->value:I",
+          "defined": false
+        }
+      ],
+      "class_interfaces": {
+        "Lrelations/Source1;": []
+      }
+    },
+    {
+      "methods": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Source2;->cold()V",
+          "defined": true
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Source2;->run0000()V",
+          "defined": true
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Source2;->run0001()V",
+          "defined": true
+        },
+        {
+          "id": 3,
+          "descriptor": "Lrelations/Source2;->run0002()V",
+          "defined": true
+        },
+        {
+          "id": 4,
+          "descriptor": "Lrelations/Source2;->run0003()V",
+          "defined": true
+        },
+        {
+          "id": 5,
+          "descriptor": "Lrelations/Source2;->run0004()V",
+          "defined": true
+        },
+        {
+          "id": 6,
+          "descriptor": "Lrelations/Source2;->run0005()V",
+          "defined": true
+        },
+        {
+          "id": 7,
+          "descriptor": "Lrelations/Source2;->run0006()V",
+          "defined": true
+        },
+        {
+          "id": 8,
+          "descriptor": "Lrelations/Source2;->run0007()V",
+          "defined": true
+        },
+        {
+          "id": 9,
+          "descriptor": "Lrelations/Target;->leaf()V",
+          "defined": true
+        }
+      ],
+      "fields": [
+        {
+          "id": 0,
+          "descriptor": "Lrelations/Absent;->value:I",
+          "defined": false
+        },
+        {
+          "id": 1,
+          "descriptor": "Lrelations/Blocked;->aMissing:I",
+          "defined": false
+        },
+        {
+          "id": 2,
+          "descriptor": "Lrelations/Blocked;->zLater:I",
+          "defined": false
+        },
+        {
+          "id": 3,
+          "descriptor": "Lrelations/Source2;->localValue:I",
+          "defined": true
+        },
+        {
+          "id": 4,
+          "descriptor": "Lrelations/Target;->unused:I",
+          "defined": true
+        },
+        {
+          "id": 5,
+          "descriptor": "Lrelations/Target;->value:I",
+          "defined": true
+        }
+      ],
+      "class_interfaces": {
+        "Lrelations/Source2;": [],
+        "Lrelations/Target;": []
+      }
+    }
+  ]
+}

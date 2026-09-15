@@ -1,0 +1,12 @@
+{
+  "relations": {
+    "sha256": "3c9dd580a506dc88a1d7b62e1d65bbd54ccd968f33a0f952ac576bda08e8398d",
+    "full_bytes_equal": true,
+    "sequences": 6
+  },
+  "field-adverse": {
+    "sha256": "b9988af78a2fb0980264fd850d801bae7f041a298d5c2e6a03218b7cc593c04d",
+    "full_bytes_equal": true,
+    "sequences": 6
+  }
+}

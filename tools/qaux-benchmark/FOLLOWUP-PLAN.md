@@ -66,5 +66,8 @@ No new Goal, default enablement, upstream merge or release is implied.
 ## Progress
 
 - Baseline source and previous measurements reviewed.
-- Field reverse-row consumption diagnostics are being added before the split.
+- Field diagnostics confirmed zero reverse-row consumption in eleven QQ passes.
+- First field split, six lifecycle-order checks and initial paired timings are
+  complete. Consumer-workload regressions require a bounded follow-up before
+  deciding how this candidate may be retained.
 - Remaining candidates have not yet been implemented in this phase.

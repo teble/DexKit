@@ -1,0 +1,36 @@
+{
+  "best5-v1": {
+    "native_sha256": "331f61535e1821da655eae1d39bc0edd691a4b09270175cb13da86277e34e22f",
+    "apk_sha256": "851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f",
+    "qaux_commit": "01801ffd013c95781dd360704adf48dc42ee8aa6",
+    "groups_sha256": "2558389fae99493d49d21a2391d489216a44bf66c40f391298ba20762f7a048f",
+    "adapter_sha256": "74b735e862291a23d48bbf84b27e9526cac818f7e602a61b94baeb4d0e0ef081",
+    "expected_sha256": "a276e73c9ad149087d4254c243adbb95a7db6a8a0973c2e75a0d8a11d5de3a3f",
+    "jars_sha256": {
+      "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+      "/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar": "28a35bcdff46d864f80f346a617e486284b208d17378c41900dfb1de95a90e6c",
+      "/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar": "8d10cac2ea9878896077ba437d76fdb1b9a07f55a863c560bb8a024b04103f8b"
+    },
+    "passes": 11,
+    "profile": "all",
+    "threads": 4,
+    "baseline_results_equal": true
+  },
+  "field-split-v1": {
+    "native_sha256": "8e612b2f577ac224372dda285c45a8054f2cbfc2afa603e6c851f392c3f7d14b",
+    "apk_sha256": "851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f",
+    "qaux_commit": "01801ffd013c95781dd360704adf48dc42ee8aa6",
+    "groups_sha256": "2558389fae99493d49d21a2391d489216a44bf66c40f391298ba20762f7a048f",
+    "adapter_sha256": "74b735e862291a23d48bbf84b27e9526cac818f7e602a61b94baeb4d0e0ef081",
+    "expected_sha256": "a276e73c9ad149087d4254c243adbb95a7db6a8a0973c2e75a0d8a11d5de3a3f",
+    "jars_sha256": {
+      "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+      "/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar": "28a35bcdff46d864f80f346a617e486284b208d17378c41900dfb1de95a90e6c",
+      "/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar": "8d10cac2ea9878896077ba437d76fdb1b9a07f55a863c560bb8a024b04103f8b"
+    },
+    "passes": 11,
+    "profile": "all",
+    "threads": 4,
+    "baseline_results_equal": true
+  }
+}

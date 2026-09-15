@@ -57,6 +57,23 @@ void Descriptors(Counts &count, const std::vector<std::optional<std::string>> &v
         }
     }
 }
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+void Descriptors(Counts &count, const PagedDescriptorCache &values) {
+    const auto stats = values.GetStatistics();
+    count.index_bytes += stats.index_bytes;
+    count.payload_bytes += stats.record_capacity_bytes;
+    count.entries += values.size();
+    count.ready += stats.records;
+    count.buffers += stats.buffers;
+    std::fprintf(stderr,
+        "BENCH_DESCRIPTOR_STORAGE {\"entries\":%zu,\"records\":%zu,\"pages\":%zu,\"blocks\":%zu,"
+        "\"capacity_bytes\":%zu,\"used_bytes\":%zu,\"character_bytes\":%zu,\"record_bytes\":%zu,"
+        "\"cold_lock_count\":%llu,\"cold_lock_wait_ns\":%llu}\n",
+        values.size(), stats.records, stats.pages, stats.blocks, stats.record_capacity_bytes,
+        stats.record_used_bytes, stats.character_bytes, stats.record_bytes,
+        (unsigned long long) stats.cold_lock_count, (unsigned long long) stats.cold_lock_wait_ns);
+}
+#endif
 }
 
 void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
@@ -84,7 +101,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
         publication.index_bytes += (item.reader.MethodIds().size() + item.reader.FieldIds().size())
                 * sizeof(std::atomic<uint8_t>) + sizeof(item.descriptor_mutexes);

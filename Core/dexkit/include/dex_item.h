@@ -45,6 +45,9 @@
 #include "dexkit.h"
 #include "analyze.h"
 #include "descriptor_diagnostics.h"
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#include "paged_descriptor_cache.h"
+#endif
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
 #include "member_descriptor_view.h"
 #endif
@@ -294,6 +297,33 @@ private:
     bool MatchesDescriptor(uint32_t field_idx, const internal::FieldDescriptorView &descriptor) const;
 #endif
 
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    template<class Emit>
+    void VisitMethodDescriptorParts(uint32_t method_idx, Emit &&emit) const {
+        const auto &method = reader.MethodIds()[method_idx];
+        const auto &proto = reader.ProtoIds()[method.proto_idx];
+        const auto *parameters = proto_type_list[method.proto_idx];
+        emit(type_names[method.class_idx]);
+        emit("->");
+        emit(strings[method.name_idx]);
+        emit("(");
+        if (parameters) for (uint32_t i = 0; i < parameters->size; ++i)
+            emit(type_names[parameters->list[i].type_idx]);
+        emit(")");
+        emit(type_names[proto.return_type_idx]);
+    }
+
+    template<class Emit>
+    void VisitFieldDescriptorParts(uint32_t field_idx, Emit &&emit) const {
+        const auto &field = reader.FieldIds()[field_idx];
+        emit(type_names[field.class_idx]);
+        emit("->");
+        emit(strings[field.name_idx]);
+        emit(":");
+        emit(type_names[field.type_idx]);
+    }
+#endif
+
     struct PendingAggregateMethodWorkItem {
         uint32_t source_method_idx;
         uint16_t target_dex_id;
@@ -363,14 +393,22 @@ private:
     std::vector<std::string_view> class_source_files;
     std::vector<uint32_t /*access_flag*/> class_access_flags;
     std::vector<std::vector<uint32_t>> class_interface_ids;
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    PagedDescriptorCache method_descriptors;
+#else
     std::vector<std::optional<std::string>> method_descriptors;
+#endif
     // stable base member indexes; after init only members declared in this dex stay here
     std::vector<std::vector<uint32_t /*method_id*/>> class_method_ids;
     // one-shot worklists for cross-ref against members whose declaring class is outside this dex
     std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    PagedDescriptorCache field_descriptors;
+#else
     std::vector<std::optional<std::string>> field_descriptors;
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     // Structural comparison leaves more output descriptors cold. Publish their
     // immutable strings explicitly when concurrent queries first return them.
     std::unique_ptr<std::atomic<uint8_t>[]> method_descriptor_ready;

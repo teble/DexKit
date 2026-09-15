@@ -144,7 +144,11 @@ void DexItem::InitBaseCache() {
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
     const auto field_count = reader.FieldIds().size();
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    method_descriptors.Initialize(method_count);
+#else
     method_descriptors.resize(method_count);
+#endif
     method_access_flags.resize(method_count);
     method_codes.resize(method_count);
 #if !DEXKIT_EXPERIMENT_LAZY_DIRECTORIES
@@ -152,8 +156,12 @@ void DexItem::InitBaseCache() {
     lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
 #endif
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    field_descriptors.Initialize(field_count);
+#else
     field_descriptors.resize(field_count);
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     method_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(method_count);
     field_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(field_count);
 #endif
@@ -1171,6 +1179,15 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
 }
 
 std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    return method_descriptors.GetOrCreate(method_idx,
+        [this, method_idx](auto &&emit) { VisitMethodDescriptorParts(method_idx, emit); },
+        [this](size_t bytes) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            descriptor_diagnostics.Built(true, bytes);
+#endif
+        });
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     if (method_descriptor_ready[method_idx].load(std::memory_order_acquire)) {
         return method_descriptors[method_idx].value();
@@ -1205,9 +1222,19 @@ std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
     method_descriptor_ready[method_idx].store(1, std::memory_order_release);
 #endif
     return method_desc.value();
+#endif
 }
 
 std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    return field_descriptors.GetOrCreate(field_idx,
+        [this, field_idx](auto &&emit) { VisitFieldDescriptorParts(field_idx, emit); },
+        [this](size_t bytes) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            descriptor_diagnostics.Built(false, bytes);
+#endif
+        });
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     if (field_descriptor_ready[field_idx].load(std::memory_order_acquire)) {
         return field_descriptors[field_idx].value();
@@ -1235,6 +1262,7 @@ std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
     field_descriptor_ready[field_idx].store(1, std::memory_order_release);
 #endif
     return field_desc.value();
+#endif
 }
 
 std::vector<uint8_t> DexItem::GetOpSeqFromCode(uint32_t method_idx) {

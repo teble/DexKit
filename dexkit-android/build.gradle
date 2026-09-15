@@ -33,6 +33,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_COMPACT_STRINGS=${providers.gradleProperty('experimentCompactStrings').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_NEGATIVE_STRINGS=${providers.gradleProperty('experimentNegativeStrings').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=${providers.gradleProperty('experimentStructuralDescriptors').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=${providers.gradleProperty('experimentPagedDescriptors').getOrElse('OFF')}"
                 def flags = [
                         "-funwind-tables",
                         "-fasynchronous-unwind-tables",

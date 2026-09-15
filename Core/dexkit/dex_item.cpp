@@ -146,7 +146,7 @@ void DexItem::InitBaseCache() {
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
     const auto field_count = reader.FieldIds().size();
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     method_descriptors.Initialize(method_count);
 #else
     method_descriptors.resize(method_count);
@@ -158,12 +158,12 @@ void DexItem::InitBaseCache() {
     lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
 #endif
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     field_descriptors.Initialize(field_count);
 #else
     field_descriptors.resize(field_count);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     method_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(method_count);
     field_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(field_count);
 #endif
@@ -1217,7 +1217,7 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
 
 std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
 #if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     if (auto cached = method_descriptors.TryGet(method_idx)) return *cached;
 #else
     if (method_descriptor_ready[method_idx].load(std::memory_order_acquire)) {
@@ -1239,6 +1239,11 @@ std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
 #endif
         });
 #else
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    if (auto cached = method_descriptors.TryGet(method_idx)) return *cached;
+    std::lock_guard descriptor_lock(descriptor_mutexes[method_idx % descriptor_mutexes.size()]);
+    if (auto cached = method_descriptors.TryGet(method_idx)) return *cached;
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     if (method_descriptor_ready[method_idx].load(std::memory_order_acquire)) {
         return method_descriptors[method_idx].value();
@@ -1249,6 +1254,7 @@ std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
     if (method_desc != std::nullopt) {
         return method_desc.value();
     }
+#endif
     auto &method_def = this->reader.MethodIds()[method_idx];
     auto &proto_def = this->reader.ProtoIds()[method_def.proto_idx];
     auto &type_list = this->proto_type_list[method_def.proto_idx];
@@ -1265,20 +1271,29 @@ std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
     descriptor += ')';
     descriptor += strings[type_defs[proto_def.return_type_idx].descriptor_idx];
 
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    // Copy, as the dense optional path does, to preserve string capacity policy.
+    auto owned = std::make_unique<std::string>(descriptor);
+#else
     method_desc = descriptor;
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Built(true, descriptor.size());
 #endif
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    return method_descriptors.Publish(method_idx, std::move(owned));
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     method_descriptor_ready[method_idx].store(1, std::memory_order_release);
 #endif
     return method_desc.value();
 #endif
+#endif
 }
 
 std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
 #if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     if (auto cached = field_descriptors.TryGet(field_idx)) return *cached;
 #else
     if (field_descriptor_ready[field_idx].load(std::memory_order_acquire)) {
@@ -1299,6 +1314,11 @@ std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
 #endif
         });
 #else
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    if (auto cached = field_descriptors.TryGet(field_idx)) return *cached;
+    std::lock_guard descriptor_lock(descriptor_mutexes[field_idx % descriptor_mutexes.size()]);
+    if (auto cached = field_descriptors.TryGet(field_idx)) return *cached;
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     if (field_descriptor_ready[field_idx].load(std::memory_order_acquire)) {
         return field_descriptors[field_idx].value();
@@ -1309,6 +1329,7 @@ std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
     if (field_desc != std::nullopt) {
         return field_desc.value();
     }
+#endif
     auto &field_id = this->reader.FieldIds()[field_idx];
     auto &type_id = this->reader.TypeIds()[field_id.type_idx];
 
@@ -1318,14 +1339,23 @@ std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
     descriptor += ":";
     descriptor += this->strings[type_id.descriptor_idx];
 
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    // Copy, as the dense optional path does, to preserve string capacity policy.
+    auto owned = std::make_unique<std::string>(descriptor);
+#else
     field_desc = descriptor;
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Built(false, descriptor.size());
 #endif
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    return field_descriptors.Publish(field_idx, std::move(owned));
+#else
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
     field_descriptor_ready[field_idx].store(1, std::memory_order_release);
 #endif
     return field_desc.value();
+#endif
 #endif
 }
 

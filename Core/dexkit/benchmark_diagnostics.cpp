@@ -57,6 +57,16 @@ void Descriptors(Counts &count, const std::vector<std::optional<std::string>> &v
         }
     }
 }
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+void Descriptors(Counts &count, const PointerDescriptorCache &values) {
+    const auto stats = values.GetStatistics();
+    count.index_bytes += stats.index_bytes;
+    count.payload_bytes += stats.payload_bytes;
+    count.entries += values.size();
+    count.ready += stats.records;
+    count.buffers += stats.buffers;
+}
+#endif
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
 void Descriptors(Counts &count, const PagedDescriptorCache &values, const char *phase,
                  uint32_t dex_id, const char *kind) {
@@ -113,12 +123,19 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
+#if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+        publication.index_bytes += sizeof(item.descriptor_mutexes);
+        std::fprintf(stderr, "BENCH_POINTER_DESCRIPTORS {\"phase\":\"%s\",\"dex\":%u,\"sso_records\":%zu}\n",
+                phase, item.dex_id, item.method_descriptors.GetStatistics().sso_records
+                                    + item.field_descriptors.GetStatistics().sso_records);
+#else
         publication.index_bytes += (item.reader.MethodIds().size() + item.reader.FieldIds().size())
                 * sizeof(std::atomic<uint8_t>) + sizeof(item.descriptor_mutexes);
         publication.entries += item.reader.MethodIds().size() + item.reader.FieldIds().size();
         publication.buffers += 2;
+#endif
 #endif
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS
         const auto &index = item.method_using_string_ids;

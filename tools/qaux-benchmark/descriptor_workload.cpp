@@ -1,4 +1,7 @@
 #include "dexkit.h"
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+#include "benchmark_diagnostics.h"
+#endif
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -55,12 +58,19 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
     stats.create_ns = Ns(begin);
     begin = Clock::now();
     bridge->SetThreadNum(4);
-    std::vector<int64_t> ids;
+    std::vector<int64_t> ids, field_ids;
     std::string hit, miss;
     std::unique_ptr<flatbuffers::FlatBufferBuilder> positive, negative;
     if (mode == "interfaces") {
         positive = InterfaceQuery(false);
         negative = InterfaceQuery(true);
+    } else if (mode == "output-sso") {
+        auto data = bridge->GetClassData("LA;");
+        Require(data != nullptr, "dense short descriptor fixture");
+        auto meta = flatbuffers::GetRoot<schema::ClassMeta>(data->GetBufferPointer());
+        for (auto id : *meta->methods()) ids.push_back((int64_t(meta->dex_id()) << 32) | uint32_t(id));
+        for (auto id : *meta->fields()) field_ids.push_back((int64_t(meta->dex_id()) << 32) | uint32_t(id));
+        Require(ids.size() == 60000 && field_ids.size() == 60000, "dense fixture size");
     } else {
         auto data = bridge->GetClassData("Lfixture/Wide;");
         Require(data != nullptr, "wide fixture class");
@@ -87,15 +97,26 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
     stats.setup_ns = Ns(begin);
     for (size_t iteration = 0; iteration < repeats; ++iteration) {
         begin = Clock::now();
-        if (mode == "output") {
+        if (mode == "output" || mode == "output-sso") {
             auto result = bridge->GetMethodByIds(ids);
             auto methods = flatbuffers::GetRoot<schema::MethodMetaArrayHolder>(result->GetBufferPointer())->methods();
             Require(methods->size() == ids.size(), "output count");
             for (auto method : *methods) {
-                Require(method->dex_descriptor()->size() > 1024, "long descriptor fixture");
+                Require(mode == "output" ? method->dex_descriptor()->size() > 1024
+                                         : method->dex_descriptor()->size() == 14, "descriptor fixture length");
                 stats.checksum += method->id() + method->dex_descriptor()->size();
             }
             stats.returned += methods->size();
+            if (mode == "output-sso") {
+                auto fields_result = bridge->GetFieldByIds(field_ids);
+                auto fields = flatbuffers::GetRoot<schema::FieldMetaArrayHolder>(fields_result->GetBufferPointer())->fields();
+                Require(fields->size() == field_ids.size(), "field output count");
+                for (auto field : *fields) {
+                    Require(field->dex_descriptor()->size() == 13, "short field descriptor");
+                    stats.checksum += field->id() + field->dex_descriptor()->size();
+                }
+                stats.returned += fields->size();
+            }
         } else if (mode.starts_with("lookup")) {
             const auto hit_begin = Clock::now();
             {
@@ -133,6 +154,9 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
         if (iteration == 0) stats.first_ns = elapsed;
         else stats.repeated_ns += elapsed;
     }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    BenchmarkDiagnostics::Dump(*bridge, "workload-complete");
+#endif
     begin = Clock::now();
     bridge.reset();
     stats.close_ns = Ns(begin);
@@ -143,11 +167,11 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
 
 int main(int argc, char **argv) {
     if (argc != 4) {
-        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|lookup|lookup-prefix|lookup-hot|interfaces repeats\n");
+        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|output-sso|lookup|lookup-prefix|lookup-hot|interfaces repeats\n");
         return 2;
     }
     const std::string_view mode(argv[2]);
-    Require(mode == "output" || mode == "lookup" || mode == "lookup-prefix" || mode == "lookup-hot" || mode == "interfaces", "mode");
+    Require(mode == "output" || mode == "output-sso" || mode == "lookup" || mode == "lookup-prefix" || mode == "lookup-hot" || mode == "interfaces", "mode");
     char *end = nullptr;
     const auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && *end == '\0' && repeats > 0 && repeats <= 100000, "repeat count");

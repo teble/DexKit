@@ -12,6 +12,56 @@
 
 namespace dexkit {
 
+void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
+    const auto require = [](bool condition, const char *message) {
+        if (!condition) {
+            std::fprintf(stderr, "Dense descriptor check failed: %s\n", message);
+            std::abort();
+        }
+    };
+    DexKit bridge(apk, 1);
+    require(bridge.dex_items.size() == 1, "one DEX");
+    auto &item = *bridge.dex_items[0];
+    constexpr uint32_t count = 60000;
+    require(item.reader.MethodIds().size() == count && item.reader.FieldIds().size() == count, "fixture size");
+    const auto method = item.GetMethodDescriptor(0), field = item.GetFieldDescriptor(0);
+    const auto *method_address = method.data(), *field_address = field.data();
+    const auto check = [&](uint32_t index) {
+        char expected[32];
+        std::snprintf(expected, sizeof(expected), "LA;->m%05u()V", index);
+        require(item.GetMethodDescriptor(index) == expected, "method content");
+        std::snprintf(expected, sizeof(expected), "LA;->f%05u:I", index);
+        require(item.GetFieldDescriptor(index) == expected, "field content");
+    };
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+    for (uint32_t i = 0; i < count; ++i) check(i);
+#endif
+    std::latch start(1);
+    std::vector<std::thread> readers;
+    std::array<std::string_view, 8> same_methods, same_fields;
+    for (size_t worker = 0; worker < same_methods.size(); ++worker) readers.emplace_back([&, worker] {
+        start.wait();
+        same_methods[worker] = item.GetMethodDescriptor(1);
+        same_fields[worker] = item.GetFieldDescriptor(1);
+        for (uint32_t i = 0; i < count; ++i) check((i + worker * 997) % count);
+    });
+    start.count_down();
+    for (auto &reader : readers) reader.join();
+    for (size_t i = 0; i < same_methods.size(); ++i) {
+        require(same_methods[i] == same_methods[0] && same_methods[i].data() == same_methods[0].data(), "method publication");
+        require(same_fields[i] == same_fields[0] && same_fields[i].data() == same_fields[0].data(), "field publication");
+    }
+    require(method == "LA;->m00000()V" && method.data() == method_address, "retained method");
+    require(field == "LA;->f00000:I" && field.data() == field_address, "retained field");
+    uint64_t built = 0;
+    for (size_t reason = 0; reason < 3; ++reason)
+        built += item.descriptor_diagnostics.method_builds[reason].load()
+               + item.descriptor_diagnostics.field_builds[reason].load();
+    require(built == 2 * count, "exactly one construction per slot");
+    Dump(bridge, "dense-descriptors-complete");
+    std::fprintf(stderr, "CHECK_DENSE_DESCRIPTORS {\"records\":120000,\"threads\":8,\"passed\":true}\n");
+}
+
 // Run this in a separate all-flags-off artifact and freeze stdout. Comparing
 // its complete bytes with experimental artifacts is an independent oracle for
 // descriptors and metadata, including local IDs and ordered interface lists.
@@ -210,7 +260,7 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     require(retained_field.data() == retained_field_address && retained_field == retained_field_copy,
             "retained field view survives growth and full warm-up");
 
-#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     // The legacy cache does not publish concurrent cold writes. Its control
     // tests warm reads; experimental publication is stressed below from cold.
     for (const auto &symbol : methods) cold.dex_items[symbol.dex]->GetMethodDescriptor(symbol.id);

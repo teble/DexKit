@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--fixture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--variant', nargs=2, action='append', metavar=('LABEL', 'ARTIFACT'), required=True)
-    parser.add_argument('--mode', choices=['output', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
+    parser.add_argument('--mode', choices=['output', 'output-sso', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
                                          'field-forward', 'field-late', 'field-full-first'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)

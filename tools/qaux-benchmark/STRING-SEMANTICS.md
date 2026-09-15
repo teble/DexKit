@@ -129,8 +129,16 @@ For an unchanged Contains predicate, an Equal or prefix ID witness can safely
 prove a positive match. A missing witness cannot prove failure: interior
 matches still require the original Contains path. Such a speculative positive
 shortcut adds preparation and row work to misses, which may dominate sparse
-queries. It needs an independent experiment and is not the pure Equal/StartWith
-range implementation already proposed.
+queries. Following the user's cost objection, exclude this speculative shortcut
+from the first round. Keep mixed Contains/EndWith batches on their existing AC
+path, and first evaluate predicates composed entirely of Equal/StartWith.
+Pure Equal and a mixture of Equal/StartWith are eligible too; purity lets the
+implementation omit AC but does not guarantee a gain over AC or direct checks.
+
+An explicit exact/prefix conjunct might instead reject a candidate before any
+AC work, which is a separate selective-filtering hypothesis. In a batch,
+rejecting one group does not reject its other independent Contains groups.
+Require evidence of actual avoided scanning before pursuing this mixed case.
 
 ## Reproduction
 

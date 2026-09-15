@@ -242,6 +242,28 @@ not method hit rate. Direct Equal may reject immediately on length, and a
 dense prefix may give the direct loop an immediate witness. No speed percentage
 follows from the asymptotic argument.
 
+### First-round routing decision
+
+Following the user's further cost objection, the first ID/range experiment
+must fully replace AC for the relevant using-string predicate. Accept only
+pure Equal, pure StartWith or their mixture within the existing ASCII and
+case-sensitive boundary. Keep mixed Contains/EndWith batches on the current
+AC path, without an additional ID scan or speculative positive shortcut.
+Eligibility depends on the declared conditions, not the API being ordinary
+matcher versus batch. Start with one requirement before expanding pattern count.
+
+Removing AC is an opportunity, not a proof that binary lookup wins. Compare
+query preparation, reference visits and group matching together. Many ranges
+can make naive P-by-R checks expensive, while direct prefix checks may stop
+early; a prefix trie can share work among many anchored patterns and would be
+a separate later comparison if that workload merits it.
+
+A mixed ordinary AND query could theoretically reject candidates using an
+explicit Equal/StartWith condition before running its Contains conditions.
+That requires evidence that saved AC work exceeds the added filtering cost.
+One failed batch group cannot discard other independent Contains groups.
+This selective filtering mechanism remains outside the first range experiment.
+
 ### Actual coverage and the next experiment
 
 The existing groups.tsv contains 149 groups and 187 configured atoms. Applying
@@ -260,7 +282,8 @@ Compare current nine-switch AC, direct exact/prefix comparison and per-DEX
 ID/range lookup independently. Include preparation in complete API timing.
 Use actual SettingEntry and complete QQ 1/11-pass runs, then controlled prefixes
 with early/late/all-miss rows, sparse filters, repeated references, many
-overlapping or dense prefixes, and mixed Contains groups. Check empty values,
+overlapping or dense prefixes, and mixed Contains groups as unchanged fallback
+controls. Check empty values,
 ASCII case controls, NUL,
 non-ASCII, isolated/paired surrogates, empty pools, longer-than-string patterns,
 0x7f prefix endings and supplementary-character pool entries against the

@@ -1,0 +1,2622 @@
+[
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 614400,
+      "judges": 2400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 600
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 600
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-late",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 614400,
+      "judges": 612000
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 204,
+        "prepared_items": 52224,
+        "judges": 52020
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 204,
+        "prepared_items": 52224,
+        "judges": 52020
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 396,
+        "prepared_items": 101376,
+        "judges": 100980
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 396,
+        "prepared_items": 101376,
+        "judges": 100980
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 204,
+        "prepared_items": 52224,
+        "judges": 52020
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 204,
+        "prepared_items": 52224,
+        "judges": 52020
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 396,
+        "prepared_items": 101376,
+        "judges": 100980
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 396,
+        "prepared_items": 101376,
+        "judges": 100980
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-miss",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-miss",
+      "2"
+    ],
+    "returned": 0,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 614400,
+      "judges": 614400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 153600
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 153600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 153600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 153600
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-sparse",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-sparse",
+      "2"
+    ],
+    "returned": 4,
+    "totals": {
+      "calls": 8,
+      "absent": 4,
+      "empty": 0,
+      "single": 4,
+      "multiple": 0,
+      "row_items": 1024,
+      "single_row_items": 1024,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 4,
+      "prepared_items": 1024,
+      "judges": 4
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-multiple",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-multiple",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 0,
+      "multiple": 2400,
+      "row_items": 614400,
+      "single_row_items": 0,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 614400,
+      "judges": 616800
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "long",
+    "mode": "using-class",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-class",
+      "2"
+    ],
+    "returned": 4,
+    "totals": {
+      "calls": 8,
+      "absent": 4,
+      "empty": 0,
+      "single": 4,
+      "multiple": 0,
+      "row_items": 1024,
+      "single_row_items": 1024,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 4,
+      "prepared_items": 1024,
+      "judges": 4
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 1,
+        "prepared_items": 256,
+        "judges": 1
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "short",
+    "mode": "using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-short-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 4800,
+      "single_row_items": 4800,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 4800,
+      "judges": 2400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 1200,
+        "judges": 600
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 1200,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 1200,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 1200,
+        "judges": 600
+      }
+    ]
+  },
+  {
+    "label": "control",
+    "fixture": "QQ",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-single-field-control-trace-v2",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-control-trace-v2/libdexkit.dylib",
+      "--passes",
+      "2",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify"
+    ],
+    "stages": [
+      {
+        "pass_index": 0,
+        "feature": "all_literal_targets",
+        "stage": "batch_strings",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_seed",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          2
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_callee_using_seed_as_caller",
+        "totals": {
+          "calls": 11,
+          "absent": 11,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          3
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "EmotionDetailAi",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "EmotionDetailAi",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          5
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          7
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "BlockPicByMd5_LoadImagePathV2",
+        "stage": "find_method",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "BlockPicByMd5_PicPathResolverV2",
+        "stage": "find_method",
+        "totals": {
+          "calls": 5,
+          "absent": 5,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          9
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "ReplyNoAtHook",
+        "stage": "reply_new_signature",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          10
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "ReplyNoAtHook",
+        "stage": "optional_has_info",
+        "totals": {
+          "calls": 30,
+          "absent": 1,
+          "empty": 0,
+          "single": 29,
+          "multiple": 0,
+          "row_items": 41,
+          "single_row_items": 41,
+          "direct": 0,
+          "cache_builds": 1,
+          "solver_calls": 29,
+          "prepared_items": 41,
+          "judges": 41
+        },
+        "query_ids": [
+          11
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "MultiForwardAvatarHook",
+        "stage": "find_avatar_listener",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          12
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "SettingEntryHook",
+        "stage": "find_processor",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          13
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "resolve_direct_conversation_class",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "legacy_string_groups",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "nt_invoke_fallback",
+        "totals": {
+          "calls": 1563070,
+          "absent": 1563070,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          15
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "AutoReceiveOriginalPhoto_cache_miss",
+        "stage": "nt_on_init_view",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "all_literal_targets",
+        "stage": "batch_strings",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_seed",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          18
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_callee_using_seed_as_caller",
+        "totals": {
+          "calls": 11,
+          "absent": 11,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          19
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "EmotionDetailAi",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "EmotionDetailAi",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          21
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          23
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "BlockPicByMd5_LoadImagePathV2",
+        "stage": "find_method",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "BlockPicByMd5_PicPathResolverV2",
+        "stage": "find_method",
+        "totals": {
+          "calls": 5,
+          "absent": 5,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          25
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "ReplyNoAtHook",
+        "stage": "reply_new_signature",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          26
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "ReplyNoAtHook",
+        "stage": "optional_has_info",
+        "totals": {
+          "calls": 30,
+          "absent": 1,
+          "empty": 0,
+          "single": 29,
+          "multiple": 0,
+          "row_items": 41,
+          "single_row_items": 41,
+          "direct": 0,
+          "cache_builds": 1,
+          "solver_calls": 29,
+          "prepared_items": 41,
+          "judges": 41
+        },
+        "query_ids": [
+          27
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "MultiForwardAvatarHook",
+        "stage": "find_avatar_listener",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          28
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "SettingEntryHook",
+        "stage": "find_processor",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          29
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "resolve_direct_conversation_class",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "legacy_string_groups",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "nt_invoke_fallback",
+        "totals": {
+          "calls": 1563070,
+          "absent": 1563070,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          31
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "AutoReceiveOriginalPhoto_cache_miss",
+        "stage": "nt_on_init_view",
+        "totals": {},
+        "query_ids": []
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 2400,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 2400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-late",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 2400,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 612000
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 204,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 52020
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 204,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 52020
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 396,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 100980
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 396,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 100980
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 204,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 52020
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 408,
+        "absent": 204,
+        "empty": 0,
+        "single": 204,
+        "multiple": 0,
+        "row_items": 52224,
+        "single_row_items": 52224,
+        "direct": 204,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 52020
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 396,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 100980
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 792,
+        "absent": 396,
+        "empty": 0,
+        "single": 396,
+        "multiple": 0,
+        "row_items": 101376,
+        "single_row_items": 101376,
+        "direct": 396,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 100980
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-miss",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-miss",
+      "2"
+    ],
+    "returned": 0,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 614400,
+      "single_row_items": 614400,
+      "direct": 2400,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 614400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 153600
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 153600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 153600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 153600,
+        "single_row_items": 153600,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 153600
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-sparse",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-sparse",
+      "2"
+    ],
+    "returned": 4,
+    "totals": {
+      "calls": 8,
+      "absent": 4,
+      "empty": 0,
+      "single": 4,
+      "multiple": 0,
+      "row_items": 1024,
+      "single_row_items": 1024,
+      "direct": 4,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 4
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-multiple",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-multiple",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 0,
+      "multiple": 2400,
+      "row_items": 614400,
+      "single_row_items": 0,
+      "direct": 0,
+      "cache_builds": 2,
+      "solver_calls": 2400,
+      "prepared_items": 614400,
+      "judges": 616800
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 0,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 0,
+        "multiple": 600,
+        "row_items": 153600,
+        "single_row_items": 0,
+        "direct": 0,
+        "cache_builds": 1,
+        "solver_calls": 600,
+        "prepared_items": 153600,
+        "judges": 154200
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "long",
+    "mode": "using-class",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-class",
+      "2"
+    ],
+    "returned": 4,
+    "totals": {
+      "calls": 8,
+      "absent": 4,
+      "empty": 0,
+      "single": 4,
+      "multiple": 0,
+      "row_items": 1024,
+      "single_row_items": 1024,
+      "direct": 4,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 4
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 0,
+        "calls": 2,
+        "absent": 1,
+        "empty": 0,
+        "single": 1,
+        "multiple": 0,
+        "row_items": 256,
+        "single_row_items": 256,
+        "direct": 1,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 1
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "short",
+    "mode": "using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-short-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "returned": 2400,
+    "totals": {
+      "calls": 4800,
+      "absent": 2400,
+      "empty": 0,
+      "single": 2400,
+      "multiple": 0,
+      "row_items": 4800,
+      "single_row_items": 4800,
+      "direct": 2400,
+      "cache_builds": 0,
+      "solver_calls": 0,
+      "prepared_items": 0,
+      "judges": 2400
+    },
+    "rows": [
+      {
+        "query": 1,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 1,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 1,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      },
+      {
+        "query": 2,
+        "dex": 2,
+        "kind": 1,
+        "calls": 1200,
+        "absent": 600,
+        "empty": 0,
+        "single": 600,
+        "multiple": 0,
+        "row_items": 1200,
+        "single_row_items": 1200,
+        "direct": 600,
+        "cache_builds": 0,
+        "solver_calls": 0,
+        "prepared_items": 0,
+        "judges": 600
+      }
+    ]
+  },
+  {
+    "label": "direct",
+    "fixture": "QQ",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-single-field-direct-trace-v2",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/single-field-direct-trace-v2/libdexkit.dylib",
+      "--passes",
+      "2",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify"
+    ],
+    "stages": [
+      {
+        "pass_index": 0,
+        "feature": "all_literal_targets",
+        "stage": "batch_strings",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_seed",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          2
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_callee_using_seed_as_caller",
+        "totals": {
+          "calls": 11,
+          "absent": 11,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          3
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "EmotionDetailAi",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "EmotionDetailAi",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          5
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          7
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "BlockPicByMd5_LoadImagePathV2",
+        "stage": "find_method",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "BlockPicByMd5_PicPathResolverV2",
+        "stage": "find_method",
+        "totals": {
+          "calls": 5,
+          "absent": 5,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          9
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "ReplyNoAtHook",
+        "stage": "reply_new_signature",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          10
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "ReplyNoAtHook",
+        "stage": "optional_has_info",
+        "totals": {
+          "calls": 30,
+          "absent": 1,
+          "empty": 0,
+          "single": 29,
+          "multiple": 0,
+          "row_items": 41,
+          "single_row_items": 41,
+          "direct": 29,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 41
+        },
+        "query_ids": [
+          11
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "MultiForwardAvatarHook",
+        "stage": "find_avatar_listener",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          12
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "SettingEntryHook",
+        "stage": "find_processor",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          13
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "resolve_direct_conversation_class",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "legacy_string_groups",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 0,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "nt_invoke_fallback",
+        "totals": {
+          "calls": 1563070,
+          "absent": 1563070,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          15
+        ]
+      },
+      {
+        "pass_index": 0,
+        "feature": "AutoReceiveOriginalPhoto_cache_miss",
+        "stage": "nt_on_init_view",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "all_literal_targets",
+        "stage": "batch_strings",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_seed",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          18
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "AIOMsgItem_initContentDescription",
+        "stage": "find_callee_using_seed_as_caller",
+        "totals": {
+          "calls": 11,
+          "absent": 11,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          19
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "EmotionDetailAi",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "EmotionDetailAi",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          21
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_classes",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "Hd_HideEmoReplyLayout_Method",
+        "stage": "find_method_in_classes",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          23
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "BlockPicByMd5_LoadImagePathV2",
+        "stage": "find_method",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "BlockPicByMd5_PicPathResolverV2",
+        "stage": "find_method",
+        "totals": {
+          "calls": 5,
+          "absent": 5,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          25
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "ReplyNoAtHook",
+        "stage": "reply_new_signature",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          26
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "ReplyNoAtHook",
+        "stage": "optional_has_info",
+        "totals": {
+          "calls": 30,
+          "absent": 1,
+          "empty": 0,
+          "single": 29,
+          "multiple": 0,
+          "row_items": 41,
+          "single_row_items": 41,
+          "direct": 29,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 41
+        },
+        "query_ids": [
+          27
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "MultiForwardAvatarHook",
+        "stage": "find_avatar_listener",
+        "totals": {
+          "calls": 9,
+          "absent": 9,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          28
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "SettingEntryHook",
+        "stage": "find_processor",
+        "totals": {
+          "calls": 1,
+          "absent": 1,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          29
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "resolve_direct_conversation_class",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "legacy_string_groups",
+        "totals": {},
+        "query_ids": []
+      },
+      {
+        "pass_index": 1,
+        "feature": "HideMiniAppPullEntry",
+        "stage": "nt_invoke_fallback",
+        "totals": {
+          "calls": 1563070,
+          "absent": 1563070,
+          "empty": 0,
+          "single": 0,
+          "multiple": 0,
+          "row_items": 0,
+          "single_row_items": 0,
+          "direct": 0,
+          "cache_builds": 0,
+          "solver_calls": 0,
+          "prepared_items": 0,
+          "judges": 0
+        },
+        "query_ids": [
+          31
+        ]
+      },
+      {
+        "pass_index": 1,
+        "feature": "AutoReceiveOriginalPhoto_cache_miss",
+        "stage": "nt_on_init_view",
+        "totals": {},
+        "query_ids": []
+      }
+    ]
+  }
+]

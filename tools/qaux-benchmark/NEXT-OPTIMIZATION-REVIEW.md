@@ -1,5 +1,8 @@
 # Further optimization opportunities
 
+The subsequent discussion based on the completed nine-switch combination is
+in [NEXT-ROUND-REVIEW.md](NEXT-ROUND-REVIEW.md).
+
 Follow-up: all five proposals have now been implemented as default-OFF
 experiments and individually validated. See [the measured decisions and final
 combination](FOLLOWUP-RESULTS.md). The source review below records the earlier

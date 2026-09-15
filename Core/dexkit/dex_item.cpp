@@ -153,6 +153,10 @@ void DexItem::InitBaseCache() {
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
 #endif
     field_descriptors.resize(field_count);
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    method_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(method_count);
+    field_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(field_count);
+#endif
     field_access_flags.resize(field_count);
 
     method_cross_info.resize(method_count);
@@ -548,6 +552,9 @@ void DexItem::WaitPutCrossRef(uint32_t put_cross_flag) const {
 }
 
 void DexItem::PutCrossRef(uint32_t put_cross_flag) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    DescriptorUseScope descriptor_scope(DescriptorUse::CrossReference);
+#endif
     DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
     bool need_caller_cross = (put_cross_flag & kCallerMethod) != 0;
     bool need_rw_field_cross = (put_cross_flag & kRwFieldMethod) != 0;
@@ -572,9 +579,16 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_method_ids.size() && cur_i < method_ids.size(); ++ori_i) {
                     auto origin_method_idx = origin_method_ids[ori_i];
                     auto curr_method_idx = method_ids[cur_i];
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                    descriptor_diagnostics.method_comparisons.fetch_add(1, std::memory_order_relaxed);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+                    if (!HasSameMethodIdentity(curr_method_idx, *origin_dex, origin_method_idx)) {
+#else
                     auto origin_method_descriptor = origin_dex->GetMethodDescriptor(origin_method_idx);
                     auto curr_method_descriptor = this->GetMethodDescriptor(curr_method_idx);
                     if (curr_method_descriptor != origin_method_descriptor) {
+#endif
                         continue;
                     }
                     method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
@@ -596,9 +610,16 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_field_ids.size() && cur_i < field_ids.size(); ++ori_i) {
                     auto origin_field_idx = origin_field_ids[ori_i];
                     auto curr_field_idx = field_ids[cur_i];
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                    descriptor_diagnostics.field_comparisons.fetch_add(1, std::memory_order_relaxed);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+                    if (!HasSameFieldIdentity(curr_field_idx, *origin_dex, origin_field_idx)) {
+#else
                     auto origin_field_descriptor = origin_dex->GetFieldDescriptor(origin_field_idx);
                     auto curr_field_descriptor = this->GetFieldDescriptor(curr_field_idx);
                     if (origin_field_descriptor != curr_field_descriptor) {
+#endif
                         continue;
                     }
                     field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
@@ -701,9 +722,23 @@ FieldBean DexItem::GetFieldBean(uint32_t field_idx) {
 }
 
 std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_view method_descriptor) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    DescriptorUseScope descriptor_scope(DescriptorUse::Lookup);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    const auto descriptor = internal::ParseMethodDescriptorView(method_descriptor);
+    if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
+#endif
     auto &methods = this->class_method_ids[type_idx];
     for (auto method_idx: methods) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        descriptor_diagnostics.method_comparisons.fetch_add(1, std::memory_order_relaxed);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+        if (MatchesDescriptor(method_idx, *descriptor)) {
+#else
         if (this->GetMethodDescriptor(method_idx) == method_descriptor) {
+#endif
             return this->GetMethodBean(method_idx);
         }
     }
@@ -711,14 +746,81 @@ std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_
 }
 
 std::optional<FieldBean> DexItem::GetFieldBean(uint32_t type_idx, std::string_view method_descriptor) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    DescriptorUseScope descriptor_scope(DescriptorUse::Lookup);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    const auto descriptor = internal::ParseFieldDescriptorView(method_descriptor);
+    if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
+#endif
     auto &fields = this->class_field_ids[type_idx];
     for (auto field_idx: fields) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        descriptor_diagnostics.field_comparisons.fetch_add(1, std::memory_order_relaxed);
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+        if (MatchesDescriptor(field_idx, *descriptor)) {
+#else
         if (this->GetFieldDescriptor(field_idx) == method_descriptor) {
+#endif
             return this->GetFieldBean(field_idx);
         }
     }
     return std::nullopt;
 }
+
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+bool DexItem::HasSameMethodIdentity(uint32_t method_idx, const DexItem &other, uint32_t other_idx) const {
+    const auto &left = reader.MethodIds()[method_idx];
+    const auto &right = other.reader.MethodIds()[other_idx];
+    if (strings[left.name_idx] != other.strings[right.name_idx]
+        || type_names[left.class_idx] != other.type_names[right.class_idx]) return false;
+    const auto *left_types = proto_type_list[left.proto_idx];
+    const auto *right_types = other.proto_type_list[right.proto_idx];
+    const auto count = left_types ? left_types->size : 0;
+    if (count != (right_types ? right_types->size : 0)) return false;
+    const auto &left_proto = reader.ProtoIds()[left.proto_idx];
+    const auto &right_proto = other.reader.ProtoIds()[right.proto_idx];
+    if (type_names[left_proto.return_type_idx] != other.type_names[right_proto.return_type_idx]) return false;
+    for (uint32_t i = 0; i < count; ++i) {
+        if (type_names[left_types->list[i].type_idx] != other.type_names[right_types->list[i].type_idx]) return false;
+    }
+    return true;
+}
+
+bool DexItem::HasSameFieldIdentity(uint32_t field_idx, const DexItem &other, uint32_t other_idx) const {
+    const auto &left = reader.FieldIds()[field_idx];
+    const auto &right = other.reader.FieldIds()[other_idx];
+    return strings[left.name_idx] == other.strings[right.name_idx]
+        && type_names[left.class_idx] == other.type_names[right.class_idx]
+        && type_names[left.type_idx] == other.type_names[right.type_idx];
+}
+
+bool DexItem::MatchesDescriptor(uint32_t method_idx, const internal::MethodDescriptorView &descriptor) const {
+    const auto &method = reader.MethodIds()[method_idx];
+    if (strings[method.name_idx] != descriptor.name
+        || type_names[method.class_idx] != descriptor.declaring_type) return false;
+    const auto *types = proto_type_list[method.proto_idx];
+    const auto count = types ? types->size : 0;
+    if (count != descriptor.parameter_count) return false;
+    const auto &proto = reader.ProtoIds()[method.proto_idx];
+    if (type_names[proto.return_type_idx] != descriptor.return_type) return false;
+    auto remaining = descriptor.parameters;
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto type = type_names[types->list[i].type_idx];
+        if (!remaining.starts_with(type)) return false;
+        remaining.remove_prefix(type.size());
+    }
+    return remaining.empty();
+}
+
+bool DexItem::MatchesDescriptor(uint32_t field_idx, const internal::FieldDescriptorView &descriptor) const {
+    const auto &field = reader.FieldIds()[field_idx];
+    return strings[field.name_idx] == descriptor.name
+        && type_names[field.class_idx] == descriptor.declaring_type
+        && type_names[field.type_idx] == descriptor.type;
+}
+#endif
 
 // NOLINTNEXTLINE
 AnnotationBean DexItem::GetAnnotationBean(ir::Annotation *annotation) {
@@ -1069,6 +1171,12 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
 }
 
 std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    if (method_descriptor_ready[method_idx].load(std::memory_order_acquire)) {
+        return method_descriptors[method_idx].value();
+    }
+    std::lock_guard descriptor_lock(descriptor_mutexes[method_idx % descriptor_mutexes.size()]);
+#endif
     auto &method_desc = this->method_descriptors[method_idx];
     if (method_desc != std::nullopt) {
         return method_desc.value();
@@ -1090,10 +1198,22 @@ std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
     descriptor += strings[type_defs[proto_def.return_type_idx].descriptor_idx];
 
     method_desc = descriptor;
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    descriptor_diagnostics.Built(true, descriptor.size());
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    method_descriptor_ready[method_idx].store(1, std::memory_order_release);
+#endif
     return method_desc.value();
 }
 
 std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    if (field_descriptor_ready[field_idx].load(std::memory_order_acquire)) {
+        return field_descriptors[field_idx].value();
+    }
+    std::lock_guard descriptor_lock(descriptor_mutexes[field_idx % descriptor_mutexes.size()]);
+#endif
     auto &field_desc = this->field_descriptors[field_idx];
     if (field_desc != std::nullopt) {
         return field_desc.value();
@@ -1108,6 +1228,12 @@ std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
     descriptor += this->strings[type_id.descriptor_idx];
 
     field_desc = descriptor;
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    descriptor_diagnostics.Built(false, descriptor.size());
+#endif
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    field_descriptor_ready[field_idx].store(1, std::memory_order_release);
+#endif
     return field_desc.value();
 }
 

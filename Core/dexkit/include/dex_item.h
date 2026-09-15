@@ -21,6 +21,7 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <string_view>
 #include <vector>
 #include <condition_variable>
@@ -43,6 +44,10 @@
 #include "query_context.h"
 #include "dexkit.h"
 #include "analyze.h"
+#include "descriptor_diagnostics.h"
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+#include "member_descriptor_view.h"
+#endif
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS
 #include "compact_string_index.h"
 #endif
@@ -279,6 +284,14 @@ private:
     friend class DexKit;
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
+    DescriptorDiagnostics descriptor_diagnostics;
+#endif
+
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    bool HasSameMethodIdentity(uint32_t method_idx, const DexItem &other, uint32_t other_idx) const;
+    bool HasSameFieldIdentity(uint32_t field_idx, const DexItem &other, uint32_t other_idx) const;
+    bool MatchesDescriptor(uint32_t method_idx, const internal::MethodDescriptorView &descriptor) const;
+    bool MatchesDescriptor(uint32_t field_idx, const internal::FieldDescriptorView &descriptor) const;
 #endif
 
     struct PendingAggregateMethodWorkItem {
@@ -357,6 +370,13 @@ private:
     std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
     std::vector<std::optional<std::string>> field_descriptors;
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+    // Structural comparison leaves more output descriptors cold. Publish their
+    // immutable strings explicitly when concurrent queries first return them.
+    std::unique_ptr<std::atomic<uint8_t>[]> method_descriptor_ready;
+    std::unique_ptr<std::atomic<uint8_t>[]> field_descriptor_ready;
+    std::array<std::mutex, 32> descriptor_mutexes;
+#endif
     std::vector<std::vector<uint32_t /*field_id*/>> class_field_ids;
     std::vector<std::vector<uint32_t /*field_id*/>> pending_cross_ref_field_ids;
     std::vector<uint32_t /*access_flag*/> field_access_flags;

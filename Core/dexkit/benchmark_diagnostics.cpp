@@ -63,6 +63,8 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     const auto begin = std::chrono::steady_clock::now();
     std::map<std::string, Counts> counts;
     std::set<const MemMap *> images;
+    std::array<uint64_t, 3> method_builds{}, field_builds{}, descriptor_bytes{};
+    uint64_t method_comparisons = 0, field_comparisons = 0;
     uint64_t mapped_bytes = 0, method_ids = 0, field_ids = 0;
     for (const auto &owner : bridge.dex_items) {
         const auto &item = *owner;
@@ -75,6 +77,19 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
         Descriptors(counts["descriptors"], item.method_descriptors);
         Descriptors(counts["descriptors"], item.field_descriptors);
+        for (size_t reason = 0; reason < method_builds.size(); ++reason) {
+            method_builds[reason] += item.descriptor_diagnostics.method_builds[reason].load(std::memory_order_relaxed);
+            field_builds[reason] += item.descriptor_diagnostics.field_builds[reason].load(std::memory_order_relaxed);
+            descriptor_bytes[reason] += item.descriptor_diagnostics.materialized_bytes[reason].load(std::memory_order_relaxed);
+        }
+        method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
+        field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
+        auto &publication = counts["descriptor_publication"];
+        publication.index_bytes += (item.reader.MethodIds().size() + item.reader.FieldIds().size())
+                * sizeof(std::atomic<uint8_t>) + sizeof(item.descriptor_mutexes);
+        publication.buffers += 2;
+#endif
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS
         const auto &index = item.method_using_string_ids;
         auto &strings = counts["using_strings"];
@@ -138,6 +153,15 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
             (unsigned long long) count.entries, (unsigned long long) count.ready,
             (unsigned long long) count.buffers);
     }
+    for (size_t reason = 0; reason < method_builds.size(); ++reason) {
+        const char *names[] = {"output", "cross_reference", "lookup"};
+        std::fprintf(stderr,
+            "BENCH_DESCRIPTOR {\"reason\":\"%s\",\"method_builds\":%llu,\"field_builds\":%llu,\"materialized_bytes\":%llu}\n",
+            names[reason], (unsigned long long) method_builds[reason],
+            (unsigned long long) field_builds[reason], (unsigned long long) descriptor_bytes[reason]);
+    }
+    std::fprintf(stderr, "BENCH_DESCRIPTOR {\"method_comparisons\":%llu,\"field_comparisons\":%llu}\n",
+        (unsigned long long) method_comparisons, (unsigned long long) field_comparisons);
     std::fprintf(stderr, "BENCH_CENSUS {\"phase\":\"%s\",\"diagnostic_ns\":%lld}\n", phase,
         (long long) std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - begin).count());
 }

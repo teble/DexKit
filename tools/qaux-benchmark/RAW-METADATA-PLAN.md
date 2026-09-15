@@ -15,9 +15,9 @@ The three earlier experiments remain OFF during isolated comparisons.
 
 ## Plan and current state
 
-1. **In progress:** obtain Pro's complete advice against the fixed source and
+1. **Complete:** obtain Pro's complete advice against the fixed source and
    prepare a fresh baseline/calibration using the existing verified corpus.
-2. Select concrete independent candidates from the advice, check their source
+2. **In progress:** select concrete independent candidates from the advice, check their source
    assumptions, and add default-OFF prototype switches. Record each candidate's
    representation, avoided work, expected costs, and counterexamples before
    looking at its performance samples.
@@ -52,6 +52,21 @@ regression margin after seeing samples, or keep sampling until a result wins.
 If a user-facing time budget is needed for adoption, report the measured upper
 bound/tradeoff rather than inventing an accepted budget.
 
+Fresh baseline `d0d5df4` (native source identical to `42e6c7f`) passed eleven
+complete verification passes. Native SHA-256:
+`4f4a1e6a86d9d40c8f51eef96a9d9b545f4ba2b44b8ca0898bc5a80fb4b1e110`.
+Six A/A pairs per lifetime, seed `2026091504`, gave these paired changes:
+
+| Lifetime | Complete time, median [95% interval] | Peak footprint, median [95% interval] |
+| --- | --- | --- |
+| One pass | +0.76% [-2.50%, +7.04%] | +0.17% [-0.19%, +0.59%] |
+| Eleven passes | -0.49% [-2.53%, +1.40%] | -0.20% [-0.33%, -0.04%] |
+
+Identical binaries can show a small coherent drift, including a footprint
+interval excluding zero. Small candidate differences require independent
+confirmation and should not be elevated into universal guarantees. Raw files
+are retained in the external `raw-metadata/formal/aa-p1` and `aa-p11` directories.
+
 ## Facts to preserve
 
 - Raw string bytes and the fixed DEX ID tables are already shared views. A
@@ -70,7 +85,64 @@ bound/tradeoff rather than inventing an accepted budget.
 
 Conversation: https://chatgpt.com/c/6aa81c3c-a104-83ee-b6fe-8bcdd4732ff3
 
-The new request was sent once against fixed source `42e6c7f`, asking for actual
-source inspection, alternatives to descriptor materialization, and immediate
-bounded tests of the most promising representations. Status: waiting for the
-complete answer. No new candidate has been attributed to Pro yet.
+The new request was sent once against fixed source `42e6c7f`. The full answer
+was read and copied after completion. Pro reported reading the requested
+descriptor, cross-reference, lookup, aggregation, Bean, matcher and Reader
+paths, and checking the default-OFF CMake switches. It did not run tests or
+recalculate the corpus. The consequential source claims were checked locally.
+
+Pro recommends raw structural comparisons, a paged stable descriptor cache,
+and a raw interface view, in that order. It rejects immediate conversion to
+result-owned strings because repeated large outputs would rebuild signatures.
+The current cross-reference iteration and signature-based result deduplication
+must remain; changing unresolved-reference handling would be a separate fix.
+
+## Admitted prototypes
+
+### R1: structural member comparison and descriptor lookup
+
+Replace only the equality predicates in the existing cross-reference loops.
+Compare raw name/type contents and ordered parameter types without allocating
+a member identity table. Input lookups parse once into borrowed string slices,
+keep the same class member search domain, and compare against raw metadata.
+Return values and descriptor-based deduplication keep their current behavior.
+
+Keep the dense output cache for this isolated test. More descriptors can now
+be first materialized by concurrent output requests, so add one atomic ready
+byte per member and striped cold-fill locks. The hot path acquires a ready
+byte before reading the immutable string. These publication costs are included
+in R1, not assumed to be free or deferred to R2.
+
+Expected benefit: fewer internal string constructions and retained buffers,
+especially during initial cross-reference construction and failed lookups.
+Counterexamples: many same-name/long-prototype candidates, hot narrow lookups,
+first output after warm-up, and concurrent first output of the same member.
+
+### R2: paged, stable descriptor byte storage
+
+Replace the dense optional strings with a small atomic page directory. Pages
+contain 256 atomic record pointers. Records contain a size_t byte length and
+the final NUL-terminated descriptor in non-moving byte blocks. Use eight cold
+fill stripes per cache, allocate blocks on demand starting at 4 KiB and grow
+up to 64 KiB; oversized records receive a suitably sized block. Do not clear
+whole byte blocks or construct temporary complete strings. Check lengths and
+alignment arithmetic before allocating. No eviction or relocation occurs.
+
+Measure R2 alone against the baseline, then its incremental effect with R1
+fixed ON. Keep all directory, record header, alignment, block-tail, lock and
+growth costs. Preserve old views across block/page growth and same-slot races.
+Counterexamples include sparse, dense/random, short-string, large-output and
+same-stripe concurrent first-fill workloads. A simpler paged string cache is
+an alternative only if measured costs or correctness concerns justify it.
+
+### R3: borrow raw interface type lists
+
+Remove the persistent interface-ID vectors. Resolve ClassDef through the
+existing type_def_idx and read its raw TypeList. Provide a count/index view
+which widens uint16 IDs on access. The interface matcher uses the view without
+creating another vector; the Hungarian matching state and one-to-one semantics
+stay unchanged. Materialize IDs only when producing ClassBean output.
+
+Measure independently. Cover empty lists, interface-dense classes, competing
+matchers, and repeated complex interface queries. Other metadata and relation
+tables remain separate candidates rather than being folded into this test.

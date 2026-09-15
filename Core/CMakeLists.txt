@@ -14,6 +14,7 @@ option(DEXKIT_BENCHMARK_DIAGNOSTICS "Compile benchmark-only cache diagnostics" O
 option(DEXKIT_EXPERIMENT_LAZY_DIRECTORIES "Allocate lazy-slot directories on first use" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_STRINGS "Build method string uses in contiguous storage" OFF)
 option(DEXKIT_EXPERIMENT_NEGATIVE_STRINGS "Memoize empty batch trie parses within a query" OFF)
+option(DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS "Compare raw member identities without materializing descriptors" OFF)
 set(DEXKIT_EXPERIMENT_STRING_MEMO_BYTES 1048576 CACHE STRING "Per-query negative string memo payload budget")
 if (NOT DEXKIT_EXPERIMENT_STRING_MEMO_BYTES MATCHES "^[0-9]+$")
     message(FATAL_ERROR "String memo budget must be a nonnegative integer")
@@ -53,6 +54,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_LAZY_DIRECTORIES=$<BOOL:${DEXKIT_EXPERIMENT_LAZY_DIRECTORIES}>
         DEXKIT_EXPERIMENT_COMPACT_STRINGS=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_STRINGS}>
         DEXKIT_EXPERIMENT_NEGATIVE_STRINGS=$<BOOL:${DEXKIT_EXPERIMENT_NEGATIVE_STRINGS}>
+        DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
     target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_INTERNAL_METRICS=1)
@@ -67,6 +69,14 @@ target_link_libraries(${PROJECT_NAME}_static
 option(EXECUTABLE_TEST "execute test cpp" OFF)
 option(DEXKIT_BENCHMARK_METADATA_CHECKS "Build exhaustive demo metadata checks" OFF)
 option(DEXKIT_BENCHMARK_MEMO_CHECKS "Build bounded string memo counterexamples" OFF)
+option(DEXKIT_BENCHMARK_SYMBOL_CHECKS "Build descriptor identity and lifetime checks" OFF)
+if (DEXKIT_BENCHMARK_SYMBOL_CHECKS)
+    if (NOT DEXKIT_BENCHMARK_DIAGNOSTICS)
+        message(FATAL_ERROR "Symbol checks require benchmark diagnostics")
+    endif ()
+    add_executable(dexkit_symbol_checks ../tools/qaux-benchmark/symbol_checks.cpp)
+    target_link_libraries(dexkit_symbol_checks PRIVATE dexkit_static)
+endif ()
 if (DEXKIT_BENCHMARK_MEMO_CHECKS)
     if (NOT DEXKIT_EXPERIMENT_NEGATIVE_STRINGS)
         message(FATAL_ERROR "Memo checks require the negative string experiment")

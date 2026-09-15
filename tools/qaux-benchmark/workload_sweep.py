@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--mode', choices=['output', 'output-sso', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
                                          'field-forward', 'field-late', 'field-full-first',
                                          'invoke-output', 'caller-output', 'invoke-match', 'caller-match',
+                                         'invoke-early', 'caller-early', 'invoke-multiple', 'caller-multiple',
                                          'source-output', 'source-match', 'source-hot'], required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)

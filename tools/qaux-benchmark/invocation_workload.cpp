@@ -30,7 +30,8 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
     begin = Clock::now();
     bridge->SetThreadNum(4);
     const bool callers = mode.starts_with("caller-");
-    auto positive = Query(callers, 0), negative = Query(callers, 1);
+    const bool early = mode.ends_with("early"), multiple = mode.ends_with("multiple");
+    auto positive = Query(callers, early ? 9 : multiple ? 3 : 0), negative = Query(callers, multiple ? 10 : 1);
     const auto descriptor = callers ? "Lrelations/Target;->aEarly()V" : "Lrelations/Source1;->run00000()V";
     auto data = bridge->GetMethodData(descriptor);
     Require(data != nullptr);
@@ -43,6 +44,7 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
             Consume(s, callers ? bridge->GetCallMethods(id) : bridge->GetInvokeMethods(id));
         } else {
             for (auto *query : {positive.get(), negative.get()}) {
+                if (early && query == negative.get()) continue;
                 auto leg = Clock::now();
                 Consume(s, bridge->FindMethod(flatbuffers::GetRoot<schema::FindMethod>(query->GetBufferPointer())));
                 (query == positive.get() ? s.positive_ns : s.negative_ns) += Ns(leg);
@@ -58,7 +60,8 @@ Statistics Run(const char *apk, std::string_view mode, size_t repeats) {
 int main(int argc, char **argv) {
     if (argc != 4) return 2;
     const std::string_view mode(argv[2]);
-    Require(mode == "invoke-output" || mode == "caller-output" || mode == "invoke-match" || mode == "caller-match");
+    Require(mode == "invoke-output" || mode == "caller-output" || mode == "invoke-match" || mode == "caller-match"
+        || mode == "invoke-early" || mode == "caller-early" || mode == "invoke-multiple" || mode == "caller-multiple");
     char *end = nullptr;
     auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && !*end && repeats > 0 && repeats <= 100000);

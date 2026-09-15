@@ -40,6 +40,7 @@ cmake {
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_INTERFACES=${providers.gradleProperty('experimentRawInterfaces').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_COMPACT_INVOKES=${providers.gradleProperty('experimentCompactInvokes').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_SOURCE_FILES=${providers.gradleProperty('experimentRawSourceFiles').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_SINGLE_RELATION=${providers.gradleProperty('experimentSingleRelation').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=${providers.gradleProperty('experimentFieldIdentitySplit').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}")
         }

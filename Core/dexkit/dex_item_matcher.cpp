@@ -1766,6 +1766,20 @@ bool DexItem::IsInvokingMethodsMatched(uint32_t method_idx, const schema::Method
             return this->IsMethodMatched(method_idx, matcher);
         };
 
+#if DEXKIT_EXPERIMENT_SINGLE_RELATION
+        // The one-row solver already stops at the first witness. Preserve that
+        // predicate order while avoiding its target copies and work arrays.
+        if (matcher->methods()->size() == 1) {
+            const auto *required = matcher->methods()->Get(0);
+            for (auto target : invoking_methods) {
+                if (IsMethodMatched(target, required)) {
+                    return matcher->match_type() != schema::MatchType::Equal || invoking_methods.size() == 1;
+                }
+            }
+            return false;
+        }
+#endif
+
         typedef std::vector<const schema::MethodMatcher *> MethodMatcher;
         auto ptr = GetMatcherCache<MethodMatcher>(MatcherCacheScope::MethodMatchers, POINT_CASE(matcher->methods()), [&]() {
             auto vec = MethodMatcher{};
@@ -1817,6 +1831,18 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
                 return dex->IsMethodMatched(method_info.second, matcher);
             }
         };
+
+#if DEXKIT_EXPERIMENT_SINGLE_RELATION
+        if (matcher->methods()->size() == 1) {
+            const auto *required = matcher->methods()->Get(0);
+            for (auto target : ids) {
+                if (IsMethodMatched(target, required)) {
+                    return matcher->match_type() != schema::MatchType::Equal || ids.size() == 1;
+                }
+            }
+            return false;
+        }
+#endif
 
         typedef std::vector<const schema::MethodMatcher *> MethodMatcher;
         auto ptr = GetMatcherCache<MethodMatcher>(MatcherCacheScope::MethodMatchers, POINT_CASE(matcher->methods()), [&]() {

@@ -34,7 +34,7 @@ inline flatbuffers::Offset<schema::MethodMatcher> Nested(Builder &b, const char 
 }
 
 // Cases retain general-solver semantics: absent/empty requirements, counts,
-// Equal, duplicate positional witnesses, conflict, late positive and miss.
+// Equal, duplicate positional witnesses, conflicts, late positive and miss.
 inline std::unique_ptr<Builder> Query(bool callers, int variant) {
     auto b = std::make_unique<Builder>();
     std::vector<flatbuffers::Offset<schema::MethodMatcher>> requirements;
@@ -46,6 +46,20 @@ inline std::unique_ptr<Builder> Query(bool callers, int variant) {
                                      schema::StringMatchType::StartWith));
     }
     if (variant == 9) requirements.push_back(Named(*b, callers ? "run" : "aEarly", schema::StringMatchType::StartWith));
+    if (variant == 10 || variant == 11) {
+        auto name = schema::CreateStringMatcher(*b, b->CreateString(callers ? "zRun" : "zLate"), schema::StringMatchType::Equal);
+        auto owner_name = schema::CreateStringMatcher(*b, b->CreateString("relations.Source1"), schema::StringMatchType::Equal);
+        schema::ClassMatcherBuilder owner(*b);
+        owner.add_class_name(owner_name);
+        auto declaring = owner.Finish();
+        schema::MethodMatcherBuilder unique(*b);
+        unique.add_method_name(name);
+        if (callers) unique.add_declaring_class(declaring);
+        auto witness = unique.Finish();
+        requirements.push_back(witness);
+        // Both requirements have a witness, but only one target position.
+        if (variant == 10) requirements.push_back(witness);
+    }
     auto matchers = variant == 8 ? flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<schema::MethodMatcher>>>{}
                                 : b->CreateVector(requirements);
     auto range = variant == 7 ? schema::CreateIntRange(*b, 0, 0)

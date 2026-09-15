@@ -34,6 +34,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_NEGATIVE_STRINGS=${providers.gradleProperty('experimentNegativeStrings').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=${providers.gradleProperty('experimentStructuralDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=${providers.gradleProperty('experimentPagedDescriptors').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=${providers.gradleProperty('experimentAlignedDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_INTERFACES=${providers.gradleProperty('experimentRawInterfaces').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}"
                 def flags = [

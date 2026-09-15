@@ -19,6 +19,9 @@ std::string_view Put(dexkit::PagedDescriptorCache &cache, size_t index, std::str
 void Check(std::string_view view, std::string_view text) {
     Require(view == text, "complete body bytes");
     Require(view.data()[view.size()] == '\0', "trailing NUL");
+#if DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS
+    Require(reinterpret_cast<uintptr_t>(view.data()) % 16 == 0, "body address aligned to 16 bytes");
+#endif
 }
 }
 
@@ -40,14 +43,27 @@ int main(int argc, char **argv) {
     over.Initialize(2);
     const std::string fill(4096 - sizeof(size_t) - 1, 'e');
     Check(Put(exact, 0, fill), fill);
+#if DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS
+    Require(exact.GetStatistics().record_used_bytes >= 4096
+            && exact.GetStatistics().record_used_bytes <= 4096 + 15
+            && exact.GetStatistics().record_capacity_bytes == 4096 + 15, "initial boundary plus alignment slack");
+    Check(Put(exact, 1, ""), "");
+#else
     Require(exact.GetStatistics().record_used_bytes == 4096
             && exact.GetStatistics().record_capacity_bytes == 4096, "record exactly fills initial block");
     Check(Put(exact, 1, ""), "");
     Require(exact.GetStatistics().blocks == 2, "next record allocates a new block");
+#endif
     const std::string overflow(fill.size() + 1, 'o');
     Check(Put(over, 0, overflow), overflow);
+#if DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS
+    Require(over.GetStatistics().record_used_bytes >= 4097
+            && over.GetStatistics().record_used_bytes <= 4097 + 15
+            && over.GetStatistics().record_capacity_bytes == 4097 + 15, "oversized record includes alignment slack");
+#else
     Require(over.GetStatistics().record_used_bytes == 4097
             && over.GetStatistics().record_capacity_bytes == 4097, "record exceeds initial block by one byte");
+#endif
 
     constexpr size_t count = 2305;
     dexkit::PagedDescriptorCache cache;

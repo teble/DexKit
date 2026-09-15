@@ -66,15 +66,34 @@ class PagedDescriptorCache {
         constexpr size_t alignment = alignof(size_t);
         return CheckedAdd(value, alignment - 1) & ~(alignment - 1);
     }
-    static Block &GetBlock(Stripe &stripe, size_t needed) {
+    static bool GetRecordOffset(Block &block, size_t needed, size_t &offset) {
+#if DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS
+        if (block.used > block.capacity || sizeof(size_t) > block.capacity - block.used) return false;
+        void *body = block.data.get() + block.used + sizeof(size_t);
+        size_t space = block.capacity - block.used - sizeof(size_t);
+        if (!std::align(16, needed - sizeof(size_t), body, space)) return false;
+        offset = static_cast<char *>(body) - block.data.get() - sizeof(size_t);
+        return true;
+#else
+        offset = AlignRecord(block.used);
+        return offset <= block.capacity && needed <= block.capacity - offset;
+#endif
+    }
+    static Block &GetBlock(Stripe &stripe, size_t needed, size_t &offset) {
         if (!stripe.blocks.empty()) {
             auto &block = stripe.blocks.back();
-            const auto offset = AlignRecord(block.used);
-            if (offset <= block.capacity && needed <= block.capacity - offset) return block;
+            if (GetRecordOffset(block, needed, offset)) return block;
         }
-        stripe.blocks.emplace_back(std::max(stripe.next_block_size, needed));
+        size_t capacity = needed;
+#if DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS
+        // Account for the actual char[] base, including oversized records.
+        capacity = CheckedAdd(capacity, 15);
+#endif
+        stripe.blocks.emplace_back(std::max(stripe.next_block_size, capacity));
         stripe.next_block_size = std::min(kMaximumBlockSize, stripe.next_block_size * 2);
-        return stripe.blocks.back();
+        auto &block = stripe.blocks.back();
+        if (!GetRecordOffset(block, needed, offset)) std::abort();
+        return block;
     }
 
 public:
@@ -125,8 +144,8 @@ public:
         size_t length = 0;
         visit([&](std::string_view part) { length = CheckedAdd(length, part.size()); });
         const auto needed = CheckedAdd(sizeof(size_t), CheckedAdd(length, 1));
-        auto &block = GetBlock(stripe, needed);
-        const auto offset = AlignRecord(block.used);
+        size_t offset;
+        auto &block = GetBlock(stripe, needed, offset);
         char *record = block.data.get() + offset;
         std::memcpy(record, &length, sizeof(length));
         char *out = record + sizeof(length);

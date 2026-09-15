@@ -75,6 +75,8 @@ def main():
                        close_ms=report['close_ns'] / 1e6, setup_ms=report['setup_ns'] / 1e6,
                        positive_ms=report['positive_ns'] / 1e6, negative_ms=report['negative_ns'] / 1e6,
                        pass0_api_ms=report['first_ns'] / 1e6, repeated_api_ms=report['repeated_ns'] / 1e6)
+            for part in ['forward_first', 'forward_repeated', 'reverse_first', 'reverse_repeated']:
+                if part + '_ns' in report: row[part + '_ms'] = report[part + '_ns'] / 1e6
             for metric, title in [('max_rss_bytes', 'maximum resident set size'), ('peak_footprint_bytes', 'peak memory footprint')]:
                 match = re.search(r'^\s*(\d+)\s+' + title + r'\s*$', run.stdout, re.M)
                 if not match:
@@ -90,7 +92,8 @@ def main():
                         'Paired bootstrap intervals are exploratory, not a proof of zero regression.',
                   metrics=summarize(rows, labels, args.pairs, args.seed,
                       metrics=['lifecycle_ms','create_ms','setup_ms','close_ms','pass0_api_ms',
-                               'repeated_api_ms','positive_ms','negative_ms','max_rss_bytes','peak_footprint_bytes']))
+                               'repeated_api_ms','positive_ms','negative_ms','max_rss_bytes','peak_footprint_bytes',
+                               'forward_first_ms','forward_repeated_ms','reverse_first_ms','reverse_repeated_ms']))
     (args.output / 'summary.json').write_text(json.dumps(result, indent=2) + '\n')
     for metric, value in result['metrics'].items():
         print(metric, f'{value["median_change_percent"]:+.2f}%', value['bootstrap95_percent'])

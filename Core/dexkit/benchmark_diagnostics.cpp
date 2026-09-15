@@ -83,12 +83,15 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     std::set<const MemMap *> images;
     std::array<uint64_t, 3> method_builds{}, field_builds{}, descriptor_bytes{};
     std::array<uint64_t, 4> field_reverse_reads{};
+    std::array<uint64_t, 2> warmup_calls{};
     uint64_t method_comparisons = 0, field_comparisons = 0;
     uint64_t mapped_bytes = 0, method_ids = 0, field_ids = 0;
     for (const auto &owner : bridge.dex_items) {
         const auto &item = *owner;
         for (size_t i = 0; i < field_reverse_reads.size(); ++i)
             field_reverse_reads[i] += item.benchmark_field_reverse_reads[i].load(std::memory_order_relaxed);
+        for (size_t i = 0; i < warmup_calls.size(); ++i)
+            warmup_calls[i] += item.benchmark_warmup_calls[i].load(std::memory_order_relaxed);
         const auto methods = item.reader.MethodIds().size();
         method_ids += methods;
         field_ids += item.reader.FieldIds().size();
@@ -195,6 +198,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         "\"get_metadata\":%llu,\"put_metadata\":%llu}\n", phase,
         (unsigned long long) field_reverse_reads[0], (unsigned long long) field_reverse_reads[1],
         (unsigned long long) field_reverse_reads[2], (unsigned long long) field_reverse_reads[3]);
+    std::fprintf(stderr, "BENCH_WARMUP {\"phase\":\"%s\",\"local_init_calls\":%llu,\"resolve_calls\":%llu,\"aggregate_calls\":%llu}\n",
+        phase, (unsigned long long) warmup_calls[0], (unsigned long long) warmup_calls[1],
+        (unsigned long long) bridge.benchmark_aggregate_calls.load(std::memory_order_relaxed));
     std::fprintf(stderr, "BENCH_CENSUS {\"phase\":\"%s\",\"diagnostic_ns\":%lld}\n", phase,
         (long long) std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - begin).count());
 }

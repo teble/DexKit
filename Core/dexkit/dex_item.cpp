@@ -299,6 +299,9 @@ void DexItem::WaitInitCache(uint32_t init_flags) const {
 }
 
 void DexItem::InitCache(uint32_t init_flags) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_warmup_calls[0].fetch_add(1, std::memory_order_relaxed);
+#endif
     bool need_foreach_method = false;
     bool need_op_seq = (init_flags & kOpSequence) != 0;
     bool need_method_using_string = (init_flags & kUsingString) != 0;
@@ -565,6 +568,7 @@ void DexItem::WaitPutCrossRef(uint32_t put_cross_flag) const {
 
 void DexItem::PutCrossRef(uint32_t put_cross_flag) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_warmup_calls[1].fetch_add(1, std::memory_order_relaxed);
     DescriptorUseScope descriptor_scope(DescriptorUse::CrossReference);
 #endif
     DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);

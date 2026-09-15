@@ -17,6 +17,8 @@ int64_t Ns(Clock::time_point begin) {
 struct Statistics {
     int64_t create_ns = 0, setup_ns = 0, first_ns = 0, repeated_ns = 0, close_ns = 0;
     int64_t positive_ns = 0, negative_ns = 0;
+    int64_t forward_first_ns = 0, forward_repeated_ns = 0;
+    int64_t reverse_first_ns = 0, reverse_repeated_ns = 0;
     uint64_t checksum = 0, returned = 0;
 };
 void Consume(Statistics &s, const std::unique_ptr<flatbuffers::FlatBufferBuilder> &data) {
@@ -57,12 +59,16 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
         {
             auto positive = Clock::now();
             { auto result = bridge->FindMethod(flatbuffers::GetRoot<schema::FindMethod>(query.GetBufferPointer())); Consume(s, result); }
-            s.positive_ns += Ns(positive);
+            auto forward_ns = Ns(positive);
+            s.positive_ns += forward_ns;
+            (iteration ? s.forward_repeated_ns : s.forward_first_ns) += forward_ns;
             if (mode != "field-forward") {
                 auto reverse = Clock::now();
                 { auto result = bridge->FieldGetMethods(field_id); Consume(s, result); }
                 { auto result = bridge->FieldPutMethods(field_id); Consume(s, result); }
-                s.negative_ns += Ns(reverse);  // Printed separately as the second API leg.
+                auto reverse_ns = Ns(reverse);
+                s.negative_ns += reverse_ns;  // Printed separately as the second API leg.
+                (iteration ? s.reverse_repeated_ns : s.reverse_first_ns) += reverse_ns;
             }
         }
         if (iteration == 0) s.first_ns = Ns(begin);
@@ -87,8 +93,11 @@ int main(int argc, char **argv) {
     auto lifecycle = Ns(begin);
     std::printf("WORKLOAD {\"mode\":\"%s\",\"repeats\":%llu,\"create_ns\":%lld,\"setup_ns\":%lld,"
         "\"first_ns\":%lld,\"repeated_ns\":%lld,\"close_ns\":%lld,\"lifecycle_ns\":%lld,"
-        "\"positive_ns\":%lld,\"negative_ns\":%lld,\"checksum\":%llu,\"returned\":%llu}\n", argv[2], repeats,
+        "\"positive_ns\":%lld,\"negative_ns\":%lld,\"checksum\":%llu,\"returned\":%llu,"
+        "\"forward_first_ns\":%lld,\"forward_repeated_ns\":%lld,\"reverse_first_ns\":%lld,\"reverse_repeated_ns\":%lld}\n", argv[2], repeats,
         (long long)s.create_ns, (long long)s.setup_ns, (long long)s.first_ns, (long long)s.repeated_ns,
         (long long)s.close_ns, (long long)lifecycle, (long long)s.positive_ns, (long long)s.negative_ns,
-        (unsigned long long)s.checksum, (unsigned long long)s.returned);
+        (unsigned long long)s.checksum, (unsigned long long)s.returned,
+        (long long)s.forward_first_ns, (long long)s.forward_repeated_ns,
+        (long long)s.reverse_first_ns, (long long)s.reverse_repeated_ns);
 }

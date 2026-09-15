@@ -300,6 +300,7 @@ private:
     DescriptorDiagnostics descriptor_diagnostics;
     // Non-null get/put matchers, followed by explicit get/put metadata calls.
     std::array<std::atomic<uint64_t>, 4> benchmark_field_reverse_reads{};
+    std::array<std::atomic<uint64_t>, 2> benchmark_warmup_calls{};
 #endif
 
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS

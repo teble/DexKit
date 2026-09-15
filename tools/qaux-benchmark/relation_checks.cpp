@@ -153,6 +153,16 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
 #endif
         if (sequence == 2) bridge.InitFullCache();
         Require(Reverse(bridge, fields) == expected_reverse, "late reverse results/order/multiplicity");
+        const auto warmup_counts = [&] {
+            std::array<uint64_t, 3> counts{0, 0, bridge.benchmark_aggregate_calls.load()};
+            for (const auto &item : bridge.dex_items)
+                for (size_t i = 0; i < 2; ++i) counts[i] += item->benchmark_warmup_calls[i].load();
+            return counts;
+        };
+        const auto before_repeat = warmup_counts();
+        Require(Forward(bridge, methods) == expected_forward, "repeated forward bytes");
+        Require(Reverse(bridge, fields) == expected_reverse, "repeated reverse bytes");
+        Require(warmup_counts() == before_repeat, "warm forward/reverse performs no init, resolve or aggregate jobs");
         Require(Calls(bridge, methods) == expected_calls, "forward and reverse calls");
         bridge.InitFullCache();
         Require(Forward(bridge, methods) == expected_forward, "full warmup preserves forward");

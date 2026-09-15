@@ -1475,6 +1475,9 @@ void DexKit::WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const {
 }
 
 void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_aggregate_calls.fetch_add(1, std::memory_order_relaxed);
+#endif
     DEXKIT_CHECK((aggregate_flags & ~(kCallerMethod | kRwFieldMethod)) == 0);
     auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
 

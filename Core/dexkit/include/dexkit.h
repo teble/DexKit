@@ -115,6 +115,7 @@ public:
 private:
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
+    std::atomic<uint64_t> benchmark_aggregate_calls{0};
 #endif
     std::mutex _mutex;
     std::shared_mutex _put_class_mutex;

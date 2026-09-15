@@ -1,8 +1,149 @@
 # Raw metadata experiment results
 
-The historical prototypes and rejected variants below retain their original
-source/artifact identities. Final QQ comparisons of the narrowed candidates
-are in progress; the final recommendation will use those new measurements.
+## Final decision
+
+For the frozen QQ 9.3.55 workload, the preferred measured combination is H1/H2/H3
+plus raw cross-reference identities with fast descriptor cache hits (R1-fast)
+and borrowed raw interface lists (R3). Keep raw descriptor-input lookup, paged
+byte descriptors (R2), and body alignment OFF. All experiment switches still
+default to OFF; this branch does not change the default library behavior.
+
+The complete combination improves both lifecycle lengths and peak physical
+footprint in the main and independent confirmation cohorts. On confirmation,
+one-pass lifecycle improves 18.90% and eleven-pass lifecycle improves 12.36%;
+peak physical footprint improves 15.14% and 14.97%, respectively. The repeated
+API sum in the eleven-pass run improves 9.75% [-11.36%, -8.70%]. Whole-process
+median peaks are 2002.49 -> 1698.53 MiB (one pass) and 2014.17 -> 1712.01 MiB
+(eleven passes): about 302--304 MiB less, including the fixed JVM workload.
+These are direct combined comparisons, not added isolated percentages.
+
+The new R1-fast + R3 pair alone saves about 7.3--7.7% of process peak footprint.
+Its one-pass lifecycle improvement repeats, but its warmed timing remains
+unresolved: the eleven-pass confirmation lifecycle interval is [-6.56%, +1.53%]
+and repeated API interval is [-1.99%, +5.29%]. R1-fast alone likewise leaves a
++4.12% upper repeated-API bound in confirmation. These are not time-free memory
+optimizations in a universal sense. R3 alone reliably saves about 1% of peak
+footprint here; the measurements do not establish a repeatable speed benefit.
+
+R2 is excluded because its corrected paged-byte cache still regresses repeated
+large output by about 16% in complete lifecycle. Body alignment did not resolve
+that counterexample. Raw descriptor-input lookup is excluded because its
+same-name long-prefix and narrow/hot lookups regressed. Restoring cached-text
+lookup plus the short published-cache hit wrapper resolves the large observed
+lookup regressions without weakening cold publication.
+
+## Final QQ paired measurements
+
+Every candidate has twelve balanced fresh-process main pairs and six separate
+confirmation pairs, for one and eleven passes. Negative changes favor the
+candidate. Cells are median paired percentage changes with exploratory paired
+bootstrap 95% intervals; they are not percentage changes of column medians.
+No valid sample was discarded. The control is the original all-flags-off native
+machine code, with the same JAR, runtime, adapter, input hashes and memory probe
+within each comparison. Timings include create, queries, result destruction and
+close; warmed API sums cover the ten repeated passes.
+
+| Candidate | Cohort | Passes | Complete lifecycle | Peak physical footprint | Repeated API sum |
+| --- | --- | ---: | ---: | ---: | ---: |
+| R3 | main | 1 | +0.07% [-2.64, +2.41] | -1.00% [-1.23, -0.82] | N/A |
+| R3 | main | 11 | -0.99% [-3.29, +0.69] | -1.02% [-1.20, -0.89] | -0.14% [-2.14, +0.23] |
+| R3 | confirm | 1 | -0.42% [-1.64, +0.35] | -0.89% [-1.17, -0.63] | N/A |
+| R3 | confirm | 11 | -3.33% [-8.81, +0.06] | -1.07% [-1.30, -0.66] | -3.65% [-8.57, +0.34] |
+| R1-fast | main | 1 | -12.60% [-13.18, -10.25] | -6.34% [-6.50, -6.17] | N/A |
+| R1-fast | main | 11 | -3.89% [-5.10, -2.06] | -6.45% [-6.77, -6.21] | +0.03% [-1.07, +0.67] |
+| R1-fast | confirm | 1 | -13.54% [-16.90, -7.51] | -6.50% [-6.86, -6.11] | N/A |
+| R1-fast | confirm | 11 | -4.73% [-5.23, -1.34] | -6.24% [-6.46, -6.15] | +1.11% [-0.32, +4.12] |
+| R1-fast + R3 | main | 1 | -12.53% [-15.63, -11.74] | -7.31% [-7.55, -7.15] | N/A |
+| R1-fast + R3 | main | 11 | -2.71% [-3.93, -2.24] | -7.40% [-7.63, -7.24] | +0.34% [-0.26, +1.25] |
+| R1-fast + R3 | confirm | 1 | -13.94% [-17.11, -13.08] | -7.71% [-7.93, -7.10] | N/A |
+| R1-fast + R3 | confirm | 11 | -3.14% [-6.56, +1.53] | -7.53% [-7.82, -6.97] | +1.13% [-1.99, +5.29] |
+| H1/H2/H3 + R1-fast + R3 | main | 1 | -18.34% [-19.97, -17.39] | -15.19% [-15.31, -15.01] | N/A |
+| H1/H2/H3 + R1-fast + R3 | main | 11 | -13.69% [-14.68, -12.50] | -15.09% [-15.35, -14.94] | -9.69% [-11.92, -9.18] |
+| H1/H2/H3 + R1-fast + R3 | confirm | 1 | -18.90% [-21.98, -17.77] | -15.14% [-15.31, -14.95] | N/A |
+| H1/H2/H3 + R1-fast + R3 | confirm | 11 | -12.36% [-13.21, -11.53] | -14.97% [-15.33, -14.43] | -9.75% [-11.36, -8.69] |
+
+## Final native counterexamples and interpretation limits
+
+The combined variants were also tested directly against the control with six
+balanced pairs per native fixture, including result destruction and close.
+These are separate synthetic workloads, not QQ or Android runtime scores.
+
+| Candidate / workload | Lifecycle | Positive request | Negative request | Peak physical footprint |
+| --- | ---: | ---: | ---: | ---: |
+| R1-fast + R3 / output | +0.01% [-2.22, +1.92] | N/A | N/A | +0.77% [-1.12, +3.91] |
+| R1-fast + R3 / lookup | -18.98% [-23.90, -13.28] | -12.44% [-20.34, -4.61] | -44.90% [-46.62, -43.56] | +0.17% [+0.17, +0.59] |
+| R1-fast + R3 / lookup-prefix | -1.81% [-3.60, -0.16] | -0.69% [-2.46, +1.01] | -45.12% [-46.33, -42.88] | -0.61% [-0.75, -0.34] |
+| R1-fast + R3 / lookup-hot | -3.46% [-7.51, -2.16] | -1.60% [-2.60, -0.47] | -11.98% [-24.68, -9.63] | +2.30% [+1.91, +3.06] |
+| R1-fast + R3 / interfaces | -0.40% [-4.28, +1.54] | -0.33% [-4.09, +2.31] | -1.05% [-4.58, +1.07] | +1.41% [+0.00, +1.76] |
+| H1/H2/H3 + R1-fast + R3 / output | +0.46% [-10.25, +0.91] | N/A | N/A | +6.50% [+0.64, +9.91] |
+| H1/H2/H3 + R1-fast + R3 / lookup | -22.79% [-26.33, -18.90] | -17.92% [-22.48, -12.17] | -45.22% [-47.07, -44.64] | -2.10% [-2.43, -1.68] |
+| H1/H2/H3 + R1-fast + R3 / lookup-prefix | -1.57% [-2.43, -0.08] | -0.25% [-1.18, +1.18] | -44.30% [-46.17, -41.14] | -2.71% [-2.92, -2.51] |
+| H1/H2/H3 + R1-fast + R3 / lookup-hot | -3.18% [-4.39, +0.35] | -1.26% [-2.86, +3.54] | -12.02% [-13.04, -10.46] | -9.57% [-9.96, -8.45] |
+| H1/H2/H3 + R1-fast + R3 / interfaces | -2.05% [-2.81, -0.53] | -1.21% [-3.10, +0.33] | -1.99% [-3.36, -0.70] | -9.22% [-10.45, -8.48] |
+
+The full combination's repeated large-output time is near the baseline, but its
+small-fixture peak footprint increases 6.50% [+0.64%, +9.91%]. The positive
+narrow/hot interval also admits +3.54% time regression. The prefix positive
+interval admits +1.18%, independently of the much faster negative request.
+These limitations remain in the decision; QQ gains do not cancel a different
+workload's regression. An interval crossing zero is not proof of equivalence,
+and no chosen slowdown tolerance or Android-device performance guarantee is
+implied. The prefix miss has a different total byte length; its result cannot
+be relabeled an equal-length last-byte mismatch test.
+
+## Final storage attribution
+
+The new R1-fast and combined artifacts retain 1,628 descriptors, compared with
+1,317,599 in the control. Cross-reference comparisons remain 1,503,972 methods
+and 418,558 fields. Cross-reference signature construction falls from 1,003,554
+methods plus 312,423 fields to zero. Lookup construction is zero in this corpus;
+that is not evidence of zero lookup calls. The six additional output-path builds
+replace descriptors previously constructed while resolving cross references.
+
+| Storage observation before close | Control | R1-fast + R3 | Full combination |
+| --- | ---: | ---: | ---: |
+| Dense descriptor slots | 130,972,800 B | 130,972,800 B | 130,972,800 B |
+| External descriptor character capacity | 130,809,332 B | 196,369 B | 196,369 B |
+| Descriptor publication guards | 0 B | 4,176,868 B | 4,176,868 B |
+| Class-member index arrays | 49,971,888 B | 33,314,592 B | 33,314,592 B |
+| Class-member payload capacity | 18,459,808 B | 17,512,000 B | 17,512,000 B |
+| Unused lazy opcode/string directories | 83,200,992 B | 83,200,992 B | 0 B |
+| Method-string index arrays | 62,400,744 B | 62,400,744 B | 31,200,372 B |
+| Method-string payload capacity | 10,561,680 B | 10,561,680 B | 11,436,032 B |
+
+R3 removes 17,605,104 B of persistent interface index/payload storage and
+229,475 nonempty interface allocations in this corpus. H2's larger payload
+capacity is retained in the accounting; its lower index cost and buffer count
+are separate observations. Logical storage counts do not equal process peaks
+or CPU traffic, and sums exclude some allocator/object overhead. Descriptor
+character capacity excludes small-string storage inside the string object.
+The diagnostic builds are distinct from every timed artifact.
+
+## Reproducibility and completion
+
+All five final native artifacts passed full eleven-pass frozen-result
+verification after the last JAR build. All 288 timed child processes then used
+matching verified native/JAR/runtime/input/probe fingerprints, preserved counts,
+selections and query control flow, and exited successfully. Full verification
+materializes result identities; formal timing does not add that hashing work.
+The paired samples and summaries, complete per-child runtime records and
+verification reports are committed under `evidence/raw-metadata`.
+
+`narrowed-run-records.tar.gz` contains the full records; `narrowed-run-records.json`
+indexes every member's SHA-256 and the verified inputs. Native manifests,
+independent compressed FlatBuffer oracles, component logs and the review record
+are alongside it. The preferred native sources are pinned to `8971df6`/`2e8e13c`;
+`325eb97` only corrects the excluded alignment branch. Artifact hashes, not the
+latest branch name, identify the measured machine code. Reproduction commands
+and all default-OFF flag mappings are in this directory's README.
+
+The planned implementations, checks, adverse tests and final comparisons are
+complete. Android release AAR compilation and host tests passed; no Android
+device timing or host reflection/hook compatibility beyond the agreed result
+contract is asserted. Main checkout and default switches remain unchanged.
+The sections below retain historical prototypes, rejected hypotheses and their
+source-specific measurements; they are not scores for the current preferred
+configuration.
 
 ## Historical R1 bundle: cross-reference and raw input lookup
 
@@ -250,5 +391,5 @@ assign new measurements to a changed binary. No Android device timing is
 claimed by these host tests and packaging checks.
 
 Full component logs, manifests, byte-equivalence records, oracle hashes and
-codegen extracts are under `evidence/raw-metadata`. Final QQ verification is
+codegen extracts are under `evidence/raw-metadata`. Final QQ verification was
 performed after this last JAR build, before collecting paired measurements.

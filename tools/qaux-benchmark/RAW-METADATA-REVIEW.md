@@ -51,8 +51,8 @@ global symbol interning table was adopted.
 
 ## Validation status
 
-Implementation and measurement are in progress. No review substitutes for the
-local checks or artifact-specific measurements below.
+Implementation, local checks and planned measurements are complete. No review
+substitutes for the artifact-specific validation and measurements below.
 
 ## Review of R1 and initial R2 source
 

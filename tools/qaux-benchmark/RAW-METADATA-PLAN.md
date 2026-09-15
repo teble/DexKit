@@ -182,3 +182,13 @@ revision separates published cache hits from cold descriptor construction.
 This fixes the observed R1 lookup regression but leaves R2 output slower. No
 additional storage design is part of this round. Final work is artifact-specific
 correctness, component checks, and QQ comparison of the narrowed candidates.
+
+## Completion
+
+The narrowed plan completed all four independent/combined QQ comparisons,
+twelve main plus six confirmation pairs for both lifetimes, together with
+component validation and native counterexamples. The final records cover 288
+timed JVM processes. R2, raw input lookup and body alignment remain rejected
+for the preferred configuration; no further storage design is part of this
+round. See RAW-METADATA-RESULTS.md for measured decisions and remaining
+workload-specific limitations. All switches remain OFF by default.

@@ -24,6 +24,10 @@
 #include "utils/opcode_util.h"
 #include "utils/dex_descriptor_util.h"
 
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+#include <cstdio>
+#endif
+
 namespace dexkit {
 
 inline void PushEncodeNumber(dex::InstructionFormat op_format, uint8_t op, const uint16_t *ptr, std::vector<EncodeNumber> *using_numbers);
@@ -351,6 +355,19 @@ void DexItem::InitCache(uint32_t init_flags) {
         need_foreach_method = true;
     }
 
+#if DEXKIT_EXPERIMENT_SKIP_RW_WALK || DEXKIT_BENCHMARK_DIAGNOSTICS
+    const bool rw_only = need_field_rw_method && !(need_op_seq || need_method_using_string
+            || need_method_using_field || need_method_invoking || need_method_using_number);
+#endif
+#if DEXKIT_EXPERIMENT_SKIP_RW_WALK
+    // Reverse rows consume published forward rows below. A co-requested caller
+    // relation also consumes its forward rows when no instruction output is missing.
+    if (rw_only) need_foreach_method = false;
+#endif
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    uint64_t walked_methods = 0;
+    uint64_t walked_instructions = 0;
+#endif
     if (need_foreach_method) {
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
@@ -358,6 +375,9 @@ void DexItem::InitCache(uint32_t init_flags) {
                 if (code == nullptr) {
                     continue;
                 }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                ++walked_methods;
+#endif
 
                 std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
                 std::vector<uint32_t> *method_using_string_ptr = nullptr;
@@ -397,6 +417,9 @@ void DexItem::InitCache(uint32_t init_flags) {
                 auto p = code->insns;
                 auto end_p = p + code->insns_size;
                 while (p < end_p) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                    ++walked_instructions;
+#endif
                     auto op = (uint8_t) *p;
                     if (need_op_seq) {
                         op_seq_ptr->value().emplace_back(op);
@@ -467,6 +490,13 @@ void DexItem::InitCache(uint32_t init_flags) {
         }
     }
 
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    if (need_field_rw_method) {
+        std::fprintf(stderr, "BENCH_INSTRUCTION_WALK {\"dex\":%u,\"flags\":%u,\"rw_only\":%s,\"walk\":%s,\"methods\":%llu,\"instructions\":%llu}\n",
+                     dex_id, init_flags, rw_only ? "true" : "false", need_foreach_method ? "true" : "false",
+                     static_cast<unsigned long long>(walked_methods), static_cast<unsigned long long>(walked_instructions));
+    }
+#endif
     if (need_method_caller) {
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {

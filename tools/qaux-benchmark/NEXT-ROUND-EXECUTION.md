@@ -2,9 +2,9 @@
 
 Status: active. Equal and StartWith measurements and independent confirmation
 are complete. Batch boolean containment and one using-field requirement are
-complete, as are contiguous forward-field rows. The reverse-only instruction
-walk is next. Subsequent ranked mechanisms
-remain independent experiments against the nine-switch control.
+complete, as are contiguous forward-field rows. The final reverse-only
+instruction-walk experiment is active. Every new mechanism remains an
+independent experiment against the nine-switch control.
 
 ## Controls and sequence
 

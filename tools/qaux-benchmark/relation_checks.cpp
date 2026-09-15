@@ -132,7 +132,8 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
         }
     };
 #endif
-    for (int sequence = 0; sequence < 6; ++sequence) {
+    constexpr int sequence_count = 7;
+    for (int sequence = 0; sequence < sequence_count; ++sequence) {
         DexKit bridge(apk, 1);
         bridge.SetThreadNum(4);
         if (sequence == 1) {
@@ -182,6 +183,13 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
             auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
             std::thread forward([&] { Require(Forward(bridge, methods) == expected_forward, "forward after reverse admission"); });
             forward.join();
+        } else if (sequence == 6) {
+            {
+                auto guard = bridge.EnterQueryExecution(kFieldIdentity | kMethodUsingField | kMethodInvoking);
+            }
+            // Both reverse relations can be requested together after their
+            // instruction-derived inputs are ready; neither needs extraction.
+            auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kCallerMethod);
         }
         Require(Forward(bridge, methods) == expected_forward, "forward results/order");
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
@@ -222,8 +230,8 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
         for (const auto *data : {&expected_forward, &expected_reverse, &expected_calls})
             Require(std::fwrite(data->data(), 1, data->size(), stdout) == data->size(), "write oracle");
     } else {
-        std::printf("CHECK_RELATIONS {\"methods\":%zu,\"fields\":%zu,\"sequences\":6,\"passed\":true}\n",
-                    methods.size(), fields.size());
+        std::printf("CHECK_RELATIONS {\"methods\":%zu,\"fields\":%zu,\"sequences\":%d,\"passed\":true}\n",
+                    methods.size(), fields.size(), sequence_count);
     }
 }
 

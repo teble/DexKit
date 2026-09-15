@@ -19,6 +19,7 @@ struct BenchmarkDiagnostics {
     static void DumpSymbols(std::string_view apk);
     static void CheckRelations(std::string_view apk, bool dump);
     static void CheckInvocations(std::string_view apk, bool dump);
+    static void CheckSources(std::string_view apk, bool dump);
 };
 
 // Diagnostic builds only: no counters or clocks enter a measurement binary.

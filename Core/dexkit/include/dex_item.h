@@ -298,6 +298,11 @@ private:
 #if DEXKIT_EXPERIMENT_RAW_INTERFACES
     RawTypeIds GetInterfaceTypeIds(uint32_t type_idx) const;
 #endif
+#if DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
+    std::string_view GetSourceFileByIndex(uint32_t index) const {
+        return index == dex::kNoIndex ? std::string_view{} : strings[index];
+    }
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
     DescriptorDiagnostics descriptor_diagnostics;
@@ -406,7 +411,9 @@ private:
     // dex declared types flag
     std::vector<bool /*def_in_class_def*/> type_def_flag;
     // class source file name, eg: "HelloWorld.java", maybe obfuscated
+#if !DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
     std::vector<std::string_view> class_source_files;
+#endif
     std::vector<uint32_t /*access_flag*/> class_access_flags;
 #if !DEXKIT_EXPERIMENT_RAW_INTERFACES
     std::vector<std::vector<uint32_t>> class_interface_ids;

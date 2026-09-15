@@ -137,7 +137,9 @@ void DexItem::InitBaseCache() {
 
     type_def_flag.resize(reader.TypeIds().size());
     type_def_idx.resize(reader.TypeIds().size());
+#if !DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
     class_source_files.resize(reader.TypeIds().size());
+#endif
     class_access_flags.resize(reader.TypeIds().size());
 #if !DEXKIT_EXPERIMENT_RAW_INTERFACES
     class_interface_ids.resize(reader.TypeIds().size());
@@ -175,9 +177,11 @@ void DexItem::InitBaseCache() {
     auto class_def_idx = 0;
     for (auto &class_def: reader.ClassDefs()) {
         auto def_idx = class_def_idx++;
+#if !DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
         if (class_def.source_file_idx != dex::kNoIndex) {
             class_source_files[class_def.class_idx] = strings[class_def.source_file_idx];
         }
+#endif
         type_def_flag[class_def.class_idx] = true;
         type_def_idx[class_def.class_idx] = def_idx;
         class_access_flags[class_def.class_idx] = class_def.access_flags;
@@ -698,7 +702,11 @@ ClassBean DexItem::GetClassBean(uint32_t type_idx) {
     bean.dex_descriptor = this->type_names[type_idx];
     if (this->type_def_flag[type_idx]) {
         auto &class_def = this->reader.ClassDefs()[this->type_def_idx[type_idx]];
+#if DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
+        bean.source_file = GetSourceFileByIndex(class_def.source_file_idx);
+#else
         bean.source_file = this->class_source_files[type_idx];
+#endif
         bean.access_flags = class_def.access_flags;
         bean.super_class_id = class_def.superclass_idx;
 #if DEXKIT_EXPERIMENT_RAW_INTERFACES

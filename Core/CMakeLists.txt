@@ -34,6 +34,7 @@ if (DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP AND NOT DEXKIT_EXPERIMENT_STRUCTURAL
 endif ()
 option(DEXKIT_EXPERIMENT_RAW_INTERFACES "Borrow raw DEX interface type lists" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_INVOKES "Build forward invocation rows in contiguous storage" OFF)
+option(DEXKIT_EXPERIMENT_RAW_SOURCE_FILES "Read source file views through existing ClassDef indexes" OFF)
 option(DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT "Resolve field identity without building reverse field graphs" OFF)
 set(DEXKIT_EXPERIMENT_STRING_MEMO_BYTES 1048576 CACHE STRING "Per-query negative string memo payload budget")
 if (NOT DEXKIT_EXPERIMENT_STRING_MEMO_BYTES MATCHES "^[0-9]+$")
@@ -82,6 +83,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=$<BOOL:${DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP}>
         DEXKIT_EXPERIMENT_RAW_INTERFACES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_INTERFACES}>
         DEXKIT_EXPERIMENT_COMPACT_INVOKES=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_INVOKES}>
+        DEXKIT_EXPERIMENT_RAW_SOURCE_FILES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_SOURCE_FILES}>
         DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=$<BOOL:${DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
@@ -101,6 +103,19 @@ option(DEXKIT_BENCHMARK_SYMBOL_CHECKS "Build descriptor identity and lifetime ch
 option(DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD "Build adverse descriptor and interface workloads" OFF)
 option(DEXKIT_BENCHMARK_RELATION_CHECKS "Build cross-DEX field and invoke lifecycle checks" OFF)
 option(DEXKIT_BENCHMARK_RELATION_WORKLOAD "Build adverse field and invoke workloads" OFF)
+option(DEXKIT_BENCHMARK_SOURCE_CHECKS "Build raw source metadata checks" OFF)
+option(DEXKIT_BENCHMARK_SOURCE_WORKLOAD "Build source matcher and class output workloads" OFF)
+if (DEXKIT_BENCHMARK_SOURCE_WORKLOAD)
+    add_executable(dexkit_source_workload ../tools/qaux-benchmark/source_workload.cpp)
+    target_link_libraries(dexkit_source_workload PRIVATE dexkit_static)
+endif ()
+if (DEXKIT_BENCHMARK_SOURCE_CHECKS)
+    if (NOT DEXKIT_BENCHMARK_DIAGNOSTICS)
+        message(FATAL_ERROR "Source checks require benchmark diagnostics")
+    endif ()
+    add_executable(dexkit_source_checks ../tools/qaux-benchmark/source_checks.cpp)
+    target_link_libraries(dexkit_source_checks PRIVATE dexkit_static)
+endif ()
 if (DEXKIT_BENCHMARK_RELATION_WORKLOAD)
     add_executable(dexkit_relation_workload ../tools/qaux-benchmark/relation_workload.cpp)
     target_link_libraries(dexkit_relation_workload PRIVATE dexkit_static)

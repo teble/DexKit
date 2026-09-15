@@ -1111,7 +1111,12 @@ bool DexItem::IsClassSmaliSourceMatched(uint32_t type_idx, const schema::StringM
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
+#if DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
+    const auto &definition = reader.ClassDefs()[type_def_idx[type_idx]];
+    auto smali_source = GetSourceFileByIndex(definition.source_file_idx);
+#else
     auto smali_source = this->class_source_files[type_idx];
+#endif
     return IsStringMatched(smali_source, matcher);
 }
 

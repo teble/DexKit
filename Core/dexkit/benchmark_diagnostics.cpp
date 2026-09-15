@@ -185,7 +185,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Flat(counts["base_arrays"], item.type_names);
         Flat(counts["base_arrays"], item.type_name_array_count);
         Flat(counts["base_arrays"], item.type_def_idx);
+#if !DEXKIT_EXPERIMENT_RAW_SOURCE_FILES
         Flat(counts["base_arrays"], item.class_source_files);
+#endif
         Flat(counts["base_arrays"], item.class_access_flags);
         Flat(counts["base_arrays"], item.method_access_flags);
         Flat(counts["base_arrays"], item.field_access_flags);

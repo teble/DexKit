@@ -152,7 +152,21 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #else
         Rows(counts["using_strings"], item.method_using_string_ids);
 #endif
+#if DEXKIT_EXPERIMENT_COMPACT_INVOKES
+        const auto &invoke_index = item.method_invoking_ids;
+        auto &invokes = counts["invokes"];
+        invokes.index_bytes += invoke_index.offsets_.capacity() * sizeof(size_t)
+                             + invoke_index.lengths_.capacity() * sizeof(uint32_t);
+        invokes.entries += invoke_index.offsets_.size();
+        invokes.payload_bytes += invoke_index.ids_.capacity() * sizeof(uint32_t);
+        invokes.buffers += (invoke_index.offsets_.capacity() != 0) + (invoke_index.lengths_.capacity() != 0)
+                         + (invoke_index.ids_.capacity() != 0);
+        for (auto length : invoke_index.lengths_) invokes.ready += length != 0;
+        if (invoke_index.growth_count_) std::fprintf(stderr, "BENCH_INVOKE_GROWTH {\"phase\":\"%s\",\"dex\":%u,\"growths\":%zu,\"moved_id_bytes\":%zu,\"peak_overlap_bytes\":%zu,\"ids\":%zu,\"capacity\":%zu}\n",
+                phase, item.dex_id, invoke_index.growth_count_, invoke_index.moved_bytes_, invoke_index.overlap_bytes_, invoke_index.ids_.size(), invoke_index.ids_.capacity());
+#else
         Rows(counts["invokes"], item.method_invoking_ids);
+#endif
         Rows(counts["callers"], item.method_caller_ids);
         Rows(counts["using_fields"], item.method_using_field_ids);
         Rows(counts["field_readers"], item.field_get_method_ids);

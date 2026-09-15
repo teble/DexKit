@@ -33,6 +33,7 @@ if (DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP AND NOT DEXKIT_EXPERIMENT_STRUCTURAL
     message(FATAL_ERROR "Raw descriptor lookup requires structural descriptor publication support")
 endif ()
 option(DEXKIT_EXPERIMENT_RAW_INTERFACES "Borrow raw DEX interface type lists" OFF)
+option(DEXKIT_EXPERIMENT_COMPACT_INVOKES "Build forward invocation rows in contiguous storage" OFF)
 option(DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT "Resolve field identity without building reverse field graphs" OFF)
 set(DEXKIT_EXPERIMENT_STRING_MEMO_BYTES 1048576 CACHE STRING "Per-query negative string memo payload budget")
 if (NOT DEXKIT_EXPERIMENT_STRING_MEMO_BYTES MATCHES "^[0-9]+$")
@@ -80,6 +81,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=$<BOOL:${DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS}>
         DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=$<BOOL:${DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP}>
         DEXKIT_EXPERIMENT_RAW_INTERFACES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_INTERFACES}>
+        DEXKIT_EXPERIMENT_COMPACT_INVOKES=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_INVOKES}>
         DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=$<BOOL:${DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
@@ -102,6 +104,8 @@ option(DEXKIT_BENCHMARK_RELATION_WORKLOAD "Build adverse field and invoke worklo
 if (DEXKIT_BENCHMARK_RELATION_WORKLOAD)
     add_executable(dexkit_relation_workload ../tools/qaux-benchmark/relation_workload.cpp)
     target_link_libraries(dexkit_relation_workload PRIVATE dexkit_static)
+    add_executable(dexkit_invocation_workload ../tools/qaux-benchmark/invocation_workload.cpp)
+    target_link_libraries(dexkit_invocation_workload PRIVATE dexkit_static)
 endif ()
 if (DEXKIT_BENCHMARK_RELATION_CHECKS)
     if (NOT DEXKIT_BENCHMARK_DIAGNOSTICS)
@@ -109,6 +113,8 @@ if (DEXKIT_BENCHMARK_RELATION_CHECKS)
     endif ()
     add_executable(dexkit_relation_checks ../tools/qaux-benchmark/relation_checks.cpp)
     target_link_libraries(dexkit_relation_checks PRIVATE dexkit_static)
+    add_executable(dexkit_invocation_checks ../tools/qaux-benchmark/invocation_checks.cpp)
+    target_link_libraries(dexkit_invocation_checks PRIVATE dexkit_static)
 endif ()
 if (DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD)
     add_executable(dexkit_descriptor_workload ../tools/qaux-benchmark/descriptor_workload.cpp)

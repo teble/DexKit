@@ -19,14 +19,16 @@ public:
         lengths_.resize(methods);
     }
 
+    bool empty() const { return offsets_.empty(); }
+
     std::vector<uint32_t> *BeginMethod(uint32_t method) {
         offsets_[method] = ids_.size();
         return &ids_;
     }
 
     void EndMethod(uint32_t method) {
-        // One method has at most UINT32_MAX code units; each const-string uses
-        // at least two. Only the per-method length is narrowed, never the offset.
+        // Only the per-method length is narrowed, never the total offset.
+        // Both const-string and invoke instructions use multiple code units.
         const auto begin = offsets_[method];
         if (begin > ids_.size() || ids_.size() - begin > std::numeric_limits<uint32_t>::max()) std::abort();
         lengths_[method] = static_cast<uint32_t>(ids_.size() - begin);
@@ -59,5 +61,8 @@ private:
     std::vector<uint32_t> lengths_;
     std::vector<uint32_t> ids_;
 };
+
+// Invocation rows share the same checked append/freeze representation.
+using CompactInvocationIndex = CompactStringIndex;
 
 } // namespace dexkit

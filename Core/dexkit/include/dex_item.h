@@ -57,7 +57,7 @@
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
 #include "member_descriptor_view.h"
 #endif
-#if DEXKIT_EXPERIMENT_COMPACT_STRINGS
+#if DEXKIT_EXPERIMENT_COMPACT_STRINGS || DEXKIT_EXPERIMENT_COMPACT_INVOKES
 #include "compact_string_index.h"
 #endif
 
@@ -471,7 +471,11 @@ private:
 #endif
     std::unique_ptr<std::array<std::mutex, 64>> lazy_method_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
     std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
+#if DEXKIT_EXPERIMENT_COMPACT_INVOKES
+    CompactInvocationIndex method_invoking_ids;
+#else
     std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
+#endif
     std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
     // local reverse edges are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase

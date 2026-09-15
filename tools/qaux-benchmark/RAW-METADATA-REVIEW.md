@@ -142,3 +142,27 @@ control both fit checking and final writes. Padding, capacity and output costs
 remain charged. Do not simultaneously change atomics, block sizing or serializer.
 If alignment fails, a paged string cache is a possible separate candidate; its
 extra allocations and indirection must be measured, not presumed harmless.
+
+## Final narrowed-candidate review
+
+Pro read the `8971df6` Core delta and fixed `2e8e13c` source/report. The full
+reply was copied and read. It found no new correctness blocker in the cache
+hit wrappers: acquire-ready proves dense optional engagement, and the returned
+view refers to stable owned bytes. Paged TryGet retains both publication loads
+and distinguishes an engaged empty string from a cache miss. Cold construction
+and bridge destruction requirements remain unchanged.
+
+It identified the same remaining boundary as the local review: subtracting
+body minus block base can exceed PTRDIFF_MAX if a 32-bit implementation permits
+an unusually large successful char-array allocation. This was not triggered by
+the fixtures and does not affect the preferred variants with alignment OFF.
+The correction computes the offset from capacity minus post-alignment space
+minus header size, eliminating that pointer difference.
+
+The timing evidence supports the combined revised artifact; it cannot assign
+separate gains to register saves versus optional engagement checks. Failure of
+this alignment experiment does not imply zero alignment effects in all contexts.
+The positive prefix interval still permits about 2% slowdown, separately from
+the negative-path improvement. Excluding these specific raw-lookup/R2 variants
+is supported; it does not show that all arena designs must fail. Pro did not
+rerun or recalculate the samples and requested no additional design direction.

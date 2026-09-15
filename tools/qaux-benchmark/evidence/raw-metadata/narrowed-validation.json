@@ -1,0 +1,107 @@
+{
+  "default_and_r3_native_equivalence": [
+    {
+      "current": "control-final",
+      "earlier": "control-v2",
+      "equal_complete_bytes": true,
+      "native_sha256": "4f4a1e6a86d9d40c8f51eef96a9d9b545f4ba2b44b8ca0898bc5a80fb4b1e110"
+    },
+    {
+      "current": "r3-final",
+      "earlier": "r3",
+      "equal_complete_bytes": true,
+      "native_sha256": "41964731b25541e3e700d7fb5df5c595837597d032325c7ad3e88e6855c8331f"
+    }
+  ],
+  "fresh_components": {
+    "r1-fast": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "r2-fast": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "r13-final": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "best5-final": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "all9-final": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "frozen_symbol_oracles": {
+    "control-final": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "r3-final": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "r1-fast": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "r2-fast": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "r13-final": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "best5-final": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    },
+    "all9-final": {
+      "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+      "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+    }
+  },
+  "preferred_timed_core_commits": [
+    "8971df6292ad1fd45e927085f5538dae7604fdd0",
+    "2e8e13cd5be88228f5ff2e3d6add20678285a696"
+  ],
+  "later_source_correction": {
+    "commit": "325eb97e95654f00d471e043d0f327300fc7c50f",
+    "only_behavioral_change": "Use size_t remaining space instead of body/base pointer subtraction inside ALIGNED_DESCRIPTORS. Preferred artifacts keep this option OFF.",
+    "preferred_measurements_remain_tied_to_their_immutable_artifacts": true,
+    "validated_all_flags_variant": {
+      "native_manifest": "all9-offset-symbols-artifact.json",
+      "sanitized_manifest": "all9-offset-sanitized-artifact.json",
+      "full_oracles": {
+        "symbol-fixture": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+        "overload-fixture": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355"
+      },
+      "components": {
+        "tests": 71,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "android_release_abis": [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86",
+        "x86_64"
+      ]
+    }
+  }
+}

@@ -1,9 +1,10 @@
 # Raw metadata experiment results
 
-This round is in progress. R1, R2, and the R2 increment over R1 have completed
-paired measurement and confirmation. R3 and direct combinations are pending.
+The historical prototypes and rejected variants below retain their original
+source/artifact identities. Final QQ comparisons of the narrowed candidates
+are in progress; the final recommendation will use those new measurements.
 
-## R1: structural member identities
+## Historical R1 bundle: cross-reference and raw input lookup
 
 R1 replaces descriptor-string equality in cross-DEX resolution and descriptor
 lookup with comparisons of raw member components. It preserves the original
@@ -74,8 +75,8 @@ process memory account. Diagnostics are compiled out of timed artifacts.
   with eight concurrent cold readers including the same slot; the legacy
   control uses warm reads because it lacks cold-write publication.
 
-The separate adverse workload timings are still to be completed with R2/R3.
-R1's QQ result is supported, but it is not yet a universal adoption decision.
+The later adverse workload sections show why this original bundle was revised.
+Its QQ benefit does not establish a universal adoption decision.
 All prototype switches remain OFF by default.
 
 ## Evidence
@@ -222,3 +223,32 @@ complete repeated output and hot negative lookup, so it is excluded from the
 preferred final combinations. The final measured candidates retain the dense
 output-string cache, R1 fast hits and R3 borrowed interface IDs. A separate
 combination additionally enables H1/H2/H3. No further storage tuning is planned.
+
+## Final component validation
+
+Every narrowed-source native variant passed both independent complete
+FlatBuffer oracles: normal and same-name-overload three-DEX fixtures. The
+all-flags-off and R3 libraries are byte-identical to the earlier frozen controls.
+The codegen extract records short 13-instruction dense hit wrappers and
+20-instruction paged hit wrappers; this is a mechanism observation, not a
+separate estimate of how much each code change contributes to timing.
+
+R1-fast, R2-fast, R1-fast+R3, H1/H2/H3+R1-fast+R3, and all nine flags each
+completed native build, JAR, an explicitly executed 71-test JVM suite with
+zero failures/errors/skips, and release AAR builds for all four Android ABIs.
+The all-flags combination passed exhaustive metadata, memo and allocation-budget
+checks plus ASan/UBSan symbol and paged-cache checks. Prior cached Gradle
+invocations are not counted as these executions.
+
+`325eb97` then replaced the aligned-record pointer difference with size_t
+remaining-space arithmetic, covering the reviewed PTRDIFF_MAX edge. The
+corrected all-nine-flags build passed both frozen oracles, ASan/UBSan symbol and
+cache checks, another fresh 71-test JVM suite, and all four release AAR ABIs.
+The preferred timed artifacts remain pinned to `8971df6`/`2e8e13c` with alignment
+OFF; this correction is inside the excluded alignment branch. It does not
+assign new measurements to a changed binary. No Android device timing is
+claimed by these host tests and packaging checks.
+
+Full component logs, manifests, byte-equivalence records, oracle hashes and
+codegen extracts are under `evidence/raw-metadata`. Final QQ verification is
+performed after this last JAR build, before collecting paired measurements.

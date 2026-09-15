@@ -207,7 +207,9 @@ normal parsing. The budget is per query and covers live requested bit-array
 bytes, not total process memory. H3 applies only to method batch queries.
 
 Run `:dexkit:cmakeBuild :dexkit:jar :dexkit:test :dexkit-android:assembleRelease`
-with the corresponding Gradle property. The exhaustive native metadata check
+with the corresponding Gradle property and `-I tools/qaux-benchmark/force_tests.gradle`.
+The init script forces an actual test execution after native flag changes;
+UP-TO-DATE or FROM-CACHE is not new variant validation. The exhaustive native metadata check
 also compares numbers, strings and opcodes over every demo method, including
 empty and duplicate cases, cold concurrent access, and lazy/full transitions:
 
@@ -232,6 +234,75 @@ The checks include concurrent quota contention, release/reuse, zero/oversized
 budgets, positive/negative strings, and empty/tiny scopes. They are separate
 from the QQ scores. The source, compiler and native hash remain recorded in
 the artifact manifest.
+
+## Raw metadata follow-up
+
+`RAW-METADATA-PLAN.md`, `RAW-METADATA-REVIEW.md` and `RAW-METADATA-RESULTS.md`
+record the second round, including rejected variants and immutable samples.
+All options below default to OFF; all H options above remain independent.
+
+| Behavior | CMake suffix after `DEXKIT_EXPERIMENT_` | Gradle property |
+| --- | --- | --- |
+| R1 raw cross-reference identities | `STRUCTURAL_DESCRIPTORS` | `experimentStructuralDescriptors` |
+| R3 borrowed interface lists | `RAW_INTERFACES` | `experimentRawInterfaces` |
+| Published cache hit / cold build separation | `DESCRIPTOR_FAST_HITS` | `experimentDescriptorFastHits` |
+| Raw descriptor-input lookup, regressing | `RAW_DESCRIPTOR_LOOKUP` | `experimentRawDescriptorLookup` |
+| R2 paged byte records, regressing output | `PAGED_DESCRIPTORS` | `experimentPagedDescriptors` |
+| Isolated body alignment, ineffective fix | `ALIGNED_DESCRIPTORS` | `experimentAlignedDescriptors` |
+
+Raw lookup requires R1; alignment requires R2; fast hits require R1 or R2.
+The original R1 samples predate the lookup split: reproducing that bundle from
+current source also requires raw lookup ON. Prefer exact recorded commits for
+historical timings. The preferred R1+R3 comparison enables structural identities,
+raw interfaces and fast hits, leaving the three regressing/ineffective options
+OFF. The larger preferred combination additionally enables H1/H2/H3.
+
+Generate the two bounded DEX fixtures outside the worktree:
+
+```sh
+python3 tools/qaux-benchmark/make_symbol_fixture.py --output /path/to/symbol-fixture
+python3 tools/qaux-benchmark/make_symbol_fixture.py \
+  --output /path/to/overload-fixture --same-name-overloads
+```
+
+Build a diagnostic artifact with `DEXKIT_BENCHMARK_DIAGNOSTICS=ON` and
+`DEXKIT_BENCHMARK_SYMBOL_CHECKS=ON`, plus the candidate flags. Run
+`build/Core/dexkit_symbol_checks /path/to/symbol-fixture/symbols.apk` and
+`build/Core/dexkit_paged_descriptor_checks`. The symbol executable's `--dump`
+mode takes an APK after that option. Freeze the complete stdout from a separate
+all-flags-off artifact and byte-compare both fixture dumps for each candidate;
+these include complete FlatBuffers, not just descriptor hashes. The committed
+compressed oracles and manifests document the expected bytes. Cache checks
+also exercise NULs, block/page boundaries, large records and retained views
+during concurrent growth. `invalid-index` and `repeat-initialize` are separate
+expected-SIGABRT invocations, not successful-use cases.
+
+Timing artifacts must have diagnostics OFF and
+`DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD=ON`. For example:
+
+```sh
+python3 tools/qaux-benchmark/workload_sweep.py \
+  --fixture /path/to/symbol-fixture/symbols.apk --output /path/to/new-sweep \
+  --variant control /path/to/artifacts/control \
+  --variant candidate /path/to/artifacts/candidate \
+  --mode output --repeats 64 --pairs 6 --seed 2026091517
+```
+
+Modes/repetitions are `output`/64, `lookup`/256, `lookup-hot`/100000,
+`lookup-prefix`/256 and `interfaces`/2000. Only `lookup-prefix` uses the overload
+fixture. Positive/negative request timings include their result destruction;
+complete lifecycle includes setup and bridge close. Lookup setup warms the
+selected hit. The prefix miss currently has a different total byte length and
+must not be described as an equal-length last-byte comparison.
+
+`build_workload.py` can relink a changed harness against a frozen core archive
+when its recorded native source trees match the checkout. It records separate
+harness, executable and archive hashes and creates a new artifact directory.
+For QQ, repeat full `run.py --mode verify --passes 11` after the final JAR build,
+then use `sweep.py` as above with twelve main pairs and six separate confirmation
+pairs, for both one and eleven passes. The same JAR, input fingerprints, options
+and fixed memory probe must be used in verification and measurement. Never
+run Gradle, native builds or another benchmark during a measured sweep.
 
 ## Source attribution
 

@@ -1,0 +1,20 @@
+{
+  "master_commit": "1d936bd9efa38e00b7336ef112e73ba4048324e6",
+  "master_native_sha256": "03eddd050d473950dbfc2d1757f1f541f11e168036b4431024c8c343ad5ce004",
+  "candidate_native_sha256": "2347a204a16ecf3b0855189ee2c3e62b27e8c1cdff476146ecb7964e6d7422ba",
+  "master_source_trees_match": true,
+  "shared_compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+  "shared_cmake_options": {
+    "CMAKE_BUILD_TYPE": "Release",
+    "CMAKE_CXX_COMPILER": "/Library/Developer/CommandLineTools/usr/bin/c++",
+    "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+    "CMAKE_C_FLAGS_RELEASE": "-O3 -DNDEBUG",
+    "CMAKE_OSX_ARCHITECTURES": "arm64",
+    "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+    "CMAKE_OSX_SYSROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "DEXKIT_ENABLE_INTERNAL_METRICS": "OFF",
+    "DEXKIT_ENABLE_INTERNAL_METRICS_API": "OFF"
+  },
+  "jvm_library_source_unchanged_from_master": true,
+  "common_jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a"
+}

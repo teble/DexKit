@@ -1,5 +1,10 @@
 # Incremental optimization results
 
+The later [direct comparison against master](MASTER-COMPARISON.md) measures
+the cumulative configuration against `1d936bd`, including both unused and
+eventually constructed field reverse indexes. Results below retain their
+original best5-relative scope.
+
 Status: complete. All five candidates were validated independently against
 best5, followed by a direct combination measurement and independent confirmation.
 All experiment switches remain OFF by default.

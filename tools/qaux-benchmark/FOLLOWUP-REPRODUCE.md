@@ -118,6 +118,9 @@ query metric.
 
 ### Completing deferred field work after QQ
 
+For the cumulative comparison against the original master snapshot, see
+[MASTER-COMPARISON.md](MASTER-COMPARISON.md) and its source identity proof.
+
 The later `28e0c32` harness adds an opt-in final operation to both `run.py`
 and `sweep.py`:
 

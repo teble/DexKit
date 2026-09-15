@@ -1916,6 +1916,9 @@ bool DexItem::IsFieldGetMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_field_reverse_reads[0].fetch_add(1, std::memory_order_relaxed);
+#endif
     DEXKIT_CHECK(!field_get_method_ids.empty());
     const auto &ids = this->field_get_method_ids[field_idx];
     if (matcher->method_count()) {
@@ -1962,6 +1965,9 @@ bool DexItem::IsFieldPutMethodsMatched(uint32_t field_idx, const schema::Methods
     if (matcher == nullptr) {
         return true;
     }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_field_reverse_reads[1].fetch_add(1, std::memory_order_relaxed);
+#endif
     DEXKIT_CHECK(!field_put_method_ids.empty());
     const auto &ids = this->field_put_method_ids[field_idx];
     if (matcher->method_count()) {

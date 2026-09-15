@@ -1166,6 +1166,9 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_field_reverse_reads[2].fetch_add(1, std::memory_order_relaxed);
+#endif
     DEXKIT_CHECK(!field_get_method_ids.empty());
     const auto &method_ids = this->field_get_method_ids[field_idx];
     std::vector<MethodBean> beans;
@@ -1182,6 +1185,9 @@ std::vector<MethodBean> DexItem::FieldGetMethods(uint32_t field_idx) {
 }
 
 std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    benchmark_field_reverse_reads[3].fetch_add(1, std::memory_order_relaxed);
+#endif
     DEXKIT_CHECK(!field_put_method_ids.empty());
     const auto &method_ids = this->field_put_method_ids[field_idx];
     std::vector<MethodBean> beans;

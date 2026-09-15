@@ -6,6 +6,11 @@ comparing the current AC path, direct comparison and a sorted-pool ID lookup,
 preceded by focused attribution. Prefix ranges need their own workload;
 batch containment is the next independent experiment.
 
+The subsequent [string-witness audit](STRING-SEMANTICS.md) corrects the coverage
+inference from explicit modes: default Contains frequently has complete or
+prefix witnesses in this fixture. It separates caller predicate choices from
+engine optimization and reports the concrete ordinary matcher candidates.
+
 ## Review and baseline
 
 The user requested another discussion with Pro about remaining opportunities.
@@ -243,9 +248,13 @@ The existing groups.tsv contains 149 groups and 187 configured atoms. Applying
 the adapter's SimilarRegex conversion gives 183 Contains and four Equal atoms,
 with zero StartWith or EndWith atoms. There are 179 unique Contains strings
 and four unique Equal strings. The three legacy groups also use Contains.
-Consequently, the measured batch-stage shares are not prefix coverage and
-cannot predict a prefix-range gain. SettingEntry's single exact literal is
-the first real-workload three-way comparison.
+These are explicit modes, not the possible narrower intent of their callers.
+The later [candidate-level audit](STRING-SEMANTICS.md) finds 93 of the 183
+Contains occurrences have sufficient Equal witnesses, seven need prefixes,
+15 need nonprefix matches and 68 have no candidates to judge. The stage shares
+still cannot predict a range gain. SettingEntry's single exact literal is
+the first real-workload three-way comparison; default-Contains ordinary
+matchers with complete witnesses are additional caller-level candidates.
 
 Compare current nine-switch AC, direct exact/prefix comparison and per-DEX
 ID/range lookup independently. Include preparation in complete API timing.

@@ -1,0 +1,5807 @@
+{
+  "scope": "QQ 9.3.55 only, all raw batch candidates and executed ordinary matcher results. No timing conclusions.",
+  "interpretation": "Coverage means each existing candidate has a sufficient witness; it is not caller intent, cross-version proof, whole-pool prevalence, or a runtime cost share.",
+  "entries_note": "Getter entries preserve returned multiplicity; these are not instruction-execution counts.",
+  "empty_note": "Empty-result conditions supply no positive witness evidence and are not counted as narrowing opportunities.",
+  "manifest_sha256": "c1f6831e1212b5339f90b56aae35777f5f8329f92f56fd62cf7dafe47522c545",
+  "summary_script_sha256": "c149108e0ec084284b91d24a3bafdc9106c0c70a943371c4f5b76c54c2074431",
+  "diagnostic_contains_matches_frozen_order_and_flow": true,
+  "ordinary_narrowing_same_order_and_flow": {
+    "Contains": true,
+    "Equals": true,
+    "StartsWith": true
+  },
+  "ordinary_executed": 7,
+  "ordinary_nonempty": 5,
+  "ordinary_nonempty_distinct_patterns": [
+    "AIOReceiverBubbleTemplate",
+    "MsgEmoticonPreviewData",
+    "doRestoreSaveInstanceState",
+    "mContext",
+    "msgTailContainer",
+    "peerUid",
+    "senderUid"
+  ],
+  "ordinary_unexecuted": [
+    {
+      "feature": "ReplyNoAtHook",
+      "stage": "reply_middle_signature"
+    },
+    {
+      "feature": "ReplyNoAtHook",
+      "stage": "reply_old_signature"
+    }
+  ],
+  "ordinary": [
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "senderUid",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 9,
+                "excerpt": "senderUid",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "peerUid",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "peerUid",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "AIOMsgItem_initContentDescription",
+      "stage": "find_seed",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "MsgEmoticonPreviewData",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 22,
+                "excerpt": "MsgEmoticonPreviewData",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "doRestoreSaveInstanceState",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 26,
+                "excerpt": "doRestoreSaveInstanceState",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "EmotionDetailAi",
+      "stage": "find_classes",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "AIOReceiverBubbleTemplate",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 25,
+                "excerpt": "AIOReceiverBubbleTemplate",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "msgTailContainer",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "msgTailContainer",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "Hd_HideEmoReplyLayout_Method",
+      "stage": "find_classes",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "msgTailContainer",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "msgTailContainer",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "Hd_HideEmoReplyLayout_Method",
+      "stage": "find_method_in_classes",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "picView",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "imagePath",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "msgElement",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "msgItem",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "loadingImage",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "BlockPicByMd5_LoadImagePathV2",
+      "stage": "find_method",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "mContext",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 8,
+                "excerpt": "mContext",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "senderUid",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1,
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 9,
+                "excerpt": "senderUid",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 12,
+                "excerpt": "senderUidStr",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "ReplyNoAtHook",
+      "stage": "reply_new_signature",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "rootView",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "em_bas_view_the_original_picture",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "feature": "AutoReceiveOriginalPhoto_cache_miss",
+      "stage": "nt_on_init_view",
+      "ordered_results_equal": {
+        "Equals": true,
+        "StartsWith": true
+      }
+    }
+  ],
+  "batch_group_coverage": {
+    "equal_sufficient": 76,
+    "no_candidates": 52,
+    "prefix_sufficient": 6,
+    "contains_required": 15
+  },
+  "batch_contains_atom_coverage": {
+    "equal_sufficient": 93,
+    "no_candidates": 68,
+    "prefix_sufficient": 7,
+    "contains_required": 15
+  },
+  "batch_groups": [
+    {
+      "candidates": 6,
+      "equal_covered_candidates": 6,
+      "prefix_covered_candidates": 6,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "android.permission.SEND_SMS",
+          "original_mode": "Contains",
+          "candidates": 6,
+          "equal_covered_candidates": 6,
+          "prefix_covered_candidates": 6,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 7
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 27,
+                "excerpt": "android.permission.SEND_SMS",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CDialogUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L118"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "reSendEmo",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CFaceDe#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L124"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "FlashPicHelper",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 14,
+                "excerpt": "FlashPicHelper",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CFlashPicHelper#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L130"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "BasePicDownloadProcessor.onSuccess():Delete ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 44,
+                "excerpt": "BasePicDownloadProcessor.onSuccess():Delete ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CBasePicDlProcessor#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L136"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "ItemBuilder is: D",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CItemBuilderFactory#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L145"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "findItemBuilder: invoked.",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CItemBuilderFactory#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L145"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "openAIO by MT",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 13,
+                "excerpt": "openAIO by MT",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAIOUtils#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L154"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "gallery setColor bl",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAbsGalScene#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L160"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "http://p.qpic.",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CFavEmoConst#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L169"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 3,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "https://p.qpic.",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 3,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 3
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 18,
+                "excerpt": "https://p.qpic.cn/",
+                "truncated": false
+              },
+              {
+                "length": 87,
+                "excerpt": "https://p.qpic.cn/qqstory_pic/hb4ycQ6NORNib7icgbswTvTCmkTyROl41Rcw9UeasFKzLwevbfJVhMRA/",
+                "truncated": false
+              },
+              {
+                "length": 83,
+                "excerpt": "https://p.qpic.cn/qqconnect_app_logo/1LlgQzJVOyA9xucianwgfHru8JA97ERytRa0lHcRRGGw/0",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CFavEmoConst#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L169"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 1,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "createPicMessage",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 1,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 2
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 44,
+                "excerpt": "createPicMessageToShow : error selfPhoneNum:",
+                "truncated": false
+              },
+              {
+                "length": 40,
+                "excerpt": "createPicMessageToShow : error groupUin:",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CMessageRecordFactory#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L178"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "debugArkMeta = ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CArkAppItemBubbleBuilder#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L187"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 1,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "func checkRandomPngEx",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 1,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 2
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 42,
+                "excerpt": "func checkRandomPngExist, file NOT exist.[",
+                "truncated": false
+              },
+              {
+                "length": 36,
+                "excerpt": "func checkRandomPngExist, exception:",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CPngFrameUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L197"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 2,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "send emotion + 1:",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 2,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 2
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 32,
+                "excerpt": "send emotion + 1:emotion == null",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CPicEmoticonInfo#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L207"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "key_simple_status_s",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CSimpleUiUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L220"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": ".troop.send_giftTroopUtils",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CTroopGiftUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L227"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": ".troop.send_giftTroopMemberUtil",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 31,
+                "excerpt": ".troop.send_giftTroopMemberUtil",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CTroopGiftUtil#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L227"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "use small icon ,exp:",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "use small icon ,exp:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CQzoneMsgNotify#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L233"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": ".indivAnim/",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": ".indivAnim/",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAppConstants#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L247"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "Q.msg.MessageCache",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 18,
+                "excerpt": "Q.msg.MessageCache",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CMessageCache#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L256"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "onActivityResumeHideFloatView",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 29,
+                "excerpt": "onActivityResumeHideFloatView",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CScreenShotHelper#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L262"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "EEEE",
+          "original_mode": "Equals",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 4,
+                "excerpt": "EEEE",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CTimeFormatterUtils#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L268"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "onDrawerStartOpen",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 17,
+                "excerpt": "onDrawerStartOpen",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CGroupAppActivity#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L276"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "onDrawerOpened, needReqIntimateInfo: %s",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CIntimateDrawer#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L286"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": ",ZipEntry name: ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CZipUtils#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L292"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "[reportHttpsResult] url=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 24,
+                "excerpt": "[reportHttpsResult] url=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CHttpDownloader#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L298"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "[sendMultiMsg]data.length = ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 28,
+                "excerpt": "[sendMultiMsg]data.length = ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CMultiMsgManager#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L304"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "===getDiscussionUinFromPstn pstnDiscussionUin is null ===",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 57,
+                "excerpt": "===getDiscussionUinFromPstn pstnDiscussionUin is null ===",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAvatarUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L312"
+    },
+    {
+      "candidates": 27,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 3,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "FaceManager",
+          "original_mode": "Contains",
+          "candidates": 27,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 3,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 29,
+            "equal": 2,
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "FaceManager",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 43,
+                "excerpt": "FaceManager.isHardwareDetected return false",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 56,
+                "excerpt": "com.tencent.soter.core.biometric.SoterFaceManagerFactory",
+                "truncated": false
+              },
+              {
+                "length": 14,
+                "excerpt": "getFaceManager",
+                "truncated": false
+              },
+              {
+                "length": 50,
+                "excerpt": "soter: FaceManager init failed, maybe not support.",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "CFaceManager#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L318"
+    },
+    {
+      "candidates": 10,
+      "equal_covered_candidates": 10,
+      "prefix_covered_candidates": 10,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "AIOPictureView",
+          "original_mode": "Contains",
+          "candidates": 10,
+          "equal_covered_candidates": 10,
+          "prefix_covered_candidates": 10,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 10
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 14,
+                "excerpt": "AIOPictureView",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAIOPictureView#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L324"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "AIOGalleryPicView",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CAIOPictureView#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L324"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "GalleryBaseScene",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "GalleryBaseScene",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CGalleryBaseScene#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L330"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "GuildHelperProvider",
+          "original_mode": "Equals",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CGuildHelperProvider#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L340"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "GuildArkHelper",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CGuildArkHelper#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L346"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "generateSourceInfo sender uin exception:",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CReplyMsgUtils#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L355"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "sendReplyMessage uniseq=0",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 25,
+                "excerpt": "sendReplyMessage uniseq=0",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CReplyMsgSender#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L363"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "supportPopOutEmoticon isC2C=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 28,
+                "excerpt": "supportPopOutEmoticon isC2C=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CPopOutEmoticonUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L369"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "TestStructMsg",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CTestStructMsg#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L375"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "<---handleGetFriendSystemMsgResp : decode pb filtered",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 53,
+                "excerpt": "<---handleGetFriendSystemMsgResp : decode pb filtered",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CSystemMessageProcessor#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L381"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "PbPushTransMsg muteGeneralFlag:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 31,
+                "excerpt": "PbPushTransMsg muteGeneralFlag:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "COnlinePushPbPushTransMsg#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L387"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "FrameControllerInjectImpl.recoverTabBluer",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 41,
+                "excerpt": "FrameControllerInjectImpl.recoverTabBluer",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CFrameControllerInjectImpl#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L393"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "ForwardSendPicUtil",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 1,
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 18,
+                "excerpt": "ForwardSendPicUtil",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 29,
+                "excerpt": "ForwardSendPicUtil.sendPicTo.",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "ForwardSendPicUtil#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L399"
+    },
+    {
+      "candidates": 5,
+      "equal_covered_candidates": 5,
+      "prefix_covered_candidates": 5,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "QQCustomMenuItem{title='",
+          "original_mode": "Contains",
+          "candidates": 5,
+          "equal_covered_candidates": 5,
+          "prefix_covered_candidates": 5,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 5
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 24,
+                "excerpt": "QQCustomMenuItem{title='",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AbstractQQCustomMenuItem#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L405"
+    },
+    {
+      "candidates": 317,
+      "equal_covered_candidates": 176,
+      "prefix_covered_candidates": 178,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "attrs",
+          "original_mode": "Contains",
+          "candidates": 317,
+          "equal_covered_candidates": 176,
+          "prefix_covered_candidates": 178,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "equal": 176,
+            "nonprefix": 151,
+            "proper_prefix": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 5,
+                "excerpt": "attrs",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 25,
+                "excerpt": "attrs.positionDescription",
+                "truncated": false
+              },
+              {
+                "length": 15,
+                "excerpt": "attrs_is_member",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 41,
+                "excerpt": "obtainStyledAttributes(resourceId, attrs)",
+                "truncated": false
+              },
+              {
+                "length": 13,
+                "excerpt": ", attrs.keys=",
+                "truncated": false
+              },
+              {
+                "length": 28,
+                "excerpt": "updateFileObject, attrs, id:",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "VasAttrBuilder#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L411"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "mEmojiLayout",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 12,
+                "excerpt": "mEmojiLayout",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Guild_Emo_Btn_Create_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L418"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "input set error",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 15,
+                "excerpt": "input set error",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NBaseChatPie_init#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L425"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": ", mDefautlBtnLeft: ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NBaseChatPie_init#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L425"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "createMulti",
+          "original_mode": "Equals",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NBaseChatPie_createMulti#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L432"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "set left text from cancel",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NBaseChatPie_chooseMsg#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L445"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "0X800A92F",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NLeftSwipeReplyHelper_reply#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L452"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "showDialogAtView",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NAtPanel_showDialogAtView#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L459"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "resultList = null",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NAtPanel_refreshUI#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L466"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "FriendChatPie updateUI_ti",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NFriendChatPie_updateUITitle#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L477"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "initCard bSuperVipOpen=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 23,
+                "excerpt": "initCard bSuperVipOpen=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NProfileCardUtil_getCard#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L484"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "onCardUpdate fail.",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 18,
+                "excerpt": "onCardUpdate fail.",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NVasProfileTemplateController_onCardUpdate#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L494"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "onCardUpdate: bgId=",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NVasProfileTemplateController_onCardUpdate#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L494"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "updateProfileBubbleMsgView",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NQQSettingMe_updateProfileBubble#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L506"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "-->onResume!",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 12,
+                "excerpt": "-->onResume!",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NQQSettingMe_onResume#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L516"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 3,
+      "prefix_covered_candidates": 3,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "getPrivilegeFlags Friends is null",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 3,
+          "prefix_covered_candidates": 3,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 3
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 33,
+                "excerpt": "getPrivilegeFlags Friends is null",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NVipUtils_getPrivilegeFlags#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L526"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "showNewTroopMemberCount info is null",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NTroopChatPie_showNewTroopMemberCount#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L538"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "Recent_OnCreate",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NConversation_onCreate#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L548"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "enableMosaicEffect",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NBaseChatPie_mosaic#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L555"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "check finish jr=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "check finish jr=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NWebSecurityPluginV2_callback#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L562"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 2,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "resumeAppShorcutBar",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 2,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 2,
+            "equal": 1,
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 19,
+                "excerpt": "resumeAppShorcutBar",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 41,
+                "excerpt": "resumeAppShorcutBar return for switch off",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 76,
+                "excerpt": "ShortcutBarAioHelper.resumeAppShorcutBar getShortCutBarContainerView is null",
+                "truncated": false
+              },
+              {
+                "length": 74,
+                "excerpt": "ShortcutBarAioHelper.resumeAppShorcutBar return for AIOIceBreakViewShowing",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "NTroopAppShortcutBarHelper_resumeAppShorcutBar#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L572"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": " sendMessage start currenttime:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 1
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 72,
+                "excerpt": " addAndSendMessage addSendMessage end and sendMessage start currenttime:",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "NChatActivityFacade_sendMsgButton#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L582"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "isChatAtTop result is: ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 23,
+                "excerpt": "isChatAtTop result is: ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NFriendsStatusUtil_isChatAtTop#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L593"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "getUserStatus Friends is null",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 29,
+                "excerpt": "getUserStatus Friends is null",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NVipUtils_getUserStatus#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L600"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "resetStatus selectSize:",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NPhotoListPanel_resetStatus#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L607"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "getDiscussionMemberShowName uin is null",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 39,
+                "excerpt": "getDiscussionMemberShowName uin is null",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NContactUtils_getDiscussionMemberShowName#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L614"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "getBuddyName()",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 14,
+                "excerpt": "getBuddyName()",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NContactUtils_getBuddyName#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L624"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "checkDataRecmdRemarkList cacheInvalid_ts_type_troopUin=%b_%d_%d_%s",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NScene_checkDataRecmdRemarkList#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L634"
+    },
+    {
+      "candidates": 14,
+      "equal_covered_candidates": 14,
+      "prefix_covered_candidates": 14,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "NEW",
+          "original_mode": "Equals",
+          "candidates": 14,
+          "equal_covered_candidates": 14,
+          "prefix_covered_candidates": 14,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 14
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 3,
+                "excerpt": "NEW",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NCustomWidgetUtil_updateCustomNoteTxt#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L641"
+    },
+    {
+      "candidates": 137,
+      "equal_covered_candidates": 91,
+      "prefix_covered_candidates": 93,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "99+",
+          "original_mode": "Contains",
+          "candidates": 137,
+          "equal_covered_candidates": 91,
+          "prefix_covered_candidates": 93,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "equal": 91,
+            "nonprefix": 48,
+            "proper_prefix": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 3,
+                "excerpt": "99+",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 7,
+                "excerpt": "99+\u6761\u65b0\u5185\u5bb9",
+                "truncated": false
+              },
+              {
+                "length": 6,
+                "excerpt": "99+\u6761\u65b0\u5e16",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 9456,
+                "excerpt": "iVBORw0KGgoAAAANSUhEUgAAANgAAADYCAYAAACJIC3tAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAA2KADAAQAAAABAAAA2AAA",
+                "truncated": true
+              },
+              {
+                "length": 4,
+                "excerpt": "999+",
+                "truncated": false
+              },
+              {
+                "length": 8,
+                "excerpt": "\u8bc4\u8bba\u4eba\u6570999+",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "AIOTitleVB_updateLeftTopBack_NT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L648"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "fixTextViewLayout wrong: params wrong",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CCustomWidgetUtil_updateCustomNoteTxt_NT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L656"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "initDeviceType type = ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 22,
+                "excerpt": "initDeviceType type = ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NPadUtil_initDeviceType#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L663"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "pai_yi_pai_user_double_tap_timestamp_",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 37,
+                "excerpt": "pai_yi_pai_user_double_tap_timestamp_",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "PaiYiPaiHandler_canSendReq#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L689"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "[flingRToL] isMultiSelectState:",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "TroopGuildChatPie_flingRToL#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L696"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "onUIModuleNeedRefresh, checkSession is false",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 44,
+                "excerpt": "onUIModuleNeedRefresh, checkSession is false",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "BaseListenTogetherPanel_onUIModuleNeedRefresh#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L703"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "setEmojiMap emoji's file is null",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 32,
+                "excerpt": "setEmojiMap emoji's file is null",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "EmotcationConstants#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L710"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "getCareTroopMemberMsgText: invoked.  troopMemberIsCared: ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "GroupSpecialCare_getCareTroopMemberMsgText#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L717"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "updateFunBtn",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 12,
+                "excerpt": "updateFunBtn",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "ChatPanel_InitPanel_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L724"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "rootVMBuild",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1,
+            "nonprefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "rootVMBuild",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 22,
+                "excerpt": "AIO#rootVMBuild spend ",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "AIO_Create_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L731"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "recursiveBuildVM",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "recursiveBuildVM",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIO_Create_QQNT#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L731"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "ChatPie",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 2,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1,
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "ChatPie",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 16,
+                "excerpt": "ChatPieContainer",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "onDestroy ",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "equal": 1,
+            "nonprefix": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 10,
+                "excerpt": "onDestroy ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 11,
+                "excerpt": " onDestroy ",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "AIO_Destroy_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L738"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "binding",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "binding",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "inputRoot",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 9,
+                "excerpt": "inputRoot",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "findViewById(...)",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 17,
+                "excerpt": "findViewById(...)",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "getContext(...)",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 15,
+                "excerpt": "getContext(...)",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "sendBtn",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "sendBtn",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIO_InputRootInit_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L745"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "inputRoot.findViewById(R.id.send_btn)",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIO_InputRootInit_QQNT#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L745"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "is Valid EmojiFaceId",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "is Valid EmojiFaceId",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "EmoMsgUtils_isSingleLottie_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L753"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "msgItem.msgRecord.senderUid",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Reply_At_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L761"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "aioMsgItem.getMsgRecord().anonymousExtInfo != null",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIOMsgItemExt_HasInfo#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L768"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "send local to troop file use nt, filePath:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 42,
+                "excerpt": "send local to troop file use nt, filePath:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "TroopSendFile_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L775"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "playAnimaions: isSimpleUISwitch = true",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 38,
+                "excerpt": "playAnimaions: isSimpleUISwitch = true",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "TroopEnterEffect_QQNT#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L782"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "KEY_OPEN_QZMOMENT_ENTRANCE",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 26,
+                "excerpt": "KEY_OPEN_QZMOMENT_ENTRANCE",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NQZMoment_EntranceEnabled#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L790"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "onVideoPlayerError : file entity is null",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "DefaultFileModel#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L797"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "GeneralFileBrowserActivity",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "reportShareActionSheetClick",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "FileBrowserActivity_InnerClass_onItemClick#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L804"
+    },
+    {
+      "candidates": 21,
+      "equal_covered_candidates": 14,
+      "prefix_covered_candidates": 14,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "textElement",
+          "original_mode": "Contains",
+          "candidates": 21,
+          "equal_covered_candidates": 14,
+          "prefix_covered_candidates": 14,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "equal": 14,
+            "nonprefix": 7
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "textElement",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 14,
+                "excerpt": ", textElement=",
+                "truncated": false
+              },
+              {
+                "length": 193,
+                "excerpt": "Attempting to close a Scope created by Context.makeCurrent from inside a Kotlin coroutine. This is not allowed. Use Context.asContextElement provided by extensi",
+                "truncated": true
+              },
+              {
+                "length": 187,
+                "excerpt": "Attempting to call Context.makeCurrent from inside a Kotlin coroutine. This is not allowed. Use Context.asContextElement provided by opentelemetry-extension-kot",
+                "truncated": true
+              }
+            ]
+          }
+        }
+      ],
+      "group": "AIOTextElementCtor#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L817"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "PicElement(origPath=",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 1,
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "PicElement(origPath=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 23,
+                "excerpt": "AIOPicElement(origPath=",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "AIOPicElementType#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L824"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "SelectToBottom(dividingLineTop=",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 1,
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 31,
+                "excerpt": "SelectToBottom(dividingLineTop=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 36,
+                "excerpt": "MultiSelectToBottom(dividingLineTop=",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "MultiSelectToBottomIntent#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L831"
+    },
+    {
+      "candidates": 6,
+      "equal_covered_candidates": 6,
+      "prefix_covered_candidates": 6,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "MultiSelectBarVM",
+          "original_mode": "Contains",
+          "candidates": 6,
+          "equal_covered_candidates": 6,
+          "prefix_covered_candidates": 6,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 6
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "MultiSelectBarVM",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "MultiSelectBarVM#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L838"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "[sendMsg] elements is empty",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 27,
+                "excerpt": "[sendMsg] elements is empty",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIOSendMsg#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L845"
+    },
+    {
+      "candidates": 6,
+      "equal_covered_candidates": 6,
+      "prefix_covered_candidates": 6,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "aio_disappear_type",
+          "original_mode": "Contains",
+          "candidates": 6,
+          "equal_covered_candidates": 6,
+          "prefix_covered_candidates": 6,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 6
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 18,
+                "excerpt": "aio_disappear_type",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "close_aio",
+          "original_mode": "Contains",
+          "candidates": 6,
+          "equal_covered_candidates": 6,
+          "prefix_covered_candidates": 6,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 6
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 9,
+                "excerpt": "close_aio",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "AIODelegate_ISwipeListener#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L852"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "NT_SysAndEmojiResInfo",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "reloadDrawable restartDownload:",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "NT_SysAndEmojiResInfo#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L859"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "setting_forceUseSystemWebview",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 29,
+                "excerpt": "setting_forceUseSystemWebview",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "X5_Properties_conf#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L866"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "result_systemWebviewForceUsed",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 29,
+                "excerpt": "result_systemWebviewForceUsed",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "X5_Properties_conf#_#1",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L866"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "debug.conf",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 3,
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 10,
+                "excerpt": "debug.conf",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 17,
+                "excerpt": "ipv6_debug.config",
+                "truncated": false
+              },
+              {
+                "length": 11,
+                "excerpt": "/debug.conf",
+                "truncated": false
+              },
+              {
+                "length": 30,
+                "excerpt": "Exception when read debug.conf",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "X5_Properties_conf#_#2",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L866"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 3,
+      "prefix_covered_candidates": 3,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "emotion_download_disable_8980_887036489",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 3,
+          "prefix_covered_candidates": 3,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 3
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 39,
+                "excerpt": "emotion_download_disable_8980_887036489",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "EmotionDownloadDisableSwitch#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L872"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "\u8d85\u7ea7QQ\u79c0",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u89c6\u9891",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u6587\u4ef6",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u6536\u85cf",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u76f8\u518c",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u514d\u6d41\u91cf",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u4e2a\u6027\u88c5\u626e",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u8d22\u5bcc\u5c0f\u91d1\u5e93",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684QQ\u94b1\u5305",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u5f00\u901a\u4f1a\u5458",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u6211\u7684\u5c0f\u4e16\u754c",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QQ_SETTING_ME_CONFIG_CLASS#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L897"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "initUI: time = ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "ChatSettingForTroop_InitUI_TIM#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L920"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "RobotMemberFormItem",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "setRobotRedDot",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "FormItem_TIM#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L927"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "isZPlanExpGroup: ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 17,
+                "excerpt": "isZPlanExpGroup: ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "QQSettingMeABTestHelper",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 23,
+                "excerpt": "QQSettingMeABTestHelper",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QQSettingMeABTestHelper_isZPlanExpGroup_New#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L934"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "isZplanExpGroup: ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "QQSettingMeABTestHelper",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QQSettingMeABTestHelper_isZplanExpGroup_Old#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L941"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "isV9ExpGroup: ",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "QQSettingMeABTestHelper",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QQSettingMeABTestHelper_isV9ExpGroup#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L948"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "\u80fd\u91cf\u503c:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 4,
+                "excerpt": "\u80fd\u91cf\u503c:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QQValueMethod#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L955"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "findViewById(R.id.qzone_feedx_top_entrance_view)",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "QZoneFeedxTopEntranceMethod#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L962"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "handlePrompt content : ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 23,
+                "excerpt": "handlePrompt content : ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "CopyPromptHelper_handlePrompt#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L969"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "getmTodayHadShowCount > showCount",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 33,
+                "excerpt": "getmTodayHadShowCount > showCount",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "PushNotificationManager_judgeAndAddGrayTips#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L977"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "jiahao.fukuan.click",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 19,
+                "excerpt": "jiahao.fukuan.click",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "RecentPopup_onClickAction#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L985"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "enableNewPageFromTroopSettingSwitch=",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "TroopInfoCardPageABConfig#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L992"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "appDataLists.subList(startIndex, endIndex)",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "PlusPanel_PanelAdapter#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L999"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "status",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 6,
+                "excerpt": "status",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "wording",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "wording",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "target_desc",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "target_desc",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "target_name",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "target_name",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_FakePhone_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1006"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "\u7ea2\u5305\u5c01\u76ae",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_RemoveRedPackSkin_Class#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1013"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "(fileElement.fileSize)",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_HandleQQSomeFunExit_fixFileView_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1020"
+    },
+    {
+      "candidates": 5,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 1,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "isRaw",
+          "original_mode": "Contains",
+          "candidates": 5,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 1,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 4,
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 8,
+                "excerpt": "isRaw = ",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 10,
+                "excerpt": ", isRaw = ",
+                "truncated": false
+              },
+              {
+                "length": 50,
+                "excerpt": "getCompressInfo, isRaw, compressInfo.desBitRate = ",
+                "truncated": false
+              },
+              {
+                "length": 7,
+                "excerpt": " isRaw:",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "Hd_AutoSendOriginalPhoto_guildPicker_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1027"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "resetStatus selectSize:",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_AutoSendOriginalPhoto_photoListPanel_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1034"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "grow_half_layer_info",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "grow_half_layer_info",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "grow_half_layer_tech_info",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 25,
+                "excerpt": "grow_half_layer_tech_info",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_DisableGrowHalfLayer_Method1#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1041"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "start showVasADBanner",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 21,
+                "excerpt": "start showVasADBanner",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_DisableGrowHalfLayer_Method2#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1051"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "<---0x2dc push  groupCode:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 26,
+                "excerpt": "<---0x2dc push  groupCode:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_GagInfoDisclosure_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1058"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 1,
+      "coverage": "prefix_sufficient",
+      "atoms": [
+        {
+          "pattern": "getDrawable onCompositionLoaded lottieComposition is null or mIsDestroyed",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 1,
+          "coverage": "prefix_sufficient",
+          "matched_getter_entry_kinds": {
+            "proper_prefix": 1
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [
+              {
+                "length": 74,
+                "excerpt": "getDrawable onCompositionLoaded lottieComposition is null or mIsDestroyed:",
+                "truncated": false
+              }
+            ],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "RemoveAudioTransitionMethod#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1071"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": ",isShowingCustomShortcut:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 25,
+                "excerpt": ",isShowingCustomShortcut:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_HideShortcutBar_Method_Troop#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1078"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "isShortcutBarVisibleOrGoingToBeVisible return false for AIOIceBreakViewShowing",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 78,
+                "excerpt": "isShortcutBarVisibleOrGoingToBeVisible return false for AIOIceBreakViewShowing",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_HideShortcutBar_Method_TroopApp#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1085"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "[\u2600-\u27ff]",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 2
+          },
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 17,
+                "excerpt": "[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "UnlockTroopNameLimitClass#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1092"
+    },
+    {
+      "candidates": 3,
+      "equal_covered_candidates": 3,
+      "prefix_covered_candidates": 3,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "em_bas_shortcut_bar_above_c2c_input_box",
+          "original_mode": "Contains",
+          "candidates": 3,
+          "equal_covered_candidates": 3,
+          "prefix_covered_candidates": 3,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 3
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 39,
+                "excerpt": "em_bas_shortcut_bar_above_c2c_input_box",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "DisableLightInteractionMethod#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1099"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "initBannerView | banner = ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 26,
+                "excerpt": "initBannerView | banner = ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_HideTipsBar_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1109"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "DTAPIImpl.FekitToApp",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "onSecDispatchToAppEvent show dialog",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_DisableFekitToAppDialog_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1116"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "[doOnCreate]",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 12,
+                "excerpt": "[doOnCreate]",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "TroopSecurityTipsBar",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "TroopSecurityTipsBar",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "RemoveSecurityTipsBanner_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1123"
+    },
+    {
+      "candidates": 4,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "msgItem is not support emo reply",
+          "original_mode": "Contains",
+          "candidates": 4,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 3,
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 32,
+                "excerpt": "msgItem is not support emo reply",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 62,
+                "excerpt": "[getSeparateEmoReplyMenuView] msgItem is not support emo reply",
+                "truncated": false
+              },
+              {
+                "length": 50,
+                "excerpt": "[hasEmoReplyMenu] msgItem is not support emo reply",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "Hd_RemoveEmoReplyMenu_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1130"
+    },
+    {
+      "candidates": 683,
+      "equal_covered_candidates": 87,
+      "prefix_covered_candidates": 136,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "context is null",
+          "original_mode": "Contains",
+          "candidates": 683,
+          "equal_covered_candidates": 87,
+          "prefix_covered_candidates": 136,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 575,
+            "equal": 87,
+            "proper_prefix": 49
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 15,
+                "excerpt": "context is null",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 53,
+                "excerpt": "context is null , please check param of parseIntent()",
+                "truncated": false
+              },
+              {
+                "length": 16,
+                "excerpt": "context is null!",
+                "truncated": false
+              },
+              {
+                "length": 53,
+                "excerpt": "context is null, must call init method to set context",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 41,
+                "excerpt": "base config is invalid, context is null :",
+                "truncated": false
+              },
+              {
+                "length": 26,
+                "excerpt": "plugin context is null !!!",
+                "truncated": false
+              },
+              {
+                "length": 56,
+                "excerpt": "[handleViewCreate] error, createViewInfo.context is null",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "PadUtil_getDeviceType#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1141"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "SharePanelSceneData(sceneId=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 28,
+                "excerpt": "SharePanelSceneData(sceneId=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "SharePanelSceneData#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1148"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "SharePanel_Handler_OtherApp",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 27,
+                "excerpt": "SharePanel_Handler_OtherApp",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "openImageByOtherApp ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "openImageByOtherApp ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "SharePanel_Handler_OtherApp_openImageByOtherApp#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1155"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "SharePanel_Handler_OtherApp",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 27,
+                "excerpt": "SharePanel_Handler_OtherApp",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "openVideoByOtherApp ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 20,
+                "excerpt": "openVideoByOtherApp ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "SharePanel_Handler_OtherApp_openVideoByOtherApp#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1162"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "MsgListUtil",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 11,
+                "excerpt": "MsgListUtil",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "[createMsgItemByType] err. msgType=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 35,
+                "excerpt": "[createMsgItemByType] err. msgType=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "MsgListUtil_createMsgItem#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1189"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "peerUid",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 7,
+                "excerpt": "peerUid",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "panelCallback",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 13,
+                "excerpt": "panelCallback",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_HideChatPanelBtn_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1196"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "HighlightClickableSpan",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 22,
+                "excerpt": "HighlightClickableSpan",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "click handler is null. actionType=",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 34,
+                "excerpt": "click handler is null. actionType=",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_QuickReplayPaiYiPai_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1203"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "AIOMsgRepo MsgReplyAbility",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 26,
+                "excerpt": "AIOMsgRepo MsgReplyAbility",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "[findSourceOfReply], source result = ",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 37,
+                "excerpt": "[findSourceOfReply], source result = ",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_RemoveReplyImagePreviewLimit_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1228"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "\u672a\u8bfb\u6d88\u606f\u8f83\u591a\u65f6\uff0c\u53ef\u4ee5\u8fdb\u884c\u7fa4\u804a\u603b\u7ed3",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "\u7acb\u5373\u603b\u7ed3",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_EnableGenChatSummary_Class#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1235"
+    },
+    {
+      "candidates": 2,
+      "equal_covered_candidates": 2,
+      "prefix_covered_candidates": 2,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "Health_SportReportHelper",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 24,
+                "excerpt": "Health_SportReportHelper",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "health_step_count_history",
+          "original_mode": "Contains",
+          "candidates": 2,
+          "equal_covered_candidates": 2,
+          "prefix_covered_candidates": 2,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 2
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 25,
+                "excerpt": "health_step_count_history",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_CustomReportStep_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1242"
+    },
+    {
+      "candidates": 0,
+      "equal_covered_candidates": 0,
+      "prefix_covered_candidates": 0,
+      "coverage": "no_candidates",
+      "atoms": [
+        {
+          "pattern": "AIFileModule",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "UpdateSystemData",
+          "original_mode": "Contains",
+          "candidates": 0,
+          "equal_covered_candidates": 0,
+          "prefix_covered_candidates": 0,
+          "coverage": "no_candidates",
+          "matched_getter_entry_kinds": {},
+          "examples": {
+            "equal": [],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_CustomPetHomeBg_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1258"
+    },
+    {
+      "candidates": 1,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "equal_sufficient",
+      "atoms": [
+        {
+          "pattern": "ChatsListAdapter",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 16,
+                "excerpt": "ChatsListAdapter",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        },
+        {
+          "pattern": "[onBindViewHolder-payload] throw:",
+          "original_mode": "Contains",
+          "candidates": 1,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "equal_sufficient",
+          "matched_getter_entry_kinds": {
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 33,
+                "excerpt": "[onBindViewHolder-payload] throw:",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": []
+          }
+        }
+      ],
+      "group": "Hd_ChatsListAdapter_CLASS#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1265"
+    },
+    {
+      "candidates": 274,
+      "equal_covered_candidates": 55,
+      "prefix_covered_candidates": 204,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "onCreateView",
+          "original_mode": "Contains",
+          "candidates": 274,
+          "equal_covered_candidates": 55,
+          "prefix_covered_candidates": 204,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 119,
+            "proper_prefix": 190,
+            "equal": 55
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 12,
+                "excerpt": "onCreateView",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [
+              {
+                "length": 19,
+                "excerpt": "onCreateViewHolder ",
+                "truncated": false
+              },
+              {
+                "length": 31,
+                "excerpt": "onCreateViewHolder  hashcode = ",
+                "truncated": false
+              },
+              {
+                "length": 23,
+                "excerpt": "onCreateViewHolder(...)",
+                "truncated": false
+              }
+            ],
+            "nonprefix": [
+              {
+                "length": 123,
+                "excerpt": "Can't access the Fragment View's LifecycleOwner when getView() is null i.e., before onCreateView() or after onDestroyView()",
+                "truncated": false
+              },
+              {
+                "length": 63,
+                "excerpt": "Called getViewLifecycleOwner() but onCreateView() returned null",
+                "truncated": false
+              },
+              {
+                "length": 84,
+                "excerpt": " did not return a View from onCreateView() or this was called before onCreateView().",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "Hd_ChatsListVB_OnCreateView_Method#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1272"
+    },
+    {
+      "candidates": 6,
+      "equal_covered_candidates": 1,
+      "prefix_covered_candidates": 1,
+      "coverage": "contains_required",
+      "atoms": [
+        {
+          "pattern": "MsgEmoticonPreviewData",
+          "original_mode": "Contains",
+          "candidates": 6,
+          "equal_covered_candidates": 1,
+          "prefix_covered_candidates": 1,
+          "coverage": "contains_required",
+          "matched_getter_entry_kinds": {
+            "nonprefix": 5,
+            "equal": 1
+          },
+          "examples": {
+            "equal": [
+              {
+                "length": 22,
+                "excerpt": "MsgEmoticonPreviewData",
+                "truncated": false
+              }
+            ],
+            "proper_prefix": [],
+            "nonprefix": [
+              {
+                "length": 76,
+                "excerpt": "considerFillPreviewDataFromDataCenter mCurData is not MsgEmoticonPreviewData",
+                "truncated": false
+              },
+              {
+                "length": 97,
+                "excerpt": "null cannot be cast to non-null type com.tencent.mobileqq.emotionintegrate.MsgEmoticonPreviewData",
+                "truncated": false
+              },
+              {
+                "length": 27,
+                "excerpt": "GuildMsgEmoticonPreviewData",
+                "truncated": false
+              }
+            ]
+          }
+        }
+      ],
+      "group": "BlockPicByMd5_EmotionPreviewDataV2#_#0",
+      "source_url": "https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/app/src/main/java/io/github/qauxv/util/dexkit/DexKitTarget.kt#L1324"
+    }
+  ]
+}

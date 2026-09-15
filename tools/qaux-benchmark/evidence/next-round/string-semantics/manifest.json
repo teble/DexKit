@@ -1,0 +1,84 @@
+{
+  "scope": "Pinned APK witness diagnostic; timing fields are not performance evidence.",
+  "source_adapter_sha256": "a68d664408eae7751360b36a828cb4a0f247a8846121eef5a1508393f83af048",
+  "generated_adapter_sha256": "b9b8113271d472d9d0751ce23736c026428f4efc709a569b7eaca8f0ef226237",
+  "audit_script_sha256": "623d2fa01ea2cc24d3e3a0c190844b8703a62158a37c5da3a36c7d3a3568bbcc",
+  "changed_literal_call_sites": 12,
+  "pinned_inputs": {
+    "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/bin/java": "85de008b5d6badf4992b7b400649aa7fc69bcf51cd6e35a8f3079754e6873f59",
+    "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/release": "4c4f026140432006b3be0fd7b6e94bba4b1ce9c6c21ff4de16d376fb465a8105",
+    "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/lib/server/libjvm.dylib": "122dc7c9a1530c3ab1f14a78c7d452ecab099d7e4ff2a693f3098363ca1deab9",
+    "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar": "28a35bcdff46d864f80f346a617e486284b208d17378c41900dfb1de95a90e6c",
+    "/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar": "8d10cac2ea9878896077ba437d76fdb1b9a07f55a863c560bb8a024b04103f8b",
+    "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/combo-v1/libdexkit.dylib": "2347a204a16ecf3b0855189ee2c3e62b27e8c1cdff476146ecb7964e6d7422ba",
+    "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk": "851242d139bb01ed8c787eadc30d7ec391437de550c697b5f4c65c32ec84286f",
+    "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted/groups.tsv": "2558389fae99493d49d21a2391d489216a44bf66c40f391298ba20762f7a048f"
+  },
+  "ordinary_matcher_modes_only": true,
+  "batch_groups_unchanged": true,
+  "diagnostic_contains_matches_frozen_order_and_flow": true,
+  "ordinary_narrowing_same_order_and_flow": {
+    "Contains": true,
+    "Equals": true,
+    "StartsWith": true
+  },
+  "commands": {
+    "Contains": [
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/bin/java",
+      "-Xms256m",
+      "-Xmx512m",
+      "-Djava.library.path=/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/combo-v1",
+      "-Dqaux.audit.mode=Contains",
+      "-cp",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/classes:/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar",
+      "QueryReplay",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted/groups.tsv",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/Contains.json",
+      "4",
+      "1",
+      "all",
+      "verify"
+    ],
+    "Equals": [
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/bin/java",
+      "-Xms256m",
+      "-Xmx512m",
+      "-Djava.library.path=/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/combo-v1",
+      "-Dqaux.audit.mode=Equals",
+      "-cp",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/classes:/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar",
+      "QueryReplay",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted/groups.tsv",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/Equals.json",
+      "4",
+      "1",
+      "all",
+      "verify"
+    ],
+    "StartsWith": [
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home/bin/java",
+      "-Xms256m",
+      "-Xmx512m",
+      "-Djava.library.path=/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/artifacts/combo-v1",
+      "-Dqaux.audit.mode=StartsWith",
+      "-cp",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/classes:/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/libs/dexkit.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.9.20/e58b4816ac517e9cc5df1db051120c63d4cde669/kotlin-stdlib-1.9.20.jar:/Users/teble/.gradle/caches/modules-2/files-2.1/com.google.flatbuffers/flatbuffers-java/23.5.26/e6320185c75767ba32c52ace087425a5a4275a50/flatbuffers-java-23.5.26.jar",
+      "QueryReplay",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted/groups.tsv",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/string-semantics-v2/StartsWith.json",
+      "4",
+      "1",
+      "all",
+      "verify"
+    ]
+  },
+  "outputs": {
+    "Contains": "94858903b4da9d382565f0eb029e8662dfe0e7d1d32e494c32a8f10872df9ab2",
+    "Equals": "feeae2db0807d16fc3b9348f50131c02342b98f322d8798e082dfd15db9665cd",
+    "StartsWith": "b0d3812224974581667c7ec2c0a57c457f87576c393578d74eebdf822944c90a"
+  }
+}

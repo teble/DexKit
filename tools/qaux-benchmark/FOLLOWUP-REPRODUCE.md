@@ -116,6 +116,48 @@ query metric.
 
 ## Components and evidence
 
+### Completing deferred field work after QQ
+
+The later `28e0c32` harness adds an opt-in final operation to both `run.py`
+and `sweep.py`:
+
+```bash
+--final-field-rw 'Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;'
+```
+
+It runs once after all requested QQ passes, before close. Use the same pinned
+APK, corpus, JDK, JAR and memory probe. First run the independent best5 binary
+in verify mode with this option and `--passes 11`, then freeze the new result:
+
+```bash
+python3 - "$BENCH_OUT/tail-oracle/report.json" "$BENCH_OUT/field-rw-expected.json" <<'PY'
+import json
+import pathlib
+import sys
+tail = json.loads(pathlib.Path(sys.argv[1]).read_text())['final_field_rw']
+keys = ['descriptor', 'readers_count', 'writers_count', 'readers', 'writers']
+pathlib.Path(sys.argv[2]).write_text(json.dumps({k: tail[k] for k in keys}, indent=2) + '\n')
+PY
+```
+
+Add `--field-rw-expected "$BENCH_OUT/field-rw-expected.json"` to every
+subsequent verification and paired measurement. Reverify all normal variants
+for eleven passes with the new harness and both options; older verification
+directories do not certify this added work. Measurement checks the ordered
+oracle's counts and requires the matching successful verification. The frozen
+original QQ results remain unchanged. Two batches use six pairs per cell,
+seeds 2026091535/2026091536, one/eleven passes, and independent comparisons
+of field-only and the three-switch combination against best5.
+
+`evidence/followup/field-tail/` contains the exact local driver, native
+manifests, frozen field oracle, all eight summaries and a separate archive
+with 539 original JSON/log files. These records supplement the original
+five-candidate archives. Diagnostic cache census confirms complete reverse
+indexes before close; diagnostic binaries are never timed. No library source
+or binary changes are part of this harness follow-up.
+
+### Library component checks
+
 For each configuration, run native/JAR, a forced fresh JVM suite and release
 Android packaging with the corresponding explicit properties:
 

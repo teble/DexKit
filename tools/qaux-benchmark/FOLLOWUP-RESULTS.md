@@ -431,6 +431,82 @@ Native/JAR, 71 freshly executed JVM tests and all four release Android ABIs
 pass with the combined flags. The JAR SHA256 remains
 `aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a`.
 
+## QQ after completing deferred field work
+
+This follow-up answers whether the memory benefit survives when the delayed
+reverse-field work is actually performed. The original QQ corpus has no such
+consumer. The new opt-in `--final-field-rw` operation runs after all one or
+eleven unchanged QQ passes and before close. It resolves
+`Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;` and fetches
+both its readers and writers through public result APIs. `FieldGetMethods`
+enters execution with `kRwFieldMethod | kMethodUsingField`, initializing and
+aggregating the required reverse indexes across all 41 DEX files. Field
+lookup, index construction, result return and close are included in complete
+lifecycle. This is one final reverse operation, not repeated reverse-query
+throughput; the separate repeated-consumer counterexamples still apply.
+
+The 399 readers and 313 writers match an independent best5 ordered oracle.
+All eleven original QQ passes also match the unchanged frozen results for
+each normal variant. Separate diagnostic runs prove that both variants end
+with identical reader/writer index and payload capacities: 122,450,104 bytes
+(116.78 MiB). The old combination without the final operation had zero
+reader/writer capacity. Thus its original roughly 130 MiB process saving from
+field deferral cannot be assumed after construction. Logical capacity and
+process peak remain distinct measurements.
+
+No production code or native artifact changed. Harness source is `28e0c32`;
+the immutable best5, field-only and combination binaries are respectively
+`331f615...`, `1ab574a...` and `2347a204...`. All diagnostic and internal metric
+switches are OFF in timed binaries. Their previously completed native/JVM/AAR
+checks remain applicable; this follow-up reran the modified benchmark's full
+QQ and field-result verification, rather than rebuilding the library.
+
+Two independent batches use six balanced fresh-process pairs per cell,
+seeds 2026091535 and 2026091536. All 96 valid process samples are retained.
+No builds, heavy checks or archiving run alongside measurement. Negative
+percentages favor the candidate; intervals are exploratory paired-median 95%
+bootstrap intervals. Confirmation results:
+
+| Configuration vs best5 | QQ passes, then one reverse operation | Complete lifecycle | Peak footprint | Paired peak saving |
+| --- | ---: | ---: | ---: | ---: |
+| Field split only | 1 | -0.35% [-1.89, +1.96] | +0.15% [-0.40, +0.47] | -2.62 MiB |
+| Field split only | 11 | +0.24% [-4.15, +0.94] | -0.37% [-0.57, -0.18] | 6.44 MiB |
+| Field split + compact invokes + single relation | 1 | -11.17% [-13.17, -8.80] | -2.97% [-3.12, -2.72] | 50.77 MiB |
+| Field split + compact invokes + single relation | 11 | -18.87% [-20.39, -17.23] | -3.36% [-3.48, -2.94] | 57.64 MiB |
+
+First batch:
+
+| Configuration vs best5 | QQ passes, then one reverse operation | Complete lifecycle | Peak footprint | Paired peak saving |
+| --- | ---: | ---: | ---: | ---: |
+| Field split only | 1 | +2.22% [+0.56, +5.28] | -0.15% [-0.27, +0.46] | 2.60 MiB |
+| Field split only | 11 | +1.42% [-0.15, +3.01] | -0.22% [-0.37, -0.13] | 3.85 MiB |
+| Field split + compact invokes + single relation | 1 | -9.31% [-12.36, -4.70] | -2.81% [-3.23, -2.52] | 47.77 MiB |
+| Field split + compact invokes + single relation | 11 | -20.22% [-22.21, -18.73] | -3.08% [-3.34, -2.78] | 52.86 MiB |
+
+The field-only switch does not preserve its original 7.6--7.8% QQ peak
+reduction once reverse indexes are built. Any remaining small footprint
+difference must be weighed against the lifecycle figures above. The complete
+combination's remaining gains belong to that directly measured combination;
+they do not establish the isolated benefit of field deferral or the untested
+combination with that switch removed.
+
+For this QQ workload followed by one reverse operation, the complete
+combination still improves both complete time and peak footprint in both
+batches. Confirmation saves about 51/58 MiB while reducing lifecycle time
+11.17%/18.87%. The field-only configuration has no resolved one-pass peak
+benefit, and only a small repeated-workload peak benefit (first 3.85 MiB,
+confirmation 6.44 MiB). Its first one-pass time regression does not reproduce
+as a clear regression in confirmation; both confirmation lifecycle intervals
+cross zero. This does not support paying a known repeated-consumer cost in
+exchange for the original 130 MiB saving when reverse indexes will be needed.
+
+All summaries, samples, native manifests, the ordered field oracle and
+diagnostic capacity proof are in `evidence/followup/field-tail/`. Its separate
+`process-records.tar.gz` includes all eight stages, verification records and
+the default-path smoke run. Every archive member and the archive itself were
+read back and checked against `archive.json`. The original five-candidate
+archives below retain their original 167-stage scope.
+
 ## Evidence and completion
 
 Each of the five individual configurations and the conditional combination

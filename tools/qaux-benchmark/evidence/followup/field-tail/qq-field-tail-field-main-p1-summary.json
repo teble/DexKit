@@ -1,0 +1,284 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 1,
+  "pairs": 6,
+  "seed": 2026091535,
+  "labels": [
+    "best5-single-control",
+    "field-split-timers-v3"
+  ],
+  "reversed_order": [
+    0,
+    1,
+    0,
+    1,
+    1,
+    0
+  ],
+  "final_field_rw": "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 2010.2525624999998,
+          "minimum": 1990.745667,
+          "maximum": 2164.280292,
+          "mad": 16.71839549999993
+        },
+        "field-split-timers-v3": {
+          "median": 2076.7816875,
+          "minimum": 2038.701459,
+          "maximum": 2199.969375,
+          "mad": 36.71916599999986
+        }
+      },
+      "paired_change_percent": [
+        4.953171781022525,
+        5.603008041047874,
+        1.9035274392870782,
+        2.545675112600909,
+        -0.5286392361110726,
+        1.6490046659815905
+      ],
+      "median_change_percent": 2.2246012759439937,
+      "bootstrap95_percent": [
+        0.560182714935259,
+        5.2780899110352
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 254.8641875,
+          "minimum": 251.172375,
+          "maximum": 263.068292,
+          "mad": 1.2746870000000001
+        },
+        "field-split-timers-v3": {
+          "median": 256.152021,
+          "minimum": 252.345167,
+          "maximum": 276.069708,
+          "mad": 1.0668959999999998
+        }
+      },
+      "paired_change_percent": [
+        8.61433146039805,
+        1.9507686703205351,
+        -1.255670017997712,
+        -2.850559047990464,
+        0.7325204664115681,
+        1.16554225534109
+      ],
+      "median_change_percent": 0.949031360876329,
+      "bootstrap95_percent": [
+        -2.053114532994088,
+        5.282550065359293
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 519.9267295,
+          "minimum": 500.225208,
+          "maximum": 633.735625,
+          "mad": 7.015874499999995
+        },
+        "field-split-timers-v3": {
+          "median": 517.1143959999999,
+          "minimum": 502.725917,
+          "maximum": 535.618417,
+          "mad": 12.293166499999955
+        }
+      },
+      "paired_change_percent": [
+        3.240062384314668,
+        1.4574468747520886,
+        -1.7709226651991816,
+        1.3376642945990724,
+        -4.54510775672321,
+        -15.482356384809515
+      ],
+      "median_change_percent": -0.2166291853000546,
+      "bootstrap95_percent": [
+        -10.013732070766363,
+        2.3487546295333783
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1201.409189,
+          "minimum": 1181.122,
+          "maximum": 1245.337086,
+          "mad": 17.780813999999964
+        },
+        "field-split-timers-v3": {
+          "median": 1098.4368534999999,
+          "minimum": 1078.840293,
+          "maximum": 1195.997708,
+          "mad": 15.642228499999874
+        }
+      },
+      "paired_change_percent": [
+        -7.682513222043275,
+        -5.666414704483136,
+        -8.659707210601454,
+        -8.399579269318124,
+        -11.520830112016755,
+        -3.133961935353158
+      ],
+      "median_change_percent": -8.0410462456807,
+      "bootstrap95_percent": [
+        -10.090268661309103,
+        -4.400188319918147
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1681719296.0,
+          "minimum": 1601224704,
+          "maximum": 1731723264,
+          "mad": 48685056.0
+        },
+        "field-split-timers-v3": {
+          "median": 1609523200.0,
+          "minimum": 1549434880,
+          "maximum": 1683013632,
+          "mad": 27353088.0
+        }
+      },
+      "paired_change_percent": [
+        -8.960060643388445,
+        -7.15921132303966,
+        0.39190008013916255,
+        -3.4457976419400627,
+        -3.234388269842736,
+        -0.8198953196381531
+      ],
+      "median_change_percent": -3.340092955891399,
+      "bootstrap95_percent": [
+        -8.059635983214053,
+        -0.21399761974949527
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1681719296.0,
+          "minimum": 1601224704,
+          "maximum": 1731723264,
+          "mad": 48685056.0
+        },
+        "field-split-timers-v3": {
+          "median": 1609523200.0,
+          "minimum": 1549434880,
+          "maximum": 1683013632,
+          "mad": 27353088.0
+        }
+      },
+      "paired_change_percent": [
+        -8.960060643388445,
+        -7.15921132303966,
+        0.39190008013916255,
+        -3.4457976419400627,
+        -3.234388269842736,
+        -0.8198953196381531
+      ],
+      "median_change_percent": -3.340092955891399,
+      "bootstrap95_percent": [
+        -8.059635983214053,
+        -0.21399761974949527
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1781126560.0,
+          "minimum": 1779078592,
+          "maximum": 1788974592,
+          "mad": 1458176.0
+        },
+        "field-split-timers-v3": {
+          "median": 1783158144.0,
+          "minimum": 1777407360,
+          "maximum": 1789072768,
+          "mad": 3653664.0
+        }
+      },
+      "paired_change_percent": [
+        0.4282306602000796,
+        0.49512998276493025,
+        -0.11312957268249102,
+        -0.19320233955958388,
+        -0.25396439276669236,
+        -0.2839186214669276
+      ],
+      "median_change_percent": -0.15316595612103745,
+      "bootstrap95_percent": [
+        -0.26894150711681,
+        0.46168032148250493
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-single-control": {
+          "median": 1781126560.0,
+          "minimum": 1779078592,
+          "maximum": 1788974592,
+          "mad": 1458176.0
+        },
+        "field-split-timers-v3": {
+          "median": 1783158144.0,
+          "minimum": 1777407360,
+          "maximum": 1789072768,
+          "mad": 3653664.0
+        }
+      },
+      "paired_change_percent": [
+        0.4282306602000796,
+        0.49512998276493025,
+        -0.11312957268249102,
+        -0.19320233955958388,
+        -0.25396439276669236,
+        -0.2839186214669276
+      ],
+      "median_change_percent": -0.15316595612103745,
+      "bootstrap95_percent": [
+        -0.26894150711681,
+        0.46168032148250493
+      ]
+    },
+    "final_field_rw_ms": {
+      "variants": {
+        "best5-single-control": {
+          "median": 4.3551044999999995,
+          "minimum": 3.9195,
+          "maximum": 5.903917,
+          "mad": 0.3273544999999993
+        },
+        "field-split-timers-v3": {
+          "median": 157.59497950000002,
+          "minimum": 155.066083,
+          "maximum": 173.843709,
+          "mad": 1.9464170000000252
+        }
+      },
+      "paired_change_percent": [
+        3856.2720500063783,
+        4049.229327852998,
+        3534.45952437198,
+        3070.782357878945,
+        3503.123447041781,
+        2844.5486615072673
+      ],
+      "median_change_percent": 3518.791485706881,
+      "bootstrap95_percent": [
+        2957.6655096931063,
+        3952.7506889296883
+      ]
+    }
+  }
+}

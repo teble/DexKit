@@ -288,6 +288,10 @@ private:
 
 private:
     friend class DexKit;
+#if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+    std::string_view GetMethodDescriptorCold(uint32_t method_idx);
+    std::string_view GetFieldDescriptorCold(uint32_t field_idx);
+#endif
 #if DEXKIT_EXPERIMENT_RAW_INTERFACES
     RawTypeIds GetInterfaceTypeIds(uint32_t type_idx) const;
 #endif

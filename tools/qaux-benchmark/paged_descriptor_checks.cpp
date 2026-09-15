@@ -68,8 +68,11 @@ int main(int argc, char **argv) {
     constexpr size_t count = 2305;
     dexkit::PagedDescriptorCache cache;
     cache.Initialize(count);
+    Require(!cache.TryGet(0), "unallocated page cache miss");
     const std::string original("stable\0utf8-\xce\xa9", 14);
     const auto retained = Put(cache, 0, original);
+    Require(!cache.TryGet(1), "unfilled slot cache miss");
+    Check(*cache.TryGet(0), original);
     const auto *address = retained.data();
     const std::string large(65536 + 83, 'L');
     Check(Put(cache, 255, large), large);
@@ -85,6 +88,7 @@ int main(int argc, char **argv) {
             Check(retained, original);
             Require(retained.data() == address, "retained address");
             Check(Put(cache, 0, "must not replace published bytes"), original);
+            Check(*cache.TryGet(0), original);
             reads.fetch_add(1, std::memory_order_relaxed);
         } while (!done.load(std::memory_order_acquire));
     });

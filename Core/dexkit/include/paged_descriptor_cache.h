@@ -10,6 +10,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string_view>
 #include <vector>
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -110,6 +111,16 @@ public:
     }
 
     size_t size() const { return size_; }
+
+    std::optional<std::string_view> TryGet(size_t index) const {
+        if (index >= size_) std::abort();
+        auto *page = directory_[index / kPageSize].load(std::memory_order_acquire);
+        if (page) {
+            if (auto *record = page->slots[index % kPageSize].load(std::memory_order_acquire))
+                return ReadView(record);
+        }
+        return std::nullopt;
+    }
 
     // visit must be repeatable and must not reenter this cache: it runs twice
     // under the stripe lock, first to size the record and then to write it.

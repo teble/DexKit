@@ -1198,6 +1198,20 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
 }
 
 std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
+#if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    if (auto cached = method_descriptors.TryGet(method_idx)) return *cached;
+#else
+    if (method_descriptor_ready[method_idx].load(std::memory_order_acquire)) {
+        // The ready publication guarantees an engaged immutable optional.
+        return *method_descriptors[method_idx];
+    }
+#endif
+    return GetMethodDescriptorCold(method_idx);
+}
+
+std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
+#endif
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     return method_descriptors.GetOrCreate(method_idx,
         [this, method_idx](auto &&emit) { VisitMethodDescriptorParts(method_idx, emit); },
@@ -1245,6 +1259,19 @@ std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
 }
 
 std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
+#if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+    if (auto cached = field_descriptors.TryGet(field_idx)) return *cached;
+#else
+    if (field_descriptor_ready[field_idx].load(std::memory_order_acquire)) {
+        return *field_descriptors[field_idx];
+    }
+#endif
+    return GetFieldDescriptorCold(field_idx);
+}
+
+std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
+#endif
 #if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     return field_descriptors.GetOrCreate(field_idx,
         [this, field_idx](auto &&emit) { VisitFieldDescriptorParts(field_idx, emit); },

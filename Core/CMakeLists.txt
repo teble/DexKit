@@ -43,6 +43,8 @@ option(DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX "Include StartWith in the single u
 option(DEXKIT_BENCHMARK_STRING_TRACE "Count ordinary usingStrings work per query task" OFF)
 option(DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES "Check batch keyword containment without an intersection vector" OFF)
 option(DEXKIT_BENCHMARK_BATCH_TRACE "Count batch group and intersection work per DEX task" OFF)
+option(DEXKIT_EXPERIMENT_SINGLE_USING_FIELD "Match one using-field requirement without a general solver" OFF)
+option(DEXKIT_BENCHMARK_FIELD_TRACE "Count using-field preparation and judges per query task" OFF)
 if (DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT AND DEXKIT_EXPERIMENT_SINGLE_STRING_ID)
     message(FATAL_ERROR "Choose one single-string matching experiment")
 endif ()
@@ -105,6 +107,8 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_BENCHMARK_STRING_TRACE=$<BOOL:${DEXKIT_BENCHMARK_STRING_TRACE}>
         DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES=$<BOOL:${DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES}>
         DEXKIT_BENCHMARK_BATCH_TRACE=$<BOOL:${DEXKIT_BENCHMARK_BATCH_TRACE}>
+        DEXKIT_EXPERIMENT_SINGLE_USING_FIELD=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_USING_FIELD}>
+        DEXKIT_BENCHMARK_FIELD_TRACE=$<BOOL:${DEXKIT_BENCHMARK_FIELD_TRACE}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
     target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_INTERNAL_METRICS=1)
@@ -127,6 +131,13 @@ option(DEXKIT_BENCHMARK_SOURCE_CHECKS "Build raw source metadata checks" OFF)
 option(DEXKIT_BENCHMARK_SOURCE_WORKLOAD "Build source matcher and class output workloads" OFF)
 option(DEXKIT_BENCHMARK_STRING_WORKLOAD "Build ordinary usingStrings checks and workloads" OFF)
 option(DEXKIT_BENCHMARK_BATCH_WORKLOAD "Build batch usingStrings checks and workloads" OFF)
+option(DEXKIT_BENCHMARK_FIELD_WORKLOAD "Build using-field checks and workloads" OFF)
+if (DEXKIT_BENCHMARK_FIELD_WORKLOAD)
+    add_executable(dexkit_field_checks ../tools/qaux-benchmark/field_checks.cpp)
+    target_link_libraries(dexkit_field_checks PRIVATE dexkit_static)
+    add_executable(dexkit_field_workload ../tools/qaux-benchmark/field_workload.cpp)
+    target_link_libraries(dexkit_field_workload PRIVATE dexkit_static)
+endif ()
 if (DEXKIT_BENCHMARK_BATCH_WORKLOAD)
     add_executable(dexkit_batch_checks ../tools/qaux-benchmark/batch_checks.cpp)
     target_link_libraries(dexkit_batch_checks PRIVATE dexkit_static)

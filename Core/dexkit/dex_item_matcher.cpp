@@ -21,6 +21,7 @@
 #include "dex_item.h"
 #include "benchmark_diagnostics.h"
 #include "string_query_diagnostics.h"
+#include "field_query_diagnostics.h"
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
 #include "single_string_index.h"
 #endif
@@ -1777,18 +1778,38 @@ bool DexItem::IsMethodAnnotationMatched(uint32_t method_idx, const schema::Annot
 }
 
 bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatcher *matcher) {
+    DEXKIT_FIELD_COUNT(calls, 1);
     if (matcher->using_fields() == nullptr) {
+        DEXKIT_FIELD_COUNT(absent, 1);
         return true;
     }
     DEXKIT_CHECK(!method_using_field_ids.empty());
     auto IsUsingFieldMatched = [this](std::pair<uint32_t, bool> field, const schema::UsingFieldMatcher *matcher) {
+        DEXKIT_FIELD_COUNT(judges, 1);
         return this->IsUsingFieldMatched(field, matcher);
     };
     auto &using_fields = this->method_using_field_ids[method_idx];
+    DEXKIT_FIELD_COUNT(row_items, using_fields.size());
+    DEXKIT_FIELD_COUNT(empty, matcher->using_fields()->size() == 0);
+    DEXKIT_FIELD_COUNT(single, matcher->using_fields()->size() == 1);
+    DEXKIT_FIELD_COUNT(multiple, matcher->using_fields()->size() > 1);
+    DEXKIT_FIELD_COUNT(single_row_items, matcher->using_fields()->size() == 1 ? using_fields.size() : 0);
+
+#if DEXKIT_EXPERIMENT_SINGLE_USING_FIELD
+    if (matcher->using_fields()->size() == 1) {
+        DEXKIT_FIELD_COUNT(direct, 1);
+        const auto *requirement = matcher->using_fields()->Get(0);
+        for (const auto &field : using_fields) {
+            if (IsUsingFieldMatched(field, requirement)) return true;
+        }
+        return false;
+    }
+#endif
 
     typedef std::vector<const schema::UsingFieldMatcher *> UsingFieldMatcher;
     auto ptr = GetMatcherCache<UsingFieldMatcher>(MatcherCacheScope::UsingFieldMatchers, POINT_CASE(matcher->using_fields()),
                                                   [&]() {
+        DEXKIT_FIELD_COUNT(cache_builds, 1);
         auto using_vec = UsingFieldMatcher{};
         for (int i = 0; i < matcher->using_fields()->size(); ++i) {
             using_vec.push_back(matcher->using_fields()->Get(i));
@@ -1797,6 +1818,8 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
     });
 
     auto &using_field_matchers = *ptr;
+    DEXKIT_FIELD_COUNT(solver_calls, 1);
+    DEXKIT_FIELD_COUNT(prepared_items, using_field_matchers.size() <= using_fields.size() ? using_fields.size() : 0);
     Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
     auto count = hungarian.solve();
     if (count != using_field_matchers.size()) {

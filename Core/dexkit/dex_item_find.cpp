@@ -21,6 +21,7 @@
 #include "dex_item.h"
 #include "internal/using_strings_prefilter.h"
 #include "string_query_diagnostics.h"
+#include "field_query_diagnostics.h"
 
 namespace dexkit {
 
@@ -181,6 +182,9 @@ DexItem::FindClass(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
     auto *prefilter_plan = internal::GetClassUsingStringsPrefilterPlan(query->matcher(), query_context);
 #if DEXKIT_BENCHMARK_STRING_TRACE
     StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
@@ -227,6 +231,9 @@ DexItem::FindMethod(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
     auto *prefilter_plan = internal::GetMethodUsingStringsPrefilterPlan(query->matcher(), query_context);
 #if DEXKIT_BENCHMARK_STRING_TRACE
     StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
@@ -275,6 +282,9 @@ DexItem::FindField(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     std::vector<uint32_t> find_result;
     auto try_match_field = [&](uint32_t field_idx) {
@@ -315,6 +325,9 @@ DexItem::FindClass(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
     auto *prefilter_plan = internal::GetClassUsingStringsPrefilterPlan(query->matcher(), query_context);
 #if DEXKIT_BENCHMARK_STRING_TRACE
     StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
@@ -361,6 +374,9 @@ DexItem::FindMethod(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
     auto *prefilter_plan = internal::GetMethodUsingStringsPrefilterPlan(query->matcher(), query_context);
 #if DEXKIT_BENCHMARK_STRING_TRACE
     StringQueryTraceScope string_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
@@ -409,6 +425,9 @@ DexItem::FindField(
         QueryContext &query_context
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_BENCHMARK_FIELD_TRACE
+    FieldQueryTraceScope field_trace(query_context.GetQueryId(), dex_id, static_cast<uint8_t>(query_context.GetKind()));
+#endif
 
     if (query->in_classes() && !in_class_set.contains(type_idx)) {
         return {};

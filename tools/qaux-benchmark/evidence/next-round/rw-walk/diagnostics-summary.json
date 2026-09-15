@@ -1,0 +1,1340 @@
+[
+  {
+    "label": "control",
+    "name": "field-forward",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-control-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-forward",
+      "2"
+    ],
+    "log_sha256": "21b21f83fb4d75bb409f9a01b547ed4fe87de7cce17cdeac6d4fffef2b3d519f",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [],
+    "totals": {
+      "eligible": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    },
+    "workload": {
+      "mode": "field-forward",
+      "repeats": 2,
+      "create_ns": 4136375,
+      "setup_ns": 1600583,
+      "first_ns": 3362542,
+      "repeated_ns": 324416,
+      "close_ns": 1382167,
+      "lifecycle_ns": 10807916,
+      "positive_ns": 3686458,
+      "negative_ns": 0,
+      "checksum": 1649267458362,
+      "returned": 258,
+      "forward_first_ns": 3362333,
+      "forward_repeated_ns": 324125,
+      "reverse_first_ns": 0,
+      "reverse_repeated_ns": 0
+    }
+  },
+  {
+    "label": "control",
+    "name": "field-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-control-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-late",
+      "2"
+    ],
+    "log_sha256": "71dd91ad52ebefe3700c089a771fac95993e212ba34809ac7399d1132f213f15",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [
+      {
+        "dex": 0,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 3,
+        "instructions": 10
+      },
+      {
+        "dex": 1,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 65,
+        "instructions": 25282
+      },
+      {
+        "dex": 2,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 66,
+        "instructions": 25284
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 3,
+        "methods": 134,
+        "instructions": 50576
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    },
+    "workload": {
+      "mode": "field-late",
+      "repeats": 2,
+      "create_ns": 3187291,
+      "setup_ns": 2280833,
+      "first_ns": 8637667,
+      "repeated_ns": 7483417,
+      "close_ns": 1044083,
+      "lifecycle_ns": 22634125,
+      "positive_ns": 2029209,
+      "negative_ns": 14091626,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 1635625,
+      "forward_repeated_ns": 393584,
+      "reverse_first_ns": 7001917,
+      "reverse_repeated_ns": 7089709
+    }
+  },
+  {
+    "label": "control",
+    "name": "field-full-first",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-control-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-full-first",
+      "2"
+    ],
+    "log_sha256": "976264c7b3697f3ee050967cb54d3df46def82f9cba88ba8448697e81c044748",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [
+      {
+        "dex": 0,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 3,
+        "instructions": 10
+      },
+      {
+        "dex": 1,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 65,
+        "instructions": 25282
+      },
+      {
+        "dex": 2,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 66,
+        "instructions": 25284
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 3,
+        "methods": 134,
+        "instructions": 50576
+      }
+    },
+    "workload": {
+      "mode": "field-full-first",
+      "repeats": 2,
+      "create_ns": 1979041,
+      "setup_ns": 3185084,
+      "first_ns": 7639292,
+      "repeated_ns": 8559000,
+      "close_ns": 2109542,
+      "lifecycle_ns": 23472625,
+      "positive_ns": 673333,
+      "negative_ns": 15524792,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 501958,
+      "forward_repeated_ns": 171375,
+      "reverse_first_ns": 7137250,
+      "reverse_repeated_ns": 8387542
+    }
+  },
+  {
+    "label": "control",
+    "name": "QQ-tail",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-rw-walk-tail-control-trace-v1",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-control-trace-v1/libdexkit.dylib",
+      "--passes",
+      "1",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify",
+      "--final-field-rw",
+      "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+      "--field-rw-expected",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+    ],
+    "log_sha256": "9015de772e818adbc489556f2532369e54656d7c45ae5a6dd1f6968d210197f1",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 37585880,
+        "entries": 1492869,
+        "nonempty_or_ready": 1110126,
+        "live_buffers": 1110167
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 13206512,
+        "entries": 1492869,
+        "nonempty_or_ready": 1096109,
+        "live_buffers": 1096150
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 62400744,
+        "payload_capacity_bytes": 55446792,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 1540690
+      }
+    ],
+    "walks": [
+      {
+        "dex": 1,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 46749,
+        "instructions": 663107
+      },
+      {
+        "dex": 0,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 40300,
+        "instructions": 1103144
+      },
+      {
+        "dex": 3,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 41003,
+        "instructions": 981078
+      },
+      {
+        "dex": 2,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 40039,
+        "instructions": 1096181
+      },
+      {
+        "dex": 4,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 42986,
+        "instructions": 850997
+      },
+      {
+        "dex": 5,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 46723,
+        "instructions": 1055616
+      },
+      {
+        "dex": 6,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 43643,
+        "instructions": 1057772
+      },
+      {
+        "dex": 7,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 37956,
+        "instructions": 1245526
+      },
+      {
+        "dex": 8,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 42896,
+        "instructions": 1088783
+      },
+      {
+        "dex": 10,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 43835,
+        "instructions": 750806
+      },
+      {
+        "dex": 9,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 42217,
+        "instructions": 931446
+      },
+      {
+        "dex": 11,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 53054,
+        "instructions": 931411
+      },
+      {
+        "dex": 12,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 34756,
+        "instructions": 711827
+      },
+      {
+        "dex": 15,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 50699,
+        "instructions": 1165628
+      },
+      {
+        "dex": 13,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 51902,
+        "instructions": 1102315
+      },
+      {
+        "dex": 14,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 58220,
+        "instructions": 1407817
+      },
+      {
+        "dex": 16,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 51116,
+        "instructions": 1172215
+      },
+      {
+        "dex": 17,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 49719,
+        "instructions": 1045837
+      },
+      {
+        "dex": 18,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 51666,
+        "instructions": 960187
+      },
+      {
+        "dex": 20,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 56804,
+        "instructions": 1127729
+      },
+      {
+        "dex": 19,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 58888,
+        "instructions": 1773668
+      },
+      {
+        "dex": 21,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 48091,
+        "instructions": 1128905
+      },
+      {
+        "dex": 22,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 48168,
+        "instructions": 1075570
+      },
+      {
+        "dex": 23,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 49394,
+        "instructions": 989504
+      },
+      {
+        "dex": 25,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 47737,
+        "instructions": 1211890
+      },
+      {
+        "dex": 24,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 46180,
+        "instructions": 1060971
+      },
+      {
+        "dex": 27,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 53123,
+        "instructions": 856185
+      },
+      {
+        "dex": 26,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 43683,
+        "instructions": 1367587
+      },
+      {
+        "dex": 28,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 47802,
+        "instructions": 974570
+      },
+      {
+        "dex": 29,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 44897,
+        "instructions": 1052963
+      },
+      {
+        "dex": 30,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 49579,
+        "instructions": 827621
+      },
+      {
+        "dex": 31,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 50656,
+        "instructions": 798166
+      },
+      {
+        "dex": 33,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 44619,
+        "instructions": 995248
+      },
+      {
+        "dex": 32,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 54314,
+        "instructions": 957392
+      },
+      {
+        "dex": 34,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 46561,
+        "instructions": 858578
+      },
+      {
+        "dex": 35,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 49204,
+        "instructions": 923891
+      },
+      {
+        "dex": 36,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 54533,
+        "instructions": 671914
+      },
+      {
+        "dex": 37,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 54485,
+        "instructions": 755588
+      },
+      {
+        "dex": 38,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 47823,
+        "instructions": 760623
+      },
+      {
+        "dex": 39,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 49265,
+        "instructions": 801308
+      },
+      {
+        "dex": 40,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": true,
+        "methods": 6547,
+        "instructions": 93025
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 41,
+        "methods": 1921832,
+        "instructions": 40384589
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    }
+  },
+  {
+    "label": "skip",
+    "name": "field-forward",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-skip-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-forward",
+      "2"
+    ],
+    "log_sha256": "dce014b33b87956fb6b0e4f82659c37f746f9d70cfc8dec76a827446d589e2ef",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [],
+    "totals": {
+      "eligible": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    },
+    "workload": {
+      "mode": "field-forward",
+      "repeats": 2,
+      "create_ns": 2669583,
+      "setup_ns": 964875,
+      "first_ns": 1439917,
+      "repeated_ns": 197542,
+      "close_ns": 1435083,
+      "lifecycle_ns": 6708167,
+      "positive_ns": 1637125,
+      "negative_ns": 0,
+      "checksum": 1649267458362,
+      "returned": 258,
+      "forward_first_ns": 1439667,
+      "forward_repeated_ns": 197458,
+      "reverse_first_ns": 0,
+      "reverse_repeated_ns": 0
+    }
+  },
+  {
+    "label": "skip",
+    "name": "field-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-skip-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-late",
+      "2"
+    ],
+    "log_sha256": "7a218050ef770fa2c10001dd435eb4bc71499f969fe3073c1af29223369d1a0b",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [
+      {
+        "dex": 0,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 2,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 1,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 3,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    },
+    "workload": {
+      "mode": "field-late",
+      "repeats": 2,
+      "create_ns": 2449375,
+      "setup_ns": 2079917,
+      "first_ns": 14051167,
+      "repeated_ns": 9874167,
+      "close_ns": 1135375,
+      "lifecycle_ns": 29591084,
+      "positive_ns": 2185000,
+      "negative_ns": 21739999,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 1864375,
+      "forward_repeated_ns": 320625,
+      "reverse_first_ns": 12186583,
+      "reverse_repeated_ns": 9553416
+    }
+  },
+  {
+    "label": "skip",
+    "name": "field-full-first",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-skip-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-full-first",
+      "2"
+    ],
+    "log_sha256": "a127c785fbe6993e8f95bc94ab5f6926060845e89ac959eb63828f9733c0395f",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "walks": [
+      {
+        "dex": 0,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 3,
+        "instructions": 10
+      },
+      {
+        "dex": 2,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 66,
+        "instructions": 25284
+      },
+      {
+        "dex": 1,
+        "flags": 4294934527,
+        "rw_only": false,
+        "walk": true,
+        "methods": 65,
+        "instructions": 25282
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 3,
+        "methods": 134,
+        "instructions": 50576
+      }
+    },
+    "workload": {
+      "mode": "field-full-first",
+      "repeats": 2,
+      "create_ns": 2535458,
+      "setup_ns": 3877042,
+      "first_ns": 11249875,
+      "repeated_ns": 5693458,
+      "close_ns": 905958,
+      "lifecycle_ns": 24263125,
+      "positive_ns": 681916,
+      "negative_ns": 16261208,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 432208,
+      "forward_repeated_ns": 249708,
+      "reverse_first_ns": 10817583,
+      "reverse_repeated_ns": 5443625
+    }
+  },
+  {
+    "label": "skip",
+    "name": "QQ-tail",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-rw-walk-tail-skip-trace-v1",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/rw-walk-skip-trace-v1/libdexkit.dylib",
+      "--passes",
+      "1",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify",
+      "--final-field-rw",
+      "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+      "--field-rw-expected",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+    ],
+    "log_sha256": "3a44aede023d9b3c16b9868af0a00164d4ad424a677405ed5a89b2980b53e9c0",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 37585880,
+        "entries": 1492869,
+        "nonempty_or_ready": 1110126,
+        "live_buffers": 1110167
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 13206512,
+        "entries": 1492869,
+        "nonempty_or_ready": 1096109,
+        "live_buffers": 1096150
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 62400744,
+        "payload_capacity_bytes": 55446792,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 1540690
+      }
+    ],
+    "walks": [
+      {
+        "dex": 0,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 1,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 2,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 3,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 4,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 5,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 6,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 7,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 8,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 9,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 10,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 11,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 12,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 13,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 14,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 15,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 16,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 17,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 18,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 19,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 20,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 21,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 23,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 22,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 24,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 25,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 26,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 27,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 28,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 29,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 30,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 31,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 32,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 33,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 34,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 35,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 36,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 37,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 38,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 39,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      },
+      {
+        "dex": 40,
+        "flags": 4096,
+        "rw_only": true,
+        "walk": false,
+        "methods": 0,
+        "instructions": 0
+      }
+    ],
+    "totals": {
+      "eligible": {
+        "calls": 41,
+        "methods": 0,
+        "instructions": 0
+      },
+      "mixed": {
+        "calls": 0,
+        "methods": 0,
+        "instructions": 0
+      }
+    }
+  }
+]

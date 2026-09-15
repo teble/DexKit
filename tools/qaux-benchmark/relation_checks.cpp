@@ -187,9 +187,23 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
             {
                 auto guard = bridge.EnterQueryExecution(kFieldIdentity | kMethodUsingField | kMethodInvoking);
             }
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+            for (const auto &item : bridge.dex_items) {
+                Require(!item->NeedInitCache(kMethodUsingField | kMethodInvoking), "joint reverse inputs already ready");
+                Require(item->NeedInitCache(kRwFieldMethod) && item->NeedInitCache(kCallerMethod), "both local reverse tables still pending");
+            }
+            Require(!(bridge.cross_ref_aggregate_flag.load(std::memory_order_acquire) & (kRwFieldMethod | kCallerMethod)), "both reverse aggregates still pending");
+#endif
             // Both reverse relations can be requested together after their
             // instruction-derived inputs are ready; neither needs extraction.
-            auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kCallerMethod);
+            {
+                auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kCallerMethod);
+            }
+#if DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT
+            for (const auto &item : bridge.dex_items)
+                Require(!item->NeedInitCache(kRwFieldMethod | kCallerMethod), "both local reverse tables ready before getters");
+            Require((bridge.cross_ref_aggregate_flag.load(std::memory_order_acquire) & (kRwFieldMethod | kCallerMethod)) == (kRwFieldMethod | kCallerMethod), "both reverse aggregates ready before getters");
+#endif
         }
         Require(Forward(bridge, methods) == expected_forward, "forward results/order");
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS

@@ -1,9 +1,9 @@
 # Ordered next-round experiments
 
-Status: active. Equal and StartWith measurements and independent confirmation
-are complete. Batch boolean containment and one using-field requirement are
-complete, as are contiguous forward-field rows. The final reverse-only
-instruction-walk experiment is active. Every new mechanism remains an
+Status: complete. Equal, StartWith, batch boolean containment, one using-field
+requirement, contiguous forward-field rows and the reverse-only instruction
+walk all have completed measurements and independent confirmation. See
+NEXT-ROUND-RESULTS.md for the overview. Every new mechanism remains an
 independent experiment against the nine-switch control.
 
 ## Controls and sequence
@@ -103,3 +103,14 @@ source and evidence review after meaningful increments.
   and unresolved consumer/tail intervals. A disk-full interruption was recovered
   before formal timing; failed and successful records remain separate. See
   COMPACT-FIELDS-RESULTS and COMPACT-FIELDS-REVIEW. RW-only remains independent.
+* Completed the final deferred RW walk experiment: 14 sweeps / 168 samples,
+  all ordered oracles, standalone compatibility, ASan/UBSan, seven relation
+  schedules, eleven QQ rounds with/without real final RW, 71 JVM tests and four
+  Android ABIs. Actual QQ instruction-loop steps fall from 40,384,589 to zero
+  in eligible preparation; final table storage and complete outputs agree.
+  Final RW API and one-pass lifecycle gains repeat; eleven-pass lifecycle and
+  peak do not resolve. Preserve forward-only and following-writer increases.
+  Pro's suggested before/after readiness assertions pass in all six checker
+  reruns against unchanged Core archives after timing. See RW-WALK-RESULTS and
+  RW-WALK-REVIEW. No additional mechanism or combined production default is
+  selected by this completed plan.

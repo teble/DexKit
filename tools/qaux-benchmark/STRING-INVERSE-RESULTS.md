@@ -114,3 +114,12 @@ Ordinary fallback still retains the one-task-per-DEX routing decision. Selective
 ## Follow-up: equivalent AND flattening
 
 The user asked whether avoiding allOf removes the heavy-case regression. A separate query-shape comparison keeps the engine and predicates fixed: flattening these string AND nodes reduces the inverse workload from about 2238 ms to 36.4 ms (paired -98.38%), while the old control improves about 42%. Removing a condition is not required; it would change results on the small fixture (4 -> 45). See [the detailed follow-up](STRING-INVERSE-SHAPES.md) for six additional sweeps / 72 samples, exact equivalence checks, positive/negative legs and the anyOf distinction.
+
+## Follow-up: conservative admission
+
+The subsequent `7d536bf` experiment protects the original pipeline for queries
+with additional conditions and independently tests one-posting ranges on an
+already published index. It does not change candidate/residual scheduling.
+See [the admission results](STRING-ADMISSION-RESULTS.md) for 44 sweeps / 528
+samples, restoration of the known regressions, and the substantial prior
+inverse gains that the conservative policy gives up on other shapes.

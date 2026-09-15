@@ -1,0 +1,165 @@
+{
+  "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+  "artifacts": [
+    {
+      "label": "control",
+      "native_sha256": "1406de12c38e356b1771209f2006c73a189975e4f90c892dcf75f48c3b4fab16",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": false
+    },
+    {
+      "label": "admission",
+      "native_sha256": "54ec3861cf910dc3d66ee96ab3c4bc286ad71eb1b3fef85fd014f074c006249c",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "INVERTED_STRINGS",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": false
+    },
+    {
+      "label": "small",
+      "native_sha256": "fc6f407b5691d9d0e5e5462229b81ed6ca1a9eadcf55b3bb2f058b60d7b300c1",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "INVERTED_STRINGS",
+        "INVERTED_STRING_RANGES",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": false
+    },
+    {
+      "label": "admission-trace",
+      "native_sha256": "c101fa2288e1ff3fa529d99bd764e731a8ef7d49ee35d8035a3bdf1c3f56c613",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "INVERTED_STRINGS",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": true
+    },
+    {
+      "label": "small-trace",
+      "native_sha256": "2571ec7fd7abab686bfc3d8b08ef98516b348781fca98a633c2cd2edc1a64877",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "INVERTED_STRINGS",
+        "INVERTED_STRING_RANGES",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": true
+    },
+    {
+      "label": "small-sanitized",
+      "native_sha256": "2f16992a4fde79413a86aa8eb948c46216b1bc8694ffa4bffd1336d080802201",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "COMPACT_INVOKES",
+        "COMPACT_STRINGS",
+        "DESCRIPTOR_FAST_HITS",
+        "FIELD_IDENTITY_SPLIT",
+        "INVERTED_STRINGS",
+        "INVERTED_STRING_RANGES",
+        "LAZY_DIRECTORIES",
+        "NEGATIVE_STRINGS",
+        "RAW_INTERFACES",
+        "SINGLE_RELATION",
+        "STRUCTURAL_DESCRIPTORS"
+      ],
+      "diagnostics": true
+    },
+    {
+      "label": "small-standalone",
+      "native_sha256": "b441aa77160c3bc64f6e5f5bcc09ad9c6add1cc59f1ba47d0472e3232f7980df",
+      "engine_commit": "7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d",
+      "source_trees": {
+        "Core": "ae48379b5a8339c09600394cfda57926199289c9",
+        "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+        "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+      },
+      "enabled": [
+        "INVERTED_STRINGS",
+        "INVERTED_STRING_RANGES"
+      ],
+      "diagnostics": true
+    }
+  ],
+  "control_byte_identical_to_previous_nine": true,
+  "post_review_checks": {
+    "make_string_admission_cross_fixture.py": "75f4dcecb1f7e1ff9931ea8622d7405810f803311cab501bc2b69ff002e8542c",
+    "string_admission_cross_dex_checks.cpp": "1bd033d6a17f2d4bcfd2289e6773545a6d5083ec826153c76e04172effc9598b"
+  }
+}

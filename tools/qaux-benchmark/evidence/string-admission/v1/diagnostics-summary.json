@@ -1,0 +1,431 @@
+{
+  "indexes": [
+    {
+      "dex": 1,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 126010,
+      "scratch_bytes": 561432,
+      "used": 20534,
+      "singletons": 16254,
+      "edges": 45931
+    },
+    {
+      "dex": 2,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 151588,
+      "scratch_bytes": 572864,
+      "used": 29450,
+      "singletons": 23811,
+      "edges": 55030
+    },
+    {
+      "dex": 0,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 196520,
+      "scratch_bytes": 784736,
+      "used": 39338,
+      "singletons": 31482,
+      "edges": 69654
+    },
+    {
+      "dex": 3,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 186676,
+      "scratch_bytes": 674672,
+      "used": 36970,
+      "singletons": 29571,
+      "edges": 67158
+    },
+    {
+      "dex": 4,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 143154,
+      "scratch_bytes": 612056,
+      "used": 28062,
+      "singletons": 22299,
+      "edges": 50235
+    },
+    {
+      "dex": 5,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 133852,
+      "scratch_bytes": 539824,
+      "used": 24618,
+      "singletons": 19396,
+      "edges": 47836
+    },
+    {
+      "dex": 6,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 127814,
+      "scratch_bytes": 493960,
+      "used": 22492,
+      "singletons": 17359,
+      "edges": 45733
+    },
+    {
+      "dex": 7,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 215534,
+      "scratch_bytes": 705568,
+      "used": 39367,
+      "singletons": 30249,
+      "edges": 77555
+    },
+    {
+      "dex": 8,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 163056,
+      "scratch_bytes": 657080,
+      "used": 31680,
+      "singletons": 24737,
+      "edges": 56962
+    },
+    {
+      "dex": 9,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 135458,
+      "scratch_bytes": 517064,
+      "used": 25496,
+      "singletons": 20219,
+      "edges": 48715
+    },
+    {
+      "dex": 10,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 132440,
+      "scratch_bytes": 657984,
+      "used": 25191,
+      "singletons": 19671,
+      "edges": 45094
+    },
+    {
+      "dex": 11,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 99512,
+      "scratch_bytes": 479432,
+      "used": 16185,
+      "singletons": 12959,
+      "edges": 36158
+    },
+    {
+      "dex": 12,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 158558,
+      "scratch_bytes": 370392,
+      "used": 22090,
+      "singletons": 15506,
+      "edges": 59685
+    },
+    {
+      "dex": 13,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 156262,
+      "scratch_bytes": 519240,
+      "used": 24504,
+      "singletons": 18338,
+      "edges": 57405
+    },
+    {
+      "dex": 14,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 145852,
+      "scratch_bytes": 479208,
+      "used": 24899,
+      "singletons": 19758,
+      "edges": 54682
+    },
+    {
+      "dex": 15,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 120106,
+      "scratch_bytes": 403160,
+      "used": 16599,
+      "singletons": 11725,
+      "edges": 44011
+    },
+    {
+      "dex": 16,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 127598,
+      "scratch_bytes": 409128,
+      "used": 17041,
+      "singletons": 11272,
+      "edges": 45853
+    },
+    {
+      "dex": 17,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 150852,
+      "scratch_bytes": 560248,
+      "used": 27433,
+      "singletons": 20580,
+      "edges": 52570
+    },
+    {
+      "dex": 18,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 146788,
+      "scratch_bytes": 422680,
+      "used": 19864,
+      "singletons": 13490,
+      "edges": 53818
+    },
+    {
+      "dex": 19,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 149452,
+      "scratch_bytes": 462024,
+      "used": 25804,
+      "singletons": 20027,
+      "edges": 55324
+    },
+    {
+      "dex": 20,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 132326,
+      "scratch_bytes": 418184,
+      "used": 21736,
+      "singletons": 16397,
+      "edges": 48537
+    },
+    {
+      "dex": 21,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 146328,
+      "scratch_bytes": 522888,
+      "used": 26248,
+      "singletons": 19611,
+      "edges": 51286
+    },
+    {
+      "dex": 22,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 133166,
+      "scratch_bytes": 409896,
+      "used": 18280,
+      "singletons": 13043,
+      "edges": 49581
+    },
+    {
+      "dex": 23,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 167772,
+      "scratch_bytes": 531552,
+      "used": 25025,
+      "singletons": 17807,
+      "edges": 60858
+    },
+    {
+      "dex": 24,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 111726,
+      "scratch_bytes": 370152,
+      "used": 15046,
+      "singletons": 10198,
+      "edges": 40407
+    },
+    {
+      "dex": 25,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 132160,
+      "scratch_bytes": 513776,
+      "used": 22996,
+      "singletons": 16986,
+      "edges": 45870
+    },
+    {
+      "dex": 26,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 202414,
+      "scratch_bytes": 580784,
+      "used": 33708,
+      "singletons": 24347,
+      "edges": 72507
+    },
+    {
+      "dex": 28,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 156232,
+      "scratch_bytes": 484320,
+      "used": 24140,
+      "singletons": 17659,
+      "edges": 57204
+    },
+    {
+      "dex": 27,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 155198,
+      "scratch_bytes": 497744,
+      "used": 22391,
+      "singletons": 16079,
+      "edges": 57031
+    },
+    {
+      "dex": 29,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 176878,
+      "scratch_bytes": 567352,
+      "used": 27940,
+      "singletons": 20114,
+      "edges": 63505
+    },
+    {
+      "dex": 30,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 125736,
+      "scratch_bytes": 502232,
+      "used": 21860,
+      "singletons": 16302,
+      "edges": 43808
+    },
+    {
+      "dex": 31,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 104878,
+      "scratch_bytes": 459544,
+      "used": 20128,
+      "singletons": 15493,
+      "edges": 35885
+    },
+    {
+      "dex": 32,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 129968,
+      "scratch_bytes": 456152,
+      "used": 20405,
+      "singletons": 14468,
+      "edges": 45844
+    },
+    {
+      "dex": 33,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 141760,
+      "scratch_bytes": 522992,
+      "used": 25220,
+      "singletons": 18987,
+      "edges": 49906
+    },
+    {
+      "dex": 34,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 156628,
+      "scratch_bytes": 552280,
+      "used": 27677,
+      "singletons": 20312,
+      "edges": 54506
+    },
+    {
+      "dex": 35,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 104376,
+      "scratch_bytes": 484432,
+      "used": 18211,
+      "singletons": 13252,
+      "edges": 34872
+    },
+    {
+      "dex": 36,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 68334,
+      "scratch_bytes": 372728,
+      "used": 13126,
+      "singletons": 9880,
+      "edges": 22065
+    },
+    {
+      "dex": 37,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 63236,
+      "scratch_bytes": 291656,
+      "used": 9699,
+      "singletons": 7081,
+      "edges": 22044
+    },
+    {
+      "dex": 38,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 96934,
+      "scratch_bytes": 549264,
+      "used": 16945,
+      "singletons": 12645,
+      "edges": 31833
+    },
+    {
+      "dex": 40,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 22788,
+      "scratch_bytes": 131144,
+      "used": 3709,
+      "singletons": 2196,
+      "edges": 6472
+    },
+    {
+      "dex": 39,
+      "ready": 1,
+      "narrow": 1,
+      "bytes": 113528,
+      "scratch_bytes": 498256,
+      "used": 17875,
+      "singletons": 12268,
+      "edges": 38020
+    }
+  ],
+  "ac_jobs": 902,
+  "ac_jobs_per_dex": 22,
+  "retained_index_bytes": 5609448,
+  "referenced_string_ids": 949982,
+  "edges": 2001450,
+  "route_reason_counts": {
+    "(0, 0)": 3608,
+    "(3, 6)": 440,
+    "(2, 6)": 11,
+    "(0, 1)": 792
+  },
+  "ordinary_queries": 121,
+  "dex_admissions": 4851,
+  "small_range_admissions": 0,
+  "total_string_scans": 20899604,
+  "max_bitmap_budget_bytes": 2733456,
+  "interpretation": "QQ uses no guarded SmallRange exception; its step1 gains include changed admission and placement of pure range probes. ready=0/postings=0 in a plan means not counted, not an empty-range proof."
+}

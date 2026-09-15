@@ -1,7 +1,9 @@
 # Conservative string candidate admission
 
-Status: policy reviewed; implementation and validation in progress.
+Status: implementation, validation and both measurement batches complete.
 Base: `a55ba18252c642042f5831a1b4bae6c04b2719f9` (engine `cc9f893`).
+Implemented engine: `7d536bf4264ab5c8deeaa4a2a3f5a4831c76576d`.
+See [results and tradeoffs](STRING-ADMISSION-RESULTS.md).
 
 The user selected admission protection and a small existing-index exception,
 and explicitly deferred candidate/residual scheduling changes. The follow-up
@@ -37,22 +39,22 @@ make a whole-DEX string scan or serial residual matching a poor choice.
 
 ## Work and validation plan
 
-- Add immutable route decisions, a nonblocking acquire/release readiness
+- [x] Add immutable route decisions, a nonblocking acquire/release readiness
   observation, and constant-work posting-range counts using existing ranks
   and offsets. Retain the existing default-OFF inverse experiment.
-- Validate raw-row query results and complete ordered bytes for rare/common
+- [x] Validate raw-row query results and complete ordered bytes for rare/common
   names at root/allOf, flags and return types, OR/NOT, and range bounds 0/1/2.
   Include duplicate instructions versus distinct matching string IDs,
   cold/forward-warm/inverse-warm states, and frozen admission under concurrent
   publication. Reuse existing class/cross-DEX/budget/ordering fixtures.
-- Run component native build, JAR, JVM tests and four-ABI Android release
+- [x] Run component native build, JAR, JVM tests and four-ABI Android release
   assembly with the candidate enabled. Do not change public API or schema.
-- Compare admission against the prior inverse artifact, then the small-range
+- [x] Compare admission against the prior inverse artifact, then the small-range
   exception against admission, with the nine-option pipeline as a restoration
   reference. Use finite balanced process pairs and independent confirmation.
   Keep QQ totals, onInitView, the one-DEX nested guard, broad-name opportunity
   cost, small-range cold/warm API legs, lifecycle and memory separate.
-- Archive source identities, fixtures, commands, validations and raw timings;
+- [x] Archive source identities, fixtures, commands, validations and raw timings;
   report any remaining regressions or unresolved differences. No universal
   claim that every admitted query is faster.
 
@@ -65,3 +67,17 @@ decisions and a synchronized readiness observation; its review did not execute
 the new implementation or measurements.
 
 Conversation: https://chatgpt.com/c/6aa81c3c-a104-83ee-b6fe-8bcdd4732ff3
+
+The later 9m45s source review read the fixed base-to-7d536bf increment and found
+no new production correctness blocker. Its identified warm-Range cross-DEX
+coverage gap was covered by a new same-local-ID, shared-vector fixture and
+checker linked against five frozen artifacts. The review did not execute the
+tests or measure performance. No scheduling or predicate-hoisting work was
+added.
+
+The completed experiment has 44 sweeps / 528 accepted fresh-process samples.
+One control-versus-admission broad-name reference was added in each batch after
+the initial loss of inverse gains was observed. No accepted measurement was
+discarded. The results retain cold-range uncertainty, broad-condition losses,
+the small remaining positive-leg overhead on the old nested fixture, and the
+memory cost; they do not establish a universal no-regression guarantee.

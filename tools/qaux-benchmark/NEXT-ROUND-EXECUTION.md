@@ -38,5 +38,16 @@ source and evidence review after meaningful increments.
   ParseText and StoreEmits are visible below ordinary usingStrings matching;
   batch work is also substantial. Waiting-thread samples prevent treating the
   raw sample counts as CPU percentages or predicted API gains.
-* Preparing independent string fixtures, result checks and single-condition
-  prototypes. No experimental timing result is available yet.
+* Implemented default-OFF direct and ID prototypes. The rebuilt control is
+  byte-identical to the existing nine-switch native artifact. The initial
+  prototypes pass 34 method and 34 class queries against independently encoded
+  constant rows and complete ordered serialized control results, including
+  cold/full/repeated/concurrent sequences. The range oracle covers all 65,536
+  UTF-16 code units and malformed probe boundaries.
+* Both initial prototypes preserve the frozen QQ results, ordering and branch
+  flow in two-pass verification. The independent oracle was corrected to retain
+  duplicate class definitions while deduplicating method descriptors, matching
+  the distinct existing public result policies.
+* Hoisted Equal/StartWith dispatch out of reference loops before timing, and
+  wired the experimental switches through desktop and Android Gradle builds.
+  Rebuilding this revision and adding wide-pool checks precede paired timing.

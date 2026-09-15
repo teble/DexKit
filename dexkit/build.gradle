@@ -42,6 +42,9 @@ cmake {
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_SOURCE_FILES=${providers.gradleProperty('experimentRawSourceFiles').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_SINGLE_RELATION=${providers.gradleProperty('experimentSingleRelation').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=${providers.gradleProperty('experimentFieldIdentitySplit').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT=${providers.gradleProperty('experimentSingleStringDirect').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_SINGLE_STRING_ID=${providers.gradleProperty('experimentSingleStringId').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX=${providers.gradleProperty('experimentSingleStringPrefix').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}")
         }
     }

@@ -614,19 +614,34 @@ std::optional<bool> TrySingleUsingString(
     if (plan == nullptr) return std::nullopt;
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT
     DEXKIT_STRING_COUNT(direct_calls, 1);
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX
+    if (plan->prefix) {
+        return visit([&](uint32_t string_id) {
+            DEXKIT_STRING_COUNT(direct_refs, 1);
+            return kmp::starts_with(strings[string_id], plan->needle);
+        });
+    }
+#endif
     return visit([&](uint32_t string_id) {
         DEXKIT_STRING_COUNT(direct_refs, 1);
-        const auto value = strings[string_id];
-        return plan->prefix ? kmp::starts_with(value, plan->needle) : kmp::equals(value, plan->needle);
+        return kmp::equals(strings[string_id], plan->needle);
     });
 #else
     const auto *range = plan->RangeFor(dex_id, strings);
     if (range == nullptr) return std::nullopt;
     DEXKIT_STRING_COUNT(index_calls, 1);
     if (range->begin == range->end) return false;
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX
+    if (plan->prefix) {
+        return visit([&](uint32_t string_id) {
+            DEXKIT_STRING_COUNT(index_refs, 1);
+            return range->begin <= string_id && string_id < range->end;
+        });
+    }
+#endif
     return visit([&](uint32_t string_id) {
         DEXKIT_STRING_COUNT(index_refs, 1);
-        return range->begin <= string_id && string_id < range->end;
+        return range->begin == string_id;
     });
 #endif
 }

@@ -2,7 +2,8 @@
 
 Status: active. Equal and StartWith measurements and independent confirmation
 are complete. Batch boolean containment and one using-field requirement are
-complete; contiguous forward-field rows are in validation. Subsequent ranked mechanisms
+complete, as are contiguous forward-field rows. The reverse-only instruction
+walk is next. Subsequent ranked mechanisms
 remain independent experiments against the nine-switch control.
 
 ## Controls and sequence
@@ -94,3 +95,11 @@ source and evidence review after meaningful increments.
   Preserve its 11-pass confirmation slowdown and nested-class peak increase.
   The selector collision and unresolved-field oracle gap were corrected;
   SINGLE-FIELD-RESULTS and SINGLE-FIELD-REVIEW record the scope and evidence.
+* Completed contiguous forward-field rows: 22 sweeps / 264 samples, all 48
+  queries plus every unique-fixture getter row, standalone/ASan/UBSan and held
+  span relation checks, eleven QQ rounds with/without real final RW, 71 JVM
+  tests and four Android ABIs. Original QQ lifecycle and peak gains repeat;
+  native long-row peak increases also repeat. Keep the warm-query regressions
+  and unresolved consumer/tail intervals. A disk-full interruption was recovered
+  before formal timing; failed and successful records remain separate. See
+  COMPACT-FIELDS-RESULTS and COMPACT-FIELDS-REVIEW. RW-only remains independent.

@@ -1,0 +1,1208 @@
+[
+  {
+    "label": "control",
+    "name": "long-using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "log_sha256": "45cbde405ab6fa54e35e0a591ca5ea3dec05a8b1bb7c9e7be8fd71131ed9c89b",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 87048,
+        "payload_capacity_bytes": 7373048,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 3625
+      }
+    ],
+    "growth": [],
+    "workload": {
+      "mode": "using-early",
+      "repeats": 2,
+      "create_ns": 2711375,
+      "setup_ns": 3458,
+      "first_ns": 11156625,
+      "repeated_ns": 4310125,
+      "close_ns": 967291,
+      "lifecycle_ns": 19149375,
+      "positive_ns": 15466750,
+      "negative_ns": 0,
+      "checksum": 15461883067200,
+      "returned": 2400
+    }
+  },
+  {
+    "label": "control",
+    "name": "short-using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-short-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "log_sha256": "5507ef046dfc8b64bf8a2f8e1e47634adb0cf0e9086bf4d47d87b3ea0333ab53",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 87048,
+        "payload_capacity_bytes": 57848,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 3625
+      }
+    ],
+    "growth": [],
+    "workload": {
+      "mode": "using-early",
+      "repeats": 2,
+      "create_ns": 2285375,
+      "setup_ns": 7625,
+      "first_ns": 3054250,
+      "repeated_ns": 2209833,
+      "close_ns": 616000,
+      "lifecycle_ns": 8174000,
+      "positive_ns": 5264083,
+      "negative_ns": 0,
+      "checksum": 15461883067200,
+      "returned": 2400
+    }
+  },
+  {
+    "label": "control",
+    "name": "long-using-output",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-output",
+      "2"
+    ],
+    "log_sha256": "da9185d37017bc1fa131dffbdbb1873477c1007d0060eae8cd2a47748f74c36d",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 87048,
+        "payload_capacity_bytes": 7373048,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 3625
+      }
+    ],
+    "growth": [],
+    "workload": {
+      "mode": "using-output",
+      "repeats": 2,
+      "create_ns": 2760542,
+      "setup_ns": 4627417,
+      "first_ns": 128237250,
+      "repeated_ns": 139565333,
+      "close_ns": 1003500,
+      "lifecycle_ns": 276195292,
+      "positive_ns": 267802583,
+      "negative_ns": 0,
+      "checksum": 25824160686,
+      "returned": 1843262
+    }
+  },
+  {
+    "label": "control",
+    "name": "field-adverse-field-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-late",
+      "2"
+    ],
+    "log_sha256": "01eecc0f02f8ab3cbe4b232312fe0d142d6cef4535c093b3bded900f9c639df1",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "growth": [],
+    "workload": {
+      "mode": "field-late",
+      "repeats": 2,
+      "create_ns": 2819750,
+      "setup_ns": 890458,
+      "first_ns": 8424542,
+      "repeated_ns": 5410292,
+      "close_ns": 493416,
+      "lifecycle_ns": 18038917,
+      "positive_ns": 1243459,
+      "negative_ns": 12591209,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 761625,
+      "forward_repeated_ns": 481834,
+      "reverse_first_ns": 7662834,
+      "reverse_repeated_ns": 4928375
+    }
+  },
+  {
+    "label": "control",
+    "name": "field-adverse-field-full-first",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-full-first",
+      "2"
+    ],
+    "log_sha256": "a6c57480adadbbded6bbcb4f0ccc07ff8c4da51bee88dac1100bdb74187d3c46",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 3240,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 132
+      }
+    ],
+    "growth": [],
+    "workload": {
+      "mode": "field-full-first",
+      "repeats": 2,
+      "create_ns": 3095875,
+      "setup_ns": 1943459,
+      "first_ns": 7832125,
+      "repeated_ns": 4226458,
+      "close_ns": 614291,
+      "lifecycle_ns": 17712959,
+      "positive_ns": 491250,
+      "negative_ns": 11567208,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 347875,
+      "forward_repeated_ns": 143375,
+      "reverse_first_ns": 7484208,
+      "reverse_repeated_ns": 4083000
+    }
+  },
+  {
+    "label": "control",
+    "name": "QQ-tail",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-compact-fields-tail-control-trace-v1",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-control-trace-v1/libdexkit.dylib",
+      "--passes",
+      "1",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify",
+      "--final-field-rw",
+      "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+      "--field-rw-expected",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+    ],
+    "log_sha256": "21357eee6acfd5ec359fc1e370984f2d2e99435981eb4e61381d12b37fe70e21",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 37585880,
+        "entries": 1492869,
+        "nonempty_or_ready": 1110126,
+        "live_buffers": 1110167
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 13206512,
+        "entries": 1492869,
+        "nonempty_or_ready": 1096109,
+        "live_buffers": 1096150
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 62400744,
+        "payload_capacity_bytes": 55446792,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 1540690
+      }
+    ],
+    "growth": []
+  },
+  {
+    "label": "compact",
+    "name": "long-using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "log_sha256": "e2705673d60a641cce0d788268774503e732225efffa19b42d094c34424e5150",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 43524,
+        "payload_capacity_bytes": 8388624,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 9
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 2,
+        "moved_use_bytes": 8,
+        "peak_overlap_bytes": 24,
+        "uses": 2,
+        "capacity": 2
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 20,
+        "moved_use_bytes": 4194296,
+        "peak_overlap_bytes": 6291456,
+        "uses": 460815,
+        "capacity": 524288
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 20,
+        "moved_use_bytes": 4194296,
+        "peak_overlap_bytes": 6291456,
+        "uses": 460814,
+        "capacity": 524288
+      }
+    ],
+    "workload": {
+      "mode": "using-early",
+      "repeats": 2,
+      "create_ns": 4018958,
+      "setup_ns": 3375,
+      "first_ns": 9314125,
+      "repeated_ns": 2048709,
+      "close_ns": 628916,
+      "lifecycle_ns": 16014583,
+      "positive_ns": 11362834,
+      "negative_ns": 0,
+      "checksum": 15461883067200,
+      "returned": 2400
+    }
+  },
+  {
+    "label": "compact",
+    "name": "short-using-early",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-short-v1/fields.apk",
+      "using-early",
+      "2"
+    ],
+    "log_sha256": "4d75930b92d9c5e0eb97b55a57d5de9dea6da2d1a1ec9a15b5bd4a3709c34418",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 43524,
+        "payload_capacity_bytes": 65552,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 9
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 2,
+        "moved_use_bytes": 8,
+        "peak_overlap_bytes": 24,
+        "uses": 2,
+        "capacity": 2
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 13,
+        "moved_use_bytes": 32760,
+        "peak_overlap_bytes": 49152,
+        "uses": 3615,
+        "capacity": 4096
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 13,
+        "moved_use_bytes": 32760,
+        "peak_overlap_bytes": 49152,
+        "uses": 3614,
+        "capacity": 4096
+      }
+    ],
+    "workload": {
+      "mode": "using-early",
+      "repeats": 2,
+      "create_ns": 8550625,
+      "setup_ns": 3833,
+      "first_ns": 4698542,
+      "repeated_ns": 1866917,
+      "close_ns": 534833,
+      "lifecycle_ns": 15655708,
+      "positive_ns": 6565459,
+      "negative_ns": 0,
+      "checksum": 15461883067200,
+      "returned": 2400
+    }
+  },
+  {
+    "label": "compact",
+    "name": "long-using-output",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/build/Core/dexkit_field_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/fixtures/field-long-v1/fields.apk",
+      "using-output",
+      "2"
+    ],
+    "log_sha256": "1d0b4d93083d40e8bbf6b08e78705d96c3644fcbd2dfe26c6ae0f21de51ba631",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 43524,
+        "payload_capacity_bytes": 8388624,
+        "entries": 3627,
+        "nonempty_or_ready": 3622,
+        "live_buffers": 9
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 2,
+        "moved_use_bytes": 8,
+        "peak_overlap_bytes": 24,
+        "uses": 2,
+        "capacity": 2
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 20,
+        "moved_use_bytes": 4194296,
+        "peak_overlap_bytes": 6291456,
+        "uses": 460815,
+        "capacity": 524288
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 20,
+        "moved_use_bytes": 4194296,
+        "peak_overlap_bytes": 6291456,
+        "uses": 460814,
+        "capacity": 524288
+      }
+    ],
+    "workload": {
+      "mode": "using-output",
+      "repeats": 2,
+      "create_ns": 1324208,
+      "setup_ns": 2767833,
+      "first_ns": 128366750,
+      "repeated_ns": 103319292,
+      "close_ns": 541166,
+      "lifecycle_ns": 236320542,
+      "positive_ns": 231686042,
+      "negative_ns": 0,
+      "checksum": 25824160686,
+      "returned": 1843262
+    }
+  },
+  {
+    "label": "compact",
+    "name": "field-adverse-field-late",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-late",
+      "2"
+    ],
+    "log_sha256": "ce544d6c9ed9a1efefe8cc0e4b45f3909f80e9ea324a7a9b86d9a7e9d78d644b",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 1620,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 9
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 3,
+        "moved_use_bytes": 24,
+        "peak_overlap_bytes": 48,
+        "uses": 3,
+        "capacity": 4
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 16,
+        "moved_use_bytes": 262136,
+        "peak_overlap_bytes": 393216,
+        "uses": 24832,
+        "capacity": 32768
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 16,
+        "moved_use_bytes": 262136,
+        "peak_overlap_bytes": 393216,
+        "uses": 24832,
+        "capacity": 32768
+      }
+    ],
+    "workload": {
+      "mode": "field-late",
+      "repeats": 2,
+      "create_ns": 6246417,
+      "setup_ns": 1509542,
+      "first_ns": 21140667,
+      "repeated_ns": 5393792,
+      "close_ns": 733750,
+      "lifecycle_ns": 35024916,
+      "positive_ns": 11355083,
+      "negative_ns": 15179166,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 11100750,
+      "forward_repeated_ns": 254333,
+      "reverse_first_ns": 10039791,
+      "reverse_repeated_ns": 5139375
+    }
+  },
+  {
+    "label": "compact",
+    "name": "field-adverse-field-full-first",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/build/Core/dexkit_relation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/field-adverse/relations.apk",
+      "field-full-first",
+      "2"
+    ],
+    "log_sha256": "a68ed024657bcdeae0a976de23d683d9d4d006d501593ddd4b2dcde16cd60640",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 265232,
+        "entries": 24591,
+        "nonempty_or_ready": 8,
+        "live_buffers": 11
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 590184,
+        "payload_capacity_bytes": 132104,
+        "entries": 24591,
+        "nonempty_or_ready": 4,
+        "live_buffers": 7
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 1620,
+        "payload_capacity_bytes": 524320,
+        "entries": 135,
+        "nonempty_or_ready": 129,
+        "live_buffers": 9
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 3,
+        "moved_use_bytes": 24,
+        "peak_overlap_bytes": 48,
+        "uses": 3,
+        "capacity": 4
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 16,
+        "moved_use_bytes": 262136,
+        "peak_overlap_bytes": 393216,
+        "uses": 24832,
+        "capacity": 32768
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 16,
+        "moved_use_bytes": 262136,
+        "peak_overlap_bytes": 393216,
+        "uses": 24832,
+        "capacity": 32768
+      }
+    ],
+    "workload": {
+      "mode": "field-full-first",
+      "repeats": 2,
+      "create_ns": 3794333,
+      "setup_ns": 2379208,
+      "first_ns": 12922791,
+      "repeated_ns": 10055667,
+      "close_ns": 1748333,
+      "lifecycle_ns": 30901625,
+      "positive_ns": 3013834,
+      "negative_ns": 19964458,
+      "checksum": 634967971447098,
+      "returned": 98562,
+      "forward_first_ns": 427250,
+      "forward_repeated_ns": 2586584,
+      "reverse_first_ns": 12495417,
+      "reverse_repeated_ns": 7469041
+    }
+  },
+  {
+    "label": "compact",
+    "name": "QQ-tail",
+    "command": [
+      "python3",
+      "tools/qaux-benchmark/run.py",
+      "--dexkit-root",
+      "/Users/teble/project/android/DexKit-qaux-benchmark",
+      "--corpus",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+      "--apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+      "--java-home",
+      "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+      "--memory-probe",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+      "--output",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/formal/verify-compact-fields-tail-compact-trace-v1",
+      "--native-library",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/next-round/artifacts/compact-fields-compact-trace-v1/libdexkit.dylib",
+      "--passes",
+      "1",
+      "--threads",
+      "4",
+      "--profile",
+      "all",
+      "--mode",
+      "verify",
+      "--final-field-rw",
+      "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+      "--field-rw-expected",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+    ],
+    "log_sha256": "a750d97280c8b8d70a6c860798f0522f15345a27243221299abbe2994cf8502b",
+    "census": [
+      {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 37585880,
+        "entries": 1492869,
+        "nonempty_or_ready": 1110126,
+        "live_buffers": 1110167
+      },
+      {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 35828856,
+        "payload_capacity_bytes": 13206512,
+        "entries": 1492869,
+        "nonempty_or_ready": 1096109,
+        "live_buffers": 1096150
+      },
+      {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 31200372,
+        "payload_capacity_bytes": 62128128,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 123
+      }
+    ],
+    "growth": [
+      {
+        "phase": "pre_close",
+        "dex": 0,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 130436,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 1,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 83201,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 2,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 114195,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 3,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 99893,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 4,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 101517,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 5,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 131387,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 6,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 122680,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 7,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 138203,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 8,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 148988,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 9,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 111850,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 10,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 104025,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 11,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 125857,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 12,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 93937,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 13,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 140630,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 14,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 178557,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 15,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 132849,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 16,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 167410,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 17,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 139328,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 18,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 130031,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 19,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 228938,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 20,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 159268,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 21,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 182841,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 22,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 136675,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 23,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 130113,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 24,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 129991,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 25,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 197136,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 26,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 197007,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 27,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 120719,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 28,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 132455,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 29,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 145321,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 30,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 117041,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 31,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 121205,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 32,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 143525,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 33,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 158887,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 34,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 119485,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 35,
+        "growths": 19,
+        "moved_use_bytes": 2097144,
+        "peak_overlap_bytes": 3145728,
+        "uses": 163108,
+        "capacity": 262144
+      },
+      {
+        "phase": "pre_close",
+        "dex": 36,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 95646,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 37,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 123557,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 38,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 126423,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 39,
+        "growths": 18,
+        "moved_use_bytes": 1048568,
+        "peak_overlap_bytes": 1572864,
+        "uses": 129572,
+        "capacity": 131072
+      },
+      {
+        "phase": "pre_close",
+        "dex": 40,
+        "growths": 16,
+        "moved_use_bytes": 262136,
+        "peak_overlap_bytes": 393216,
+        "uses": 21788,
+        "capacity": 32768
+      }
+    ]
+  }
+]

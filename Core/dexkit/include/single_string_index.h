@@ -4,6 +4,11 @@
 #include <cstdint>
 #include <optional>
 #include <string_view>
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+#include <atomic>
+#include <memory>
+#include <mutex>
+#endif
 
 #include "string_query_diagnostics.h"
 
@@ -87,4 +92,37 @@ IdRange FindIds(const Strings &strings, std::string_view ascii, bool prefix) {
     if (!end) return {};
     return {*begin, *end, true};
 }
+
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+// Query-owned, published once per DEX and borrowed by all of its scan tasks.
+// One instance per matcher; each DEX's pool and predicate stay fixed.
+class DexRanges {
+    struct Entry {
+        std::atomic<bool> ready{false};
+        std::mutex mutex;
+        IdRange range;
+    };
+public:
+    explicit DexRanges(size_t count) : count_(count), entries_(count ? std::make_unique<Entry[]>(count) : nullptr) {}
+
+    size_t StorageBytes() const { return count_ * sizeof(Entry); }
+
+    template<typename Strings>
+    const IdRange *Get(uint32_t dex_id, const Strings &strings, std::string_view needle, bool prefix) {
+        if (dex_id >= count_) return nullptr;
+        auto &entry = entries_[dex_id];
+        if (!entry.ready.load(std::memory_order_acquire)) {
+            std::lock_guard lock(entry.mutex);
+            if (!entry.ready.load(std::memory_order_relaxed)) {
+                entry.range = FindIds(strings, needle, prefix);
+                entry.ready.store(true, std::memory_order_release);
+            }
+        }
+        return entry.range.valid ? &entry.range : nullptr;
+    }
+private:
+    size_t count_;
+    std::unique_ptr<Entry[]> entries_;
+};
+#endif
 }

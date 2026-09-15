@@ -81,7 +81,8 @@ def main():
             if dex == 0:
                 rows[('Lstrings/Sparse;', 'only', 'V', ())] = ['Needle', LONG]
             for i in range(args.bulk_methods):
-                filler = LONG[:-1] + chr(ord('a') + (i % 20))
+                # The last byte must never recreate LONG's lowercase 'e'.
+                filler = LONG[:-1] + chr(ord('A') + (i % 20))
                 values = [filler] * args.references
                 if args.layout == 'early': values[0] = LONG
                 elif args.layout == 'late': values[-1] = LONG

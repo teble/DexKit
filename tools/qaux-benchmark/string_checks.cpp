@@ -1,6 +1,7 @@
 #include "string_queries.h"
 #include "single_string_index.h"
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstdlib>
 #include <latch>
@@ -54,6 +55,35 @@ void CheckOrdering() {
     }
 }
 
+void CheckDexIsolation() {
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+    single_string::DexRanges ranges(65537);
+    const std::vector<std::string_view> low{"A", "Needle", "Z"}, high{"Needle", "Z"};
+    std::array<const single_string::IdRange *, 8> observed{};
+    std::vector<std::thread> threads;
+    std::latch start(1);
+    for (size_t i = 0; i < observed.size(); ++i) {
+        threads.emplace_back([&, i] {
+            start.wait();
+            for (int repeat = 0; repeat < 16; ++repeat) {
+                auto *range = ranges.Get(i % 2 ? uint32_t(65536) : 0, i % 2 ? high : low, "Needle", false);
+                Require(range && range->begin == (i % 2 ? 0 : 1) && range->end == range->begin + 1);
+                if (observed[i]) Require(observed[i] == range);
+                observed[i] = range;
+            }
+        });
+    }
+    start.count_down();
+    for (auto &thread : threads) thread.join();
+    for (size_t i = 2; i < observed.size(); ++i) Require(observed[i] == observed[i % 2]);
+    Require(observed[0] != observed[1]);
+    Require(!ranges.Get(65537, low, "Needle", false));
+    Require(!ranges.Get(UINT32_MAX, low, "Needle", false));
+    single_string::DexRanges empty(0);
+    Require(!empty.Get(0, low, "Needle", false));
+#endif
+}
+
 void Append(std::string &out, const Builder &data) {
     Require(data.GetSize() <= UINT32_MAX);
     uint32_t size = data.GetSize();
@@ -97,6 +127,7 @@ int main(int argc, char **argv) {
     const bool dump = argc == 3 && std::string_view(argv[1]) == "--dump";
     if (argc != 2 && !dump) return 2;
     CheckOrdering();
+    CheckDexIsolation();
     DexKit reference(argv[argc - 1], 1);
     reference.SetThreadNum(4);
     reference.InitFullCache();

@@ -531,31 +531,24 @@ static PersistentUsingStringsKeywordsCache *GetUsingStringsKeywordsCache(
 
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT || DEXKIT_EXPERIMENT_SINGLE_STRING_ID
 namespace {
-#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
-struct SingleStringDexEntry {
-    std::atomic<bool> ready{false};
-    std::mutex mutex;
-    single_string::IdRange range;
-};
-#endif
-
 struct SingleUsingStringPlan {
     std::string_view needle;
     bool prefix;
     bool eligible;
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
-    size_t dex_count = 0;
-    std::unique_ptr<SingleStringDexEntry[]> dex_entries;
+    single_string::DexRanges dex_ranges;
 #endif
 
     SingleUsingStringPlan(std::string_view value, bool is_prefix, const DexKit *bridge)
-            : needle(value), prefix(is_prefix), eligible(single_string::IsNonemptyAscii(value)) {
-        DEXKIT_STRING_COUNT(plans, 1);
+            : needle(value), prefix(is_prefix), eligible(single_string::IsNonemptyAscii(value))
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
-        if (eligible) {
-            dex_count = static_cast<size_t>(bridge->GetDexNum());
-            dex_entries = std::make_unique<SingleStringDexEntry[]>(dex_count);
-        }
+            , dex_ranges(eligible ? static_cast<size_t>(bridge->GetDexNum()) : 0)
+#endif
+    {
+        DEXKIT_STRING_COUNT(plans, 1);
+        DEXKIT_STRING_COUNT(plan_bytes, sizeof(*this));
+#if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
+        DEXKIT_STRING_COUNT(plan_bytes, dex_ranges.StorageBytes());
 #else
         (void)bridge;
 #endif
@@ -563,17 +556,8 @@ struct SingleUsingStringPlan {
 
 #if DEXKIT_EXPERIMENT_SINGLE_STRING_ID
     template<typename Strings>
-    const single_string::IdRange *RangeFor(uint16_t dex_id, const Strings &strings) {
-        if (dex_id >= dex_count) return nullptr;
-        auto &entry = dex_entries[dex_id];
-        if (!entry.ready.load(std::memory_order_acquire)) {
-            std::lock_guard lock(entry.mutex);
-            if (!entry.ready.load(std::memory_order_relaxed)) {
-                entry.range = single_string::FindIds(strings, needle, prefix);
-                entry.ready.store(true, std::memory_order_release);
-            }
-        }
-        return entry.range.valid ? &entry.range : nullptr;
+    const single_string::IdRange *RangeFor(uint32_t dex_id, const Strings &strings) {
+        return dex_ranges.Get(dex_id, strings, needle, prefix);
     }
 #endif
 };
@@ -608,7 +592,7 @@ static SingleUsingStringPlan *GetSingleUsingStringPlan(
 template<typename Strings, typename VisitReferences>
 std::optional<bool> TrySingleUsingString(
         const flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>> *matchers,
-        const DexKit *bridge, uint16_t dex_id, const Strings &strings,
+        const DexKit *bridge, uint32_t dex_id, const Strings &strings,
         VisitReferences &&visit) {
     auto *plan = GetSingleUsingStringPlan(matchers, bridge);
     if (plan == nullptr) return std::nullopt;

@@ -19,6 +19,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--methods', type=int, default=8)
     parser.add_argument('--row-size', type=int, default=8)
+    parser.add_argument('--split-unresolved', action='store_true')
     args = parser.parse_args()
     if not 1 <= args.methods <= 5000 or not 2 <= args.row_size <= 65536:
         raise SystemExit('Use 1..5000 methods per row family and 2..65536 field uses.')
@@ -59,6 +60,8 @@ def main():
             'swap': [('put', beta), ('get', alpha)],
             'missing': [('put', absent)], 'noiseOnly': [('get', noise)],
         }
+        if args.split_unresolved and dex == 2:
+            definitions['missing'] = [('get', absent)]
         if dex == 1: definitions['unique'] = [('get', alpha)]
         for index in range(args.methods):
             tail = [('get' if i % 2 else 'put', noise) for i in range(args.row_size - 2)]
@@ -74,7 +77,8 @@ def main():
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, data)
     manifest = dict(apk_sha256=hashlib.sha256(apk.read_bytes()).hexdigest(), methods=args.methods,
-                    row_size=args.row_size, rows=rows, dexes=[item for _, item in encoded])
+                    row_size=args.row_size, split_unresolved=args.split_unresolved,
+                    rows=rows, dexes=[item for _, item in encoded])
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(apk)
 

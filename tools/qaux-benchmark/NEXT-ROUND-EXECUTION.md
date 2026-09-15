@@ -1,8 +1,8 @@
 # Ordered next-round experiments
 
 Status: active. Equal and StartWith measurements and independent confirmation
-are complete. Batch boolean containment is complete; one using-field requirement
-is next. Subsequent ranked mechanisms
+are complete. Batch boolean containment and one using-field requirement are
+complete; contiguous forward-field rows are next. Subsequent ranked mechanisms
 remain independent experiments against the nine-switch control.
 
 ## Controls and sequence
@@ -87,3 +87,10 @@ source and evidence review after meaningful increments.
   improves 4.45% in confirmation, while whole-QQ lifecycle and process peak
   remain unresolved. The high-overlap method/class fixture improves; no-hit
   guards do not establish a change. Keep this separate from later field work.
+* Completed one using-field requirement: 18 sweeps / 216 samples, independent
+  small/short/long and unresolved-field oracles, standalone/ASan/UBSan, relation
+  lifecycle checks, eleven frozen QQ rounds, 71 JVM tests and four-ABI AAR.
+  Native long/short improvements repeat, while QQ has no confirmed gain.
+  Preserve its 11-pass confirmation slowdown and nested-class peak increase.
+  The selector collision and unresolved-field oracle gap were corrected;
+  SINGLE-FIELD-RESULTS and SINGLE-FIELD-REVIEW record the scope and evidence.

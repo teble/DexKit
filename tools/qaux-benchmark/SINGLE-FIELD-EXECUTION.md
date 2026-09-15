@@ -1,6 +1,6 @@
 # One using-field requirement
 
-Status: implementation and correctness checks in progress.
+Status: complete. See SINGLE-FIELD-RESULTS.md and SINGLE-FIELD-REVIEW.md.
 
 1. Keep the nine-switch control and add only SINGLE_USING_FIELD to the candidate.
    The new option defaults OFF in Core, desktop and Android builds. All new
@@ -50,4 +50,9 @@ and rerun its diagnostic preflight before measurement. The first early/late
 traces have equal judges and 614,400 prepared target items over two passes in
 the control; diagnostic times are not performance evidence.
 
-JVM/Android checks, source review and formal timing remain in progress/pending.
+The required Gradle checks pass with 71 JVM tests and four Android ABIs.
+Both finite measurement batches complete: 18 sweeps / 216 process samples.
+The long and short native improvements repeat, QQ does not establish a gain,
+and the report retains the QQ 11-pass confirmation slowdown and nested-class
+peak increase. The post-review unresolved-field identity oracle and contrasting
+fixture pass all four builds without changing Core or measured inputs.

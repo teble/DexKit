@@ -67,10 +67,22 @@ def expected(fixture):
     manifest = json.loads((fixture / 'manifest.json').read_text())
     assert manifest['apk_sha256'] == sha(fixture / 'fields.apk')
     rows = manifest['rows']
+    definitions, local_ids = {}, {}
+    for dex, info in enumerate(manifest['dexes']):
+        for field in info['fields']:
+            symbol = field['descriptor']
+            local_ids[(dex, symbol)] = field['id']
+            if field['defined']:
+                # This oracle covers unique definitions. Duplicate-definition
+                # representative and cursor behavior use the relation checker.
+                assert symbol not in definitions
+                definitions[symbol] = (dex, field['id'])
+    def identity(dex, symbol):
+        return definitions.get(symbol, (dex, local_ids[(dex, symbol)]))
     readers, writers = set(), set()
     for row in rows:
         for use in row['uses']:
-            (readers if use['get'] else writers).add(use['field'])
+            (readers if use['get'] else writers).add(identity(row['dex'], use['field']))
 
     def matches(row, variant):
         uses = row['uses']
@@ -87,8 +99,8 @@ def expected(fixture):
         if variant in (11, 21): return False
         if variant == 12: return bool(beta)
         if variant == 13: return any(u['field'] == 'Lufields/Absent;->alpha:I' for u in alpha)
-        if variant == 15: return any(u['field'] in readers for u in alpha)
-        if variant == 16: return any(u['field'] in writers for u in alpha)
+        if variant == 15: return any(identity(row['dex'], u['field']) in readers for u in alpha)
+        if variant == 16: return any(identity(row['dex'], u['field']) in writers for u in alpha)
         if variant == 17: return not alpha
         if variant == 18: return bool(alpha or beta)
         if variant == 19: return any(u['get'] for u in alpha)

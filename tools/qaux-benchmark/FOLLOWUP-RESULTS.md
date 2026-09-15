@@ -1,7 +1,7 @@
 # Incremental optimization results
 
-Status: work in progress. The first three candidates have scoped
-decisions; two remain to be validated. All switches remain OFF by default.
+Status: work in progress. The first four candidates have scoped
+decisions; one remains to be validated. All switches remain OFF by default.
 
 ## Field decision after the bounded follow-up
 
@@ -234,6 +234,66 @@ new fixtures. Review agreement is not used as performance evidence.
 
 ## Remaining candidates
 
-Raw source metadata and one-requirement relation matching still need
-independent decisions. The final selected combination
-will be measured directly against best5.
+One-requirement relation matching still needs an independent decision. The
+final selected combination will be measured directly against best5.
+
+## Raw source-file metadata decision
+
+Do not include this in the generally preferred combination. The removed
+source-view table reduces memory, but source matching has a reproducible warm
+cost and QQ time is not established as non-increasing. Keep the default-OFF
+prototype as a measured tradeoff; do not claim that a raw indexed read is
+universally cheaper than a view lookup.
+
+Source `7437dfa` removes only the source-file view side table. The class Bean
+reuses its already loaded ClassDef, while the source matcher reads through
+type_def_idx, ClassDefs and strings after the existing undefined-type guard.
+Missing indexes, defined empty strings, original raw byte encoding, view
+lifetime and local/cross-DEX class selection are preserved. The normal native
+artifact is `3b0b1b356117caf95f1f633640cca645f95fbc4950a2bffa26aeae120d3a1c84`.
+Best5 is still byte-identical `331f615...`; field split, descriptor pointers
+and contiguous invokes are all OFF in this independent comparison.
+
+Independent best5 full-byte comparisons pass on a small three-DEX fixture and
+a version with 60,000 additional classes. They cover 16 source queries, all
+raw type IDs, canonical class lookup, three initialization/concurrency orders,
+missing/empty/UTF/MUTF-8/long strings, undefined references and duplicate
+definitions. Known source bytes have independent expected values. ASan/UBSan
+passes both oracles and both old frozen symbol oracles. Both normal libraries
+pass all eleven frozen QQ passes. Native/JAR, 71 freshly executed JVM tests
+and all four Android release ABIs pass. The JAR is unchanged.
+
+Six balanced fresh-process pairs per case use independent seeds 2026091529
+and 2026091530. All valid samples, sixteen stage summaries and manifests are
+retained in `evidence/followup/sources/`. Confirmation increases hot getter
+repetitions from 4,096 to 65,536 to expose its warm cost; other repetition
+counts are unchanged. Intervals below are exploratory 95% paired bootstraps.
+
+| Confirmation vs best5 | Complete lifecycle | Repeated APIs | Peak footprint |
+| --- | ---: | ---: | ---: |
+| QQ, 1 pass | -0.09% [-2.32, +0.47] | n/a | -0.87% [-1.22, -0.18] |
+| QQ, 11 passes | +1.37% [-0.81, +3.00] | +1.07% [-0.78, +2.85] | -0.26% [-0.96, -0.17] |
+| Wide source matching, 64 repetitions | +3.19% [+0.56, +4.80] | +4.34% [+1.14, +5.79] | -4.30% [-4.40, -4.09] |
+| Wide class output, 8 repetitions | -0.20% [-2.10, +1.05] | -0.02% [-2.85, +1.17] | -0.76% [-3.32, +1.49] |
+| Wide hot getter, 65,536 repetitions | -0.66% [-1.82, +0.27] | +0.63% [+0.10, +0.73] | -4.36% [-4.36, -4.29] |
+| Small source matching, 4,096 repetitions | +0.56% [-2.11, +3.24] | +0.46% [-2.15, +3.19] | +0.00% [-1.98, +2.02] |
+
+The first batch independently measured wide source matching warm cost
++3.15% [+0.07, +4.90], with complete lifecycle +1.94% [-1.17, +4.13].
+The independent warm regression and confirmation lifecycle regression support
+the scoped decision. Hot getter and class-output effects are not generalized
+from one narrow interval; their full results remain available. Source-hot
+work is in first/repeated timings, not the unused positive/negative fields.
+
+The removed QQ table is 694,054 views at 16 bytes: 11,104,864 B (10.59 MiB)
+of logical array capacity. Raw string bodies are unchanged. This is distinct
+from the separately measured process peak. The source matcher's additional
+dependent reads are a code fact; they are not a complete causal explanation
+of every timing difference.
+
+Pro's actual source review found no new correctness blocker. Its suggested
+fixture guard is added, and an independent raw DEX parse confirms Absent uses
+0xffffffff while Empty uses valid index 0 in both fixtures. All timed native
+workload manifests were checked to have diagnostics and both metrics options
+OFF; workload_sweep now enforces both metrics gates itself. The new checks
+do not change any already frozen measurement binary.

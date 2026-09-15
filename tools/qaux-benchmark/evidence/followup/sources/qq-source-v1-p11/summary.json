@@ -1,0 +1,312 @@
+{
+  "profile": "all",
+  "threads": 4,
+  "passes": 11,
+  "pairs": 6,
+  "seed": 2026091529,
+  "labels": [
+    "best5-source-control",
+    "source-v1"
+  ],
+  "reversed_order": [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0
+  ],
+  "notes": "Fresh JVM per sample, balanced randomized AB/BA pairs; OS file cache is not flushed. Negative change favors the second label. Bootstrap intervals are exploratory paired-median intervals, not a universal performance guarantee.",
+  "metrics": {
+    "lifecycle_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 7042.2780625,
+          "minimum": 6917.5225,
+          "maximum": 7166.856792,
+          "mad": 34.06595849999985
+        },
+        "source-v1": {
+          "median": 7055.2487915,
+          "minimum": 6831.834166,
+          "maximum": 7278.592875,
+          "mad": 72.20404150000013
+        }
+      },
+      "paired_change_percent": [
+        -0.353814388791418,
+        -2.8964026824169653,
+        2.8812591502232143,
+        -2.371012689826324,
+        3.2579444809609504,
+        0.682952552664795
+      ],
+      "median_change_percent": 0.1645690819366885,
+      "bootstrap95_percent": [
+        -2.6337076861216446,
+        3.0696018155920823
+      ]
+    },
+    "create_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 239.31902100000002,
+          "minimum": 236.080458,
+          "maximum": 259.292666,
+          "mad": 2.3852295000000225
+        },
+        "source-v1": {
+          "median": 243.780625,
+          "minimum": 235.294708,
+          "maximum": 250.37625,
+          "mad": 4.3882500000000135
+        }
+      },
+      "paired_change_percent": [
+        -9.255162658553552,
+        -4.533923622693492,
+        3.2721494067435186,
+        5.24821453154245,
+        4.185455282368178,
+        0.5177812660987158
+      ],
+      "median_change_percent": 1.8949653364211172,
+      "bootstrap95_percent": [
+        -6.894543140623522,
+        4.716834906955314
+      ]
+    },
+    "close_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 515.341604,
+          "minimum": 485.923042,
+          "maximum": 575.91,
+          "mad": 15.479020500000019
+        },
+        "source-v1": {
+          "median": 520.3090629999999,
+          "minimum": 464.427166,
+          "maximum": 546.102375,
+          "mad": 12.026666499999976
+        }
+      },
+      "paired_change_percent": [
+        1.768773240343613,
+        -19.357683318574082,
+        3.5442083440035743,
+        2.24133659059349,
+        0.1620135734012873,
+        4.774868464784876
+      ],
+      "median_change_percent": 2.0050549154685515,
+      "bootstrap95_percent": [
+        -9.597834872586397,
+        4.159538404394225
+      ]
+    },
+    "pass0_api_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 1140.908811,
+          "minimum": 1097.855748,
+          "maximum": 1214.8245,
+          "mad": 17.615501499999937
+        },
+        "source-v1": {
+          "median": 1148.162561,
+          "minimum": 1099.582792,
+          "maximum": 1246.853085,
+          "mad": 34.321083000000044
+        }
+      },
+      "paired_change_percent": [
+        -3.6424638291374545,
+        2.3859770327494756,
+        10.516760717643582,
+        -3.9726765607168035,
+        4.921747651027286,
+        -3.238993653741551
+      ],
+      "median_change_percent": -0.42650831049603766,
+      "bootstrap95_percent": [
+        -3.807570194927129,
+        7.719254184335433
+      ]
+    },
+    "pass1_api_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 500.922456,
+          "minimum": 493.260498,
+          "maximum": 525.092877,
+          "mad": 1.6960210000000018
+        },
+        "source-v1": {
+          "median": 503.455917,
+          "minimum": 495.061582,
+          "maximum": 522.670501,
+          "mad": 4.872000500000013
+        }
+      },
+      "paired_change_percent": [
+        1.4432961951881262,
+        1.020966492549924,
+        -0.8496998950553558,
+        -0.007354429307093735,
+        3.973431580131792,
+        -2.850765770338193
+      ],
+      "median_change_percent": 0.5068060316214151,
+      "bootstrap95_percent": [
+        -1.8502328326967743,
+        2.708363887659959
+      ]
+    },
+    "repeated_api_ms": {
+      "variants": {
+        "best5-source-control": {
+          "median": 5096.2959169999995,
+          "minimum": 4944.254382,
+          "maximum": 5210.140491,
+          "mad": 46.79654649999975
+        },
+        "source-v1": {
+          "median": 5065.8789975,
+          "minimum": 4968.332722,
+          "maximum": 5281.832836,
+          "mad": 80.69259800000009
+        }
+      },
+      "paired_change_percent": [
+        1.168744375499231,
+        -2.089068218067258,
+        0.8692618153522735,
+        -2.857833167017376,
+        3.1525069572889697,
+        1.156190586889716
+      ],
+      "median_change_percent": 1.0127262011209948,
+      "bootstrap95_percent": [
+        -2.4734506925423174,
+        2.1606256663941004
+      ]
+    },
+    "max_rss_bytes": {
+      "variants": {
+        "best5-source-control": {
+          "median": 1800847360.0,
+          "minimum": 1630339072,
+          "maximum": 1824931840,
+          "mad": 20307968.0
+        },
+        "source-v1": {
+          "median": 1668546560.0,
+          "minimum": 1561378816,
+          "maximum": 1814446080,
+          "mad": 102612992.0
+        }
+      },
+      "paired_change_percent": [
+        -2.948660670927139,
+        -0.16137175002705062,
+        -13.432225714441437,
+        0.47383000437382083,
+        -3.671061623186078,
+        -6.851012254791932
+      ],
+      "median_change_percent": -3.3098611470566084,
+      "bootstrap95_percent": [
+        -10.141618984616684,
+        0.1562291271733851
+      ]
+    },
+    "window_peak_rss_bytes": {
+      "variants": {
+        "best5-source-control": {
+          "median": 1800847360.0,
+          "minimum": 1630339072,
+          "maximum": 1824931840,
+          "mad": 20307968.0
+        },
+        "source-v1": {
+          "median": 1668546560.0,
+          "minimum": 1561378816,
+          "maximum": 1814446080,
+          "mad": 102612992.0
+        }
+      },
+      "paired_change_percent": [
+        -2.948660670927139,
+        -0.16137175002705062,
+        -13.432225714441437,
+        0.47383000437382083,
+        -3.671061623186078,
+        -6.851012254791932
+      ],
+      "median_change_percent": -3.3098611470566084,
+      "bootstrap95_percent": [
+        -10.141618984616684,
+        0.1562291271733851
+      ]
+    },
+    "peak_footprint_bytes": {
+      "variants": {
+        "best5-source-control": {
+          "median": 1800173024.0,
+          "minimum": 1789744576,
+          "maximum": 1805473216,
+          "mad": 3309600.0
+        },
+        "source-v1": {
+          "median": 1787704768.0,
+          "minimum": 1779291648,
+          "maximum": 1799378368,
+          "mad": 4571136.0
+        }
+      },
+      "paired_change_percent": [
+        -1.048119674792225,
+        -0.5840457984994663,
+        -0.6106670117262403,
+        -0.4593114353870553,
+        -0.7030098308902666,
+        0.0218505401000213
+      ],
+      "median_change_percent": -0.5973564051128533,
+      "bootstrap95_percent": [
+        -0.8755647528412458,
+        -0.218730447643517
+      ]
+    },
+    "window_peak_footprint_bytes": {
+      "variants": {
+        "best5-source-control": {
+          "median": 1800173024.0,
+          "minimum": 1789744576,
+          "maximum": 1805473216,
+          "mad": 3309600.0
+        },
+        "source-v1": {
+          "median": 1787704768.0,
+          "minimum": 1779291648,
+          "maximum": 1799378368,
+          "mad": 4571136.0
+        }
+      },
+      "paired_change_percent": [
+        -1.048119674792225,
+        -0.5840457984994663,
+        -0.6106670117262403,
+        -0.4593114353870553,
+        -0.7030098308902666,
+        0.0218505401000213
+      ],
+      "median_change_percent": -0.5973564051128533,
+      "bootstrap95_percent": [
+        -0.8755647528412458,
+        -0.218730447643517
+      ]
+    }
+  }
+}

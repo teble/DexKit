@@ -1,0 +1,17 @@
+{
+  "sources-small": {
+    "apk_sha256": "34ccbfb8ee489e29f94c564d7f32090cc2e43bb78e7d79d7445cee5d9f4b961d",
+    "raw_indexes": {
+      "Lsources/Absent;": 4294967295,
+      "Lsources/Empty;": 0
+    }
+  },
+  "sources-wide": {
+    "apk_sha256": "a53b1afef1a4387be26b090af0ca930149079a1eabe45868f2a58d647501dff1",
+    "raw_indexes": {
+      "Lsources/Absent;": 4294967295,
+      "Lsources/Empty;": 0
+    }
+  },
+  "existing_native_workload_manifests": "All present follow-up native workload summary variants have diagnostics and both metrics options OFF."
+}

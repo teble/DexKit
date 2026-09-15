@@ -51,6 +51,9 @@ def main():
                                  'build/Core/dexkit_relation_workload' if relation else 'build/Core/dexkit_descriptor_workload')
         if manifest['diagnostics'] or manifest['native_sha256'] != sha(artifact / 'libdexkit.dylib'):
             raise SystemExit('Require unchanged, non-diagnostic native artifacts.')
+        if any(manifest['cmake_options'].get(key) != 'OFF' for key in
+               ['DEXKIT_ENABLE_INTERNAL_METRICS', 'DEXKIT_ENABLE_INTERNAL_METRICS_API']):
+            raise SystemExit('Timed workload artifacts must disable both internal metrics options.')
         option = ('DEXKIT_BENCHMARK_SOURCE_WORKLOAD' if source else 'DEXKIT_BENCHMARK_RELATION_WORKLOAD'
                   if relation else 'DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD')
         if manifest['cmake_options'][option] != 'ON':

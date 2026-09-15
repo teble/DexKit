@@ -1,0 +1,44 @@
+{
+  "command": [
+    "bash",
+    "gradlew",
+    "-I",
+    "tools/qaux-benchmark/force_tests.gradle",
+    ":dexkit:cmakeBuild",
+    ":dexkit:jar",
+    ":dexkit:test",
+    ":dexkit-android:assembleRelease",
+    "--max-workers=2",
+    "--console=plain",
+    "-PexperimentLazyDirectories=ON",
+    "-PexperimentCompactStrings=ON",
+    "-PexperimentNegativeStrings=ON",
+    "-PexperimentStructuralDescriptors=ON",
+    "-PexperimentDescriptorFastHits=ON",
+    "-PexperimentRawInterfaces=ON",
+    "-PexperimentPointerDescriptors=OFF",
+    "-PexperimentPagedDescriptors=OFF",
+    "-PexperimentAlignedDescriptors=OFF",
+    "-PexperimentRawDescriptorLookup=OFF",
+    "-PexperimentFieldIdentitySplit=OFF",
+    "-PexperimentCompactInvokes=OFF",
+    "-PexperimentRawSourceFiles=ON",
+    "-PexperimentSingleRelation=OFF"
+  ],
+  "engine_commit": "7437dfa9e7410a8046ec0833f7cd744ca5f05d16",
+  "tests": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android_native_entries": [
+    "jni/arm64-v8a/libdexkit.so",
+    "jni/armeabi-v7a/libdexkit.so",
+    "jni/x86/libdexkit.so",
+    "jni/x86_64/libdexkit.so"
+  ],
+  "jar_sha256": {
+    "dexkit.jar": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a"
+  }
+}

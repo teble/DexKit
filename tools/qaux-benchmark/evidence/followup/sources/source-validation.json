@@ -1,0 +1,42 @@
+{
+  "best5-source-checks-sources-small": {
+    "sha256": "b9829b51f25c14323de26dcd73a3ed1776754132e926d6c091f771680c4a99e1",
+    "bytes": 11376
+  },
+  "source-checks-v1-sources-small": {
+    "sha256": "b9829b51f25c14323de26dcd73a3ed1776754132e926d6c091f771680c4a99e1",
+    "bytes": 11376
+  },
+  "source-sanitized-v1-sources-small": {
+    "sha256": "b9829b51f25c14323de26dcd73a3ed1776754132e926d6c091f771680c4a99e1",
+    "bytes": 11376
+  },
+  "best5-source-checks-sources-wide": {
+    "sha256": "feaebd19cc05c38c8e070e5b3d32e3985ac80477e6d75a754f2524cb9bbba8ab",
+    "bytes": 30491944
+  },
+  "source-checks-v1-sources-wide": {
+    "sha256": "feaebd19cc05c38c8e070e5b3d32e3985ac80477e6d75a754f2524cb9bbba8ab",
+    "bytes": 30491944
+  },
+  "source-sanitized-v1-sources-wide": {
+    "sha256": "feaebd19cc05c38c8e070e5b3d32e3985ac80477e6d75a754f2524cb9bbba8ab",
+    "bytes": 30491944
+  },
+  "source-checks-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "source-checks-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  },
+  "source-sanitized-v1-symbols": {
+    "sha256": "011bd972536fe9f26f2fd86940791b13926ab41cbcd02e8e7d374162b6faa169",
+    "bytes": 7853159
+  },
+  "source-sanitized-v1-overload": {
+    "sha256": "f64d3016cab037b2c65a67a4465746a645c7f9e644f846bc9e6b1beaac710355",
+    "bytes": 8433737
+  }
+}

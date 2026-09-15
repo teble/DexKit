@@ -91,3 +91,25 @@ It distinguished persistent row compression from invoke-solver target copying,
 and per-index growth overlap from process peak. Local measurements follow
 those distinctions; reproducible adverse time/memory costs constrain the
 decision despite the independently confirmed QQ gains.
+
+## Raw source-file metadata review
+
+The complete 7m03 answer read actual `7437dfa`, all requested production and
+source fixture/workload files, plus raw DEX encoding and Bean serialization.
+It found no new correctness blocker: sentinel handling, index zero, raw view
+ownership, local defined classes and undefined cross-DEX forwarding are
+preserved. The code does not add validation for invalid non-sentinel indexes.
+
+The independent expected UTF/MUTF source bytes were confirmed. Pro correctly
+distinguished within-artifact ordering checks from the external best5 oracle;
+both small and wide independent byte comparisons subsequently passed. The
+suggested raw sentinel/valid-empty fixture guard is added. A separate raw DEX
+parse confirms sentinel 0xffffffff and empty-string index zero in both inputs.
+
+Pro found no lifecycle timing omission and noted that source-hot costs belong
+to first/repeated fields. It identified a missing explicit metrics gate in
+workload_sweep. All existing timed native manifests were checked to have both
+metrics options OFF, and the runner now rejects either enabled/missing option.
+This is an acceptance improvement, not evidence of contaminated old samples.
+Confirmed source-consumer regression and unresolved QQ time exclude this
+prototype from the general preference despite its logical memory saving.

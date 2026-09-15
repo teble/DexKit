@@ -54,9 +54,15 @@ void dexkit::BenchmarkDiagnostics::CheckSources(std::string_view apk, bool dump)
     reference.SetThreadNum(4);
     reference.InitFullCache();
     std::vector<int64_t> ids;
+    std::array<bool, 2> checked_indexes{};
     for (const auto &item : reference.dex_items) {
         for (size_t i = 0; i < item->reader.TypeIds().size(); ++i) {
             const auto name = item->type_names[i];
+            if (item->type_def_flag[i] && (name == "Lsources/Absent;" || name == "Lsources/Empty;")) {
+                const auto source = item->reader.ClassDefs()[item->type_def_idx[i]].source_file_idx;
+                if (name == "Lsources/Absent;") { Require(source == dex::kNoIndex); checked_indexes[0] = true; }
+                else { Require(source != dex::kNoIndex && item->strings[source].empty()); checked_indexes[1] = true; }
+            }
             auto bean = item->GetClassBean(i);
             // A defined Shared in DEX 0 stays local; undefined references use
             // the final declared Shared. Missing and empty both serialize empty.
@@ -69,6 +75,7 @@ void dexkit::BenchmarkDiagnostics::CheckSources(std::string_view apk, bool dump)
             }
         }
     }
+    Require(checked_indexes[0] && checked_indexes[1]);
     const auto expected = Collect(reference, ids);
     for (int sequence = 0; sequence < 3; ++sequence) {
         DexKit bridge(apk, 1);

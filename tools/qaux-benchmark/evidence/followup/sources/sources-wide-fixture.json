@@ -1,0 +1,21 @@
+{
+  "apk_sha256": "a53b1afef1a4387be26b090af0ca930149079a1eabe45868f2a58d647501dff1",
+  "dex_sha256": [
+    "8e2d1fc288ab9c1726e04ea6ecaa79c45c8622ae8b951652790bd7fa72d9bd48",
+    "965127aa9fc897343794b3c66e0186699edb1c5e7d5b56a2ad9554bc85fd8ed2",
+    "04da1b7ef9e306fed1c75e3855dc0456ea96c8a09285b0fa6f258d69cdda5c81"
+  ],
+  "classes_per_dex": 30000,
+  "defined_rows": 60009,
+  "edge_cases": {
+    "Absent": null,
+    "Empty": "",
+    "Case": "MiXeD.java",
+    "Utf": "\u6e90\u6587\u4ef6.java",
+    "Mutf": "A\u0000B.java",
+    "Long": "prefix-LongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongLong.java",
+    "Shared": "First.java"
+  },
+  "canonical_shared": "Last.java",
+  "note": "No source index and a defined empty string are separate ClassDef cases. Strings include UTF-8 and modified-UTF-8 NUL; undefined raw type IDs remain present."
+}

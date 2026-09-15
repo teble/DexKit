@@ -79,4 +79,9 @@ No new Goal, default enablement, upstream merge or release is implied.
   five initialization sequences, ASan/UBSan, 71 JVM tests and four Android ABIs.
   Independent QQ gains reproduce, as do mixed/giant matcher regressions and
   mixed-row memory costs. Retain a conditional prototype, not a general win.
-- Raw source metadata and single-requirement relation matching remain.
+- Raw source metadata passes complete independent small/wide oracles,
+  ASan/UBSan, 71 JVM tests and four ABIs. Source matching repeats regress
+  about 3.1--4.3%; QQ time remains unresolved. Exclude it from the general
+  preference despite the smaller source-view table.
+- Single-requirement matching is implemented with the original ordered judge,
+  counts and Equal rules; independent validation is next.

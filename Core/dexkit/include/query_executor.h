@@ -30,6 +30,7 @@
 
 #include "ThreadPool.h"
 #include "query_scheduler.h"
+#include "descriptor_borrow_scope.h"
 
 namespace dexkit {
 
@@ -124,7 +125,14 @@ auto SubmitQueryTask(IQueryExecutor &executor, F &&task)
         );
     }
     auto future = task_ptr->get_future();
-    executor.Submit([task_ptr]() mutable {
+    executor.Submit([task_ptr
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+            , borrowed_context = DescriptorBorrowScope::Capture()
+#endif
+    ]() mutable {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
         (*task_ptr)();
     });
     return future;

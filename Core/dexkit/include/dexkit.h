@@ -45,18 +45,28 @@ class DexItem;
 class DexKit {
 public:
     class QueryExecutionGuard {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        friend class DexKit;
+        explicit QueryExecutionGuard(DexKit *owner) : owner_(owner), borrowed_scope_(owner) {}
+    public:
+        QueryExecutionGuard(QueryExecutionGuard &&) = delete;
+#else
     public:
         explicit QueryExecutionGuard(DexKit *owner) : owner_(owner) {}
-        QueryExecutionGuard(const QueryExecutionGuard &) = delete;
-        QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
         QueryExecutionGuard(QueryExecutionGuard &&other) noexcept : owner_(other.owner_) {
             other.owner_ = nullptr;
         }
+#endif
+        QueryExecutionGuard(const QueryExecutionGuard &) = delete;
+        QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
         QueryExecutionGuard &operator=(QueryExecutionGuard &&other) = delete;
         ~QueryExecutionGuard();
 
     private:
         DexKit *owner_ = nullptr;
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        DescriptorBorrowScope borrowed_scope_;
+#endif
     };
 
 
@@ -75,6 +85,12 @@ public:
     void ResetQueryMetricsHistory();
 #endif
     Error InitFullCache();
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    // Direct native Bean/view access requires this session for its complete
+    // use, including worker completion. Do not reenter a top-level API on this
+    // DexKit while holding the session; use its low-level DexItem accessors.
+    [[nodiscard]] QueryExecutionGuard BorrowDescriptors(uint32_t required_flags = 0);
+#endif
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);
     Error AddImage(std::vector<std::unique_ptr<MemMap>> dex_images);
@@ -114,6 +130,25 @@ public:
 
 private:
     friend struct CallerBenchmark;
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    friend class DexItem;
+    friend struct VectorDescriptorBenchmark;
+    std::atomic<bool> descriptor_maintenance_pending_{false};
+    bool descriptor_maintenance_inflight_ = false;
+    void RequestDescriptorMaintenance();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    uint64_t descriptor_maintenance_wait_ns_ = 0, descriptor_maintenance_ns_ = 0;
+    uint64_t descriptor_maintenance_runs_ = 0;
+    void (*descriptor_before_serialize_hook_)(void *) = nullptr;
+    void *descriptor_before_serialize_context_ = nullptr;
+    void (*descriptor_before_maintenance_hook_)(void *) = nullptr;
+    void *descriptor_before_maintenance_context_ = nullptr;
+    void (*descriptor_waiting_hook_)(void *, int) = nullptr;
+    void *descriptor_waiting_context_ = nullptr;
+    void (*descriptor_before_warmup_hook_)(void *) = nullptr;
+    void *descriptor_before_warmup_context_ = nullptr;
+#endif
+#endif
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
     std::atomic<uint64_t> benchmark_aggregate_calls{0};

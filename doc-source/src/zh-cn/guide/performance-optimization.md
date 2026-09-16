@@ -66,3 +66,29 @@ private fun goodCode(bridge: DexKitBridge) {
 这个搜索耗时 `77ms`, 性能提升了数十倍之多。
 
 在使用 `findMethod` 或 `findField` 时，尽量避免使用 `declaredClass` 附带过于复杂的逻辑。
+## 原生描述符存储实验
+
+此实验分支增加 `DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS`，默认关闭。Gradle 使用
+`-PexperimentVectorDescriptors=ON` 启用；它与 node、sparse、hybrid 描述符存储实验互斥。
+`DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION`（Gradle 参数为
+`-PexperimentVectorDescriptorsNoPromotion=ON`）保留相同的新稀疏路径与借用约定，
+只关闭转换，用作对照。
+
+每个 DEX 的方法、字段域分别从稀疏存储开始。当可回收的结构分配达到密集字符串与 ready
+数组的成本后，下一次顶层操作会等待已进入的操作结束，并与缓存预热互斥，再丢弃旧字符串。
+新 vector 的内容按需重建。触发阈值的那次操作可继续使用旧视图直到序列化结束；若直接关闭，
+则不执行待定转换。此选项仍是实验，不保证性能收益，也不提供分配失败后的恢复承诺。
+
+启用后，直接使用包含方法或字段描述符的 C++ Bean 时，需先建立
+`auto borrow = bridge.BorrowDescriptors(required_flags)`。此会话不可移动，必须留在创建它的
+线程上，直到所有 Bean、描述符视图及使用它们的任务完成。若需跨会话保留内容，应先复制到
+拥有内容的字符串中。`required_flags` 指定进入会话前所需的缓存预热。在会话内使用底层
+`DexItem` 访问器，不可再次进入同一个 bridge 的顶层 API。缺失会话或同 bridge 重入会中止
+进程，Release 构建也会检查。
+
+原生工作任务应在会话内调用 `DescriptorBorrowScope::Capture()`，在工作线程上建立
+`DescriptorBorrowScope scope(context)`。该 context 只借用当前 bridge 的会话，不拥有 bridge、
+不延长会话，也不继承其他 bridge 的外层会话。结束拥有者会话前必须等待所有工作线程完成。
+普通查询 API 与内部工作线程会自行建立作用域；返回的 FlatBuffer 拥有已序列化的描述符字节。
+Java/Kotlin 查询 API 及现有示例保持原有生命周期行为。并发关闭或修改 bridge 仍不属于受支持
+的原生生命周期。

@@ -24,6 +24,11 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
     auto &item = *bridge.dex_items[0];
     constexpr uint32_t count = 60000;
     require(item.reader.MethodIds().size() == count && item.reader.FieldIds().size() == count, "fixture size");
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    {
+    auto borrow = bridge.BorrowDescriptors();
+    const auto borrowed_context = DescriptorBorrowScope::Capture();
+#endif
     const auto method = item.GetMethodDescriptor(0), field = item.GetFieldDescriptor(0);
     const auto *method_address = method.data(), *field_address = field.data();
     const auto check = [&](uint32_t index) {
@@ -33,13 +38,16 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
         std::snprintf(expected, sizeof(expected), "LA;->f%05u:I", index);
         require(item.GetFieldDescriptor(index) == expected, "field content");
     };
-#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     for (uint32_t i = 0; i < count; ++i) check(i);
 #endif
     std::latch start(1);
     std::vector<std::thread> readers;
     std::array<std::string_view, 8> same_methods, same_fields;
     for (size_t worker = 0; worker < same_methods.size(); ++worker) readers.emplace_back([&, worker] {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
         start.wait();
         same_methods[worker] = item.GetMethodDescriptor(1);
         same_fields[worker] = item.GetFieldDescriptor(1);
@@ -58,6 +66,9 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
         built += item.descriptor_diagnostics.method_builds[reason].load()
                + item.descriptor_diagnostics.field_builds[reason].load();
     require(built == 2 * count, "exactly one construction per slot");
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    }
+#endif
     Dump(bridge, "dense-descriptors-complete");
     std::fprintf(stderr, "CHECK_DENSE_DESCRIPTORS {\"records\":120000,\"threads\":8,\"passed\":true}\n");
 }
@@ -67,6 +78,9 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
 // descriptors and metadata, including local IDs and ordered interface lists.
 void BenchmarkDiagnostics::DumpSymbols(std::string_view apk) {
     DexKit bridge(apk, 1);
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    auto borrow = bridge.BorrowDescriptors();
+#endif
     std::puts("DEXKIT_SYMBOL_ORACLE_V1");
     const auto write = [](char kind, size_t dex, uint32_t id, const auto &bean) {
         flatbuffers::FlatBufferBuilder builder;
@@ -108,11 +122,18 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     std::map<std::string_view, std::vector<size_t>> method_names, field_names;
     std::set<std::string> defined_methods, defined_fields;
     uint64_t pairs = 0, different_index_matches = 0;
-    auto retained_method = target.dex_items[0]->GetMethodDescriptor(0);
-    auto retained_field = target.dex_items[0]->GetFieldDescriptor(0);
-    const std::string retained_method_copy(retained_method), retained_field_copy(retained_field);
-    const auto retained_method_address = retained_method.data();
-    const auto retained_field_address = retained_field.data();
+    std::string_view retained_method, retained_field;
+    std::string retained_method_copy, retained_field_copy;
+    const char *retained_method_address = nullptr, *retained_field_address = nullptr;
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    {
+    auto reference_borrow = reference.BorrowDescriptors();
+    auto target_borrow = target.BorrowDescriptors();
+#endif
+    retained_method = target.dex_items[0]->GetMethodDescriptor(0);
+    retained_field = target.dex_items[0]->GetFieldDescriptor(0);
+    retained_method_copy = retained_method; retained_field_copy = retained_field;
+    retained_method_address = retained_method.data(); retained_field_address = retained_field.data();
 
     for (size_t d = 0; d < reference.dex_items.size(); ++d) {
         auto &oracle = *reference.dex_items[d];
@@ -193,6 +214,14 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     for (size_t i = 1; i < methods.size(); ++i) method_pair(methods[i - 1], methods[i]);
     for (size_t i = 1; i < fields.size(); ++i) field_pair(fields[i - 1], fields[i]);
     require(different_index_matches > 0, "same symbol with different local IDs was exercised");
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    require(retained_method.data() == retained_method_address && retained_method == retained_method_copy,
+            "method borrow survives the complete native session");
+    require(retained_field.data() == retained_field_address && retained_field == retained_field_copy,
+            "field borrow survives the complete native session");
+    retained_method = {}; retained_field = {};
+    }
+#endif
 
     for (auto descriptor : {"Lfixture/Api;->a()I", "Lfixture/Api;->a()J", "Lfixture/Api;->a([I)I",
             "Lfixture/Api;->a([[I)I", "Lfixture/Api;->a(I[Ljava/lang/String;)V",
@@ -255,21 +284,38 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
         require(returned_fields.emplace(meta->dex_descriptor()->str()).second, "field text deduplication");
     }
     require(returned_methods == defined_methods && returned_fields == defined_fields, "full declared member result sets");
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    {
+        auto borrow = target.BorrowDescriptors();
+        require(target.dex_items[0]->GetMethodDescriptor(0) == retained_method_copy,
+                "method content survives generation replacement and warm-up");
+        require(target.dex_items[0]->GetFieldDescriptor(0) == retained_field_copy,
+                "field content survives generation replacement and warm-up");
+    }
+#else
     require(retained_method.data() == retained_method_address && retained_method == retained_method_copy,
             "retained method view survives growth and full warm-up");
     require(retained_field.data() == retained_field_address && retained_field == retained_field_copy,
             "retained field view survives growth and full warm-up");
+#endif
 
-#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     // The legacy cache does not publish concurrent cold writes. Its control
     // tests warm reads; experimental publication is stressed below from cold.
     for (const auto &symbol : methods) cold.dex_items[symbol.dex]->GetMethodDescriptor(symbol.id);
     for (const auto &symbol : fields) cold.dex_items[symbol.dex]->GetFieldDescriptor(symbol.id);
 #endif
     std::latch start(1);
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    auto cold_borrow = cold.BorrowDescriptors();
+    const auto borrowed_context = DescriptorBorrowScope::Capture();
+#endif
     std::array<std::string_view, 8> same_slot;
     std::vector<std::thread> readers;
     for (size_t worker = 0; worker < same_slot.size(); ++worker) readers.emplace_back([&, worker] {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
         start.wait();
         same_slot[worker] = cold.dex_items[0]->GetMethodDescriptor(1);
         for (size_t i = worker; i < methods.size(); i += same_slot.size()) {

@@ -74,3 +74,39 @@ This search takes `77ms`, showing a performance improvement by several tens of t
 
 When using `findMethod` or `findField`, the `declaredClass` condition should be avoided as much as
 possible.
+
+## Native descriptor storage experiment
+
+This experiment branch adds `DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS`, default OFF.
+Gradle builds can enable it with `-PexperimentVectorDescriptors=ON`. It is mutually
+exclusive with the node, sparse and hybrid descriptor storage experiments.
+`DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION` (Gradle:
+`-PexperimentVectorDescriptorsNoPromotion=ON`) keeps the same new sparse path and
+borrowing contract but disables conversion, for a comparison control.
+
+A DEX method or field domain starts sparse. Once its reclaimable structural
+allocation reaches the cost of the dense string/ready arrays, the next top-level
+operation drains admitted operations and excludes cache warmup before discarding
+all old strings. The dense vector starts empty and rebuilds requested values
+lazily. A triggering operation keeps its old views through serialization; closing
+without another operation skips pending conversion. This is an experiment, with
+no performance or allocation-failure recovery guarantee.
+
+When this option is enabled, direct C++ access to Beans containing method/field
+descriptors requires `auto borrow = bridge.BorrowDescriptors(required_flags)`.
+Keep this nonmovable session on its creating thread until all returned Beans,
+their descriptor views and any tasks using them are finished. Copy needed bytes
+into owning strings before ending the session. `required_flags` performs required
+cache warmup before admission. Do not call a top-level API on the same bridge while
+holding the session; use the low-level `DexItem` accessors within it. Missing and
+same-bridge reentrant sessions abort, including Release builds.
+
+For native worker tasks, capture `DescriptorBorrowScope::Capture()` inside the
+session and construct `DescriptorBorrowScope scope(context)` on each worker.
+This context borrows only the current bridge's session: it does not own the bridge,
+extend the session, or inherit outer sessions for other bridges. Join all such
+workers before ending the owning session. Ordinary query APIs and their internal
+workers establish these scopes themselves. Their returned FlatBuffers own their
+serialized descriptor bytes; Java/Kotlin query APIs and existing examples keep
+their current lifetime behavior. Closing/mutating a bridge concurrently remains
+outside the supported native lifecycle.

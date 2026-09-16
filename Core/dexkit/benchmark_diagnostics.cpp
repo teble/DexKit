@@ -125,6 +125,40 @@ void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *ph
         phase, dex, kind, values.size(), nonempty, noncontiguous, entries,
         values.capacity() * sizeof(std::vector<uint32_t>), capacity * sizeof(uint32_t));
 }
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+template<bool Promote>
+void Descriptors(Counts &count, const VectorDescriptorCache<Promote> &values, const char *phase, uint32_t dex) {
+    const auto stats = values.GetStatistics();
+    count.index_bytes += stats.fixed_bytes;
+    std::fprintf(stderr, "BENCH_VECTOR_DESCRIPTOR_CACHE {\"phase\":\"%s\",\"dex\":%u,"
+        "\"promotion_enabled\":%s,\"fixed_bytes\":%zu,\"instrumentation_bytes\":%zu}\n",
+        phase, dex, Promote ? "true" : "false", stats.fixed_bytes, stats.instrumentation_bytes);
+    for (size_t kind = 0; kind < 2; ++kind) {
+        const auto &d = stats.domains[kind];
+        count.entries += d.limit; count.ready += d.records;
+        count.index_bytes += d.bucket_bytes + d.payload_owner_bytes + d.directory_bytes + d.ready_bytes;
+        count.payload_bytes += d.block_bytes + d.dense_object_bytes + d.sparse_char_bytes + d.dense_char_bytes;
+        count.buffers += d.bucket_buffers + d.payload_owners + d.block_live + d.directory_live
+                + d.char_buffers + (d.dense ? 2 : 0);
+        std::fprintf(stderr, "BENCH_VECTOR_DESCRIPTOR_DOMAIN {\"phase\":\"%s\",\"dex\":%u,\"kind\":\"%s\","
+            "\"limit\":%zu,\"dense\":%s,\"pending\":%s,\"records\":%zu,\"sparse_records\":%zu,"
+            "\"calls\":%llu,\"hits\":%llu,\"dense_hits\":%llu,\"sparse_builds\":%llu,\"dense_builds\":%llu,"
+            "\"bucket_bytes\":%zu,\"payload_owner_bytes\":%zu,\"block_bytes\":%zu,\"directory_bytes\":%zu,"
+            "\"sparse_char_bytes\":%zu,\"dense_char_bytes\":%zu,\"sso_records\":%zu,"
+            "\"dense_object_bytes\":%zu,\"ready_bytes\":%zu,\"conversion_base_bytes\":%zu,"
+            "\"sparse_structural_bytes\":%zu,\"conversions\":%zu,\"discarded_records\":%zu,"
+            "\"discarded_chars\":%zu,\"structural_at_conversion\":%zu,\"conversion_ns\":%llu}\n",
+            phase, dex, kind == 0 ? "method" : "field", d.limit, d.dense ? "true" : "false",
+            d.pending ? "true" : "false", d.records, d.sparse_records,
+            (unsigned long long)d.calls, (unsigned long long)d.hits, (unsigned long long)d.dense_hits,
+            (unsigned long long)d.sparse_builds, (unsigned long long)d.dense_builds,
+            d.bucket_bytes, d.payload_owner_bytes, d.block_bytes, d.directory_bytes,
+            d.sparse_char_bytes, d.dense_char_bytes, d.sso_records, d.dense_object_bytes, d.ready_bytes,
+            d.conversion_base_bytes, d.sparse_structural_bytes, d.conversions, d.discarded_records,
+            d.discarded_chars, d.structural_at_conversion, (unsigned long long)d.conversion_ns);
+    }
+}
+#endif
 #if DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
 template<bool Promote>
 void Descriptors(Counts &count, const HybridDescriptorCache<Promote> &values, const char *phase, uint32_t dex) {
@@ -249,6 +283,14 @@ void BenchmarkDiagnostics::DumpCallerBuild(const DexKit &bridge, const char *pha
 
 void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     const auto begin = std::chrono::steady_clock::now();
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    std::fprintf(stderr, "BENCH_VECTOR_DESCRIPTOR_MAINTENANCE {\"phase\":\"%s\","
+        "\"runs\":%llu,\"entrant_wait_ns\":%llu,\"maintenance_ns\":%llu,\"pending\":%s}\n",
+        phase, (unsigned long long)bridge.descriptor_maintenance_runs_,
+        (unsigned long long)bridge.descriptor_maintenance_wait_ns_,
+        (unsigned long long)bridge.descriptor_maintenance_ns_,
+        bridge.descriptor_maintenance_pending_.load() ? "true" : "false");
+#endif
     std::map<std::string, Counts> counts;
     std::set<const MemMap *> images;
     std::array<uint64_t, 3> method_builds{}, field_builds{}, descriptor_bytes{};
@@ -268,7 +310,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         field_ids += item.reader.FieldIds().size();
         if (std::string_view(phase) == "pre_close") {
             NameIndex(item.type_ids_map, phase, item.dex_id, "type_ids");
-#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
             DescriptorOccupancy(item.method_descriptors, phase, item.dex_id, "method");
             DescriptorOccupancy(item.field_descriptors, phase, item.dex_id, "field");
 #endif
@@ -283,7 +325,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
-#if DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        Descriptors(counts["descriptors"], item.vector_descriptors, phase, item.dex_id);
+#elif DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
         Descriptors(counts["descriptors"], item.hybrid_descriptors, phase, item.dex_id);
 #elif DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
         Descriptors(counts["descriptors"], item.node_descriptors, phase, item.dex_id);
@@ -303,7 +347,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
         publication.index_bytes += sizeof(item.descriptor_mutexes);

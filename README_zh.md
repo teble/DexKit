@@ -399,6 +399,14 @@ modifiers = Modifier.PUBLIC or DexAccessFlags.BRIDGE or DexAccessFlags.SYNTHETIC
 [access flags 与源码修饰符的说明](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/AccessFlag.html)，
 该链接仅用于术语说明，`DexAccessFlags` 不依赖此 API。
 
+## 原生描述符存储实验
+
+此实验分支提供 `DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS`（默认关闭）。开启后，直接使用 C++
+Bean 的调用方必须让 `BorrowDescriptors()` 会话覆盖所有描述符视图的使用及工作任务的完成。
+Java/Kotlin API 会在内部管理该作用域。启用前请阅读
+[原生生命周期约定](doc-source/src/zh-cn/guide/performance-optimization.md#原生描述符存储实验)；
+此方案的性能仍在评估中。
+
 ## 第三方开源引用
 
 - [slicer](https://cs.android.com/android/platform/superproject/+/main:tools/dexter/slicer/)

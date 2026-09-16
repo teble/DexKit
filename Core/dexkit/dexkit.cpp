@@ -194,7 +194,24 @@ Error DexKit::InitFullCache() {
     return Error::SUCCESS;
 }
 
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+DexKit::QueryExecutionGuard DexKit::BorrowDescriptors(uint32_t required_flags) {
+    return EnterQueryExecution(required_flags);
+}
+
+void DexKit::RequestDescriptorMaintenance() {
+    descriptor_maintenance_pending_.store(true, std::memory_order_release);
+    // Called under a sparse shard lock. Do not acquire the admission mutex.
+    query_execution_cv.notify_all();
+}
+#endif
+
 DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags) {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    // Reentering this barrier from a borrowed native session could wait for
+    // itself when conversion or warmup is pending. Reject that misuse.
+    if (DescriptorBorrowScope::Contains(this)) std::abort();
+#endif
     required_flags = NormalizeInitFlags(required_flags);
     std::unique_lock lock(query_execution_mutex);
     uint64_t shared_pool_admission_ticket = 0;
@@ -236,9 +253,21 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
     track_required_warmup_request();
 
     while (true) {
-        if (warmup_inflight) {
+        if (warmup_inflight
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                || descriptor_maintenance_inflight_
+#endif
+        ) {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && DEXKIT_BENCHMARK_DIAGNOSTICS
+            if (descriptor_waiting_hook_)
+                descriptor_waiting_hook_(descriptor_waiting_context_, warmup_inflight ? 2 : 3);
+#endif
             query_execution_cv.wait(lock, [this] {
-                return !warmup_inflight;
+                return !warmup_inflight
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                        && !descriptor_maintenance_inflight_
+#endif
+                        ;
             });
             refresh_required_warmup_state();
             track_required_warmup_request();
@@ -270,6 +299,43 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
             continue;
         }
 
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        if (descriptor_maintenance_pending_.load(std::memory_order_acquire)) {
+            if (active_query_count != 0) {
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                if (descriptor_waiting_hook_) descriptor_waiting_hook_(descriptor_waiting_context_, 1);
+                const auto started = std::chrono::steady_clock::now();
+#endif
+                query_execution_cv.wait(lock, [this] {
+                    return warmup_inflight || descriptor_maintenance_inflight_ || active_query_count == 0;
+                });
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+                descriptor_maintenance_wait_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - started).count();
+#endif
+                continue;
+            }
+            descriptor_maintenance_pending_.store(false, std::memory_order_relaxed);
+            descriptor_maintenance_inflight_ = true;
+            lock.unlock();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            if (descriptor_before_maintenance_hook_)
+                descriptor_before_maintenance_hook_(descriptor_before_maintenance_context_);
+            const auto started = std::chrono::steady_clock::now();
+#endif
+            for (auto &item : dex_items) item->vector_descriptors.ConvertPending();
+            lock.lock();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+            ++descriptor_maintenance_runs_;
+            descriptor_maintenance_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now() - started).count();
+#endif
+            descriptor_maintenance_inflight_ = false;
+            query_execution_cv.notify_all();
+            continue;
+        }
+#endif
+
         auto max_concurrent_queries = max_concurrent_queries_.load(std::memory_order_acquire);
         if (max_concurrent_queries == 0) {
             if (dequeue_shared_pool_admission_ticket()) {
@@ -291,6 +357,10 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
                                             active_query_count < current_max_concurrent_queries;
                     return warmup_inflight ||
                            pending_warmup_flags != 0 ||
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                           descriptor_maintenance_inflight_ ||
+                           descriptor_maintenance_pending_.load(std::memory_order_acquire) ||
+#endif
                            current_max_concurrent_queries != max_concurrent_queries ||
                            ticket_can_enter;
                 });
@@ -312,7 +382,11 @@ DexKit::QueryExecutionGuard DexKit::EnterQueryExecution(uint32_t required_flags)
 
 void DexKit::LeaveQueryExecution() {
     std::lock_guard lock(query_execution_mutex);
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    if (active_query_count == 0) std::abort();
+#else
     DEXKIT_CHECK(active_query_count > 0);
+#endif
     --active_query_count;
     query_execution_cv.notify_all();
 }
@@ -1273,6 +1347,11 @@ DexKit::GetMethodByIds(const std::vector<int64_t> &encode_ids) {
         result.emplace_back(dex_items[dex_id]->GetMethodBean(method_id));
     }
 
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && DEXKIT_BENCHMARK_DIAGNOSTICS
+    if (descriptor_before_serialize_hook_)
+        descriptor_before_serialize_hook_(descriptor_before_serialize_context_);
+#endif
+
     auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
     std::vector<flatbuffers::Offset<schema::MethodMeta>> offsets;
     for (auto &bean: result) {
@@ -1294,6 +1373,11 @@ DexKit::GetFieldByIds(const std::vector<int64_t> &encode_ids) {
         auto field_id = encode_id & UINT32_MAX;
         result.emplace_back(dex_items[dex_id]->GetFieldBean(field_id));
     }
+
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && DEXKIT_BENCHMARK_DIAGNOSTICS
+    if (descriptor_before_serialize_hook_)
+        descriptor_before_serialize_hook_(descriptor_before_serialize_context_);
+#endif
 
     auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
     std::vector<flatbuffers::Offset<schema::FieldMeta>> offsets;
@@ -1766,6 +1850,15 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
 }
 
 void DexKit::InitDexCache(uint32_t init_flags) {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+    // Admission already excludes every query and descriptor maintenance.
+    DescriptorBorrowScope warmup_borrow(this);
+    const auto borrowed_context = DescriptorBorrowScope::Capture();
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    if (descriptor_before_warmup_hook_)
+        descriptor_before_warmup_hook_(descriptor_before_warmup_context_);
+#endif
+#endif
     init_flags = NormalizeInitFlags(init_flags);
     uint32_t cross_ref_flags = init_flags & kCrossRefIdentityFlags;
     uint32_t requested_aggregate_flags = init_flags & (kCallerMethod | kRwFieldMethod);
@@ -1787,7 +1880,14 @@ void DexKit::InitDexCache(uint32_t init_flags) {
     if (!init_jobs.empty()) {
         ThreadPool pool(std::min(static_cast<size_t>(thread_num), init_jobs.size()));
         for (auto &[dex_item, claimed_flags]: init_jobs) {
-            pool.enqueue([dex_item, claimed_flags]() {
+            pool.enqueue([dex_item, claimed_flags
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                    , borrowed_context
+#endif
+            ]() {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
                 dex_item->InitCache(claimed_flags);
                 dex_item->FinishInitCache(claimed_flags);
             });
@@ -1812,7 +1912,14 @@ void DexKit::InitDexCache(uint32_t init_flags) {
     if (!cross_ref_jobs.empty()) {
         ThreadPool pool(std::min(static_cast<size_t>(thread_num), cross_ref_jobs.size()));
         for (auto &[dex_item, claimed_flags]: cross_ref_jobs) {
-            pool.enqueue([dex_item, claimed_flags]() {
+            pool.enqueue([dex_item, claimed_flags
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                    , borrowed_context
+#endif
+            ]() {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+                DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
                 dex_item->PutCrossRef(claimed_flags);
                 dex_item->FinishPutCrossRef(claimed_flags);
             });

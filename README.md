@@ -409,6 +409,14 @@ Java 21 documentation on the
 [difference between access flags and source modifiers](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/AccessFlag.html)
 for terminology only; `DexAccessFlags` does not depend on that API.
 
+## Native descriptor storage experiment
+
+This experiment branch provides `DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS` (default OFF).
+Enabling it requires direct C++ Bean users to keep a `BorrowDescriptors()` session alive
+until all borrowed descriptor views and worker tasks are finished. Java/Kotlin APIs manage
+that scope internally. See the [native lifetime contract](doc-source/src/en/guide/performance-optimization.md#native-descriptor-storage-experiment)
+before enabling this option; its performance is still under evaluation.
+
 ## Third-Party Open Source References
 
 - [slicer](https://cs.android.com/android/platform/superproject/+/main:tools/dexter/slicer/)

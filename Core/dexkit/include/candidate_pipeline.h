@@ -33,7 +33,16 @@ auto SubmitCandidateTask(IQueryExecutor &executor, F &&function) noexcept
                 else return local();
             });
     auto future = task->get_future();
-    executor.Submit([task = std::move(task)] { (*task)(); });
+    executor.Submit([task = std::move(task)
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+            , borrowed_context = DescriptorBorrowScope::Capture()
+#endif
+    ] {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+        DescriptorBorrowScope borrowed_scope(borrowed_context);
+#endif
+        (*task)();
+    });
     return future;
 }
 

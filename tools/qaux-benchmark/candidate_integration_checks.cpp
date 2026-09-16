@@ -72,7 +72,12 @@ void dexkit::BenchmarkDiagnostics::CheckCandidatePipeline(std::string_view apk) 
         auto &dex = *bridge.dex_items.front();
         Require(dex.reader.MethodIds().size() == 4500 && dex.reader.ClassDefs().size() == 1500);
         Require(dex.reader.ClassDefs()[0].class_idx == 1499 && dex.reader.ClassDefs()[1499].class_idx == 0);
-        Require(dex.GetMethodBean(3000).dex_descriptor == "Lcandidate/C1000;->m0()V");
+        {
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+            auto borrow = bridge.BorrowDescriptors();
+#endif
+            Require(dex.GetMethodBean(3000).dex_descriptor == "Lcandidate/C1000;->m0()V");
+        }
         size_t case_index = 0;
         for (bool classes : {false, true}) for (bool nested : {false, true}) {
             QueryData data(classes, nested);

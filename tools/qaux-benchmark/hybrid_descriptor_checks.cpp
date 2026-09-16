@@ -13,6 +13,58 @@ void Require(bool condition, const char *message) {
     }
 }
 
+template<bool Method, bool Promote, class Build>
+std::string_view GetWithProbe(dexkit::HybridDescriptorCache<Promote> &cache, uint32_t id, Build &&build) {
+    if (auto *value = cache.template TryGet<Method>(id)) return *value;
+    return cache.template GetOrCreate<Method>(id, std::forward<Build>(build));
+}
+
+template<bool Promote>
+void CheckTryGet() {
+    dexkit::HybridDescriptorCache<Promote> cache;
+    cache.Initialize(65, 33);
+    for (uint32_t id : {0, 32, 64})
+        Require(cache.template TryGet<true>(id) == nullptr, "unused method probe misses");
+    for (uint32_t id : {0, 32})
+        Require(cache.template TryGet<false>(id) == nullptr, "unused field probe misses");
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    for (const auto &shard : cache.GetStatistics().tables) for (const auto &table : shard)
+        Require(table.calls == 0 && table.payload_owner_bytes == 0 && table.bucket_bytes == 0
+                && table.dense_bytes == 0, "failed probe neither counts nor allocates");
+#endif
+    const auto short_value = GetWithProbe<true>(cache, 0, [] { return std::string("short"); });
+    const auto long_value = GetWithProbe<true>(cache, 32, [] { return std::string(4096, 'x'); });
+    Require(cache.template TryGet<true>(64) == nullptr, "unfilled dense slot misses");
+    const auto empty_value = GetWithProbe<true>(cache, 64, [] { return std::string(); });
+    const auto field = GetWithProbe<false>(cache, 0, [] { return std::string("field"); });
+    const auto empty_field = GetWithProbe<false>(cache, 32, [] { return std::string(); });
+    auto check = [](const std::string *value, std::string_view retained) {
+        if constexpr (Promote)
+            Require(value && *value == retained && value->data() == retained.data(), "probe returns stable SSO/long/empty body");
+        else Require(value == nullptr, "sparse-only probe never reads the hash without its lock");
+    };
+    check(cache.template TryGet<true>(0), short_value);
+    check(cache.template TryGet<true>(32), long_value);
+    check(cache.template TryGet<true>(64), empty_value);
+    check(cache.template TryGet<false>(0), field);
+    check(cache.template TryGet<false>(32), empty_field);
+    Require(cache.template GetOrCreate<true>(0, [] { std::abort(); return std::string(); }) == short_value,
+            "generic hit still probes once");
+    // Another call can fill the slot between the outer probe and Cold entry.
+    Require(cache.template TryGet<true>(1) == nullptr, "outer probe misses before another call fills");
+    cache.template GetOrCreate<true>(1, [] { return std::string("late"); });
+    Require(cache.template GetOrCreate<true>(1, [] { std::abort(); return std::string(); }) == "late",
+            "Cold recheck sees a fill after the outer probe");
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    uint64_t calls = 0, hits = 0, records = 0;
+    for (const auto &shard : cache.GetStatistics().tables) for (const auto &table : shard) {
+        calls += table.calls; hits += table.hits; records += table.records;
+    }
+    Require(records == 6 && calls == (Promote ? 13 : 8) && hits == (Promote ? 7 : 2),
+            "outer misses, direct hits and Cold rechecks count each completed access once");
+#endif
+}
+
 template<bool Promote>
 void CheckBounds() {
     for (uint32_t methods : {0, 1, 31, 32, 33, 1057}) {
@@ -78,14 +130,14 @@ void CheckGrowth(bool one_shard) {
     });
     for (size_t worker = 0; worker < same.size(); ++worker) threads.emplace_back([&, worker] {
         start.wait();
-        same[worker] = cache.template GetOrCreate<true>(1, [&] { ++builds; return std::string("same"); });
+        same[worker] = GetWithProbe<true>(cache, 1, [&] { ++builds; return std::string("same"); });
         for (uint32_t step = 1; step < 2048; ++step) {
             const uint32_t i = (step + uint32_t(worker) * 97 - 1) % 2047 + 1;
             const uint32_t id = one_shard ? i * 32 : i * 3 + 2;
             const auto expected = std::to_string(id);
-            Require(cache.template GetOrCreate<true>(id, [&] { ++builds; return "m" + expected; }) == "m" + expected,
+            Require(GetWithProbe<true>(cache, id, [&] { ++builds; return "m" + expected; }) == "m" + expected,
                     "concurrent method content");
-            Require(cache.template GetOrCreate<false>(id, [&] { ++builds; return "f" + expected; }) == "f" + expected,
+            Require(GetWithProbe<false>(cache, id, [&] { ++builds; return "f" + expected; }) == "f" + expected,
                     "concurrent field content");
         }
     });
@@ -159,7 +211,7 @@ void CheckThresholdAndStaleReader() {
         }
     }, &gate);
     std::thread stale_reader([&] {
-        const auto value = cache.GetOrCreate<true>(0, [] { std::abort(); return std::string(); });
+        const auto value = GetWithProbe<true>(cache, 0, [] { std::abort(); return std::string(); });
         Require(value == "retained" && value.data() == retained.data(), "stale sparse reader rechecks dense under lock");
     });
     gate.paused.wait();
@@ -175,7 +227,7 @@ void CheckThresholdAndStaleReader() {
     std::array<std::string_view, 8> views;
     for (size_t i = 0; i < views.size(); ++i) threads.emplace_back([&, i] {
         start.wait();
-        views[i] = cache.GetOrCreate<true>(uint32_t(threshold) * 32, [&] { ++builds; return std::string(); });
+        views[i] = GetWithProbe<true>(cache, uint32_t(threshold) * 32, [&] { ++builds; return std::string(); });
     });
     start.count_down(); for (auto &thread : threads) thread.join();
     Require(builds == 1, "concurrent first fill of the same dense null slot");
@@ -196,11 +248,14 @@ int main(int argc, char **argv) {
         const auto limit = size_t(std::strtoull(argv[2], nullptr, 10));
         const auto id = uint32_t(std::strtoull(argv[3], nullptr, 10));
         cache.Initialize(limit, limit);
-        if (std::string_view(argv[1]) == "method") cache.GetOrCreate<true>(id, [] { return std::string("m"); });
+        if (std::string_view(argv[1]) == "try-method") cache.TryGet<true>(id);
+        else if (std::string_view(argv[1]) == "try-field") cache.TryGet<false>(id);
+        else if (std::string_view(argv[1]) == "method") cache.GetOrCreate<true>(id, [] { return std::string("m"); });
         else cache.GetOrCreate<false>(id, [] { return std::string("f"); });
         return 0;
     }
     CheckBounds<false>(); CheckBounds<true>();
+    CheckTryGet<false>(); CheckTryGet<true>();
     CheckGrowth<false>(true); CheckGrowth<true>(true);
     CheckGrowth<false>(false); CheckGrowth<true>(false);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS

@@ -1316,6 +1316,13 @@ std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
     descriptor_diagnostics.Called(true);
 #endif
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+    if (auto *cached = hybrid_descriptors.TryGet<true>(method_idx)) return *cached;
+    return GetMethodDescriptorCold(method_idx);
+}
+
+std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
+#endif
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     return node_descriptors.GetOrCreate<true>(method_idx,
 #else
@@ -1424,6 +1431,13 @@ std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
     descriptor_diagnostics.Called(false);
 #endif
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+    if (auto *cached = hybrid_descriptors.TryGet<false>(field_idx)) return *cached;
+    return GetFieldDescriptorCold(field_idx);
+}
+
+std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
+#endif
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     return node_descriptors.GetOrCreate<false>(field_idx,
 #else

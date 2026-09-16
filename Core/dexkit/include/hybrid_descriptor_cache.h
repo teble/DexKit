@@ -224,25 +224,34 @@ public:
         limits_ = {methods, fields};
         initialized_ = true;
     }
-    template<bool Method, class Build>
-    std::string_view GetOrCreate(uint32_t index, Build &&build) {
+    // Probe before materializing a Cold factory. A miss is not a completed
+    // cache access; GetOrCreate accounts for it when entering the slow path.
+    template<bool Method>
+    const std::string *TryGet(uint32_t index) {
         constexpr size_t kind = Method ? 0 : 1;
         if (index >= limits_[kind]) std::abort();
-        auto &domain = shards_[index % kShards].domains[kind];
-#if DEXKIT_BENCHMARK_DIAGNOSTICS
-        domain.counters.calls.fetch_add(1, std::memory_order_relaxed);
-#endif
         if constexpr (Promote) {
+            auto &domain = shards_[index % kShards].domains[kind];
             if (auto *dense = domain.published_dense.load(std::memory_order_acquire)) {
                 if (auto *value = dense->slots[index / kShards].load(std::memory_order_acquire)) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
+                    domain.counters.calls.fetch_add(1, std::memory_order_relaxed);
                     domain.counters.hits.fetch_add(1, std::memory_order_relaxed);
                     domain.counters.dense_hits.fetch_add(1, std::memory_order_relaxed);
 #endif
-                    return *value;
+                    return value;
                 }
             }
         }
+        return nullptr;
+    }
+    template<bool Method, class Build>
+    std::string_view GetOrCreate(uint32_t index, Build &&build) {
+        if (auto *value = TryGet<Method>(index)) return *value;
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        constexpr size_t kind = Method ? 0 : 1;
+        shards_[index % kShards].domains[kind].counters.calls.fetch_add(1, std::memory_order_relaxed);
+#endif
         return GetOrCreateSlow<Method>(index, std::forward<Build>(build));
     }
 

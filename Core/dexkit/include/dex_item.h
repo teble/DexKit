@@ -361,6 +361,10 @@ private:
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
     std::string BuildMethodDescriptorCold(uint32_t method_idx);
     std::string BuildFieldDescriptorCold(uint32_t field_idx);
+#if DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+    std::string_view GetMethodDescriptorCold(uint32_t method_idx) PHMAP_ATTRIBUTE_NOINLINE;
+    std::string_view GetFieldDescriptorCold(uint32_t field_idx) PHMAP_ATTRIBUTE_NOINLINE;
+#endif
 #elif DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
     std::string_view GetMethodDescriptorCold(uint32_t method_idx);
     std::string_view GetFieldDescriptorCold(uint32_t field_idx);

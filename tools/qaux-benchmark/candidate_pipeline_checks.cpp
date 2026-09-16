@@ -10,11 +10,11 @@ using namespace dexkit;
 using namespace dexkit::internal;
 
 static void Check(bool value, const char *message) {
-    if (!value) throw std::runtime_error(message);
+    if (!value) { std::cerr << message << '\n'; std::abort(); }
 }
 
 // A bounded test executor for one/four-worker ordering and fallback checks.
-// Failure gates also run on the real shared scheduler, retained externally.
+// Completion gates also run on the real shared scheduler, retained externally.
 class TestExecutor final : public IQueryExecutor {
     std::mutex mutex_;
     std::condition_variable ready_;
@@ -183,57 +183,43 @@ static void CheckResults() {
     b.CheckResult(second.get());
 }
 
-static void CheckFailure(bool during_validation, bool shared_scheduler) {
+static void CheckCompletion(bool during_validation, bool shared_scheduler, unsigned workers) {
     Fixture fixture(true, 2);
     // This owner outlives the query: its executor only detaches, never joins.
-    auto scheduler = shared_scheduler ? std::make_shared<QueryScheduler>(4) : nullptr;
-    std::promise<void> entered, failing, release;
+    auto scheduler = shared_scheduler ? std::make_shared<QueryScheduler>(workers) : nullptr;
+    std::promise<void> entered, release;
     auto entered_future = entered.get_future();
-    auto failing_future = failing.get_future();
     auto gate = release.get_future().share();
     if (during_validation) {
-        // One DEX needs several consumer tasks. One fails while another still
-        // borrows query data; failure must wait for the latter to finish.
+        // The API must await every consumer, including later ordered slices.
         fixture.sources.resize(1);
         fixture.before_match = [&](uint32_t, CandidateSlice slice) {
-            if (slice.begin == 0) { failing.set_value(); throw std::runtime_error("validation failure"); }
             if (slice.begin == 1000) { entered.set_value(); gate.wait(); }
         };
     } else {
         fixture.before_prepare = [&](uint32_t dex) {
-            if (dex == 0) { failing.set_value(); throw std::runtime_error("preparation failure"); }
-            entered.set_value();
-            gate.wait();
+            if (dex == 1) { entered.set_value(); gate.wait(); }
         };
     }
     auto query = std::async(std::launch::async, [&] {
-        try { fixture.Run(4, 8192, scheduler); } catch (const std::runtime_error &) { return true; }
-        return false;
+        return fixture.Run(workers, 8192, scheduler);
     });
     entered_future.get();
-    failing_future.get();
     const bool blocked = query.wait_for(std::chrono::milliseconds(100)) == std::future_status::timeout;
     release.set_value();
-    Check(query.get(), "pipeline exception disappeared");
-    Check(blocked, "error returned before live work drained");
+    fixture.CheckResult(query.get());
+    Check(blocked, "query returned before all task bodies completed");
     if (scheduler) {
-        // A fresh query still works after exceptional cleanup on this pool.
-        QueryContext next(QueryKind::FindMethod);
-        QueryRun run(std::make_unique<SharedThreadPoolQueryExecutor>(scheduler, next.GetQueryId(),
-                next, QueryPriority::Normal));
-        run.Activate();
-        auto result = run.SubmitFuture([] { return 19; });
-        run.Seal();
-        Check(result.get() == 19, "shared scheduler lost subsequent work");
-        run.Drain();
+        Fixture next(true);
+        next.CheckResult(next.Run(workers, 8192, scheduler));
     }
 }
 
 int main() {
     CheckResults();
-    for (bool shared : {false, true}) {
-        CheckFailure(false, shared);
-        CheckFailure(true, shared);
+    for (bool shared : {false, true}) for (unsigned workers : {1u, 4u}) {
+        CheckCompletion(false, shared, workers);
+        CheckCompletion(true, shared, workers);
     }
-    std::cout << "CANDIDATE_PIPELINE_OK ordered split fallback proof budget failures shared_scheduler workers=1,4\n";
+    std::cout << "CANDIDATE_PIPELINE_OK ordered split fallback proof budget completion shared_scheduler workers=1,4\n";
 }

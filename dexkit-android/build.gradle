@@ -52,6 +52,8 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_INVERTED_STRINGS=${providers.gradleProperty('experimentInvertedStrings').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_INVERTED_STRING_RANGES=${providers.gradleProperty('experimentInvertedStringRanges').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_CANDIDATE_PIPELINE=${providers.gradleProperty('experimentCandidatePipeline').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_SKIP_EMPTY_CANDIDATES=${providers.gradleProperty('experimentSkipEmptyCandidates').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_MOVE_FIND_RESULTS=${providers.gradleProperty('experimentMoveFindResults').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_CANDIDATE_SLICES=${providers.gradleProperty('experimentCandidateSlices').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=${providers.gradleProperty('experimentRawDescriptorLookup').getOrElse('OFF')}"
                 def flags = [

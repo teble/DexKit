@@ -1,18 +1,16 @@
-#include "query_candidates.h"
-#include "query_run.h"
+#include "candidate_pipeline.h"
 
 #include <atomic>
 #include <chrono>
 #include <future>
 #include <iostream>
-#include <stdexcept>
 #include <thread>
 
 using namespace dexkit;
 using namespace dexkit::internal;
 
 static void Check(bool value, const char *message) {
-    if (!value) throw std::runtime_error(message);
+    if (!value) { std::cerr << message << '\n'; std::abort(); }
 }
 
 // Keep the invoked wrapper alive after its result is ready. This models a
@@ -22,20 +20,15 @@ public:
     std::vector<std::thread> workers;
     std::vector<std::shared_ptr<std::function<void()>>> retained;
     bool activated = false;
-    size_t reject_at = SIZE_MAX;
-    bool reject_after_accept = false;
 
     ~RetainingExecutor() override {
         for (auto &worker : workers) worker.join();
     }
     void Submit(std::function<void()> task) override {
         Check(activated, "submit before activation");
-        const bool reject = retained.size() == reject_at;
-        if (reject && !reject_after_accept) throw std::runtime_error("rejected before acceptance");
         auto holder = std::make_shared<std::function<void()>>(std::move(task));
         retained.push_back(holder);
         workers.emplace_back([holder] { (*holder)(); });
-        if (reject) throw std::runtime_error("rejected after acceptance");
     }
     void OnSubmissionComplete() override { activated = true; }
     bool ShouldSkipTask() const override { return false; }
@@ -49,63 +42,38 @@ struct CaptureProbe {
 
 static void CheckCaptureCleanup() {
     std::atomic<unsigned> destroyed = 0;
-    auto executor = std::make_unique<RetainingExecutor>();
-    auto *retained = executor.get();
-    QueryRun run(std::move(executor));
-    run.Activate();
+    RetainingExecutor executor;
+    executor.OnSubmissionComplete();
     auto probe = std::make_shared<CaptureProbe>(destroyed);
-    auto future = run.SubmitFuture([probe] { return 17; }).share();
+    auto future = SubmitCandidateTask(executor, [probe] { return 17; }).share();
     probe.reset();
     Check(future.get() == 17, "result changed");
-    run.Seal();
-    run.Drain();
     Check(destroyed.load() == 1, "completed shared future retained callable captures");
-    Check(retained->retained.size() == 1, "test did not retain worker closure");
-    Check(run.OutstandingCaptures() == 0, "completed work still registered");
-    bool rejected = false;
-    try { run.Submit([] {}); } catch (const std::logic_error &) { rejected = true; }
-    Check(rejected, "submission after seal accepted");
+    Check(executor.retained.size() == 1, "test did not retain worker closure");
+
+    CandidateBudget budget(1);
+    auto complete = SubmitCandidateTask(executor, [lease = std::move(*budget.TryReserve(1))] {}).share();
+    complete.get();
+    Check(budget.Used() == 0, "completed void future retained move-only reservation");
+    Check(executor.retained.size() == 2, "test did not retain void worker closure");
 }
 
 static void CheckEarlyFuture() {
-    QueryRun run(std::make_unique<RetainingExecutor>());
-    run.Activate();
+    RetainingExecutor executor;
+    executor.OnSubmissionComplete();
     std::promise<void> ready, release;
     auto ready_future = ready.get_future();
     auto gate = release.get_future().share();
     std::atomic<unsigned> destroyed = 0;
     auto probe = std::make_shared<CaptureProbe>(destroyed);
-    run.Submit([probe, &ready, gate] { ready.set_value(); gate.wait(); });
+    auto future = SubmitCandidateTask(executor, [probe, &ready, gate] { ready.set_value(); gate.wait(); });
     probe.reset();
     ready_future.get();
-    Check(run.OutstandingCaptures() != 0 && destroyed.load() == 0, "future readiness ended task lifetime");
+    Check(future.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout
+            && destroyed.load() == 0, "task result published before completion");
     release.set_value();
-    run.Seal();
-    run.Drain();
-    Check(destroyed.load() == 1, "capture cleanup not drained");
-}
-
-static void CheckFailures() {
-    for (bool after : {false, true}) {
-        std::atomic<unsigned> finished = 0;
-        auto executor = std::make_unique<RetainingExecutor>();
-        executor->reject_at = 1;
-        executor->reject_after_accept = after;
-        {
-            QueryRun run(std::move(executor));
-            run.Activate();
-            auto first = run.SubmitFuture([&] { ++finished; throw std::runtime_error("prepare failed"); });
-            bool rejected = false;
-            try { run.SubmitFuture([&] { ++finished; }); } catch (const std::runtime_error &) { rejected = true; }
-            Check(rejected, "submission failure not reported");
-            bool threw = false;
-            try { first.get(); } catch (const std::runtime_error &) { threw = true; }
-            Check(threw, "prepare exception converted to success");
-            run.Seal();
-            try { run.Drain(); } catch (const std::runtime_error &) {}
-        }
-        Check(finished.load() == (after ? 2u : 1u), "accepted task escaped exception cleanup");
-    }
+    future.get();
+    Check(destroyed.load() == 1, "capture cleanup outlived task result");
 }
 
 static void CheckBudget() {
@@ -183,8 +151,7 @@ static void CheckSlices() {
 int main() {
     CheckCaptureCleanup();
     CheckEarlyFuture();
-    CheckFailures();
     CheckBudget();
     CheckSlices();
-    std::cout << "CANDIDATE_RUNTIME_OK cleanup failures budget ranges\n";
+    std::cout << "CANDIDATE_RUNTIME_OK cleanup completion budget ranges\n";
 }

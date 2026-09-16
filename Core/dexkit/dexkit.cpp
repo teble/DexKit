@@ -26,6 +26,7 @@
 #endif
 
 #include <algorithm>
+#include <iterator>
 
 #include "zip_archive.h"
 #include "ThreadPool.h"
@@ -670,7 +671,11 @@ DexKit::FindClass(const schema::FindClass *query) {
         for (; future_index < futures.size(); ++future_index) {
             auto vec = futures[future_index].get();
             if (vec.empty()) continue;
+#if DEXKIT_EXPERIMENT_MOVE_FIND_RESULTS
+            result.insert(result.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+#else
             result.insert(result.end(), vec.begin(), vec.end());
+#endif
             if (find_first) {
                 should_drain_pending_futures = true;
                 ++future_index;
@@ -827,7 +832,11 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         for (; future_index < futures.size(); ++future_index) {
             auto vec = futures[future_index].get();
             if (vec.empty()) continue;
+#if DEXKIT_EXPERIMENT_MOVE_FIND_RESULTS
+            result.insert(result.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+#else
             result.insert(result.end(), vec.begin(), vec.end());
+#endif
             if (find_first) {
                 should_drain_pending_futures = true;
                 ++future_index;

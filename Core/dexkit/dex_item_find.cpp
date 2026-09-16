@@ -106,6 +106,9 @@ DexItem::FindClass(
         split_count = 1;
         slice_size = this->reader.ClassDefs().size();
     }
+#if DEXKIT_EXPERIMENT_SKIP_EMPTY_CANDIDATES
+    if (string_plan.route == inverted_string::QueryPlan::Route::Empty) split_count = 0;
+#endif
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
     TraceStringAdmission(query_context.GetQueryId(), dex_id, true, string_plan, original_slice, split_count);
 #endif
@@ -168,6 +171,9 @@ DexItem::FindMethod(
         split_count = 1;
         slice_size = this->reader.MethodIds().size();
     }
+#if DEXKIT_EXPERIMENT_SKIP_EMPTY_CANDIDATES
+    if (string_plan.route == inverted_string::QueryPlan::Route::Empty) split_count = 0;
+#endif
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS && DEXKIT_BENCHMARK_DIAGNOSTICS
     TraceStringAdmission(query_context.GetQueryId(), dex_id, false, string_plan, original_slice, split_count);
 #endif

@@ -2,18 +2,40 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <deque>
 #include <future>
 #include <iterator>
 #include <memory>
-#include <stdexcept>
+#include <optional>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "query_candidates.h"
-#include "query_run.h"
+#include "query_executor.h"
 
 namespace dexkit::internal {
+
+// Ordinary candidate tasks have no early-exit callback. Move their owning
+// captures onto the worker stack so cleanup precedes future readiness, even
+// when the executor or a shared future retains the completed packaged_task.
+template<class F>
+auto SubmitCandidateTask(IQueryExecutor &executor, F &&function) noexcept
+        -> std::future<std::invoke_result_t<std::decay_t<F>>> {
+    using Function = std::decay_t<F>;
+    using Result = std::invoke_result_t<Function>;
+    auto task = std::make_shared<std::packaged_task<Result()>>(
+            [function = std::optional<Function>(std::forward<F>(function))]() mutable noexcept -> Result {
+                Function local(std::move(*function));
+                function.reset();
+                if constexpr (std::is_void_v<Result>) local();
+                else return local();
+            });
+    auto future = task->get_future();
+    executor.Submit([task = std::move(task)] { (*task)(); });
+    return future;
+}
 
 struct CandidateExecutionOptions {
     size_t working_bytes = 64 * 1024 * 1024;
@@ -39,7 +61,7 @@ template<class Bean> struct CandidateOutcome {
     explicit CandidateOutcome(std::vector<Bean> value) : kind(Kind::Completed), result(std::move(value)) {}
     explicit CandidateOutcome(std::shared_ptr<const PreparedCandidates> value)
             : kind(Kind::Prepared), candidates(std::move(value)) {
-        if (!candidates) FailQueryRunInvariant("Missing prepared candidates");
+        if (!candidates) std::abort();
     }
 };
 
@@ -49,16 +71,13 @@ template<class Bean> struct CandidateOutcome {
 template<class Bean, class Legacy, class Prepare, class Match>
 std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sources,
         std::unique_ptr<IQueryExecutor> executor, QueryContext &context,
-        Legacy &&legacy, Prepare &&prepare, Match &&match, CandidateExecutionOptions options = {}) {
+        Legacy &&legacy, Prepare &&prepare, Match &&match, CandidateExecutionOptions options = {}) noexcept {
     using Outcome = CandidateOutcome<Bean>;
     struct Slot {
         std::future<Outcome> preparation;
         std::vector<std::future<std::vector<Bean>>> validation;
         std::vector<Bean> result;
     };
-    // Declare the run before every future and result: their owners disappear
-    // before its exceptional cleanup waits for borrowed task inputs.
-    QueryRun run(std::move(executor));
     CandidateBudget budget(options.working_bytes);
     std::vector<Slot> slots(sources.size());
     std::vector<size_t> producers;
@@ -70,14 +89,12 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
         to.insert(to.end(), std::make_move_iterator(from.begin()), std::make_move_iterator(from.end()));
     };
     auto consume = [&](Slot &slot) {
-        // On failure, QueryRun still drains work whose future was not reached.
         for (auto &future : slot.validation) append(slot.result, future.get());
         slot.validation.clear();
     };
 
-    // Selection was frozen before activation. No work is accepted until the
-    // backend has started successfully, including on the exception path.
-    run.Activate();
+    // Dynamic preparation needs an active executor before the first window.
+    executor->OnSubmissionComplete();
     for (size_t i = 0; i < sources.size(); ++i) {
         const auto &source = sources[i];
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -87,16 +104,15 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
                 source.strings.index_ready, source.strings.postings, source.slice_width, source.split, source.work_bytes);
 #endif
         if (!source.strings.Admitted()) {
-            slots[i].validation = legacy(source, run, false);
+            slots[i].validation = legacy(source, *executor, false);
             validate_tasks += slots[i].validation.size();
         } else if (source.strings.route != inverted_string::QueryPlan::Route::Empty) {
             producers.push_back(i);
         }
     }
     unresolved = producers.size();
-    auto seal_if_done = [&] {
+    auto mark_submission_if_done = [&] {
         if (!unresolved) {
-            run.Seal();
             context.MarkSubmissionCompleted();
         }
     };
@@ -106,7 +122,7 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             const auto i = producers[next];
             const auto &source = sources[i];
             if (source.work_bytes > budget.Limit()) {
-                slots[i].validation = legacy(source, run, true);
+                slots[i].validation = legacy(source, *executor, true);
                 validate_tasks += slots[i].validation.size();
                 ++fallback_dexes;
                 ++next;
@@ -116,10 +132,10 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             auto reservation = budget.TryReserve(source.work_bytes);
             if (!reservation) break; // Consume earlier work; never block a worker on credit.
             context.MarkTaskSubmitted();
-            slots[i].preparation = run.SubmitFuture([&, source, reservation = std::move(*reservation)]() mutable {
+            slots[i].preparation = SubmitCandidateTask(*executor, [&, source, reservation = std::move(*reservation)]() mutable {
                 CandidateTaskScope task_scope(context);
                 auto candidates = prepare(source, std::move(reservation));
-                if (!candidates) FailQueryRunInvariant("Missing prepared candidates");
+                if (!candidates) std::abort();
                 if (candidates->kind == CandidateView::Kind::FullRange) return Outcome(std::move(candidates));
                 if (!source.split || candidates->slices.size() <= 1) {
                     const auto slice = candidates->slices.empty() ? CandidateSlice{0, source.domain.count}
@@ -132,12 +148,12 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             ++prepare_tasks;
             ++next;
         }
-        seal_if_done();
+        mark_submission_if_done();
     };
 
     submit_window();
     while (unresolved) {
-        if (pending.empty()) FailQueryRunInvariant("Candidate reservation outlived its preparation window");
+        if (pending.empty()) std::abort(); // All reservation owners must belong to this window.
         const auto i = pending.front();
         pending.pop_front();
         auto outcome = slots[i].preparation.get();
@@ -146,14 +162,14 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             slots[i].result = std::move(outcome.result);
             ++inline_dexes;
         } else if (outcome.candidates->kind == CandidateView::Kind::FullRange) {
-            slots[i].validation = legacy(source, run, true);
+            slots[i].validation = legacy(source, *executor, true);
             validate_tasks += slots[i].validation.size();
             ++fallback_dexes;
         } else {
             slots[i].validation.reserve(outcome.candidates->slices.size());
             for (auto slice : outcome.candidates->slices) {
                 context.MarkTaskSubmitted();
-                slots[i].validation.push_back(run.SubmitFuture([&, source, slice, candidates = outcome.candidates] {
+                slots[i].validation.push_back(SubmitCandidateTask(*executor, [&, source, slice, candidates = outcome.candidates] {
                     CandidateTaskScope task_scope(context);
                     return match(source, *candidates, slice);
                 }));
@@ -161,14 +177,15 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             }
         }
         --unresolved;
-        seal_if_done();
+        mark_submission_if_done();
         consume(slots[i]);
         outcome.candidates.reset();
         submit_window();
     }
     for (auto &slot : slots) consume(slot);
-    run.Seal();
-    run.Drain();
+    // All task bodies and owning candidate captures have completed. Detach
+    // scheduler bookkeeping while the caller's query context is still alive.
+    executor.reset();
     context.MarkWorkersCompleted();
     std::vector<Bean> result;
     for (auto &slot : slots) append(result, std::move(slot.result));

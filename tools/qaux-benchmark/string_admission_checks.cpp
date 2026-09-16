@@ -23,7 +23,7 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
     using Plan = inverted_string::QueryPlan;
     using Route = Plan::Route;
     constexpr bool small = DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES;
-    size_t decisions = 0, scoped = 0, frozen = 0;
+    size_t decisions = 0, scoped = 0, frozen = 0, empty_submissions = 0;
     for (bool warm : {false, true}) {
         DexKit bridge(apk, 1); bridge.SetThreadNum(4);
         auto guard = bridge.EnterQueryExecution(kUsingString);
@@ -31,6 +31,24 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
             auto &dex = *item;
             Require(!dex.inverted_strings_ready.load(std::memory_order_acquire));
             if (warm) Require(dex.EnsureInvertedStrings());
+            auto check_empty_submission = [&](const auto *query) {
+                constexpr bool classes = std::is_same_v<std::remove_cv_t<std::remove_pointer_t<decltype(query)>>,
+                        schema::FindClass>;
+                QueryContext context(classes ? QueryKind::FindClass : QueryKind::FindMethod);
+                std::set<uint32_t> no_ids;
+                trie::PackageTrie packages;
+                DeferredExecutor executor;
+                auto submit = [&] {
+                    if constexpr (classes) return dex.FindClass(query, no_ids, packages, executor, 500, context);
+                    else return dex.FindMethod(query, no_ids, no_ids, packages, executor, 1000, context);
+                };
+                auto futures = submit();
+                const auto expected = DEXKIT_EXPERIMENT_SKIP_EMPTY_CANDIDATES ? 0u : 1u;
+                Require(futures.size() == expected && executor.tasks.size() == expected);
+                executor.OnSubmissionComplete();
+                for (auto &future : futures) Require(future.get().empty());
+                ++empty_submissions;
+            };
             for (int variant = 0; variant < string_admission_fixture::QueryCount; ++variant) {
                 for (bool absent : {false, true}) {
                     auto data = string_admission_fixture::Query(variant, absent);
@@ -45,6 +63,7 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
                             : variant >= 9 && variant <= 11 ? Route::Legacy : Route::Range;
                     }
                     Require(plan.route == expected);
+                    if (expected == Route::Empty) check_empty_submission(query);
                     if (small && warm && !absent && variant >= 9 && variant <= 11)
                         Require(plan.postings == 2 && plan.reason == Plan::Reason::PostingBound);
                     if (small && warm && !absent && variant == 7) Require(plan.postings == 1);
@@ -60,6 +79,7 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
                         : small && warm ? absent ? Route::Empty : variant == 1 ? Route::Legacy : Route::Range
                         : Route::Legacy;
                     Require(plan.route == expected);
+                    if (expected == Route::Empty) check_empty_submission(query);
                     ++decisions;
                 }
             }
@@ -129,8 +149,8 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
             ++frozen;
         }
     }
-    std::printf("CHECK_STRING_ADMISSION {\"decisions\":%zu,\"restricted\":%zu,\"frozen_publications\":%zu,\"small_ranges\":%s,\"passed\":true}\n",
-            decisions, scoped, frozen, small ? "true" : "false");
+    std::printf("CHECK_STRING_ADMISSION {\"decisions\":%zu,\"restricted\":%zu,\"frozen_publications\":%zu,\"empty_submissions\":%zu,\"small_ranges\":%s,\"passed\":true}\n",
+            decisions, scoped, frozen, empty_submissions, small ? "true" : "false");
 #else
     std::printf("CHECK_STRING_ADMISSION {\"inverse_enabled\":false,\"passed\":true}\n");
 #endif

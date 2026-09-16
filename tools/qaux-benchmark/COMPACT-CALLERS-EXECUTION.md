@@ -6,14 +6,16 @@ pipeline/slicing OFF. This experiment changes caller storage and construction
 only; cross_info and field storage remain unchanged.
 
 - [x] Implement a default-OFF COMPACT_CALLERS option on both build paths.
-- [ ] Validate exact ordered results, raw reference rows, late construction,
+- [x] Validate exact ordered results, raw reference rows, late construction,
       shared-query publication, stable spans, and size arithmetic.
 - [x] Review the fixed implementation with Pro and resolve concrete issues.
-- [ ] Complete native/JAR/JVM and Android ABI checks before formal timing.
-- [ ] Measure QQ and bounded adverse workloads in balanced fresh processes,
+- [x] Complete native/JAR/JVM and Android ABI checks before formal timing.
+- [x] Measure QQ and bounded adverse workloads in balanced fresh processes,
       then repeat the same cases in an independent confirmation.
-- [ ] Record retained bytes, temporary bytes, physical peak, lifecycle and
+- [x] Record retained bytes, temporary bytes, physical peak, lifecycle and
       cold/warm API results, including regressions and unresolved intervals.
+
+Completed results and tradeoffs: [COMPACT-CALLERS-RESULTS.md](COMPACT-CALLERS-RESULTS.md).
 
 ## Construction contract
 
@@ -69,18 +71,43 @@ itself prove a lower build peak or faster complete lifecycle.
 Development validation: the existing relation checks and tiny/mixed/giant
 invocation checks pass, including the previously frozen 29-query outputs.
 Both new control/compact diagnostic builds pass the caller index component
-checks and the five-DEX fixture (29 methods, 31 ordered edges), whose authored
+checks and the five-DEX fixture (33 methods, 31 ordered edges), whose authored
 raw-row oracle is independent of native output. Their full dumps match.
 The 1/4-worker cold/late/full and queued-query cases check source-row clearing,
 released temporary capacity and stable caller addresses through later RW/full.
-That initial `b28699b` also passed 66 native validation commands, 71 JVM tests,
-and the Android AAR build for all four ABIs. Post-review validation is rerun for
-the corrected checking policy and the added successful zero-count binding.
-Formal non-diagnostic measurements remain pending.
+The final `e3ec362` passed all 66 native commands again, 71 JVM tests, Android
+AAR construction for all four ABIs, six QQ verification runs, and 12 additional
+caller/invocation checks on mostly-empty and one-source fixtures. The final
+fixture includes two successful zero-count cross-DEX bindings. Ordered output
+and raw rows match the controls, including ASan/UBSan runs.
 
 The extended invocation generator adds an optional source count; its default
 fixture APK remains byte-identical. A nine-DEX case with 5,000 methods per
 source keeps most reverse rows empty while eight sources share a target.
+The optional one-active-source setting also covers one source contributing
+131,072 repeated calls; defaults retain the original fixture bytes.
+
+## Frozen formal cases
+
+Two sequential phases (main and independent confirmation), each with six
+balanced fresh-process pairs per row. Native rows use 16 API repetitions;
+QQ rows use the listed passes. Total: 34 sweeps, 408 fresh processes. Seeds,
+commands and input hashes are frozen before the first measurement in
+`evidence/compact-callers/v2/raw-evidence.tar.gz:measurements/frozen-plan.json`.
+
+| Fixture | Modes |
+| --- | --- |
+| tiny | caller-match-cold-w1; caller-output-late-w4 |
+| mixed | caller-match-cold-w4; caller-match-late-w4; caller-multiple-late-w4; caller-output-full-w4 |
+| giant | caller-early-cold-w4; caller-match-cold-w4; caller-multiple-late-w1; caller-output-cold-w4 |
+| mostly-empty | caller-match-cold-w1; caller-match-late-w4 |
+| one-source | caller-match-cold-w1; caller-match-cold-w4 |
+| QQ all | 1 pass / 4 workers; 11 passes / 4 workers; 1 pass / 1 worker |
+
+Keep every successful sample, including outliers. No native build, Gradle build
+or functional validation overlaps formal timing. The QQ launcher compiles its
+Java adapter serially before each measured JVM; this is outside the measured
+lifecycle. OS file caches are not flushed.
 
 Staged workload labels have limited scopes. Cold relation preparation includes
 forward invocations, caller identity and aggregation; full includes all caches.

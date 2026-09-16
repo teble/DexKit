@@ -1,0 +1,425 @@
+{
+  "engine_commit": "e3ec3622ff9bc3b3613f934356bbd1cf6b4408c5",
+  "native_commands": {
+    "normal": 13,
+    "trace": 36,
+    "sanitize": 17
+  },
+  "native_total": 66,
+  "additional_native_commands": 12,
+  "independent_caller": [
+    {
+      "name": "independent-compact-sanitized",
+      "dexes": 5,
+      "methods": 33,
+      "edges": 31,
+      "full_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+      "independent_rows_equal": true,
+      "zero_bindings_checked": 2
+    },
+    {
+      "name": "independent-compact-trace",
+      "dexes": 5,
+      "methods": 33,
+      "edges": 31,
+      "full_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+      "independent_rows_equal": true,
+      "zero_bindings_checked": 2
+    },
+    {
+      "name": "independent-control-trace",
+      "dexes": 5,
+      "methods": 33,
+      "edges": 31,
+      "full_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+      "independent_rows_equal": true,
+      "zero_bindings_checked": 2
+    },
+    {
+      "name": "independent-isolated-compact",
+      "dexes": 5,
+      "methods": 33,
+      "edges": 31,
+      "full_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+      "independent_rows_equal": true,
+      "zero_bindings_checked": 2
+    },
+    {
+      "name": "independent-isolated-control",
+      "dexes": 5,
+      "methods": 33,
+      "edges": 31,
+      "full_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+      "independent_rows_equal": true,
+      "zero_bindings_checked": 2
+    }
+  ],
+  "complete_caller_dump_equal": true,
+  "contract_dump_sha256": "b533c53050a26c61212597ecc80f45f7e15ab71bde763ef4e9a2517c7da03453",
+  "qq": [
+    {
+      "name": "verify-control-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "a4d8ab45c2b857d4e91072a8dbc5b4be84633f44673aacc3fd5165579949197c",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-compact-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "24cf17f90e86c08eb1b74281d13474f4e2b225e9a0a63335f1a4446119cc8cde",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-control-trace-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "cbb7ff691edba46380f017af66aead38e5de739dc69e4b59eb61e07c64747ae4",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-compact-trace-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "e24b9604e3f9d20c91183c053eb9498c35f446c37afa2bab4c95a5d0983a372a",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-control-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "a4d8ab45c2b857d4e91072a8dbc5b4be84633f44673aacc3fd5165579949197c",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-compact-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "24cf17f90e86c08eb1b74281d13474f4e2b225e9a0a63335f1a4446119cc8cde",
+      "baseline_results_equal": true
+    }
+  ],
+  "qq_ordered_raw_rows_equal": true,
+  "extra": [
+    {
+      "name": "mostly-empty-caller-control-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/control-trace/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "0d6c4ff566c642422d775a84f16e21b2de9f087b2b89a324b24288d0076ddfca"
+    },
+    {
+      "name": "mostly-empty-caller-compact-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-trace/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "0d6c4ff566c642422d775a84f16e21b2de9f087b2b89a324b24288d0076ddfca"
+    },
+    {
+      "name": "mostly-empty-caller-compact-sanitized",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-sanitized/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "0d6c4ff566c642422d775a84f16e21b2de9f087b2b89a324b24288d0076ddfca"
+    },
+    {
+      "name": "mostly-empty-invocation-control-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/control-trace/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "9f66cccdca54f81156abfda1a9024bb81e1ffe737e1457c4a704e5cef9671099"
+    },
+    {
+      "name": "mostly-empty-invocation-compact-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-trace/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "9f66cccdca54f81156abfda1a9024bb81e1ffe737e1457c4a704e5cef9671099"
+    },
+    {
+      "name": "mostly-empty-invocation-compact-sanitized",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-sanitized/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/mostly-empty/invocations.apk"
+      ],
+      "sha256": "9f66cccdca54f81156abfda1a9024bb81e1ffe737e1457c4a704e5cef9671099"
+    },
+    {
+      "name": "one-source-caller-control-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/control-trace/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "ee663b3fb663e1ac458dd70a12046a4e64bbf0b00823b69877fd5ae2aae04d6a"
+    },
+    {
+      "name": "one-source-caller-compact-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-trace/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "ee663b3fb663e1ac458dd70a12046a4e64bbf0b00823b69877fd5ae2aae04d6a"
+    },
+    {
+      "name": "one-source-caller-compact-sanitized",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-sanitized/build/Core/dexkit_caller_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "ee663b3fb663e1ac458dd70a12046a4e64bbf0b00823b69877fd5ae2aae04d6a"
+    },
+    {
+      "name": "one-source-invocation-control-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/control-trace/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "feb87c080eb986cf06b43cd8437598a070fd1aa721a3ac9bcf892c72538fee55"
+    },
+    {
+      "name": "one-source-invocation-compact-trace",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-trace/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "feb87c080eb986cf06b43cd8437598a070fd1aa721a3ac9bcf892c72538fee55"
+    },
+    {
+      "name": "one-source-invocation-compact-sanitized",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/artifacts/compact-sanitized/build/Core/dexkit_invocation_checks",
+        "--dump",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/compact-callers-v2/fixtures/one-source/invocations.apk"
+      ],
+      "sha256": "feb87c080eb986cf06b43cd8437598a070fd1aa721a3ac9bcf892c72538fee55"
+    }
+  ],
+  "string_batch_oracles": {
+    "batch-strings-correctness-v1-normal": {
+      "queries": 36,
+      "variants": [
+        "old-small",
+        "control",
+        "compact"
+      ]
+    },
+    "batch-strings-correctness-v1-sanitize": {
+      "queries": 36,
+      "variants": [
+        "old-small",
+        "compact-sanitized"
+      ]
+    },
+    "batch-strings-correctness-wide-v1-normal": {
+      "queries": 36,
+      "variants": [
+        "old-small",
+        "control",
+        "compact"
+      ]
+    },
+    "batch-strings-correctness-wide-v1-sanitize": {
+      "queries": 36,
+      "variants": [
+        "old-small",
+        "compact-sanitized"
+      ]
+    },
+    "string-strings-correctness-v1-normal": {
+      "queries": 90,
+      "variants": [
+        "old-small",
+        "control",
+        "compact"
+      ]
+    },
+    "string-strings-correctness-v1-sanitize": {
+      "queries": 90,
+      "variants": [
+        "old-small",
+        "compact-sanitized"
+      ]
+    },
+    "string-strings-correctness-wide-v1-normal": {
+      "queries": 90,
+      "variants": [
+        "old-small",
+        "control",
+        "compact"
+      ]
+    },
+    "string-strings-correctness-wide-v1-sanitize": {
+      "queries": 90,
+      "variants": [
+        "old-small",
+        "compact-sanitized"
+      ]
+    }
+  },
+  "gradle": {
+    "command": [
+      "bash",
+      "./gradlew",
+      ":dexkit:cmakeBuild",
+      ":dexkit:jar",
+      ":dexkit:test",
+      ":dexkit-android:assembleRelease",
+      "--max-workers=2",
+      "-I",
+      "tools/qaux-benchmark/force_tests.gradle",
+      "-PexperimentLazyDirectories=ON",
+      "-PexperimentCompactStrings=ON",
+      "-PexperimentNegativeStrings=ON",
+      "-PexperimentStructuralDescriptors=ON",
+      "-PexperimentDescriptorFastHits=ON",
+      "-PexperimentRawInterfaces=ON",
+      "-PexperimentFieldIdentitySplit=ON",
+      "-PexperimentCompactInvokes=ON",
+      "-PexperimentSingleRelation=ON",
+      "-PexperimentInvertedStrings=ON",
+      "-PexperimentInvertedStringRanges=ON",
+      "-PexperimentSkipEmptyCandidates=ON",
+      "-PexperimentMoveFindResults=ON",
+      "-PexperimentCompactCallers=ON",
+      "-PexperimentCandidatePipeline=OFF",
+      "-PexperimentCandidateSlices=OFF"
+    ],
+    "tests": [
+      {
+        "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+        "tests": "11",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:09",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.514"
+      },
+      {
+        "name": "org.luckypray.dexkit.JavaReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:09",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.131"
+      },
+      {
+        "name": "org.luckypray.dexkit.KtReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:09",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.052"
+      },
+      {
+        "name": "org.luckypray.dexkit.UnitTest",
+        "tests": "44",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:09",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "1.443"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:11",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.0"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:11",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.017"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:11",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.114"
+      },
+      {
+        "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T12:39:11",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.004"
+      }
+    ],
+    "total_tests": 71,
+    "skipped": 0,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "cmake_caches": [
+      {
+        "abi": "arm64-v8a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/44j5c256/arm64-v8a/CMakeCache.txt",
+        "sha256": "d971884f40840a412c1c308a2d866f9a8363e4f83457a2bab9217b1848e7f287"
+      },
+      {
+        "abi": "armeabi-v7a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/44j5c256/armeabi-v7a/CMakeCache.txt",
+        "sha256": "98ebb311f47448c5126c561b813d17a92f3a756579f60aca9c2e2578f460a011"
+      },
+      {
+        "abi": "x86",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/44j5c256/x86/CMakeCache.txt",
+        "sha256": "ba6f35dd22b52f11156f7c00635e1eea684bbcf158e05eebbae67eed7bd99830"
+      },
+      {
+        "abi": "x86_64",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/44j5c256/x86_64/CMakeCache.txt",
+        "sha256": "e2940e93422495bbc2c748df1979c3216e36a660afec215463c2c75fa330d049"
+      },
+      {
+        "abi": "desktop",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+        "sha256": "c740a6504ba1613f6bcbc608ee901b7ba42424b5b72295cd85d0886172ccd1a6"
+      }
+    ],
+    "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "aar_sha256": "8badbc295b10a3849a5819ca810a86b576d58fa188a1df0515f97b84a6c94319"
+  },
+  "limitation": "ASan/UBSan ran on the host. Android validates four ABI builds; no Android device timing or sanitizer run."
+}

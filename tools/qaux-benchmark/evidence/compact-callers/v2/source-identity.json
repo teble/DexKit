@@ -1,0 +1,15 @@
+{
+  "engine_commit": "e3ec3622ff9bc3b3613f934356bbd1cf6b4408c5",
+  "baseline_commit": "6fc9595137773c20d8fc98c44f37c16146bb48f4",
+  "source_trees": {
+    "Core": "48f0aa7033def12c3dc68240019abea5535e44b9",
+    "dexkit/src/main/cpp": "7b4f3a2f9f043c1b25bf06e0dc53377e9125ca61",
+    "schema": "17b6c87953dbc36d077007648216241e47d87cb0"
+  },
+  "normal_native_sha256": {
+    "control": "a4d8ab45c2b857d4e91072a8dbc5b4be84633f44673aacc3fd5165579949197c",
+    "compact": "24cf17f90e86c08eb1b74281d13474f4e2b225e9a0a63335f1a4446119cc8cde"
+  },
+  "frozen_plan_sha256": "b0ccffe7cd028e86f1ede6905b37e6b0b5e5eef513703d68639c3da15c54cc9b",
+  "note": "The timed native code and workload are fixed at the engine commit. Later fixture/report scripts are included verbatim. Reproduction needs the repository at that commit, separately obtained QQ APK/corpus and equivalent JDK, compiler and Android SDK/NDK inputs."
+}

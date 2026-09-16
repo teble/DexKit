@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--fanout', type=int, default=1024)
     parser.add_argument('--sparse-every', type=int, default=4)
     parser.add_argument('--sources', type=int, default=2)
+    parser.add_argument('--one-active-source', action='store_true')
     args = parser.parse_args()
     if (not 1 <= args.methods <= 10000 or not 2 <= args.fanout <= 1000000
             or args.sparse_every < 0 or not 2 <= args.sources <= 16):
@@ -41,7 +42,7 @@ def main():
         last = method(source, 'zRun')
         code = {}
         for i, member in enumerate(sorted(runs)):
-            sparse = args.sparse_every != 0 and (i + 1) % args.sparse_every == 0
+            sparse = (args.one_active_source and dex != 1) or (args.sparse_every != 0 and (i + 1) % args.sparse_every == 0)
             operations = [] if sparse else [('get', value), ('string', 'caller-tag')]
             if not sparse:
                 operations += [('invoke', early)] * (args.fanout - 1) + [('invoke', late)]
@@ -69,7 +70,7 @@ def main():
     manifest = dict(apk_sha256=hashlib.sha256(apk.read_bytes()).hexdigest(),
         dex_sha256=[hashlib.sha256(data).hexdigest() for data in rows],
         methods_per_source=args.methods, fanout=args.fanout, sparse_every=args.sparse_every, sources=args.sources,
-        dense_methods=active, forward_edges=active * args.fanout + args.sources,
+        dense_methods=active, forward_edges=active * args.fanout + args.sources, one_active_source=args.one_active_source,
         note='Serial loading selects the final Target definition; repeated edges retain positions.')
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(apk)

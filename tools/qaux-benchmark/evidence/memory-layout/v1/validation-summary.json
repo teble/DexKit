@@ -1,0 +1,540 @@
+{
+  "normal_engine_commit": "62687fb6f0fef745f3614124650d45924293fd6c",
+  "diagnostic_engine_commit": "05e5a411779758a3902b72409570a28d1a17e788",
+  "native_driver_commands": {
+    "normal": 70,
+    "trace": 122,
+    "sanitize": 30,
+    "compat": 28
+  },
+  "native_driver_total": 250,
+  "qq": [
+    {
+      "name": "verify-control-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-control-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-cross-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "0c4c349febb431d94a33d4160abc7f2ded8d5b689d1343bc5bd64fc4c5fc916f",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-cross-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "0c4c349febb431d94a33d4160abc7f2ded8d5b689d1343bc5bd64fc4c5fc916f",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-node-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "3564fb4c5fc4a303b3b09063f8fd444aa9a8da270c7586ee70e4c84caae05b54",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-node-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "3564fb4c5fc4a303b3b09063f8fd444aa9a8da270c7586ee70e4c84caae05b54",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-field-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "4ed84c7ca922645decdf24713d9c79bedbf9cb3a165154946d9d971bdf548dfd",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-field-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "4ed84c7ca922645decdf24713d9c79bedbf9cb3a165154946d9d971bdf548dfd",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-packed-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "74041fe888be44b712e4f1f1aca8e4f4ac79918e491978a14728970ed666f7ae",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-packed-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "74041fe888be44b712e4f1f1aca8e4f4ac79918e491978a14728970ed666f7ae",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-combined-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "9844cb7de6d0e7c8465e45d60e7a765738d92bef2be80b7be8ed30474112d31e",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-combined-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "9844cb7de6d0e7c8465e45d60e7a765738d92bef2be80b7be8ed30474112d31e",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-control-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "8b7c3a4bad0c92b09251a41c7651adef85154aa0ddf917b3b4ad7db8c172a40d",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": null
+    },
+    {
+      "name": "verify-combined-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "670d4e9c5a4b5a576b58714c2ecdbdb843a21f820bad4199296775843a443ed9",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": null
+    },
+    {
+      "name": "verify-control-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": true
+    },
+    {
+      "name": "verify-field-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "4ed84c7ca922645decdf24713d9c79bedbf9cb3a165154946d9d971bdf548dfd",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": true
+    },
+    {
+      "name": "verify-combined-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "9844cb7de6d0e7c8465e45d60e7a765738d92bef2be80b7be8ed30474112d31e",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": true
+    }
+  ],
+  "extra": [
+    {
+      "name": "node-normal-compile",
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O3",
+        "-DNDEBUG",
+        "-fno-exceptions",
+        "-mmacosx-version-min=11.0",
+        "-DDEXKIT_BENCHMARK_DIAGNOSTICS=0",
+        "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+        "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/parallel_hashmap",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/node_descriptor_checks.cpp",
+        "-o",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/quick/node-normal-checks"
+      ],
+      "passed": true
+    },
+    {
+      "name": "node-normal-checks",
+      "command": [
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/quick/node-normal-checks"
+      ],
+      "passed": true
+    },
+    {
+      "name": "verify-control-trace-census-w4",
+      "command": [
+        "python3",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/run.py",
+        "--dexkit-root",
+        "/Users/teble/project/android/DexKit-qaux-benchmark",
+        "--corpus",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+        "--apk",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+        "--java-home",
+        "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+        "--memory-probe",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+        "--output",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/validation/verify-control-trace-census-w4",
+        "--native-library",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/artifacts/control-trace/libdexkit.dylib",
+        "--passes",
+        "11",
+        "--threads",
+        "4",
+        "--profile",
+        "all",
+        "--mode",
+        "verify"
+      ],
+      "passed": true
+    },
+    {
+      "name": "verify-combined-trace-census-w4",
+      "command": [
+        "python3",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/run.py",
+        "--dexkit-root",
+        "/Users/teble/project/android/DexKit-qaux-benchmark",
+        "--corpus",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+        "--apk",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+        "--java-home",
+        "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+        "--memory-probe",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+        "--output",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/validation/verify-combined-trace-census-w4",
+        "--native-library",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/artifacts/combined-trace/libdexkit.dylib",
+        "--passes",
+        "11",
+        "--threads",
+        "4",
+        "--profile",
+        "all",
+        "--mode",
+        "verify"
+      ],
+      "passed": true
+    },
+    {
+      "name": "verify-control-tail-w4",
+      "command": [
+        "python3",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/run.py",
+        "--dexkit-root",
+        "/Users/teble/project/android/DexKit-qaux-benchmark",
+        "--corpus",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+        "--apk",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+        "--java-home",
+        "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+        "--memory-probe",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+        "--output",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/validation/verify-control-tail-w4",
+        "--native-library",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/artifacts/control/libdexkit.dylib",
+        "--passes",
+        "11",
+        "--threads",
+        "4",
+        "--profile",
+        "all",
+        "--mode",
+        "verify",
+        "--final-field-rw",
+        "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+        "--field-rw-expected",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+      ],
+      "passed": true
+    },
+    {
+      "name": "verify-field-tail-w4",
+      "command": [
+        "python3",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/run.py",
+        "--dexkit-root",
+        "/Users/teble/project/android/DexKit-qaux-benchmark",
+        "--corpus",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+        "--apk",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+        "--java-home",
+        "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+        "--memory-probe",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+        "--output",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/validation/verify-field-tail-w4",
+        "--native-library",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/artifacts/field/libdexkit.dylib",
+        "--passes",
+        "11",
+        "--threads",
+        "4",
+        "--profile",
+        "all",
+        "--mode",
+        "verify",
+        "--final-field-rw",
+        "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+        "--field-rw-expected",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+      ],
+      "passed": true
+    },
+    {
+      "name": "verify-combined-tail-w4",
+      "command": [
+        "python3",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/tools/qaux-benchmark/run.py",
+        "--dexkit-root",
+        "/Users/teble/project/android/DexKit-qaux-benchmark",
+        "--corpus",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qaux-extracted",
+        "--apk",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/qq-9.3.55.apk",
+        "--java-home",
+        "/Users/teble/Library/Java/JavaVirtualMachines/jbr-17.0.6/Contents/Home",
+        "--memory-probe",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/artifacts/probe-v2/libqauxbench_probe.dylib",
+        "--output",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/validation/verify-combined-tail-w4",
+        "--native-library",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/memory-layout-v1/artifacts/combined/libdexkit.dylib",
+        "--passes",
+        "11",
+        "--threads",
+        "4",
+        "--profile",
+        "all",
+        "--mode",
+        "verify",
+        "--final-field-rw",
+        "Lcom/tencent/mobileqq/data/MessageRecord;->msg:Ljava/lang/String;",
+        "--field-rw-expected",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/formal/field-tail-oracle-best5/field-rw-expected.json"
+      ],
+      "passed": true
+    }
+  ],
+  "workload_smoke_commands": 40,
+  "gradle": {
+    "command": [
+      "bash",
+      "./gradlew",
+      ":dexkit:cmakeBuild",
+      ":dexkit:jar",
+      ":dexkit:test",
+      ":dexkit-android:assembleRelease",
+      "--max-workers=2",
+      "-I",
+      "tools/qaux-benchmark/force_tests.gradle",
+      "-PexperimentLazyDirectories=ON",
+      "-PexperimentCompactStrings=ON",
+      "-PexperimentNegativeStrings=ON",
+      "-PexperimentStructuralDescriptors=ON",
+      "-PexperimentDescriptorFastHits=ON",
+      "-PexperimentRawInterfaces=ON",
+      "-PexperimentFieldIdentitySplit=ON",
+      "-PexperimentCompactInvokes=ON",
+      "-PexperimentSingleRelation=ON",
+      "-PexperimentInvertedStrings=ON",
+      "-PexperimentInvertedStringRanges=ON",
+      "-PexperimentSkipEmptyCandidates=ON",
+      "-PexperimentMoveFindResults=ON",
+      "-PexperimentCompactCallers=ON",
+      "-PexperimentPackedCrossInfo=ON",
+      "-PexperimentNodeDescriptors=ON",
+      "-PexperimentPackedFieldUses=ON",
+      "-PexperimentCandidatePipeline=OFF",
+      "-PexperimentCandidateSlices=OFF"
+    ],
+    "tests": [
+      {
+        "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+        "tests": "11",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:54",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.559"
+      },
+      {
+        "name": "org.luckypray.dexkit.JavaReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:54",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.16"
+      },
+      {
+        "name": "org.luckypray.dexkit.KtReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:55",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.062"
+      },
+      {
+        "name": "org.luckypray.dexkit.UnitTest",
+        "tests": "44",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:55",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "1.909"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:57",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.0"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:57",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.026"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:57",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.119"
+      },
+      {
+        "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T14:20:57",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.002"
+      }
+    ],
+    "total_tests": 71,
+    "skipped": 0,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "cmake_caches": [
+      {
+        "abi": "arm64-v8a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/4k3u5335/arm64-v8a/CMakeCache.txt",
+        "sha256": "31347a986b3c5109289c55d2929043e775a01da3ac5c098d91368011f2e1252d"
+      },
+      {
+        "abi": "armeabi-v7a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/4k3u5335/armeabi-v7a/CMakeCache.txt",
+        "sha256": "edbf1ccdb7e8733570c04069b8195f2b1fd0fc0ef8750562e78b379dda1af186"
+      },
+      {
+        "abi": "x86",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/4k3u5335/x86/CMakeCache.txt",
+        "sha256": "e355f34a46e0fb2d17b232b9c056fb67b872bf0cccf7e4404f483a6134f71386"
+      },
+      {
+        "abi": "x86_64",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/4k3u5335/x86_64/CMakeCache.txt",
+        "sha256": "99b22dccd564dfe94cbb14965273885944234bddf7f152a28515b8ea283b2f3a"
+      },
+      {
+        "abi": "desktop",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+        "sha256": "a10bd66ef4aee05f94a8d8a09ed20fdb1d1b17ff7a33483790c1c625684b786f"
+      }
+    ],
+    "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "aar_sha256": "2d2c680522c11cc52288bed3b1e76aeab1d248e4a9bf316051968c61fa734518"
+  },
+  "abi_layout_probes": {
+    "desktop": {
+      "0": {
+        "node_object_bytes": 5144,
+        "reported_fixed_bytes": 5144
+      },
+      "1": {
+        "node_object_bytes": 7192,
+        "reported_fixed_bytes": 5144
+      },
+      "reported_matches_actual_normal_size": true
+    },
+    "arm64-v8a": {
+      "0": {
+        "node_object_bytes": 4376,
+        "reported_fixed_bytes": 4376
+      },
+      "1": {
+        "node_object_bytes": 6424,
+        "reported_fixed_bytes": 4376
+      },
+      "reported_matches_actual_normal_size": true
+    },
+    "armeabi-v7a": {
+      "0": {
+        "node_object_bytes": 1676,
+        "reported_fixed_bytes": 1676
+      },
+      "1": {
+        "node_object_bytes": 3856,
+        "reported_fixed_bytes": 1676
+      },
+      "reported_matches_actual_normal_size": true
+    },
+    "x86": {
+      "0": {
+        "node_object_bytes": 1676,
+        "reported_fixed_bytes": 1676
+      },
+      "1": {
+        "node_object_bytes": 3468,
+        "reported_fixed_bytes": 1676
+      },
+      "reported_matches_actual_normal_size": true
+    },
+    "x86_64": {
+      "0": {
+        "node_object_bytes": 4376,
+        "reported_fixed_bytes": 4376
+      },
+      "1": {
+        "node_object_bytes": 6424,
+        "reported_fixed_bytes": 4376
+      },
+      "reported_matches_actual_normal_size": true
+    }
+  },
+  "limitations": [
+    "ASan/UBSan and concurrent stress were host checks; leak detection was disabled.",
+    "Android evidence covers four ABI builds, not device runtime or device performance.",
+    "Frozen full ordered/byte and independent fixture oracles precede timed count/checksum checks."
+  ]
+}

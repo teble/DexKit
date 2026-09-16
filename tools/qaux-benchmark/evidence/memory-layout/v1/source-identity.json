@@ -1,0 +1,33 @@
+{
+  "baseline_source": "174b69ad699702ee6e38da0b998192fca470d030",
+  "normal_engine_commit": "62687fb6f0fef745f3614124650d45924293fd6c",
+  "diagnostic_engine_commit": "05e5a411779758a3902b72409570a28d1a17e788",
+  "native_libraries": {
+    "control": {
+      "bytes": 1047904,
+      "sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    "cross": {
+      "bytes": 1047904,
+      "sha256": "0c4c349febb431d94a33d4160abc7f2ded8d5b689d1343bc5bd64fc4c5fc916f"
+    },
+    "node": {
+      "bytes": 1049056,
+      "sha256": "3564fb4c5fc4a303b3b09063f8fd444aa9a8da270c7586ee70e4c84caae05b54"
+    },
+    "field": {
+      "bytes": 1048096,
+      "sha256": "4ed84c7ca922645decdf24713d9c79bedbf9cb3a165154946d9d971bdf548dfd"
+    },
+    "packed": {
+      "bytes": 1048096,
+      "sha256": "74041fe888be44b712e4f1f1aca8e4f4ac79918e491978a14728970ed666f7ae"
+    },
+    "combined": {
+      "bytes": 1049248,
+      "sha256": "9844cb7de6d0e7c8465e45d60e7a765738d92bef2be80b7be8ed30474112d31e"
+    }
+  },
+  "frozen_plan_sha256": "da8b01842df58e140fe4f1d1cc54d8e29038a9ef672f633661bbeac97f482b5c",
+  "note": "Timed normal artifacts are fixed at 62687fb; diagnostic correction and checked source at 05e5a41. Engine files are exported from those commits, not copied from a possibly newer worktree. Obtain QQ APK/corpus, repository baseline and platform SDK/JDK/compiler inputs separately."
+}

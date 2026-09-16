@@ -11,6 +11,12 @@ are not required acceptance gates. See `EXPERIMENT-PLAN.md` for the first
 research phase and stopping criteria, `RESULTS.md` for its decisions, and
 `EVIDENCE.md` for detailed observations and review history.
 
+The [memory-layout results](MEMORY-LAYOUT-RESULTS.md) report the completed
+cross-reference, field-token and growing descriptor-cache comparisons, including
+their adverse cases. The user-requested
+[sparse/dense descriptor follow-up](HYBRID-DESCRIPTORS-EXECUTION.md) has its own
+design and validation boundary; its pending results do not replace that evidence.
+
 ## Pinned inputs
 
 - QAuxiliary: `01801ffd013c95781dd360704adf48dc42ee8aa6` (2026-09-13).

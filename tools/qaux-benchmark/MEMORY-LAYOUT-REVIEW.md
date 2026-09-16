@@ -69,3 +69,79 @@ The subsequent packed-cross implementation and new census are local follow-up
 work, not code inspected in this design review. Pointer/offset/raw-proto changes
 and forward invocation capacity remain later candidates; already published
 spans must not be invalidated by shrink_to_fit.
+
+## Cross-reference and node source review
+
+Pro subsequently read the complete fixed increment
+`174b69ad699702ee6e38da0b998192fca470d030` ->
+`c9af4af00d2da3fabed4916d75756d6f7dec94d4` ->
+`5ca19ac8c95d0c75635c43945e25a8a4b6a53add`, including the new types,
+producer/consumer and macro changes, diagnostics, four tests/workloads and the
+bundled phmap implementation. Its complete final answer was read. It did not
+run tests or measurements and found no confirmed new production correctness
+blocker within the existing publication, immutable-view and quiescent-close
+contracts.
+
+The value encoding preserves empty versus (0,0), all u16/u32 pairs and carry
+across the low word. Ordinary 64-bit accesses on 32-bit targets still depend on
+the existing publication protocol. Node views are formed from completed nodes
+before the lock releases; no growing table is accessed without its owning lock,
+and the cold factories do not reenter the cache.
+
+The review identified two reporting limitations that were checked locally:
+
+- Diagnostic counter alignment can change total object padding. The original
+  subtraction is wrong by 132 bytes on armeabi-v7a; `05e5a41` computes an
+  equivalent normal layout. Separate normal/diagnostic size probes agree on
+  macOS arm64 and all four Android ABIs. This change is diagnostic-only and the
+  earlier macOS totals remain valid.
+- The first concurrent workload ended its lifecycle before destroying small
+  harness containers. `62687fb` moves the workload into an inner scope and takes
+  the lifecycle sample after their destruction. Warm time is a group of four
+  APIs per calling thread, not single-lookup latency. Four callers do four times
+  the work of one, all sharing hot keys; first time includes barrier arrival.
+
+The dense capacity census historically omits the two vector owners and two
+ready-array unique_ptr owners, while the node census includes its fixed cache
+object. The final symmetric descriptor accounting must add 64 bytes per DEX
+(2624 bytes for this host/QQ input) to the raw dense census. Keep this adjustment
+visible rather than changing the old raw records.
+
+No new cache redesign was recommended. A cached-text hit still calls GetBean,
+which requests the same descriptor again; this behavior predates the node
+experiment, but now pays another synchronized hash lookup. Miss insertion also
+does find followed by try_emplace, and full coverage retains per-node deletion.
+These are possible explanations for measured adverse behavior, not separately
+measured causes or reasons to mix another optimization into the comparison.
+
+## Field-use and correction source review
+
+Pro read the complete fixed increment `5ca19ac` -> `62687fb` -> `05e5a41`,
+including field encoding, its producers/consumers, Hungarian and compact-field
+types, both Gradle paths, diagnostics and concurrent workload/sweep. The complete
+final response was read. It ran no code and found no new production correctness
+blocker in that increment.
+
+The zero token is a valid field-0 Put, not an empty sentinel. Current instructions
+carry local 16-bit references; the pre-shift range check does not limit public
+field IDs or cross-DEX representatives. Decoding remains at the old reverse
+builder, getter and matcher boundaries. Hungarian still distinguishes duplicate
+positions and uses the original evaluation order, with a smaller copied element.
+
+The normal-layout reconstruction fixes the diagnostic padding issue. Future
+normal-cache members must also be reflected in the equivalent diagnostic layout;
+the existing five-ABI probes check that correspondence. The host-only 64-byte
+dense owner adjustment must not be reused blindly on other ABIs. Field payload
+halving leaves row directories and buffer counts unchanged.
+
+Pro correctly identified packed-field plus COMPACT_FIELDS execution as pending
+at submission time. Local follow-up subsequently built that combination and
+passed 28 driver commands, including held row views and independent field byte
+oracles. The normal, isolated/trace and ASan/UBSan validation groups also passed;
+71 JVM tests and all four Android ABI builds passed. These are local execution
+results, separate from the source review.
+
+No extra cache or relation redesign was requested. Continue the fixed independent
+and direct-combination measurements, including token decoding, vector copies,
+allocation sizes and complete destruction; report the main and confirmation
+results without equating layout-byte savings with physical peak savings.

@@ -100,6 +100,12 @@ into owning strings before ending the session. `required_flags` performs require
 cache warmup before admission. Do not call a top-level API on the same bridge while
 holding the session; use the low-level `DexItem` accessors within it. Missing and
 same-bridge reentrant sessions abort, including Release builds.
+Do not hold a session while waiting for another thread to finish an independently
+admitted top-level API on that bridge: that API can need maintenance, which waits
+for the session. The thread-local reentry check cannot detect this cross-thread
+wait cycle. Finish preparation and release the session before starting/joining
+independent API calls; workers within a live session must share its context and
+use low-level accessors.
 
 For native worker tasks, capture `DescriptorBorrowScope::Capture()` inside the
 session and construct `DescriptorBorrowScope scope(context)` on each worker.

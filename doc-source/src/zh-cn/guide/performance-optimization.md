@@ -85,6 +85,9 @@ private fun goodCode(bridge: DexKitBridge) {
 拥有内容的字符串中。`required_flags` 指定进入会话前所需的缓存预热。在会话内使用底层
 `DexItem` 访问器，不可再次进入同一个 bridge 的顶层 API。缺失会话或同 bridge 重入会中止
 进程，Release 构建也会检查。
+持有会话时，也不可等待其他线程完成同一个 bridge 上独立进入的顶层 API：该 API 可能需要
+执行维护，而维护又在等待当前会话。线程局部的重入检查无法检测此类跨线程等待环。应先完成
+准备并释放会话，再启动及等待独立 API；活跃会话内的工作线程应共享其 context，使用底层访问器。
 
 原生工作任务应在会话内调用 `DescriptorBorrowScope::Capture()`，在工作线程上建立
 `DescriptorBorrowScope scope(context)`。该 context 只借用当前 bridge 的会话，不拥有 bridge、

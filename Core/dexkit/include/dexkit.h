@@ -88,7 +88,9 @@ public:
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     // Direct native Bean/view access requires this session for its complete
     // use, including worker completion. Do not reenter a top-level API on this
-    // DexKit while holding the session; use its low-level DexItem accessors.
+    // DexKit while holding the session, or wait for an independently admitted
+    // API on another thread; use its low-level DexItem accessors with a captured
+    // borrowing context for joined worker tasks.
     [[nodiscard]] QueryExecutionGuard BorrowDescriptors(uint32_t required_flags = 0);
 #endif
     Error AddDex(uint8_t *data, size_t size);

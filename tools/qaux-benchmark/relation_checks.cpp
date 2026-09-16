@@ -180,7 +180,13 @@ void dexkit::BenchmarkDiagnostics::CheckRelations(std::string_view apk, bool dum
 #endif
         } else if (sequence == 5) {
             // Reverse state is definitely ready before another thread enters.
+#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+            // Independent top-level queries may wait for descriptor maintenance.
+            // Complete preparation before joining one from this thread.
+            { auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kMethodUsingField); }
+#else
             auto guard = bridge.EnterQueryExecution(kRwFieldMethod | kMethodUsingField);
+#endif
             std::thread forward([&] { Require(Forward(bridge, methods) == expected_forward, "forward after reverse admission"); });
             forward.join();
         } else if (sequence == 6) {

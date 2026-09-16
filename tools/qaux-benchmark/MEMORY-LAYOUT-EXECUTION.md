@@ -69,3 +69,35 @@ less frequently built annotation/field/opcode/number caches need evidence of
 their cost or occupancy before their scope is chosen. Previously regressing
 pointer/paged-byte/source/compact-field prototypes are historical evidence,
 not untested opportunities or default recommendations.
+
+## Development checkpoint
+
+The packed cross-reference prototype has passed both development builds and 34
+commands covering QQ ordered verification, frozen caller/relation/invocation
+outputs, symbol lifetime and string/candidate integration. Its logical capacity
+difference is 15.613 MiB. Platform and normal-build timing validation are pending.
+
+The first node descriptor prototype uses 32 independent shards per DexItem, each
+with one mutex and separate method/field node maps. Every find and insertion is
+locked; nodes and published strings never move, mutate or erase. The cold factory
+only reads raw metadata and copies its temporary string into the node. The old
+optional arrays, ready-byte arrays and external descriptor locks are absent when
+NODE_DESCRIPTORS is enabled. The new option defaults OFF and is mutually exclusive
+with POINTER_DESCRIPTORS and PAGED_DESCRIPTORS.
+
+Both Small14 control and node development builds passed 54 commands: QQ 11-pass
+ordered verification, existing relation/caller/invocation and integration
+oracles, complete frozen symbol/overload bytes, 120000-descriptor publication,
+sparse prefix/scattered/one-shard output and actual 1/4-calling-thread lookups.
+The component test has eight writers and a separate retained-view reader during
+repeated same-table and different-table growth, including SSO, long and empty
+strings and method/field ID collisions. This is not sanitizer or timing evidence.
+
+QQ diagnostic accounting is identical at 1628 generated methods, zero fields,
+18051 calls and 16423 hits. Dense slots/publication plus characters total
+135346037 bytes; node buckets, fixed objects, nodes and characters total 489457
+bytes. The character capacity is unchanged at 196369 bytes. Node totals include
+30088 bucket bytes, 52096 node bytes and 210904 normal-build fixed-object bytes;
+diagnostic counters are reported separately. The largest old+new bucket pair of
+any individual table is 216 bytes, not a process-wide peak. Formal measurements
+must still include full-coverage SSO, long output, lookup, close and physical peak.

@@ -125,6 +125,33 @@ void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *ph
         phase, dex, kind, values.size(), nonempty, noncontiguous, entries,
         values.capacity() * sizeof(std::vector<uint32_t>), capacity * sizeof(uint32_t));
 }
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+void Descriptors(Counts &count, const NodeDescriptorCache &values, const char *phase, uint32_t dex) {
+    const auto stats = values.GetStatistics();
+    count.index_bytes += stats.fixed_bytes;
+    count.entries += stats.limits[0] + stats.limits[1];
+    std::fprintf(stderr, "BENCH_NODE_DESCRIPTOR_CACHE {\"phase\":\"%s\",\"dex\":%u,"
+        "\"fixed_bytes\":%zu,\"instrumentation_bytes\":%zu}\n", phase, dex,
+        stats.fixed_bytes, stats.instrumentation_bytes);
+    for (size_t shard = 0; shard < stats.tables.size(); ++shard) {
+        for (size_t kind = 0; kind < 2; ++kind) {
+            const auto &table = stats.tables[shard][kind];
+            count.index_bytes += table.bucket_bytes;
+            count.payload_bytes += table.node_bytes + table.char_bytes;
+            count.ready += table.records;
+            count.buffers += (table.capacity != 0) + table.records + table.char_buffers;
+            std::fprintf(stderr, "BENCH_NODE_DESCRIPTOR_TABLE {\"phase\":\"%s\",\"dex\":%u,"
+                "\"shard\":%zu,\"kind\":\"%s\",\"records\":%zu,\"capacity\":%zu,\"bucket_bytes\":%zu,"
+                "\"node_bytes\":%zu,\"char_bytes\":%zu,\"sso_records\":%zu,\"calls\":%llu,\"hits\":%llu,"
+                "\"growths\":%llu,\"largest_bucket_overlap\":%zu}\n", phase, dex, shard,
+                kind == 0 ? "method" : "field", table.records, table.capacity, table.bucket_bytes,
+                table.node_bytes, table.char_bytes, table.sso_records,
+                (unsigned long long)table.calls, (unsigned long long)table.hits,
+                (unsigned long long)table.growths, table.largest_bucket_overlap);
+        }
+    }
+}
+#endif
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
 void Descriptors(Counts &count, const PointerDescriptorCache &values) {
     const auto stats = values.GetStatistics();
@@ -185,6 +212,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     std::map<std::string, Counts> counts;
     std::set<const MemMap *> images;
     std::array<uint64_t, 3> method_builds{}, field_builds{}, descriptor_bytes{};
+    std::array<uint64_t, 3> method_calls{}, field_calls{};
     std::array<uint64_t, 4> field_reverse_reads{};
     std::array<uint64_t, 2> warmup_calls{};
     uint64_t method_comparisons = 0, field_comparisons = 0;
@@ -200,7 +228,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         field_ids += item.reader.FieldIds().size();
         if (std::string_view(phase) == "pre_close") {
             NameIndex(item.type_ids_map, phase, item.dex_id, "type_ids");
-#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
             DescriptorOccupancy(item.method_descriptors, phase, item.dex_id, "method");
             DescriptorOccupancy(item.field_descriptors, phase, item.dex_id, "field");
 #endif
@@ -215,7 +243,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+        Descriptors(counts["descriptors"], item.node_descriptors, phase, item.dex_id);
+#elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
         Descriptors(counts["descriptors"], item.method_descriptors, phase, item.dex_id, "method");
         Descriptors(counts["descriptors"], item.field_descriptors, phase, item.dex_id, "field");
 #else
@@ -223,13 +253,15 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Descriptors(counts["descriptors"], item.field_descriptors);
 #endif
         for (size_t reason = 0; reason < method_builds.size(); ++reason) {
+            method_calls[reason] += item.descriptor_diagnostics.method_calls[reason].load(std::memory_order_relaxed);
+            field_calls[reason] += item.descriptor_diagnostics.field_calls[reason].load(std::memory_order_relaxed);
             method_builds[reason] += item.descriptor_diagnostics.method_builds[reason].load(std::memory_order_relaxed);
             field_builds[reason] += item.descriptor_diagnostics.field_builds[reason].load(std::memory_order_relaxed);
             descriptor_bytes[reason] += item.descriptor_diagnostics.materialized_bytes[reason].load(std::memory_order_relaxed);
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
         publication.index_bytes += sizeof(item.descriptor_mutexes);
@@ -373,6 +405,12 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     }
     for (size_t reason = 0; reason < method_builds.size(); ++reason) {
         const char *names[] = {"output", "cross_reference", "lookup"};
+        std::fprintf(stderr,
+            "BENCH_DESCRIPTOR_ACCESS {\"phase\":\"%s\",\"reason\":\"%s\",\"method_calls\":%llu,\"field_calls\":%llu,"
+            "\"method_hits\":%llu,\"field_hits\":%llu}\n", phase, names[reason],
+            (unsigned long long)method_calls[reason], (unsigned long long)field_calls[reason],
+            (unsigned long long)(method_calls[reason] - method_builds[reason]),
+            (unsigned long long)(field_calls[reason] - field_builds[reason]));
         std::fprintf(stderr,
             "BENCH_DESCRIPTOR {\"reason\":\"%s\",\"method_builds\":%llu,\"field_builds\":%llu,\"materialized_bytes\":%llu}\n",
             names[reason], (unsigned long long) method_builds[reason],

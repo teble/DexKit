@@ -17,11 +17,18 @@ struct DescriptorUseScope {
 };
 
 struct DescriptorDiagnostics {
+    std::array<std::atomic<uint64_t>, 3> method_calls{};
+    std::array<std::atomic<uint64_t>, 3> field_calls{};
     std::array<std::atomic<uint64_t>, 3> method_builds{};
     std::array<std::atomic<uint64_t>, 3> field_builds{};
     std::array<std::atomic<uint64_t>, 3> materialized_bytes{};
     std::atomic<uint64_t> method_comparisons{0};
     std::atomic<uint64_t> field_comparisons{0};
+
+    void Called(bool method) {
+        const auto use = static_cast<size_t>(current_descriptor_use);
+        (method ? method_calls : field_calls)[use].fetch_add(1, std::memory_order_relaxed);
+    }
 
     void Built(bool method, size_t bytes) {
         const auto use = static_cast<size_t>(current_descriptor_use);

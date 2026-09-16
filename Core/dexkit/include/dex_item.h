@@ -61,6 +61,9 @@
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
 #include "pointer_descriptor_cache.h"
 #endif
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#include "node_descriptor_cache.h"
+#endif
 #if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS
 #include "member_descriptor_view.h"
 #endif
@@ -351,7 +354,10 @@ private:
     std::atomic<bool> inverted_strings_ready{false};
     inverted_string::Index inverted_strings;
 #endif
-#if DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+    std::string BuildMethodDescriptorCold(uint32_t method_idx);
+    std::string BuildFieldDescriptorCold(uint32_t field_idx);
+#elif DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
     std::string_view GetMethodDescriptorCold(uint32_t method_idx);
     std::string_view GetFieldDescriptorCold(uint32_t field_idx);
 #endif
@@ -481,7 +487,9 @@ private:
 #if !DEXKIT_EXPERIMENT_RAW_INTERFACES
     std::vector<std::vector<uint32_t>> class_interface_ids;
 #endif
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+    NodeDescriptorCache node_descriptors;
+#elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     PagedDescriptorCache method_descriptors;
 #elif DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     PointerDescriptorCache method_descriptors;
@@ -493,20 +501,22 @@ private:
     // one-shot worklists for cross-ref against members whose declaring class is outside this dex
     std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
-#if DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+    // Field descriptors share the node cache's shard locks, with separate maps.
+#elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
     PagedDescriptorCache field_descriptors;
 #elif DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     PointerDescriptorCache field_descriptors;
 #else
     std::vector<std::optional<std::string>> field_descriptors;
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     // Structural comparison leaves more output descriptors cold. Publish their
     // immutable strings explicitly when concurrent queries first return them.
     std::unique_ptr<std::atomic<uint8_t>[]> method_descriptor_ready;
     std::unique_ptr<std::atomic<uint8_t>[]> field_descriptor_ready;
 #endif
-#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     std::array<std::mutex, 32> descriptor_mutexes;
 #endif
     std::vector<std::vector<uint32_t /*field_id*/>> class_field_ids;

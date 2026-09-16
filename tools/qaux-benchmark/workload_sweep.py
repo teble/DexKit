@@ -22,6 +22,9 @@ CANDIDATE_MODES = ['candidate-' + case + '-w' + str(workers) + suffix
 CALLER_BUILD_MODES = ['caller-' + case + '-' + stage + '-w' + str(workers)
                      for case in ['match', 'early', 'multiple', 'output']
                      for stage in ['cold', 'late', 'full'] for workers in [1, 4]]
+TRANSITION_MODES = ['transition-' + kind + '-' + pattern + '-w' + str(workers)
+                    for kind in ['method', 'field'] for pattern in ['full', 'changed', 'low']
+                    for workers in [1, 4]]
 
 
 def sha(path):
@@ -56,7 +59,7 @@ def main():
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple', 'string-nested-broad',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
-                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES + CALLER_BUILD_MODES, required=True)
+                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES + CALLER_BUILD_MODES + TRANSITION_MODES, required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--selected-count', type=int, help='Explicit member count for output-sso-shard.')
     parser.add_argument('--pairs', type=int, default=6)
@@ -64,9 +67,10 @@ def main():
     args = parser.parse_args()
     labels = [v[0] for v in args.variant]
     concurrent = args.mode.startswith('lookup-concurrent-w')
-    minimum_repeats = 1 if args.mode == 'output-sso-shard' else 2
+    transition = args.mode in TRANSITION_MODES
+    minimum_repeats = 1 if args.mode == 'output-sso-shard' or transition else 2
     if len(labels) != 2 or len(set(labels)) != 2 or args.pairs < 2 or not minimum_repeats <= args.repeats <= 100000:
-        raise SystemExit('Use two distinct labels, at least two pairs and 2..100000 repetitions (1 allowed for shard output).')
+        raise SystemExit('Use two distinct labels, at least two pairs and 2..100000 repetitions (1 allowed for shard/transition output).')
     if args.selected_count is not None and (args.mode != 'output-sso-shard' or not 1 <= args.selected_count <= 1875):
         raise SystemExit('Explicit count requires output-sso-shard and 1..1875 members.')
     if any(not label.replace('-', '').replace('_', '').isalnum() for label in labels):
@@ -87,7 +91,8 @@ def main():
         batch = args.mode.startswith('batch-')
         field = args.mode.startswith('using-')
         relation = args.mode.startswith('field-') or invocation
-        executable = artifact / ('build/Core/dexkit_descriptor_concurrent_workload' if concurrent else
+        executable = artifact / ('build/Core/dexkit_descriptor_transition_workload' if transition else
+                                 'build/Core/dexkit_descriptor_concurrent_workload' if concurrent else
                                  'build/Core/dexkit_candidate_workload' if candidate else
                                  'build/Core/dexkit_field_workload' if field else
                                  'build/Core/dexkit_batch_workload' if batch else
@@ -127,6 +132,9 @@ def main():
             command = ['/usr/bin/time', '-l', str(executable), str(args.fixture.resolve()), args.mode, str(args.repeats)]
             if concurrent:
                 command[-2:] = [str(args.repeats), args.mode[-1]]
+            if transition:
+                _, kind, pattern, thread_part = args.mode.split('-')
+                command[-2:] = [kind, pattern, str(args.repeats), thread_part[1:]]
             if args.selected_count is not None:
                 command.append(str(args.selected_count))
             run = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=300)
@@ -140,10 +148,13 @@ def main():
             identity = (report['mode'], report['repeats'], report['checksum'], report['returned'])
             if expected is None:
                 expected = identity
-            expected_mode = 'lookup-concurrent' if concurrent else args.mode
+            expected_mode = 'transition' if transition else 'lookup-concurrent' if concurrent else args.mode
             if (identity != expected or report['mode'] != expected_mode or report['repeats'] != args.repeats
                     or (concurrent and report['calling_threads'] != int(args.mode[-1]))):
                 raise SystemExit('Workload result identity differs.')
+            if transition and (report['kind'] != kind or report['pattern'] != pattern
+                               or report['calling_threads'] != int(thread_part[1:])):
+                raise SystemExit('Transition workload shape differs.')
             if args.selected_count is not None and report.get('selected_count') != args.selected_count:
                 raise SystemExit('Workload did not apply the selected member count.')
             row = dict(pair=pair, position=position, label=variant['label'], report=report,

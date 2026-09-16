@@ -82,12 +82,12 @@ threshold or adding access-frequency adaptation to this experiment.
       concurrent construction/conversion and retained SSO/long/empty views.
 - [x] Review the stable source increment, run host sanitizer/JVM and four-ABI
       Android builds, and reconcile real payload/index allocations.
-- [ ] Freeze a finite comparison with old dense, current node, new sparse-only
+- [x] Freeze a finite comparison with old dense, current node, new sparse-only
       and new hybrid builds; hold all other Small14 settings fixed.
-- [ ] Keep QQ sparse, full SSO 2/16 repeats, long output, wide/prefix/hot lookup,
+- [x] Keep QQ sparse, full SSO 2/16 repeats, long output, wide/prefix/hot lookup,
       one/four real calling threads, and before/at/after conversion followed by
       immediate close. Report first, warm, close, lifecycle and physical peak.
-- [ ] Use one main phase and one confirmation to retain, conditionally retain
+- [x] Use one main phase and one confirmation to retain, conditionally retain
       or stop the route; preserve all adverse cases and unchanged result oracles.
 
 The sparse-only comparison is necessary to separate payload/flat-index changes
@@ -164,3 +164,7 @@ cases select 448/449/450 methods and the same number of fields, use one output
 pass, then close immediately. The low-density hot case repeats one member per
 domain 100000 times. No threshold changes are allowed between phases. Timing
 starts only after builds, correctness checks and source review finish.
+
+The fixed batch completed all 108 sweeps / 1296 processes with no excluded
+measurements or changed inputs. See [HYBRID-DESCRIPTORS-RESULTS.md](HYBRID-DESCRIPTORS-RESULTS.md)
+for the conditional decision, every adverse case and the separate hot-entry follow-up.

@@ -349,3 +349,9 @@ and QAuxiliary EULA are included under `licenses/`. Original sources:
 - [QAuxiliary license](https://github.com/cinit/QAuxiliary/blob/01801ffd013c95781dd360704adf48dc42ee8aa6/LICENSE.md)
 
 See `REPORT.md` for the inspected sample and observed compatibility results.
+
+The sparse/dense descriptor prototype has completed its fixed comparison:
+[results](HYBRID-DESCRIPTORS-RESULTS.md), [source review](HYBRID-DESCRIPTORS-REVIEW.md),
+and [evidence manifest](evidence/hybrid-descriptors/v1/manifest.json). Both new
+storage flags remain OFF by default; the report retains the residual dense-array
+regressions and describes the next bounded hot-entry check.

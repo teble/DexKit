@@ -1,0 +1,25 @@
+{
+  "baseline_source": "5c312bf592afca6cc6338388c70f50b62e0026ad",
+  "normal_engine_commit": "bf9cee531da6a5d4f237398350eed05d7fcf96c5",
+  "diagnostic_engine_commit": "bf9cee531da6a5d4f237398350eed05d7fcf96c5",
+  "native_libraries": {
+    "control": {
+      "bytes": 1047904,
+      "sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    "node": {
+      "bytes": 1049056,
+      "sha256": "3564fb4c5fc4a303b3b09063f8fd444aa9a8da270c7586ee70e4c84caae05b54"
+    },
+    "sparse": {
+      "bytes": 1066416,
+      "sha256": "83437c2dc0d514fb8f9fd262c0bd8239626183b133d3a4bf6a7af2d3b0608878"
+    },
+    "hybrid": {
+      "bytes": 1066688,
+      "sha256": "bf32b49c1a4290a19794cb491d72286c436cc93bb5d90a47a6c6a2b7eebf56a5"
+    }
+  },
+  "frozen_plan_sha256": "c7a9e7b6a81cd0750f1efa3679dd10100168a65a9eb55e06426717b08db3fb19",
+  "note": "Engine and harness files are exported from the tested bf9cee5 commit. Reports describe the completed batch. Obtain QQ APK/corpus, repository baseline and platform SDK/JDK/compiler inputs separately."
+}

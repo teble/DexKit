@@ -6,6 +6,15 @@
 
 namespace dexkit {
 
+// Internal segment consistency is checked in debug and diagnostic builds.
+// Normal release keeps the checked size arithmetic and array write bounds,
+// but does not pay for the final validation-only replay.
+#if !defined(NDEBUG) || DEXKIT_BENCHMARK_DIAGNOSTICS
+#define DEXKIT_CALLER_CHECK(expr) do { if (!(expr)) _checkFailed(#expr, __LINE__, __FILE__); } while (false)
+#else
+#define DEXKIT_CALLER_CHECK(expr)
+#endif
+
 void DexKit::BuildCompactCallers(uint32_t thread_num) {
     // Local counts and the original identity bindings are ready; no caller
     // payload has been allocated. Keep the original source/work-list order.
@@ -16,7 +25,7 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
     for (auto &owner : dex_items) {
         auto &source = owner->method_caller_ids;
         for (const auto &work : owner->pending_aggregate_method_work_items) {
-            DEXKIT_CHECK(work.source_count != 0 && work.source_count == source.LocalCount(work.source_method_idx));
+            DEXKIT_CALLER_CHECK(work.source_count != 0 && work.source_count == source.LocalCount(work.source_method_idx));
             source.EmptyRow(work.source_method_idx);
             dex_items[work.target_dex_id]->method_caller_ids.AddRowCount(work.target_method_idx, work.source_count);
         }
@@ -35,7 +44,7 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
             if (!owner->method_cross_info[method])
                 index.Cursor(method) = CompactCallerIndex::CheckedAdd(index.RowBegin(method), index.LocalCount(method));
             else
-                DEXKIT_CHECK(index.RowBegin(method) == index.RowEnd(method));
+                DEXKIT_CALLER_CHECK(index.RowBegin(method) == index.RowEnd(method));
         }
     }
     for (auto &owner : dex_items) {
@@ -44,14 +53,14 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
             auto &next = target.Cursor(work.target_method_idx);
             owner->method_caller_ids.Cursor(work.source_method_idx) = next;
             next = CompactCallerIndex::CheckedAdd(next, work.source_count);
-            DEXKIT_CHECK(next <= target.RowEnd(work.target_method_idx));
+            DEXKIT_CALLER_CHECK(next <= target.RowEnd(work.target_method_idx));
         }
     }
     for (auto &owner : dex_items) {
         auto &index = owner->method_caller_ids;
         for (uint32_t method = 0; method < index.size(); ++method) {
             if (!owner->method_cross_info[method]) {
-                DEXKIT_CHECK(index.Cursor(method) == index.RowEnd(method));
+                DEXKIT_CALLER_CHECK(index.Cursor(method) == index.RowEnd(method));
                 index.Cursor(method) = index.RowBegin(method);
             }
         }
@@ -77,6 +86,7 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
         for (auto &owner : dex_items) fill_source(owner.get());
     }
 
+#if !defined(NDEBUG) || DEXKIT_BENCHMARK_DIAGNOSTICS
     // Local cursors now point just past their local prefixes. Replaying the
     // same imports checks each source's final cursor against its expected end,
     // then checks every final row end before any consumer can see the payload.
@@ -85,14 +95,17 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
             auto &target = dex_items[work.target_dex_id]->method_caller_ids;
             auto &end = target.Cursor(work.target_method_idx);
             end = CompactCallerIndex::CheckedAdd(end, work.source_count);
-            DEXKIT_CHECK(owner->method_caller_ids.Cursor(work.source_method_idx) == end);
+            DEXKIT_CALLER_CHECK(owner->method_caller_ids.Cursor(work.source_method_idx) == end);
         }
     }
     for (auto &owner : dex_items) {
         auto &index = owner->method_caller_ids;
         for (uint32_t method = 0; method < index.size(); ++method)
-            if (!owner->method_cross_info[method]) DEXKIT_CHECK(index.Cursor(method) == index.RowEnd(method));
-        index.ReleaseBuild();
+            if (!owner->method_cross_info[method]) DEXKIT_CALLER_CHECK(index.Cursor(method) == index.RowEnd(method));
+    }
+#endif
+    for (auto &owner : dex_items) {
+        owner->method_caller_ids.ReleaseBuild();
         decltype(owner->pending_aggregate_method_work_items)().swap(owner->pending_aggregate_method_work_items);
     }
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -101,5 +114,6 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
     // The caller returns to FinishBuildCrossRefAggregates for publication.
 }
 
+#undef DEXKIT_CALLER_CHECK
 } // namespace dexkit
 #endif

@@ -17,8 +17,10 @@ def main():
     parser.add_argument('--methods', type=int, default=64)
     parser.add_argument('--fanout', type=int, default=1024)
     parser.add_argument('--sparse-every', type=int, default=4)
+    parser.add_argument('--sources', type=int, default=2)
     args = parser.parse_args()
-    if not 1 <= args.methods <= 10000 or not 2 <= args.fanout <= 1000000 or args.sparse_every < 0:
+    if (not 1 <= args.methods <= 10000 or not 2 <= args.fanout <= 1000000
+            or args.sparse_every < 0 or not 2 <= args.sources <= 16):
         raise SystemExit('Unsupported bounded fixture size.')
     if args.output.exists() and any(args.output.iterdir()):
         raise SystemExit('Choose an empty fixture directory.')
@@ -33,7 +35,7 @@ def main():
         additional_strings=strings)
     rows.append(data)
     active = 0
-    for dex in (1, 2):
+    for dex in range(1, args.sources + 1):
         source = f'Lrelations/Source{dex};'
         runs = {method(source, f'run{i:05d}') for i in range(args.methods)}
         last = method(source, 'zRun')
@@ -48,7 +50,7 @@ def main():
         # A distinct caller at the end tests a late witness in reverse rows.
         code[last] = assemble([('get', value), ('string', 'caller-tag'), ('invoke', late)])
         classes, methods, fields = {source: ()}, runs | {last}, set()
-        if dex == 2:
+        if dex == args.sources:
             classes[owner] = ()
             methods.update([early, late])
             fields.add(value)
@@ -66,8 +68,8 @@ def main():
             archive.writestr(info, data)
     manifest = dict(apk_sha256=hashlib.sha256(apk.read_bytes()).hexdigest(),
         dex_sha256=[hashlib.sha256(data).hexdigest() for data in rows],
-        methods_per_source=args.methods, fanout=args.fanout, sparse_every=args.sparse_every,
-        dense_methods=active, forward_edges=active * args.fanout + 2,
+        methods_per_source=args.methods, fanout=args.fanout, sparse_every=args.sparse_every, sources=args.sources,
+        dense_methods=active, forward_edges=active * args.fanout + args.sources,
         note='Serial loading selects the final Target definition; repeated edges retain positions.')
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(apk)

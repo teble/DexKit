@@ -6,9 +6,9 @@ pipeline/slicing OFF. This experiment changes caller storage and construction
 only; cross_info and field storage remain unchanged.
 
 - [x] Implement a default-OFF COMPACT_CALLERS option on both build paths.
-- [x] Validate exact ordered results, raw reference rows, late construction,
+- [ ] Validate exact ordered results, raw reference rows, late construction,
       shared-query publication, stable spans, and size arithmetic.
-- [ ] Review the fixed implementation with Pro and resolve concrete issues.
+- [x] Review the fixed implementation with Pro and resolve concrete issues.
 - [ ] Complete native/JAR/JVM and Android ABI checks before formal timing.
 - [ ] Measure QQ and bounded adverse workloads in balanced fresh processes,
       then repeat the same cases in an independent confirmation.
@@ -32,6 +32,10 @@ length until validation; this is additional temporary storage and must be counte
 Assign disjoint destination segments before parallel fill, so completion order
 does not choose edge order. Reuse the existing warmup/publication barrier. Release
 all count/cursor and pending-import storage before publishing final callers.
+Debug and DIAGNOSTICS builds check the assigned segment endpoints and perform
+the final fill-validation replay. Normal release omits that replay; checked
+arithmetic and whole-array write bounds remain active. This follows the review
+correction rather than treating disabled DEXKIT_CHECK expressions as validation.
 Later RW/full warmup must not relocate published caller spans.
 
 Use a trivial two-field edge record with the same logical u16/u32 values and
@@ -69,4 +73,19 @@ checks and the five-DEX fixture (29 methods, 31 ordered edges), whose authored
 raw-row oracle is independent of native output. Their full dumps match.
 The 1/4-worker cold/late/full and queued-query cases check source-row clearing,
 released temporary capacity and stable caller addresses through later RW/full.
-Platform checks and formal non-diagnostic measurements are still pending.
+That initial `b28699b` also passed 66 native validation commands, 71 JVM tests,
+and the Android AAR build for all four ABIs. Post-review validation is rerun for
+the corrected checking policy and the added successful zero-count binding.
+Formal non-diagnostic measurements remain pending.
+
+The extended invocation generator adds an optional source count; its default
+fixture APK remains byte-identical. A nine-DEX case with 5,000 methods per
+source keeps most reverse rows empty while eight sources share a target.
+
+Staged workload labels have limited scopes. Cold relation preparation includes
+forward invocations, caller identity and aggregation; full includes all caches.
+Late preparation separates forward setup from caller completion. Both are
+already inside setup/lifecycle and must not be summed again. The warm memory
+snapshot is after index preparation and before timed queries. The closed
+snapshot is after bridge destruction while the small query/metadata inputs
+remain alive. Memory probe calls are included in complete lifecycle time.

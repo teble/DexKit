@@ -42,6 +42,13 @@ void dexkit::BenchmarkDiagnostics::CheckCallers(std::string_view apk, bool dump)
             ids.push_back((int64_t(dex) << 32) | method);
             for (auto edge : item.method_caller_ids[method]) expected[dex][method].emplace_back(edge.first, edge.second);
             if (item.method_cross_info[method]) Require(expected[dex][method].empty(), "transferred raw source row stays empty");
+            const auto &raw = item.reader.MethodIds()[method];
+            if (!item.type_def_flag[raw.class_idx] && item.type_names[raw.class_idx] == "Lcaller/Target;"
+                    && item.strings[raw.name_idx] == "bUnused") {
+                const auto &binding = item.method_cross_info[method];
+                Require(binding.has_value() && expected[dex][method].empty(), "zero-count reference still resolves");
+                std::fprintf(stderr, "CHECK_CALLER_ZERO_BINDING [%u,%u,%u,%u]\n", item.dex_id, method, binding->first, binding->second);
+            }
         }
     }
     const auto expected_bytes = Collect(reference, ids);
@@ -60,6 +67,11 @@ void dexkit::BenchmarkDiagnostics::CheckCallers(std::string_view apk, bool dump)
                     Require(row[i].first == expected[dex][method][i].first && row[i].second == expected[dex][method][i].second,
                             "raw caller order and duplicates");
                 if (item.method_cross_info[method]) Require(row.empty(), "source reference does not alias final target");
+                const auto &raw = item.reader.MethodIds()[method];
+                if (!item.type_def_flag[raw.class_idx] && item.type_names[raw.class_idx] == "Lcaller/Target;"
+                        && item.strings[raw.name_idx] == "bUnused") {
+                    Require(item.method_cross_info[method] == reference.dex_items[dex]->method_cross_info[method], "zero-count binding survives every initialization order");
+                }
             }
         }
     };

@@ -22,6 +22,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     target, blocked = 'Lcaller/Target;', 'Lcaller/Blocked;'
     a, z = method(target, 'aEarly'), method(target, 'zLate')
+    unused = method(target, 'bUnused')
     missing, present = method(blocked, 'aMissing'), method(blocked, 'zPresent')
     absent = method('Lcaller/Absent;', 'foreign')
     local0, local2 = method(target, 'local0'), method(target, 'local2')
@@ -53,8 +54,8 @@ def main():
                     local[by_symbol[callee]].append([source, by_symbol[member]])
         rows.append(dict(data=data, info=info, ids=by_symbol, local=local, owners=owners))
 
-    add({target: (), blocked: ()}, {a, z, local0, present},
-        {a: [], z: [], local0: [a, a, z], present: [present]})
+    add({target: (), blocked: ()}, {a, z, unused, local0, present},
+        {a: [], z: [], unused: [], local0: [a, a, z], present: [present]})
     for source in [1, 2, 3]:
         owner = f'Lcaller/Source{source};'
         run, last, empty = method(owner, 'run'), method(owner, 'zRun'), method(owner, 'empty')
@@ -63,9 +64,9 @@ def main():
         operations = {run: [a, z, a, missing, present, absent], last: [z, z], empty: []}
         if source == 2:
             classes[target] = ()
-            definitions.update([a, z, local2])
-            operations.update({a: [], z: [], local2: [a, z, a]})
-        add(classes, definitions, operations, {a, z, missing, present, absent}, reverse=source == 2)
+            definitions.update([a, z, unused, local2])
+            operations.update({a: [], z: [], unused: [], local2: [a, z, a]})
+        add(classes, definitions, operations, {a, z, unused, missing, present, absent}, reverse=source == 2)
     add({'Lcaller/Empty;': ()}, set(), {})
 
     # The fixture's intended alias contracts are explicit. The earlier Target
@@ -73,12 +74,15 @@ def main():
     # Blocked.aMissing prevents the old resolver cursor reaching zPresent.
     expected = [[list(row) for row in dex['local']] for dex in rows]
     bindings = []
+    zero_bindings = []
     for source in [1, 3]:
-        for member in [a, z]:
+        for member in [a, unused, z]:
             src, dst = rows[source]['ids'][member], rows[2]['ids'][member]
             expected[2][dst].extend(expected[source][src])
             expected[source][src] = []
             bindings.append([source, src, 2, dst])
+            if member == unused:
+                zero_bindings.append([source, src, 2, dst])
     apk = args.output / 'callers.apk'
     with zipfile.ZipFile(apk, 'w') as archive:
         for dex, row in enumerate(rows, 1):
@@ -88,7 +92,7 @@ def main():
     manifest = dict(apk_sha256=hashlib.sha256(apk.read_bytes()).hexdigest(),
                     dex_sha256=[hashlib.sha256(row['data']).hexdigest() for row in rows],
                     dexes=[row['info'] for row in rows], class_orders=[row['owners'] for row in rows],
-                    explicit_bindings=bindings, expected_raw_callers=expected,
+                    explicit_bindings=bindings, expected_zero_bindings=zero_bindings, expected_raw_callers=expected,
                     note='Oracle comes from authored call operations and explicit aliases, independent of native output.')
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(apk)

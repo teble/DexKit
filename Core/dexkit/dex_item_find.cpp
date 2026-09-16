@@ -82,6 +82,9 @@ DexItem::FindClass(
         IQueryExecutor &executor,
         uint32_t slice_size,
         QueryContext &query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+        , const inverted_string::QueryPlan *frozen_plan
+#endif
 ) {
     std::vector<std::future<std::vector<ClassBean>>> futures;
     uint32_t split_count;
@@ -89,6 +92,10 @@ DexItem::FindClass(
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     const auto original_slice = slice_size;
     inverted_string::QueryPlan string_plan;
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (frozen_plan) string_plan = *frozen_plan;
+    else
+#endif
     if (!should_stop_submission && !query->in_classes() && !query->search_packages()
             && !query->exclude_packages()) string_plan = PlanRootStringCandidates(query->matcher());
     if (string_plan.Admitted()) slice_size = 0;
@@ -137,6 +144,9 @@ DexItem::FindMethod(
         IQueryExecutor &executor,
         uint32_t slice_size,
         QueryContext &query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+        , const inverted_string::QueryPlan *frozen_plan
+#endif
 ) {
     std::vector<std::future<std::vector<MethodBean>>> futures;
     uint32_t split_count;
@@ -144,6 +154,10 @@ DexItem::FindMethod(
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     const auto original_slice = slice_size;
     inverted_string::QueryPlan string_plan;
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (frozen_plan) string_plan = *frozen_plan;
+    else
+#endif
     if (!should_stop_submission && !query->in_classes() && !query->in_methods() && !query->search_packages()
             && !query->exclude_packages()) string_plan = PlanRootStringCandidates(query->matcher());
     if (string_plan.Admitted()) slice_size = 0;
@@ -231,8 +245,20 @@ DexItem::FindClass(
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
         , const inverted_string::QueryPlan &string_plan
 #endif
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+        , const internal::PreparedCandidates *prepared
+#endif
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        DEXKIT_CHECK(prepared->domain.dex == this && prepared->domain.query_id == query_context.GetQueryId());
+        DEXKIT_CHECK(prepared->domain.entity == internal::CandidateEntity::Class
+                && prepared->domain.count == reader.ClassDefs().size());
+        DEXKIT_CHECK(start <= end && end <= prepared->domain.count && !query_context.IsEarlyExitEnabled());
+        DEXKIT_CHECK(!string_plan.Admitted());
+    }
+#endif
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     DEXKIT_CHECK(!string_plan.Admitted() || (start == 0 && end == reader.ClassDefs().size()));
     if (string_plan.route == inverted_string::QueryPlan::Route::Empty) return {};
@@ -264,8 +290,24 @@ DexItem::FindClass(
     inverted_string::Bits candidates;
     const bool inverted = string_plan.Admitted()
             && BuildRootStringCandidates(query->matcher()->using_strings(), true, string_plan, candidates);
-    inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
-            true, inverted ? &candidates : nullptr);
+    const void *proof_matchers = query->matcher() ? query->matcher()->using_strings() : nullptr;
+    const auto *proof = inverted ? &candidates : nullptr;
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        proof_matchers = prepared->root_matchers;
+        proof = prepared->RootTruth();
+    }
+#endif
+    inverted_string::MatchScope scope(this, proof_matchers, true, proof
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , prepared ? prepared->domain.query_id : 0
+#endif
+    );
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        prepared->View().Each({start, end}, try_match_class);
+    } else
+#endif
     if (inverted) {
         std::vector<uint32_t> definitions;
         candidates.Each([&](uint32_t type) {
@@ -303,8 +345,20 @@ DexItem::FindMethod(
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
         , const inverted_string::QueryPlan &string_plan
 #endif
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+        , const internal::PreparedCandidates *prepared
+#endif
 ) {
     auto query_binding = query_context.BindToCurrentThread();
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        DEXKIT_CHECK(prepared->domain.dex == this && prepared->domain.query_id == query_context.GetQueryId());
+        DEXKIT_CHECK(prepared->domain.entity == internal::CandidateEntity::Method
+                && prepared->domain.count == reader.MethodIds().size());
+        DEXKIT_CHECK(start <= end && end <= prepared->domain.count && !query_context.IsEarlyExitEnabled());
+        DEXKIT_CHECK(!string_plan.Admitted());
+    }
+#endif
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     DEXKIT_CHECK(!string_plan.Admitted() || (start == 0 && end == reader.MethodIds().size()));
     if (string_plan.route == inverted_string::QueryPlan::Route::Empty) return {};
@@ -338,8 +392,24 @@ DexItem::FindMethod(
     inverted_string::Bits candidates;
     const bool inverted = string_plan.Admitted()
             && BuildRootStringCandidates(query->matcher()->using_strings(), false, string_plan, candidates);
-    inverted_string::MatchScope scope(this, query->matcher() ? query->matcher()->using_strings() : nullptr,
-            false, inverted ? &candidates : nullptr);
+    const void *proof_matchers = query->matcher() ? query->matcher()->using_strings() : nullptr;
+    const auto *proof = inverted ? &candidates : nullptr;
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        proof_matchers = prepared->root_matchers;
+        proof = prepared->RootTruth();
+    }
+#endif
+    inverted_string::MatchScope scope(this, proof_matchers, false, proof
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , prepared ? prepared->domain.query_id : 0
+#endif
+    );
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (prepared) {
+        prepared->View().Each({start, end}, try_match_method);
+    } else
+#endif
     if (inverted) {
         // Root results admit only locally defined owners. Cross-reference
         // bindings are populated only for undefined owners; nested matches

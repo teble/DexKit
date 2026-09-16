@@ -61,6 +61,19 @@ public:
             }
         }
     }
+    template<class Visit> void EachRange(size_t begin, size_t end, Visit &&visit) const {
+        if (begin >= end) return;
+        const auto first = begin / 64, last = (end - 1) / 64;
+        for (size_t i = first; i <= last; ++i) {
+            auto word = words[i];
+            if (i == first) word &= UINT64_MAX << (begin % 64);
+            if (i == last && end % 64) word &= (uint64_t{1} << (end % 64)) - 1;
+            while (word) {
+                visit(static_cast<uint32_t>(i * 64 + std::countr_zero(word)));
+                word &= word - 1;
+            }
+        }
+    }
     size_t Bytes() const { return words.capacity() * sizeof(uint64_t); }
     std::vector<uint64_t> words;
 };
@@ -184,8 +197,18 @@ struct MatchScope {
     const void *matchers;
     bool classes;
     const Bits *hits;
-    MatchScope(const void *owner, const void *source, bool class_query, const Bits *bits)
-        : previous(current), dex(owner), matchers(source), classes(class_query), hits(bits) { current = this; }
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    uint64_t query_id;
+#endif
+    MatchScope(const void *owner, const void *source, bool class_query, const Bits *bits
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , uint64_t query = 0
+#endif
+    ) : previous(current), dex(owner), matchers(source), classes(class_query), hits(bits)
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , query_id(query)
+#endif
+    { current = this; }
     ~MatchScope() { current = previous; }
     MatchScope(const MatchScope &) = delete;
     MatchScope &operator=(const MatchScope &) = delete;

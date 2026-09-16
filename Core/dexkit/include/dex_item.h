@@ -48,6 +48,9 @@
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
 #include "inverted_string_index.h"
 #endif
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+#include "query_candidates.h"
+#endif
 #if DEXKIT_EXPERIMENT_RAW_INTERFACES
 #include "raw_type_ids.h"
 #endif
@@ -100,6 +103,9 @@ public:
             IQueryExecutor &executor,
             uint32_t split_num,
             QueryContext &query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , const inverted_string::QueryPlan *frozen_plan = nullptr
+#endif
     );
     std::vector<std::future<std::vector<MethodBean>>>
     FindMethod(
@@ -110,6 +116,9 @@ public:
             IQueryExecutor &executor,
             uint32_t split_num,
             QueryContext &query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , const inverted_string::QueryPlan *frozen_plan = nullptr
+#endif
     );
     std::vector<std::future<std::vector<FieldBean>>>
     FindField(
@@ -131,6 +140,9 @@ public:
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
             , const inverted_string::QueryPlan &string_plan = {}
 #endif
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , const internal::PreparedCandidates *prepared = nullptr
+#endif
     );
     std::vector<MethodBean> FindMethod(
             const schema::FindMethod *query,
@@ -142,6 +154,9 @@ public:
             QueryContext &query_context
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
             , const inverted_string::QueryPlan &string_plan = {}
+#endif
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            , const internal::PreparedCandidates *prepared = nullptr
 #endif
     );
     std::vector<FieldBean> FindField(
@@ -303,6 +318,16 @@ private:
 
 private:
     friend class DexKit;
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    internal::CandidateSource SelectCandidates(const schema::MethodMatcher *matcher, QueryContext &context,
+            uint32_t width, bool split);
+    internal::CandidateSource SelectCandidates(const schema::ClassMatcher *matcher, QueryContext &context,
+            uint32_t width, bool split);
+    internal::CandidateSource MakeCandidateSource(inverted_string::QueryPlan plan, const void *matchers,
+            size_t keywords, bool classes, QueryContext &context, uint32_t width, bool split);
+    std::shared_ptr<const internal::PreparedCandidates> PrepareCandidates(const internal::CandidateSource &source,
+            internal::CandidateBudget::Lease reservation);
+#endif
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     using StringMatcherVector = flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>>;
     using StringCandidateGroups = std::vector<std::pair<std::string_view, inverted_string::Bits>>;

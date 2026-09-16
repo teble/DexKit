@@ -1356,7 +1356,11 @@ bool DexItem::IsClassUsingStringsMatched(uint32_t type_idx, const schema::ClassM
     }
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     if (const auto *scope = inverted_string::MatchScope::current; scope && scope->hits
-            && scope->dex == this && scope->classes && scope->matchers == matcher->using_strings()) {
+            && scope->dex == this && scope->classes && scope->matchers == matcher->using_strings()
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            && (!scope->query_id || (QueryContext::Current() && QueryContext::Current()->GetQueryId() == scope->query_id))
+#endif
+    ) {
         return scope->hits->Has(type_idx);
     }
 #endif
@@ -1806,7 +1810,11 @@ bool DexItem::IsMethodUsingStringsMatched(uint32_t method_idx, const schema::Met
     }
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
     if (const auto *scope = inverted_string::MatchScope::current; scope && scope->hits
-            && scope->dex == this && !scope->classes && scope->matchers == matcher->using_strings()) {
+            && scope->dex == this && !scope->classes && scope->matchers == matcher->using_strings()
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+            && (!scope->query_id || (QueryContext::Current() && QueryContext::Current()->GetQueryId() == scope->query_id))
+#endif
+    ) {
         return scope->hits->Has(method_idx);
     }
 #endif

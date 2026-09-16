@@ -21,6 +21,9 @@
 #include "include/dexkit.h"
 #include "include/query_context.h"
 #include "include/benchmark_diagnostics.h"
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+#include "include/candidate_pipeline.h"
+#endif
 
 #include <algorithm>
 
@@ -601,8 +604,47 @@ DexKit::FindClass(const schema::FindClass *query) {
         }
     }
 
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    std::vector<internal::CandidateSource> candidate_sources;
+    std::vector<inverted_string::QueryPlan> frozen_strings;
+    bool candidate_execution = false;
+    const auto candidate_workers = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
+    if (!fast_search_dex && !find_first && !query->in_classes()
+            && !query->search_packages() && !query->exclude_packages()) {
+        candidate_sources.reserve(dex_items.size());
+        frozen_strings.resize(dex_items.size());
+        for (auto &dex_item : dex_items) {
+            if (!has_composite_matcher && !dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) continue;
+            auto source = dex_item->SelectCandidates(query->matcher(), query_context, BATCH_SIZE / 2,
+                    DEXKIT_EXPERIMENT_CANDIDATE_SLICES && candidate_workers > 1);
+            frozen_strings[dex_item->GetDexId()] = source.strings;
+            candidate_execution |= source.strings.Admitted();
+            candidate_sources.push_back(std::move(source));
+        }
+    }
+#endif
     query_context.MarkPreprocessCompleted();
 
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (candidate_execution) {
+        const std::set<uint32_t> no_ids;
+        auto legacy = [&](const internal::CandidateSource &source, IQueryExecutor &executor, bool fallback) {
+            const auto plan = fallback ? inverted_string::QueryPlan{} : source.strings;
+            return source.item->FindClass(query, no_ids, packageTrie, executor, BATCH_SIZE / 2, query_context, &plan);
+        };
+        auto prepare = [](const internal::CandidateSource &source, internal::CandidateBudget::Lease reservation) {
+            return source.item->PrepareCandidates(source, std::move(reservation));
+        };
+        auto match = [&](const internal::CandidateSource &source, const internal::PreparedCandidates &prepared,
+                internal::CandidateSlice slice) {
+            return source.item->FindClass(query, no_ids, packageTrie, slice.begin, slice.end, query_context, {}, &prepared);
+        };
+        internal::CandidateExecutionOptions options;
+        options.preparation_window = std::min<size_t>(candidate_sources.size(), size_t(candidate_workers) * 2);
+        result = internal::RunCandidatePipeline<ClassBean>(candidate_sources, CreateQueryExecutor(query_context),
+                query_context, legacy, prepare, match, options);
+    } else
+#endif
     if (fast_search_dex == nullptr) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<ClassBean>>> futures;
@@ -610,7 +652,11 @@ DexKit::FindClass(const schema::FindClass *query) {
             if (find_first && executor->ShouldSkipTask()) break;
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             if (has_composite_matcher || dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindClass(query, class_set, packageTrie, *executor, BATCH_SIZE / 2, query_context);
+                auto res = dex_item->FindClass(query, class_set, packageTrie, *executor, BATCH_SIZE / 2, query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+                        , frozen_strings.empty() ? nullptr : &frozen_strings[dex_item->GetDexId()]
+#endif
+                );
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }
@@ -713,8 +759,48 @@ DexKit::FindMethod(const schema::FindMethod *query) {
         }
     }
 
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    std::vector<internal::CandidateSource> candidate_sources;
+    std::vector<inverted_string::QueryPlan> frozen_strings;
+    bool candidate_execution = false;
+    const auto candidate_workers = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
+    if (!fast_search_dex && !find_first && !query->in_classes() && !query->in_methods()
+            && !query->search_packages() && !query->exclude_packages()) {
+        candidate_sources.reserve(dex_items.size());
+        frozen_strings.resize(dex_items.size());
+        for (auto &dex_item : dex_items) {
+            if (!has_composite_matcher && !dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) continue;
+            auto source = dex_item->SelectCandidates(query->matcher(), query_context, BATCH_SIZE,
+                    DEXKIT_EXPERIMENT_CANDIDATE_SLICES && candidate_workers > 1);
+            frozen_strings[dex_item->GetDexId()] = source.strings;
+            candidate_execution |= source.strings.Admitted();
+            candidate_sources.push_back(std::move(source));
+        }
+    }
+#endif
     query_context.MarkPreprocessCompleted();
 
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+    if (candidate_execution) {
+        const std::set<uint32_t> no_ids;
+        auto legacy = [&](const internal::CandidateSource &source, IQueryExecutor &executor, bool fallback) {
+            const auto plan = fallback ? inverted_string::QueryPlan{} : source.strings;
+            return source.item->FindMethod(query, no_ids, no_ids, packageTrie, executor, BATCH_SIZE, query_context, &plan);
+        };
+        auto prepare = [](const internal::CandidateSource &source, internal::CandidateBudget::Lease reservation) {
+            return source.item->PrepareCandidates(source, std::move(reservation));
+        };
+        auto match = [&](const internal::CandidateSource &source, const internal::PreparedCandidates &prepared,
+                internal::CandidateSlice slice) {
+            return source.item->FindMethod(query, no_ids, no_ids, packageTrie, slice.begin, slice.end,
+                    query_context, {}, &prepared);
+        };
+        internal::CandidateExecutionOptions options;
+        options.preparation_window = std::min<size_t>(candidate_sources.size(), size_t(candidate_workers) * 2);
+        result = internal::RunCandidatePipeline<MethodBean>(candidate_sources, CreateQueryExecutor(query_context),
+                query_context, legacy, prepare, match, options);
+    } else
+#endif
     if (fast_search_dex == nullptr) {
         auto executor = CreateQueryExecutor(query_context);
         std::vector<std::future<std::vector<MethodBean>>> futures;
@@ -723,7 +809,11 @@ DexKit::FindMethod(const schema::FindMethod *query) {
             auto &class_set = dex_class_map[dex_item->GetDexId()];
             auto &method_set = dex_method_map[dex_item->GetDexId()];
             if (has_composite_matcher || dex_item->CheckAllTypeNamesDeclared(analyze_ret.declare_class)) {
-                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, *executor, BATCH_SIZE, query_context);
+                auto res = dex_item->FindMethod(query, class_set, method_set, packageTrie, *executor, BATCH_SIZE, query_context
+#if DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE
+                        , frozen_strings.empty() ? nullptr : &frozen_strings[dex_item->GetDexId()]
+#endif
+                );
                 for (auto &f: res) {
                     futures.emplace_back(std::move(f));
                 }

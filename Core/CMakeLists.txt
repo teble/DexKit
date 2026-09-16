@@ -48,7 +48,15 @@ option(DEXKIT_EXPERIMENT_COMPACT_FIELDS "Build forward field-use rows in contigu
 option(DEXKIT_EXPERIMENT_SKIP_RW_WALK "Skip instruction traversal when only reverse field relations need it" OFF)
 option(DEXKIT_EXPERIMENT_INVERTED_STRINGS "Generate string-query candidates from compact reverse references" OFF)
 option(DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES "Admit guarded root ranges with at most one already-indexed string reference" OFF)
+option(DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE "Separate ordinary candidate preparation and consumption" OFF)
+option(DEXKIT_EXPERIMENT_CANDIDATE_SLICES "Re-slice successful ordinary candidates across original ranges" OFF)
 option(DEXKIT_BENCHMARK_FIELD_TRACE "Count using-field preparation and judges per query task" OFF)
+if (DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE AND NOT DEXKIT_EXPERIMENT_INVERTED_STRINGS)
+    message(FATAL_ERROR "The candidate pipeline experiment requires inverted strings")
+endif ()
+if (DEXKIT_EXPERIMENT_CANDIDATE_SLICES AND NOT DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE)
+    message(FATAL_ERROR "Candidate slicing requires the candidate pipeline")
+endif ()
 if (DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES AND NOT DEXKIT_EXPERIMENT_INVERTED_STRINGS)
     message(FATAL_ERROR "The small string-range experiment requires inverted strings")
 endif ()
@@ -119,6 +127,8 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_SKIP_RW_WALK=$<BOOL:${DEXKIT_EXPERIMENT_SKIP_RW_WALK}>
         DEXKIT_EXPERIMENT_INVERTED_STRINGS=$<BOOL:${DEXKIT_EXPERIMENT_INVERTED_STRINGS}>
         DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES=$<BOOL:${DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES}>
+        DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE=$<BOOL:${DEXKIT_EXPERIMENT_CANDIDATE_PIPELINE}>
+        DEXKIT_EXPERIMENT_CANDIDATE_SLICES=$<BOOL:${DEXKIT_EXPERIMENT_CANDIDATE_SLICES}>
         DEXKIT_BENCHMARK_FIELD_TRACE=$<BOOL:${DEXKIT_BENCHMARK_FIELD_TRACE}>
         DEXKIT_EXPERIMENT_STRING_MEMO_BYTES=${DEXKIT_EXPERIMENT_STRING_MEMO_BYTES})
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
@@ -156,7 +166,13 @@ if (DEXKIT_BENCHMARK_BATCH_WORKLOAD)
     target_link_libraries(dexkit_batch_workload PRIVATE dexkit_static)
 endif ()
 if (DEXKIT_BENCHMARK_STRING_WORKLOAD)
+    add_executable(dexkit_candidate_runtime_checks ../tools/qaux-benchmark/candidate_runtime_checks.cpp)
+    target_link_libraries(dexkit_candidate_runtime_checks PRIVATE dexkit_static)
+    add_executable(dexkit_candidate_pipeline_checks ../tools/qaux-benchmark/candidate_pipeline_checks.cpp)
+    target_link_libraries(dexkit_candidate_pipeline_checks PRIVATE dexkit_static)
     if (DEXKIT_BENCHMARK_DIAGNOSTICS)
+        add_executable(dexkit_candidate_integration_checks ../tools/qaux-benchmark/candidate_integration_checks.cpp)
+        target_link_libraries(dexkit_candidate_integration_checks PRIVATE dexkit_static)
         add_executable(dexkit_string_admission_checks ../tools/qaux-benchmark/string_admission_checks.cpp)
         target_link_libraries(dexkit_string_admission_checks PRIVATE dexkit_static)
         add_executable(dexkit_string_inverse_integration_checks ../tools/qaux-benchmark/string_inverse_integration_checks.cpp)

@@ -27,11 +27,11 @@ sessions, and avoid per-descriptor read locks or ownership reference counts.
 
 - [x] Implement the independent backend, normal allocation accounting, scoped
       native borrowing and admission maintenance, with a no-promotion control.
-- [ ] Verify same-API retained views, concurrent admission, native sessions,
+- [x] Verify same-API retained views, concurrent admission, native sessions,
       warmup exclusion, dense publication, bounds and intentional rebuilding.
-- [ ] Run normal/diagnostic/independent/sanitized Core oracles, QQ verification,
+- [x] Run normal/diagnostic/independent/sanitized Core oracles, QQ verification,
       required JVM and Android builds, and actual hot call-site inspection.
-- [ ] Review the fixed source increment with Pro and reconcile concrete issues.
+- [x] Review the fixed source increment with Pro and reconcile concrete issues.
 - [ ] Freeze a finite comparison against old dense, current pointer hybrid and
       the new no-promotion control, with a main phase and one confirmation.
 - [ ] Complete measurements, retain adverse samples, archive evidence and report
@@ -43,3 +43,17 @@ coverage with many hits and changed working sets after conversion. Report
 reclamation/allocation/waiting, generation rebuilds, warm work, close, complete
 lifecycle and physical peak separately. Old same-address/one-build-for-life
 checks become session/generation checks only for the new experimental backend.
+
+The fixed comparison contains 82 sweeps / 984 fresh processes: a main phase and
+one independent confirmation, with six balanced AB/BA pairs per sweep. Eighteen
+native cases and three QQ cases compare the current pointer hybrid with vector.
+Twelve relevant native cases and all QQ cases also compare old dense with vector;
+four native cases and QQ p1/w4 compare no-promotion with vector. All four normal
+artifacts were built from `4f7a82c` with the same Small14 options. Later test-only
+and documentation refinements do not replace the frozen Core binaries.
+
+Single-API-then-close is the one-calling-thread transition case. Four callers
+perform four times the work and may mix sparse/dense generations in their first
+stage; an outer barrier does not guarantee simultaneous query admission. Keep
+the phase as actual competing calls, without subtracting conversion or rebuilding.
+The threshold is a maintenance request, not a maximum live allocation budget.

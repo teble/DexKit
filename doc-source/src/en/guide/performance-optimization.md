@@ -116,3 +116,7 @@ workers establish these scopes themselves. Their returned FlatBuffers own their
 serialized descriptor bytes; Java/Kotlin query APIs and existing examples keep
 their current lifetime behavior. Closing/mutating a bridge concurrently remains
 outside the supported native lifecycle.
+The owner check does not detect an expired captured context. Do not reuse it
+after its owning session ends, and include any descriptor-reading task destructors
+in the worker lifetime. Avoid conflicting acquisition/wait orders when using
+sessions for more than one bridge.

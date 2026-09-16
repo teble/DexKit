@@ -64,6 +64,12 @@ Stats Run(const char *apk, bool method, std::string_view pattern, size_t repeats
     started = Clock::now();
     phases.arrive_and_wait(); phases.arrive_and_wait();
     result.first = Ns(started);
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+    // All first-phase APIs have ended and workers await the next barrier.
+    // In w4 a late first entrant may already have caused conversion; this is
+    // a competing-call stage, not a guarantee of one sparse generation.
+    BenchmarkDiagnostics::Dump(*bridge, "transition-first-complete");
+#endif
     started = Clock::now();
     phases.arrive_and_wait(); phases.arrive_and_wait();
     result.repeated = repeats == 1 ? 0 : Ns(started);

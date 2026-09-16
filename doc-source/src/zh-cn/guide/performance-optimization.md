@@ -95,3 +95,5 @@ private fun goodCode(bridge: DexKitBridge) {
 普通查询 API 与内部工作线程会自行建立作用域；返回的 FlatBuffer 拥有已序列化的描述符字节。
 Java/Kotlin 查询 API 及现有示例保持原有生命周期行为。并发关闭或修改 bridge 仍不属于受支持
 的原生生命周期。
+owner 检查无法检测已过期的 context，因此不能在原会话结束后复用它；读取描述符的任务析构
+也必须包含在工作任务的生命周期内。使用多个 bridge 的会话时，调用方需避免相反的获取或等待顺序。

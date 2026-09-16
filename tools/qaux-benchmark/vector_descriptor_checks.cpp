@@ -1,4 +1,5 @@
 #include "dexkit.h"
+#include "candidate_pipeline.h"
 #include <atomic>
 #include <cstdio>
 #include <latch>
@@ -181,6 +182,44 @@ struct VectorDescriptorBenchmark {
         CheckArray(*next, true, 3);
         Require(bridge.dex_items[0]->vector_descriptors.IsDense<true>(), "native release permits full reclamation");
     }
+    static void CheckWorkerRetainedBean(std::string_view apk, bool candidate) {
+        if constexpr (!promote) return;
+        DexKit bridge(apk, 1);
+        Waiting waiting(1);
+        ObserveWaiting(bridge, waiting);
+        std::latch returned(1), release(1);
+        std::unique_ptr<flatbuffers::FlatBufferBuilder> copied, next;
+        std::thread parent([&] {
+            auto borrow = bridge.BorrowDescriptors();
+            QueryContext context(QueryKind::FindMethod);
+            auto executor = bridge.CreateQueryExecutor(context);
+            auto task = [&]() noexcept {
+                auto *item = bridge.GetDexItem(0);
+                auto first = item->GetMethodBean(0);
+                for (uint32_t id = 1; id < count; ++id) item->GetMethodBean(id);
+                return first; // Deliberately return the borrowed Bean itself.
+            };
+            auto future = candidate ? internal::SubmitCandidateTask(*executor, task)
+                                    : SubmitQueryTask(*executor, task);
+            executor->OnSubmissionComplete();
+            auto bean = future.get();
+            executor.reset();
+            returned.count_down(); release.wait();
+            Require(bean.dex_descriptor == Descriptor(0, true), "parent retains worker's unowned descriptor");
+            copied = std::make_unique<flatbuffers::FlatBufferBuilder>();
+            copied->Finish(bean.CreateMethodMeta(*copied));
+        });
+        returned.wait();
+        std::thread entrant([&] { next = bridge.GetMethodByIds({0, 1, 2}); });
+        waiting.reached.wait();
+        Require(!bridge.dex_items[0]->vector_descriptors.IsDense<true>(), "worker completion does not end parent borrowing");
+        release.count_down(); parent.join(); entrant.join();
+        CheckArray(*next, true, 3);
+        const auto *owned = flatbuffers::GetRoot<schema::MethodMeta>(copied->GetBufferPointer());
+        Require(owned->id() == 0 && owned->dex_descriptor()->string_view() == Descriptor(0, true),
+                "parent copies worker Bean before allowing reclamation");
+        Require(bridge.dex_items[0]->vector_descriptors.IsDense<true>(), "entrant converts after parent serialization");
+    }
     static void CheckWarmupExclusion(std::string_view apk, bool warmup_first) {
         if constexpr (!promote) return;
         DexKit bridge(apk, 1);
@@ -223,6 +262,7 @@ struct VectorDescriptorBenchmark {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
         CheckUnserializedResults(apk, true); CheckUnserializedResults(apk, false);
         CheckNativeBorrow(apk); CheckWarmupExclusion(apk, true); CheckWarmupExclusion(apk, false);
+        CheckWorkerRetainedBean(apk, false); CheckWorkerRetainedBean(apk, true);
 #endif
         std::printf("CHECK_VECTOR_DESCRIPTORS {\"promotion_enabled\":%s,\"passed\":true}\n", promote ? "true" : "false");
     }

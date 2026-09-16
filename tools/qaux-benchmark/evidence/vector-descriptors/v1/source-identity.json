@@ -1,0 +1,26 @@
+{
+  "base_source": "3118b4ef8adb361bb7f2ca9f4cf799da582296a2",
+  "normal_engine_commit": "4f7a82c44ab593c9db334e7623e06eede280220c",
+  "diagnostic_engine_commit": "4f7a82c44ab593c9db334e7623e06eede280220c",
+  "harness_commit": "d0783697f539b7c7a255b64845416369cb94247b",
+  "native_libraries": {
+    "control": {
+      "bytes": 1047904,
+      "sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    "hybrid": {
+      "bytes": 1066896,
+      "sha256": "5a0a61c94f9425327755adc456a5005bd85db0b7b8f7c6162ff59b63a13bb2f2"
+    },
+    "vector": {
+      "bytes": 1068912,
+      "sha256": "649cd4ea2e48a9bb779802aa12203457b564a7f5fc4668b66fcfc59f89f614a6"
+    },
+    "vector-no-promotion": {
+      "bytes": 1068624,
+      "sha256": "7fa2697e8c891d1c1ba281e4ee640841ce1acd5cd57c154e55ec9d162ee31e42"
+    }
+  },
+  "frozen_plan_sha256": "8a67e4b3e34e06a6467956e3ba439dfd2e090d6f33e80e111a60976babd40ef4",
+  "note": "All four normal variants and frozen Core archives were built at 4f7a82c. Revised relation and worker check executables and diagnostic first-stage snapshots link those unchanged archives. Their copied source, commands and hashes are retained, and the final normal transition source preprocesses identically to 4f7a82c. The timed Python/Java harness is exported from the frozen d078369 snapshot; external experiment drivers are separately included. Reports describe the completed batch. Obtain APK/corpus, repo and toolchain inputs separately."
+}

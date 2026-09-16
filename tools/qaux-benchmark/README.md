@@ -355,3 +355,15 @@ The sparse/dense descriptor prototype has completed its fixed comparison:
 and [evidence manifest](evidence/hybrid-descriptors/v1/manifest.json). Both new
 storage flags remain OFF by default; the report retains the residual dense-array
 regressions and describes the next bounded hot-entry check.
+
+The independent `vector<string>` experiment also completed its fixed 82-sweep
+comparison: [results](VECTOR-DESCRIPTORS-RESULTS.md),
+[source review and native lifetime checks](VECTOR-DESCRIPTORS-REVIEW.md), and
+[evidence manifest](evidence/vector-descriptors/v1/manifest.json). It retains
+sparse QQ memory savings and improves selected lookups, while cold/full output
+and physical-peak regressions prevent a general replacement recommendation.
+`DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS` (Gradle `experimentVectorDescriptors`) and
+its `VECTOR_DESCRIPTORS_NO_PROMOTION` control (Gradle
+`experimentVectorDescriptorsNoPromotion`) default OFF. The control requires the
+vector option. Direct native Bean consumers must follow the documented borrowing
+contract; ordinary Java/Kotlin APIs manage it internally.

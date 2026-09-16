@@ -1,0 +1,17 @@
+{
+  "archive": "raw-evidence.tar.gz",
+  "archive_bytes": 13332340,
+  "archive_sha256": "f46fba14442eb500ee654dd45a7710d773c0737d48abfe3caba421d1afdf2ac0",
+  "files": 2091,
+  "identical_oracle_hardlinks": 36,
+  "verified_readback": true,
+  "accepted_sweeps": 52,
+  "accepted_fresh_processes": 624,
+  "excluded_measurements": 0,
+  "omitted": [
+    "All APK/DEX inputs",
+    "QQ corpus",
+    "Compiled native/JVM/Android artifacts"
+  ],
+  "integrity_sha256": "b0286ca666f610416944eacfbba9bb2c3fcaf24cc2f1675a1ee57a04a79d9144"
+}

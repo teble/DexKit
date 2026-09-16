@@ -23,10 +23,10 @@ convert only after a valid insertion, so the published array has at least one
 slot. It is never resized or replaced, and close still requires quiescence.
 
 - [x] Implement direct array publication without changing owning allocations.
-- [ ] Run existing component/public API oracles in normal, diagnostic, isolated
+- [x] Run existing component/public API oracles in normal, diagnostic, isolated
       FAST_HITS-OFF and sanitizer builds; reconcile bounds, counters, requested
       capacities, conversions and borrowed views with the fixed previous build.
-- [ ] Verify actual timed getter/call-site assembly loses the intended load,
+- [x] Verify actual timed getter/call-site assembly loses the intended load,
       check object layouts on the supported ABIs and run required JVM/AAR checks.
 - [ ] Review the fixed source increment with Pro, including the prior complete
       result and actual call-site/profile evidence.
@@ -39,3 +39,29 @@ slot. It is never resized or replaced, and close still requires quiescence.
 The baseline is the immutable `56c680c` hybrid artifact. This new experiment
 has its own evidence directory and does not rebuild or change the completed
 52-sweep batch. No new public API or default feature enablement is proposed.
+
+Validation completed before timing: 184 native driver commands, 42 three-way
+workload smokes, four QQ full-oracle runs, 71 JVM tests with zero skips, and
+four Android ABI builds. Sixteen paired diagnostic cases reconcile all 4352
+tables, retained requested layouts and completed-access counters. Five ABI
+normal/diagnostic object layouts match the preceding implementation. Host
+ASan/UBSan disables leak detection; Android execution is not covered.
+
+The actual normal dylib getters change 27 -> 26 instructions and keep both
+acquire loads. In the timed executable, method/field text lookup changes
+77 -> 76 / 67 -> 66 instructions, respectively, by removing the ordinary
+owner-to-slots load. The method lookup frame remains 160 bytes. These are
+machine-code observations, not measured cycle or lifecycle improvements.
+
+Freeze 52 sweeps / 624 fresh processes: 18 before/after cases and eight direct
+old-dense/after residual references, each in a main phase and one independently
+seeded confirmation, with six balanced AB/BA pairs per sweep. Before uses
+`56c680c`, after uses `33b1224`, and old dense uses `bf9cee5` with hybrid disabled.
+Keep the previous SSO2/16, sparse distributions, long output, wide/prefix/hot,
+one/four calling-thread, 448/449/450-per-domain immediate-close and low-density
+hotspot cases, plus QQ p1/w4, p11/w4 and p1/w1. Preserve every successful sample;
+do not rebuild, run correctness checks or profile during the timed batch.
+
+This plan is a historical input once timing is frozen. Record the completed
+Pro review and measurement verdict in sibling review/results documents instead
+of changing the frozen plan between phases.

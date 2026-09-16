@@ -1,0 +1,1052 @@
+{
+  "engine_commit": "33b12240934d25192c5ef464d80a60019fd7dec6",
+  "native_driver_commands": {
+    "normal": 40,
+    "trace": 56,
+    "isolated": 32,
+    "sanitize": 56
+  },
+  "native_driver_total": 184,
+  "qq": [
+    {
+      "name": "verify-hybrid-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "5a0a61c94f9425327755adc456a5005bd85db0b7b8f7c6162ff59b63a13bb2f2",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-hybrid-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "5a0a61c94f9425327755adc456a5005bd85db0b7b8f7c6162ff59b63a13bb2f2",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-hybrid-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "113a3d33c3ee95c7342a5c88b0b586314a80c176133161c6a9353228d9e85cd7",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": null
+    },
+    {
+      "name": "verify-hybrid-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "5a0a61c94f9425327755adc456a5005bd85db0b7b8f7c6162ff59b63a13bb2f2",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": true
+    }
+  ],
+  "census_driver_commands": 13,
+  "workload_smoke_commands": 42,
+  "gradle": {
+    "command": [
+      "bash",
+      "./gradlew",
+      ":dexkit:cmakeBuild",
+      ":dexkit:jar",
+      ":dexkit:test",
+      ":dexkit-android:assembleRelease",
+      "--max-workers=2",
+      "-I",
+      "tools/qaux-benchmark/force_tests.gradle",
+      "-PexperimentLazyDirectories=ON",
+      "-PexperimentCompactStrings=ON",
+      "-PexperimentNegativeStrings=ON",
+      "-PexperimentStructuralDescriptors=ON",
+      "-PexperimentDescriptorFastHits=ON",
+      "-PexperimentRawInterfaces=ON",
+      "-PexperimentFieldIdentitySplit=ON",
+      "-PexperimentCompactInvokes=ON",
+      "-PexperimentSingleRelation=ON",
+      "-PexperimentInvertedStrings=ON",
+      "-PexperimentInvertedStringRanges=ON",
+      "-PexperimentSkipEmptyCandidates=ON",
+      "-PexperimentMoveFindResults=ON",
+      "-PexperimentCompactCallers=ON",
+      "-PexperimentHybridDescriptors=ON",
+      "-PexperimentCandidatePipeline=OFF",
+      "-PexperimentCandidateSlices=OFF",
+      "-PexperimentPackedCrossInfo=OFF",
+      "-PexperimentPackedFieldUses=OFF",
+      "-PexperimentNodeDescriptors=OFF",
+      "-PexperimentSparseDescriptors=OFF"
+    ],
+    "tests": [
+      {
+        "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+        "tests": "11",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:44",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.461"
+      },
+      {
+        "name": "org.luckypray.dexkit.JavaReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:44",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.132"
+      },
+      {
+        "name": "org.luckypray.dexkit.KtReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:45",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.076"
+      },
+      {
+        "name": "org.luckypray.dexkit.UnitTest",
+        "tests": "44",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:45",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "1.411"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:46",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.0"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:46",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.013"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:46",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.114"
+      },
+      {
+        "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T17:01:46",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.004"
+      }
+    ],
+    "total_tests": 71,
+    "skipped": 0,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "cmake_caches": [
+      {
+        "abi": "arm64-v8a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/arm64-v8a/CMakeCache.txt",
+        "sha256": "f1b556df1634f7af70a0a17bf26f6711ef446c7dce9785c446fc0a2779d5acc9"
+      },
+      {
+        "abi": "armeabi-v7a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/armeabi-v7a/CMakeCache.txt",
+        "sha256": "1eb1f5161f1c0e68cea56240ce6ff98227d76cdeb3a4e63f97f72773f9e4c5bc"
+      },
+      {
+        "abi": "x86",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/x86/CMakeCache.txt",
+        "sha256": "82db93e04ef06063a82eed83f970e475d65716e3766cf4868d5f5552488e1021"
+      },
+      {
+        "abi": "x86_64",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/x86_64/CMakeCache.txt",
+        "sha256": "d9b49de7420966d2b099ad6379126b7ca94ed5d554a5b0ea6366c8b48990f78a"
+      },
+      {
+        "abi": "desktop",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+        "sha256": "08a4262e293bebf7dd84207d3e26a573ba8af25c843b7c41e9a4c0664d3f29f2"
+      }
+    ],
+    "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "aar_sha256": "95c12f7e0d02ad5c88fba446a3957a00d9e0f7aa9da1df449f2ff347f8aa4e0e"
+  },
+  "codegen": {
+    "scope": "macOS arm64 Release normal dylibs; total function instructions include cold branches, not a cycle estimate",
+    "getters": [
+      {
+        "label": "before",
+        "kind": "Method",
+        "file": "get-method-descriptor-before.s",
+        "instructions": 27,
+        "sha256": "2bea82d3bd3d154d2c7fe0d770a3d5aebf723262f6e786695738512026fd4b13",
+        "acquires": 2,
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true
+      },
+      {
+        "label": "before",
+        "kind": "Field",
+        "file": "get-field-descriptor-before.s",
+        "instructions": 27,
+        "sha256": "9738ef4c421fbd1a9069065b0db343d1de7f6879e9350e81efea2c878491085e",
+        "acquires": 2,
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true
+      },
+      {
+        "label": "after",
+        "kind": "Method",
+        "file": "get-method-descriptor-after.s",
+        "instructions": 26,
+        "sha256": "41a5da09ff1f77e95ca8251d6d602ca7b5bea12bc33d2675828739c557800c13",
+        "acquires": 2,
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true
+      },
+      {
+        "label": "after",
+        "kind": "Field",
+        "file": "get-field-descriptor-after.s",
+        "instructions": 26,
+        "sha256": "78cfd909486996f56b3f14e1e6c3fd16c389e592afd44abc6ba4c72a07ba4507",
+        "acquires": 2,
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true
+      },
+      {
+        "label": "dense",
+        "kind": "Method",
+        "file": "get-method-descriptor-dense.s",
+        "instructions": 13,
+        "sha256": "84779ba23a2691fb49016481a8cc54ecf2d2fc58239cbc14df577a3ac03ed028",
+        "acquires": 1
+      },
+      {
+        "label": "dense",
+        "kind": "Field",
+        "file": "get-field-descriptor-dense.s",
+        "instructions": 13,
+        "sha256": "936f017939187999a79c41c62d381d9629ecfe55bfa2cf30e43558fe9633b3d9",
+        "acquires": 1
+      }
+    ],
+    "observation": "Both hybrid getters retain two acquire loads; direct slot publication removes one ordinary owner-to-slots load. Actual executable text and numeric Bean call sites each lose that same load."
+  },
+  "diagnostic_pair_comparison": {
+    "cases": [
+      {
+        "case": "census-hybrid-trace-dense-output-sso-prefix.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          }
+        },
+        "before_sha256": "a1d070fe3be8152232cdbf539417ecc040b1597acf55b0c99ce998b4c06b5a53",
+        "after_sha256": "552ddd71d7cfb0649b8b024145284555bb1d7475079d49bd2d4a2220315d7e37"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-scattered.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          }
+        },
+        "before_sha256": "aa11c27ecc87f4cbfa3972f0742c474ff01ce095ff568431bd9aaa0d65d79e99",
+        "after_sha256": "d07e0c574e79c3edb2b4bd96df95441b19ae13b514668a18bd7d46b838bd47d2"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-shard-k1.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 100000,
+            "hits": 99999,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          },
+          "field": {
+            "calls": 100000,
+            "hits": 99999,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          }
+        },
+        "before_sha256": "7b4bd469c9e4e141115103e82c850594ddd5e2f5af446278134205df468daad8",
+        "after_sha256": "ba5c07a082ece56d25024f5a173c0f28ff936107cf366213f283d0c8bcecb7d9"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-shard.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 15360,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 28560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 15360,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 28560
+          }
+        },
+        "before_sha256": "a14b057a03d681d47cc233aaf4826cb1fc45ac7bd02d06a6ae5b79a60212b5ee",
+        "after_sha256": "7f98978cc326c9d7ffec582b0f6c35609d5e7bcd796307388c59f1c3c69fd7c6"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 120000,
+            "hits": 60000,
+            "records": 60000,
+            "dense_hits": 60000,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 480256,
+            "block_bytes": 1566720
+          },
+          "field": {
+            "calls": 120000,
+            "hits": 60000,
+            "records": 60000,
+            "dense_hits": 60000,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 480256,
+            "block_bytes": 1566720
+          }
+        },
+        "before_sha256": "7ca9aa21feba164ac3b28b35cdf64e4d9ac7aa76a913f269a55800f2f4199854",
+        "after_sha256": "414f451cc790166f547e642733dbb562037e8b0212e0082410844f453979b02d"
+      },
+      {
+        "case": "census-hybrid-trace-overload-lookup-prefix.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 2097409,
+            "hits": 2093313,
+            "records": 4096,
+            "dense_hits": 2093313,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "2b4d41939211c23440b9bfde6fc051915d88375b2e9c4f5ba033092be8f6b764",
+        "after_sha256": "80f4bebff68bc3de1be564352aa4aef3f3cdeebfc2fa07c815b79c78eafda6d8"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-concurrent-w1.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 220011,
+            "hits": 220002,
+            "records": 9,
+            "dense_hits": 220002,
+            "promotions": 9,
+            "bucket_bytes": 0,
+            "dense_bytes": 144,
+            "block_bytes": 36720
+          },
+          "field": {
+            "calls": 120006,
+            "hits": 120002,
+            "records": 4,
+            "dense_hits": 120002,
+            "promotions": 4,
+            "bucket_bytes": 0,
+            "dense_bytes": 64,
+            "block_bytes": 16320
+          }
+        },
+        "before_sha256": "00ad2b5e4c6687dcffde9597bd1d3ee13c5c4e70019ef47a231ea22639a77fcd",
+        "after_sha256": "c6d0dba7bf02f9550f0e041d03712fa8eef9ae815a79d4f28c47c99e54a31be2"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-concurrent-w4.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 880044,
+            "hits": 880035,
+            "records": 9,
+            "dense_hits": 880033,
+            "promotions": 9,
+            "bucket_bytes": 0,
+            "dense_bytes": 144,
+            "block_bytes": 36720
+          },
+          "field": {
+            "calls": 480024,
+            "hits": 480020,
+            "records": 4,
+            "dense_hits": 480018,
+            "promotions": 4,
+            "bucket_bytes": 0,
+            "dense_bytes": 64,
+            "block_bytes": 16320
+          }
+        },
+        "before_sha256": "cbc058bd0e7a5076abd907a0ffa67fc40eea3c5ed32d5eedbee130cfa7583079",
+        "after_sha256": "0d82c085478e4feffa86798fc6cad3d3882ecff3f280d2f34e35c54fb1899439"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-hot.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 1100003,
+            "hits": 1099993,
+            "records": 10,
+            "dense_hits": 1099993,
+            "promotions": 9,
+            "bucket_bytes": 32,
+            "dense_bytes": 144,
+            "block_bytes": 40800
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "0bb2d7514eebb4805d663ebff12acc819bfbe1b10c2a1703c788036744574d84",
+        "after_sha256": "85c5cc96778b0a928e12b1d645279f3b4226a1b97056c47235741b384d1f2450"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 4194817,
+            "hits": 4190721,
+            "records": 4096,
+            "dense_hits": 4190721,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "5dc88efb45f1ece5fa5c7ed5cb6540e65adb61a98a3c9713074ec00af5b50edc",
+        "after_sha256": "ab4a3324d34d5dce6a6b518c457c73ca77692d40035f9ab5f84cc12981ac7b73"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-output.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 65536,
+            "hits": 61440,
+            "records": 4096,
+            "dense_hits": 61440,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "1ca4fbd2996513605d0c822a63e54d2a1dc323e8afc24bb2551a1c7b38b17099",
+        "after_sha256": "b51867ab07710f7ed011036777b5429ad8b4960498162ba6155cbb019bbffb47"
+      },
+      {
+        "case": "verify-hybrid-trace-census-w4/run.log",
+        "table_count": 2624,
+        "counts": {
+          "method": {
+            "calls": 18051,
+            "hits": 16423,
+            "records": 1628,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 46784,
+            "dense_bytes": 0,
+            "block_bytes": 3406800
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "cc5e30e859dacabbde6efb853a24c16b5f16bd501312cf0f9873994edca51e98",
+        "after_sha256": "c036b94185b7fe924667aafc7c2620f87a3c4dfd39036ac417b09bbb1f45792d"
+      },
+      {
+        "case": "boundary-1-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 1,
+            "hits": 0,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          },
+          "field": {
+            "calls": 1,
+            "hits": 0,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          }
+        },
+        "before_sha256": "39c9a36dd085a7a9cc1b6921ab0d9262c0118cba720cbe97a5a7ea5ec28ca6f1",
+        "after_sha256": "69f7607cdf9e639dc246be311fc23efce909ea0dd0ef1096cf720e80b50858d2"
+      },
+      {
+        "case": "boundary-448-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 448,
+            "hits": 0,
+            "records": 448,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 8696,
+            "dense_bytes": 0,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 448,
+            "hits": 0,
+            "records": 448,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 8696,
+            "dense_bytes": 0,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "d56b6479e90d3d9feb5376eca1e79f0f9e842c37985a2cf2848e1c0e72ecd1a9",
+        "after_sha256": "e2eb8d43c8624861e8b31477f95c380993bc2a9f4ee8f00568ef65c9e186a180"
+      },
+      {
+        "case": "boundary-449-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 449,
+            "hits": 0,
+            "records": 449,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 449,
+            "hits": 0,
+            "records": 449,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "d1deaec75415ccc8093edb5d2ba0e671260dab3cb571076825e698970c3e392a",
+        "after_sha256": "00adeeac55df575947fb24700dd96800a13c1665b50741060c52d6e79f217ab9"
+      },
+      {
+        "case": "boundary-450-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 450,
+            "hits": 0,
+            "records": 450,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 450,
+            "hits": 0,
+            "records": 450,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "dba378fa3d5f1af65708680ddda067bf664a13490df49154fb1fd3498b37f57c",
+        "after_sha256": "223fecaf24ffa7f62b0f2639500f03b1a5c73b771cff00e25a459cb52dc06a00"
+      }
+    ],
+    "omitted_pair_comparison_fields": [
+      "dense_hits",
+      "promotion_ns"
+    ],
+    "scope": "Diagnostic requested layouts, calls, hits and records; not normal allocator physical decomposition."
+  },
+  "development_driver_corrections": [],
+  "call_sites": [
+    {
+      "label": "before",
+      "kind": "Method",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-hot-hits-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b1be1e0956382ab60f32963ef53b71e5491b943dfc8a2e50b1d91e81be0b9cc0",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-method-bean-before.s",
+      "assembly_sha256": "897f9982ecf3d4d713d4f81acc487ab07538699201624ce84fa07302fa31f929",
+      "instructions": 77,
+      "calls": [
+        "00000001000270b8\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "00000001000270cc\tbl\t0x1000898d4 ; symbol stub for: _memcmp",
+        "00000001000270e0\tbl\t__ZN6dexkit7DexItem13GetMethodBeanEj",
+        "0000000100027138\tbl\t0x100089814 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "before",
+      "kind": "Method",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-hot-hits-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b1be1e0956382ab60f32963ef53b71e5491b943dfc8a2e50b1d91e81be0b9cc0",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-method-bean-before.s",
+      "assembly_sha256": "7698ad58aed087a47b1b2757935a15a69be1a58adee9ab2b6649da7b363386fc",
+      "instructions": 232,
+      "calls": [
+        "0000000100026a38\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026a90\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "0000000100026aa0\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026ad8\tbl\t__ZNK3dex6Reader8ProtoIdsEv",
+        "0000000100026b90\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "0000000100026bc0\tbl\t0x100089790 ; symbol stub for: __Znwm",
+        "0000000100026c38\tbl\t0x100089790 ; symbol stub for: __Znwm",
+        "0000000100026c5c\tbl\t0x1000898e0 ; symbol stub for: _memcpy",
+        "0000000100026c68\tbl\t0x10008976c ; symbol stub for: __ZdlPv",
+        "0000000100026c9c\tbl\t__ZNSt3__16vectorIiNS_9allocatorIiEEE18__assign_with_sizeB9nqe210106IPiS5_EEvT_T0_l",
+        "0000000100026d08\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026d0c\tbl\t__ZNSt3__16vectorIN6dexkit15inverted_string4BitsENS_9allocatorIS3_EEE20__throw_length_errorB9nqe210106Ev",
+        "0000000100026d14\tbl\t__ZSt28__throw_bad_array_new_lengthB9nqe210106v",
+        "0000000100026d3c\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026d40\tbl\t0x100089814 ; symbol stub for: _abort",
+        "0000000100026d78\tbl\t0x1000894f0 ; symbol stub for: __Unwind_Resume",
+        "0000000100026d80\tbl\t0x10008976c ; symbol stub for: __ZdlPv",
+        "0000000100026d98\tbl\t0x10008976c ; symbol stub for: __ZdlPv",
+        "0000000100026da0\tbl\t0x1000894f0 ; symbol stub for: __Unwind_Resume"
+      ]
+    },
+    {
+      "label": "before",
+      "kind": "Field",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-hot-hits-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b1be1e0956382ab60f32963ef53b71e5491b943dfc8a2e50b1d91e81be0b9cc0",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-field-bean-before.s",
+      "assembly_sha256": "8780a38cce3124c3022faa222c6dce570774805adcb40bf01d43b01eeccc082c",
+      "instructions": 67,
+      "calls": [
+        "00000001000271e8\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "00000001000271fc\tbl\t0x1000898d4 ; symbol stub for: _memcmp",
+        "0000000100027210\tbl\t__ZN6dexkit7DexItem12GetFieldBeanEj",
+        "0000000100027244\tbl\t0x100089814 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "before",
+      "kind": "Field",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-hot-hits-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b1be1e0956382ab60f32963ef53b71e5491b943dfc8a2e50b1d91e81be0b9cc0",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-field-bean-before.s",
+      "assembly_sha256": "6b2b06e01d0bb9091a52c4866a9187102329c3e15c4e7c0639dd42b93a1e17c1",
+      "instructions": 99,
+      "calls": [
+        "0000000100026e34\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "0000000100026e8c\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "0000000100026e98\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "0000000100026f44\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "0000000100026f94\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026f98\tbl\t0x100089814 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "after",
+      "kind": "Method",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "59b00e21094d225d278a5d7a7093adf89990915f5ecb3b50b1fcc6cf561476a8",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-method-bean-after.s",
+      "assembly_sha256": "10aba0e7bab76d09c47192c72fc4d53609facc38d26523b854034064c7d032e5",
+      "instructions": 76,
+      "calls": [
+        "00000001000270a4\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "00000001000270b8\tbl\t0x1000898a8 ; symbol stub for: _memcmp",
+        "00000001000270cc\tbl\t__ZN6dexkit7DexItem13GetMethodBeanEj",
+        "0000000100027124\tbl\t0x1000897e8 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "after",
+      "kind": "Method",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "59b00e21094d225d278a5d7a7093adf89990915f5ecb3b50b1fcc6cf561476a8",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-method-bean-after.s",
+      "assembly_sha256": "bb4ab4844b11a17b8fa38877a8cc8cb6522e266629d405387593a7cc38760e79",
+      "instructions": 231,
+      "calls": [
+        "0000000100026a38\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026a90\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "0000000100026aa0\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026ad8\tbl\t__ZNK3dex6Reader8ProtoIdsEv",
+        "0000000100026b8c\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "0000000100026bbc\tbl\t0x100089764 ; symbol stub for: __Znwm",
+        "0000000100026c34\tbl\t0x100089764 ; symbol stub for: __Znwm",
+        "0000000100026c58\tbl\t0x1000898b4 ; symbol stub for: _memcpy",
+        "0000000100026c64\tbl\t0x100089740 ; symbol stub for: __ZdlPv",
+        "0000000100026c98\tbl\t__ZNSt3__16vectorIiNS_9allocatorIiEEE18__assign_with_sizeB9nqe210106IPiS5_EEvT_T0_l",
+        "0000000100026d04\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026d08\tbl\t__ZNSt3__16vectorIN6dexkit15inverted_string4BitsENS_9allocatorIS3_EEE20__throw_length_errorB9nqe210106Ev",
+        "0000000100026d10\tbl\t__ZSt28__throw_bad_array_new_lengthB9nqe210106v",
+        "0000000100026d38\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026d3c\tbl\t0x1000897e8 ; symbol stub for: _abort",
+        "0000000100026d74\tbl\t0x1000894c4 ; symbol stub for: __Unwind_Resume",
+        "0000000100026d7c\tbl\t0x100089740 ; symbol stub for: __ZdlPv",
+        "0000000100026d94\tbl\t0x100089740 ; symbol stub for: __ZdlPv",
+        "0000000100026d9c\tbl\t0x1000894c4 ; symbol stub for: __Unwind_Resume"
+      ]
+    },
+    {
+      "label": "after",
+      "kind": "Field",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "59b00e21094d225d278a5d7a7093adf89990915f5ecb3b50b1fcc6cf561476a8",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-field-bean-after.s",
+      "assembly_sha256": "801de1d9c98cf2f656e96d06241d8cf98a61f1a4ae250bb61339a8d1d27789c3",
+      "instructions": 66,
+      "calls": [
+        "00000001000271d0\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "00000001000271e4\tbl\t0x1000898a8 ; symbol stub for: _memcmp",
+        "00000001000271f8\tbl\t__ZN6dexkit7DexItem12GetFieldBeanEj",
+        "000000010002722c\tbl\t0x1000897e8 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "after",
+      "kind": "Field",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/artifacts/hybrid/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "59b00e21094d225d278a5d7a7093adf89990915f5ecb3b50b1fcc6cf561476a8",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-field-bean-after.s",
+      "assembly_sha256": "e10e0d24ecd6f7400466624cf29be7d7a1f4a75d75070f37c2df16f47168a754",
+      "instructions": 98,
+      "calls": [
+        "0000000100026e2c\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "0000000100026e84\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "0000000100026e90\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "0000000100026f38\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "0000000100026f88\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "0000000100026f8c\tbl\t0x1000897e8 ; symbol stub for: _abort"
+      ]
+    },
+    {
+      "label": "dense",
+      "kind": "Method",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptors-v1/artifacts/control/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b042eccacf145b05980f9d64a9bc5b8e5f7138d0107060bfb82499bfdb29d9c7",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-method-bean-dense.s",
+      "assembly_sha256": "f88c1b3b0e2ce5049df94619f23958dda4d216b5c184c2f74a7b15478b737fc0",
+      "instructions": 67,
+      "calls": [
+        "0000000100027370\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "0000000100027384\tbl\t0x1000887e0 ; symbol stub for: _memcmp",
+        "0000000100027398\tbl\t__ZN6dexkit7DexItem13GetMethodBeanEj"
+      ]
+    },
+    {
+      "label": "dense",
+      "kind": "Method",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptors-v1/artifacts/control/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b042eccacf145b05980f9d64a9bc5b8e5f7138d0107060bfb82499bfdb29d9c7",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-method-bean-dense.s",
+      "assembly_sha256": "71c9a147b0262f4968afc156042190c5059ebfeeed10f1edc772daf9ad365ae8",
+      "instructions": 222,
+      "calls": [
+        "0000000100026dcc\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026e24\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "0000000100026e34\tbl\t__ZNK3dex6Reader9MethodIdsEv",
+        "0000000100026e6c\tbl\t__ZNK3dex6Reader8ProtoIdsEv",
+        "0000000100026f00\tbl\t__ZN6dexkit7DexItem23GetMethodDescriptorColdEj",
+        "0000000100026f30\tbl\t0x10008869c ; symbol stub for: __Znwm",
+        "0000000100026fa8\tbl\t0x10008869c ; symbol stub for: __Znwm",
+        "0000000100026fcc\tbl\t0x1000887ec ; symbol stub for: _memcpy",
+        "0000000100026fd8\tbl\t0x100088678 ; symbol stub for: __ZdlPv",
+        "000000010002700c\tbl\t__ZNSt3__16vectorIiNS_9allocatorIiEEE18__assign_with_sizeB9nqe210106IPiS5_EEvT_T0_l",
+        "0000000100027078\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "000000010002707c\tbl\t__ZNSt3__16vectorIN6dexkit9FieldBeanENS_9allocatorIS2_EEE20__throw_length_errorB9nqe210106Ev",
+        "0000000100027084\tbl\t__ZSt28__throw_bad_array_new_lengthB9nqe210106v",
+        "00000001000270ac\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_",
+        "00000001000270e4\tbl\t0x1000883fc ; symbol stub for: __Unwind_Resume",
+        "00000001000270ec\tbl\t0x100088678 ; symbol stub for: __ZdlPv",
+        "0000000100027104\tbl\t0x100088678 ; symbol stub for: __ZdlPv",
+        "000000010002710c\tbl\t0x1000883fc ; symbol stub for: __Unwind_Resume"
+      ]
+    },
+    {
+      "label": "dense",
+      "kind": "Field",
+      "shape": "lookup",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptors-v1/artifacts/control/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b042eccacf145b05980f9d64a9bc5b8e5f7138d0107060bfb82499bfdb29d9c7",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/lookup-field-bean-dense.s",
+      "assembly_sha256": "cc89f108ff14cb2d6b89f4584ef86d0d7b1de30b95a21d24fd545e8503ec607f",
+      "instructions": 57,
+      "calls": [
+        "0000000100027478\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "000000010002748c\tbl\t0x1000887e0 ; symbol stub for: _memcmp",
+        "00000001000274a0\tbl\t__ZN6dexkit7DexItem12GetFieldBeanEj"
+      ]
+    },
+    {
+      "label": "dense",
+      "kind": "Field",
+      "shape": "index",
+      "executable": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptors-v1/artifacts/control/build/Core/dexkit_descriptor_workload",
+      "executable_sha256": "b042eccacf145b05980f9d64a9bc5b8e5f7138d0107060bfb82499bfdb29d9c7",
+      "assembly": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptor-direct-slots-v1/validation/index-field-bean-dense.s",
+      "assembly_sha256": "589e6cc0c252caea3f2de646bdb0b726571cb2f5120e39ed0b6c7daf600d065a",
+      "instructions": 90,
+      "calls": [
+        "0000000100027168\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "00000001000271c0\tbl\t__ZN6dexkit6DexKit10GetDexItemEt",
+        "00000001000271cc\tbl\t__ZNK3dex6Reader8FieldIdsEv",
+        "0000000100027258\tbl\t__ZN6dexkit7DexItem22GetFieldDescriptorColdEj",
+        "00000001000272a8\tbl\t__ZN6slicer14_checkFailedOpEjjPKcS1_iS1_"
+      ]
+    }
+  ],
+  "abi_layouts": {
+    "equal": true,
+    "scope": "Actual normal and diagnostic object sizes on desktop plus four NDK ABIs; the previous cache owner/field layout was unchanged by the hot-entry source increment.",
+    "baseline": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/hybrid-descriptors-v1/validation/layout/summary.json",
+    "sizes": {
+      "desktop": [
+        {
+          "actual_cache": 6680,
+          "actual_sparse": 6680,
+          "reported_fixed": 6680,
+          "normal_payload": 48,
+          "actual_payload": 48
+        },
+        {
+          "actual_cache": 18472,
+          "actual_sparse": 18472,
+          "reported_fixed": 6680,
+          "normal_payload": 48,
+          "actual_payload": 64
+        }
+      ],
+      "arm64-v8a": [
+        {
+          "actual_cache": 5912,
+          "actual_sparse": 5912,
+          "reported_fixed": 5912,
+          "normal_payload": 48,
+          "actual_payload": 48
+        },
+        {
+          "actual_cache": 17704,
+          "actual_sparse": 17704,
+          "reported_fixed": 5912,
+          "normal_payload": 48,
+          "actual_payload": 64
+        }
+      ],
+      "armeabi-v7a": [
+        {
+          "actual_cache": 2444,
+          "actual_sparse": 2444,
+          "reported_fixed": 2444,
+          "normal_payload": 24,
+          "actual_payload": 24
+        },
+        {
+          "actual_cache": 10008,
+          "actual_sparse": 10008,
+          "reported_fixed": 2444,
+          "normal_payload": 24,
+          "actual_payload": 32
+        }
+      ],
+      "x86": [
+        {
+          "actual_cache": 2444,
+          "actual_sparse": 2444,
+          "reported_fixed": 2444,
+          "normal_payload": 24,
+          "actual_payload": 24
+        },
+        {
+          "actual_cache": 10008,
+          "actual_sparse": 10008,
+          "reported_fixed": 2444,
+          "normal_payload": 24,
+          "actual_payload": 32
+        }
+      ],
+      "x86_64": [
+        {
+          "actual_cache": 5912,
+          "actual_sparse": 5912,
+          "reported_fixed": 5912,
+          "normal_payload": 48,
+          "actual_payload": 48
+        },
+        {
+          "actual_cache": 17704,
+          "actual_sparse": 17704,
+          "reported_fixed": 5912,
+          "normal_payload": 48,
+          "actual_payload": 64
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "ASan/UBSan and concurrency execution were on the host; leak detection was disabled.",
+    "Android evidence covers four ABI builds, not Android execution/performance.",
+    "Latches and conversion counters are diagnostic-only; normal component checks do not execute those hooks.",
+    "Diagnostic deque requests are not an exact attribution of normal physical allocations.",
+    "Full frozen/independent API oracles precede the timed count/checksum checks."
+  ]
+}

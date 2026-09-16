@@ -1,0 +1,22 @@
+{
+  "baseline_source": "56c680c68f44987979c96f01ccd461a546a1e5cd",
+  "dense_reference_source": "bf9cee531da6a5d4f237398350eed05d7fcf96c5",
+  "normal_engine_commit": "33b12240934d25192c5ef464d80a60019fd7dec6",
+  "diagnostic_engine_commit": "33b12240934d25192c5ef464d80a60019fd7dec6",
+  "native_libraries": {
+    "before": {
+      "bytes": 1066896,
+      "sha256": "45851bb10f35e60c3f41e6bd2f784c166d0ca1a8deb6058311a95c216d32286e"
+    },
+    "after": {
+      "bytes": 1066896,
+      "sha256": "5a0a61c94f9425327755adc456a5005bd85db0b7b8f7c6162ff59b63a13bb2f2"
+    },
+    "dense": {
+      "bytes": 1047904,
+      "sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    }
+  },
+  "frozen_plan_sha256": "81012f1020d3e2c87b7672f8d2d9db2db9df8642bae488767cf64b35bf8762d5",
+  "note": "Engine and harness files are exported from the tested 33b1224 commit. Reports describe the completed batch. Obtain QQ APK/corpus, repository baseline and platform SDK/JDK/compiler inputs separately."
+}

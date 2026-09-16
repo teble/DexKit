@@ -24,8 +24,9 @@ and findFirst entrances retain their existing behavior.
   ranges. One candidate, one occupied range, and one-worker execution retain
   inline validation. Inline does not mean execution on the caller thread.
 - A preparation capability or budget rejection restores the original ranges.
-  Previous preparation costs remain part of the query. Exceptions propagate
-  after accepted tasks have been drained; they are not negative results.
+  Previous preparation costs remain part of the query. In exception-enabled
+  builds, exceptions propagate after accepted tasks have been drained; they
+  are not negative results. Android retains its no-exceptions build policy.
 - Candidates carry query/DEX/entity identity and enumeration coordinates.
   Method ranges use Method IDs; class ranges use ClassDef ordinals, while
   class string truth uses Type IDs. Preserve output order and final descriptor
@@ -37,10 +38,13 @@ and findFirst entrances retain their existing behavior.
   cleanup. Activation, sealing, draining and detachment are distinct events.
   Workers never wait for their own child tasks. Budget ownership is independent
   of QueryContext so late destruction cannot access a released context.
-- Bound candidate working arrays across preparation, futures and consumers;
-  use nonblocking reservations and a bounded preparation window. This is not
-  a bound on persistent indexes, result metadata, allocator retention or total
-  process memory. Batch retains its current per-DEX execution and budget.
+- Bound explicitly accounted arrays across preparation, futures and consumers:
+  bitmap payloads, keyword-plane headers, last-string IDs, cold-index counts
+  and seen IDs, the single output-group entry, class IDs, and slice records.
+  Use nonblocking reservations and a bounded preparation window. This is not
+  a bound on persistent indexes, matcher/trie caches, temporary associative
+  containers or trie-hit buffers, result metadata, allocator retention or
+  total process memory. Batch retains its current per-DEX execution and budget.
 - The initial coordinator uses a bounded FIFO preparation window of at most
   twice the configured worker count. Head-of-line waiting is a performance
   tradeoff to measure. Result concatenation moves Bean payloads rather than

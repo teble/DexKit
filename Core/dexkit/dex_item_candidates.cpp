@@ -36,24 +36,14 @@ internal::CandidateSource DexItem::MakeCandidateSource(inverted_string::QueryPla
     const auto bitmap = plan.route == inverted_string::QueryPlan::Route::Range
             ? std::optional<size_t>(inverted_string::WordCount(entities) * sizeof(uint64_t))
             : inverted_string::BitmapPlanBytes(entities, type_names.size(), keywords, 1);
-    size_t bytes = sizeof(PreparedCandidates);
-    auto add = [&](size_t count, size_t element) {
-        if (count > (std::numeric_limits<size_t>::max() - bytes) / element) return false;
-        bytes += count * element;
-        return true;
-    };
     // Include reverse-index construction's temporary counts/seen arrays when
-    // the frozen decision observed a cold index. Persistent index arrays and
-    // existing matcher/trie caches are bridge/query facilities, not candidates.
-    if (!bitmap || !add(*bitmap, 1)
-            || (!plan.index_ready && !add(strings.size(), sizeof(uint32_t) * 2))
-            || (classes && !add(reader.ClassDefs().size(), sizeof(uint32_t)))
-            || (split && !add((uint64_t(source.domain.count) + width - 1) / width,
-                    sizeof(CandidateSlice)))) {
-        source.work_bytes = std::numeric_limits<size_t>::max();
-    } else {
-        source.work_bytes = bytes;
-    }
+    // the frozen decision observed a cold index, plus keyword-plane metadata.
+    // CandidateBudget documents the other allocations outside this array cap.
+    const auto bytes = bitmap ? CandidateArrayBytes(*bitmap,
+            plan.route == inverted_string::QueryPlan::Route::Keywords ? keywords : 0,
+            plan.index_ready ? 0 : strings.size(), classes ? reader.ClassDefs().size() : 0,
+            split ? (uint64_t(source.domain.count) + width - 1) / width : 0) : std::nullopt;
+    source.work_bytes = bytes.value_or(std::numeric_limits<size_t>::max());
     return source;
 }
 

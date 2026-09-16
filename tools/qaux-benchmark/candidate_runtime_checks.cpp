@@ -109,6 +109,16 @@ static void CheckFailures() {
 }
 
 static void CheckBudget() {
+    // Two million keywords over one entity pass the older bitmap-only cap.
+    // Their plane headers and last_string array must exceed the query cap.
+    constexpr size_t keywords = 2'000'000;
+    const auto bitmaps = inverted_string::BitmapPlanBytes(1, 1, keywords, 1);
+    Check(bitmaps.has_value(), "counterexample did not pass bitmap admission");
+    const auto arrays = CandidateArrayBytes(*bitmaps, keywords, 0, 0, 0);
+    CandidateBudget query_budget(64 * 1024 * 1024);
+    Check(arrays && !query_budget.TryReserve(*arrays), "keyword metadata escaped array budget");
+    Check(!CandidateArrayBytes(0, SIZE_MAX, 0, 0, 0), "keyword accounting overflowed");
+    Check(!CandidateArrayBytes(SIZE_MAX, 0, 0, 0, 0), "bitmap accounting overflowed");
     CandidateBudget budget(100);
     auto first = budget.TryReserve(70);
     Check(first.has_value() && budget.Used() == 70, "reservation missing");

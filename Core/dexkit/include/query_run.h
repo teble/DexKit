@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <future>
@@ -15,6 +16,16 @@
 #include "query_executor.h"
 
 namespace dexkit::internal {
+
+[[noreturn]] inline void FailQueryRunInvariant(const char *message) {
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+    throw std::logic_error(message);
+#else
+    // Android keeps the project's existing no-exceptions build policy.
+    (void) message;
+    std::abort();
+#endif
+}
 
 // Owns one query's executor until all accepted callable captures have been
 // released. The shared state deliberately contains no QueryContext pointer.
@@ -65,11 +76,15 @@ class QueryRun final : public IQueryExecutor {
         }
 
         void operator()() noexcept {
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
             try {
+#endif
                 body();
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
             } catch (...) {
                 state->RecordError(std::current_exception());
             }
+#endif
             Finish();
         }
     };
@@ -97,14 +112,18 @@ public:
     }
 
     void Submit(std::function<void()> task) override {
-        if (!active_ || sealed_) throw std::logic_error("QueryRun is not accepting tasks");
+        if (!active_ || sealed_) FailQueryRunInvariant("QueryRun is not accepting tasks");
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
         try {
+#endif
             auto tracked = std::make_shared<Task>(state_, std::move(task));
             executor_->Submit([tracked = std::move(tracked)] { (*tracked)(); });
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
         } catch (...) {
             state_->RecordError(std::current_exception());
             throw;
         }
+#endif
     }
 
     // A promise's shared state stores the result, not the callable. Unlike a
@@ -117,7 +136,9 @@ public:
         auto future = promise->get_future();
         auto callable = std::make_shared<std::optional<Function>>(std::forward<F>(function));
         Submit([promise = std::move(promise), callable = std::move(callable)]() mutable {
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
             try {
+#endif
                 auto invoke = [&]() -> Result {
                     Function local(std::move(**callable));
                     callable->reset();
@@ -130,10 +151,12 @@ public:
                 } else {
                     promise->set_value(invoke());
                 }
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
             } catch (...) {
                 callable->reset();
                 promise->set_exception(std::current_exception());
             }
+#endif
         });
         return future;
     }
@@ -141,9 +164,11 @@ public:
     void OnSubmissionComplete() override { Activate(); }
     void Seal() noexcept { sealed_ = true; }
     void Drain() {
-        if (!sealed_) throw std::logic_error("Seal QueryRun before draining it");
+        if (!sealed_) FailQueryRunInvariant("Seal QueryRun before draining it");
         state_->Drain();
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
         if (state_->error) std::rethrow_exception(state_->error);
+#endif
     }
 
     [[nodiscard]] size_t OutstandingCaptures() const {

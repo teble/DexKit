@@ -106,6 +106,13 @@ void dexkit::BenchmarkDiagnostics::CheckCandidatePipeline(std::string_view apk) 
                 auto prepare = [](const internal::CandidateSource &selected, internal::CandidateBudget::Lease reservation) {
                     return selected.item->PrepareCandidates(selected, std::move(reservation));
                 };
+                std::atomic<size_t> matched_slices = 0;
+                auto check_slice = [&](internal::CandidateSlice slice) {
+                    ++matched_slices;
+                    Require(slice.begin % source.slice_width == 0);
+                    Require(slice.end == (split ? std::min(source.domain.count, slice.begin + source.slice_width)
+                            : source.domain.count));
+                };
                 std::string actual;
                 if (classes) {
                     auto legacy = [&](const auto &selected, IQueryExecutor &executor, bool fallback) {
@@ -114,6 +121,7 @@ void dexkit::BenchmarkDiagnostics::CheckCandidatePipeline(std::string_view apk) 
                         return selected.item->FindClass(type, no_ids, packages, executor, 500, context, &plan);
                     };
                     auto match = [&](const auto &selected, const internal::PreparedCandidates &prepared, internal::CandidateSlice slice) {
+                        check_slice(slice);
                         Require(prepared.RootTruth() && prepared.RootTruth()->Has(1000) && !prepared.RootTruth()->Has(1001));
                         return selected.item->FindClass(type, no_ids, packages, slice.begin, slice.end, context, {}, &prepared);
                     };
@@ -126,6 +134,7 @@ void dexkit::BenchmarkDiagnostics::CheckCandidatePipeline(std::string_view apk) 
                         return selected.item->FindMethod(method, no_ids, no_ids, packages, executor, 1000, context, &plan);
                     };
                     auto match = [&](const auto &selected, const internal::PreparedCandidates &prepared, internal::CandidateSlice slice) {
+                        check_slice(slice);
                         Require(prepared.RootTruth() && prepared.RootTruth()->Has(3000) && !prepared.RootTruth()->Has(3003));
                         return selected.item->FindMethod(method, no_ids, no_ids, packages, slice.begin, slice.end, context, {}, &prepared);
                     };
@@ -141,6 +150,7 @@ void dexkit::BenchmarkDiagnostics::CheckCandidatePipeline(std::string_view apk) 
                     Require(dex.IsMethodUsingStringsMatched(3000, method->matcher()));
                 }
                 Require(actual == expected[case_index]);
+                Require(matched_slices == (reject ? 0u : !split ? 1u : classes ? 3u : 5u));
                 ++injected;
             }
 #endif

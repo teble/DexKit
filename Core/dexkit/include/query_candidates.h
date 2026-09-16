@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <atomic>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <span>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -15,7 +17,8 @@ namespace dexkit { class DexItem; }
 
 namespace dexkit::internal {
 
-// This bounds reserved candidate array/scratch bytes, not persistent indexes,
+// This bounds explicitly accounted candidate arrays, not persistent indexes,
+// matcher/trie caches, temporary associative containers or trie-hit buffers,
 // result beans, allocator overhead, or total process memory.
 class CandidateBudget {
     struct State {
@@ -176,5 +179,25 @@ struct PreparedCandidates {
         });
     }
 };
+
+// Requested bytes for the controlled arrays. Raw keyword count bounds both
+// bitmap-plane headers and last_string; canonicalization can only reduce it.
+// The single output group also owns a (key, bitmap) entry during preparation.
+inline std::optional<size_t> CandidateArrayBytes(size_t bitmap_bytes, size_t keywords,
+        size_t cold_strings, size_t class_defs, size_t slices) {
+    size_t bytes = sizeof(PreparedCandidates);
+    auto add = [&](size_t count, size_t element) {
+        if (count > (std::numeric_limits<size_t>::max() - bytes) / element) return false;
+        bytes += count * element;
+        return true;
+    };
+    if (!add(bitmap_bytes, 1)
+            || !add(keywords, sizeof(inverted_string::Bits) + sizeof(uint32_t))
+            || (keywords && !add(1, sizeof(std::pair<std::string_view, inverted_string::Bits>)))
+            || !add(cold_strings, sizeof(uint32_t) * 2)
+            || !add(class_defs, sizeof(uint32_t))
+            || !add(slices, sizeof(CandidateSlice))) return std::nullopt;
+    return bytes;
+}
 
 } // namespace dexkit::internal

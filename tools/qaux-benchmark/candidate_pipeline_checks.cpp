@@ -13,8 +13,8 @@ static void Check(bool value, const char *message) {
     if (!value) throw std::runtime_error(message);
 }
 
-// A bounded test executor. Production scheduler integration is covered by the
-// public-query checks; here gates force failure/cleanup interleavings exactly.
+// A bounded test executor for one/four-worker ordering and fallback checks.
+// Failure gates also run on the real shared scheduler, retained externally.
 class TestExecutor final : public IQueryExecutor {
     std::mutex mutex_;
     std::condition_variable ready_;
@@ -97,7 +97,8 @@ struct Fixture {
         }
     }
 
-    std::vector<uint64_t> Run(unsigned workers, size_t budget = 8192) {
+    std::vector<uint64_t> Run(unsigned workers, size_t budget = 8192,
+            std::shared_ptr<QueryScheduler> scheduler = {}) {
         auto prepare = [&](const CandidateSource &source, CandidateBudget::Lease lease) {
             Check(QueryContext::Current() == &context, "producer lost query binding");
             if (before_prepare) before_prepare(source.domain.dex_id);
@@ -149,7 +150,11 @@ struct Fixture {
             }
             return out;
         };
-        return RunCandidatePipeline<uint64_t>(sources, std::make_unique<TestExecutor>(workers), context,
+        std::unique_ptr<IQueryExecutor> executor = scheduler
+                ? std::unique_ptr<IQueryExecutor>(new SharedThreadPoolQueryExecutor(std::move(scheduler),
+                        context.GetQueryId(), context, QueryPriority::Normal))
+                : std::make_unique<TestExecutor>(workers);
+        return RunCandidatePipeline<uint64_t>(sources, std::move(executor), context,
                 legacy, prepare, match, CandidateExecutionOptions{budget, 2});
     }
 
@@ -178,39 +183,57 @@ static void CheckResults() {
     b.CheckResult(second.get());
 }
 
-static void CheckFailure(bool during_validation) {
+static void CheckFailure(bool during_validation, bool shared_scheduler) {
     Fixture fixture(true, 2);
-    std::promise<void> entered, release;
+    // This owner outlives the query: its executor only detaches, never joins.
+    auto scheduler = shared_scheduler ? std::make_shared<QueryScheduler>(4) : nullptr;
+    std::promise<void> entered, failing, release;
     auto entered_future = entered.get_future();
+    auto failing_future = failing.get_future();
     auto gate = release.get_future().share();
     if (during_validation) {
         // One DEX needs several consumer tasks. One fails while another still
         // borrows query data; failure must wait for the latter to finish.
         fixture.sources.resize(1);
         fixture.before_match = [&](uint32_t, CandidateSlice slice) {
-            if (slice.begin == 0) throw std::runtime_error("validation failure");
+            if (slice.begin == 0) { failing.set_value(); throw std::runtime_error("validation failure"); }
             if (slice.begin == 1000) { entered.set_value(); gate.wait(); }
         };
     } else {
         fixture.before_prepare = [&](uint32_t dex) {
-            if (dex == 0) throw std::runtime_error("preparation failure");
+            if (dex == 0) { failing.set_value(); throw std::runtime_error("preparation failure"); }
             entered.set_value();
             gate.wait();
         };
     }
     auto query = std::async(std::launch::async, [&] {
-        try { fixture.Run(4); } catch (const std::runtime_error &) { return true; }
+        try { fixture.Run(4, 8192, scheduler); } catch (const std::runtime_error &) { return true; }
         return false;
     });
     entered_future.get();
-    Check(query.wait_for(std::chrono::seconds(0)) == std::future_status::timeout, "error returned before live work drained");
+    failing_future.get();
+    const bool blocked = query.wait_for(std::chrono::milliseconds(100)) == std::future_status::timeout;
     release.set_value();
     Check(query.get(), "pipeline exception disappeared");
+    Check(blocked, "error returned before live work drained");
+    if (scheduler) {
+        // A fresh query still works after exceptional cleanup on this pool.
+        QueryContext next(QueryKind::FindMethod);
+        QueryRun run(std::make_unique<SharedThreadPoolQueryExecutor>(scheduler, next.GetQueryId(),
+                next, QueryPriority::Normal));
+        run.Activate();
+        auto result = run.SubmitFuture([] { return 19; });
+        run.Seal();
+        Check(result.get() == 19, "shared scheduler lost subsequent work");
+        run.Drain();
+    }
 }
 
 int main() {
     CheckResults();
-    CheckFailure(false);
-    CheckFailure(true);
-    std::cout << "CANDIDATE_PIPELINE_OK ordered split fallback proof budget failures workers=1,4\n";
+    for (bool shared : {false, true}) {
+        CheckFailure(false, shared);
+        CheckFailure(true, shared);
+    }
+    std::cout << "CANDIDATE_PIPELINE_OK ordered split fallback proof budget failures shared_scheduler workers=1,4\n";
 }

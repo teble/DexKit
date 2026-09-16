@@ -15,6 +15,10 @@ ADMISSION_MODES = ['string-admission-' + case + suffix
                    for case in ['rare', 'wide', 'nested-rare', 'nested-wide', 'flags', 'return',
                                 'equal-one', 'prefix-one', 'equal-two', 'prefix-two']
                    for suffix in ['', '-warm']]
+CANDIDATE_MODES = ['candidate-' + case + '-w' + str(workers) + suffix
+                   for case in ['method-multiple', 'class-multiple', 'method-equal-one', 'method-prefix-one',
+                                'class-one', 'method-empty', 'method-nested']
+                   for workers in [1, 4] for suffix in ['', '-warm']]
 
 
 def sha(path):
@@ -35,7 +39,7 @@ def main():
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple', 'string-nested-broad',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
-                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES, required=True)
+                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES, required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
@@ -55,12 +59,14 @@ def main():
         manifest = json.loads((artifact / 'artifact.json').read_text())
         invocation = args.mode.startswith(('invoke-', 'caller-'))
         source = args.mode.startswith('source-')
-        string = args.mode.startswith('string-')
+        candidate = args.mode.startswith('candidate-')
+        string = args.mode.startswith('string-') or candidate
         admission = args.mode.startswith('string-admission-')
         batch = args.mode.startswith('batch-')
         field = args.mode.startswith('using-')
         relation = args.mode.startswith('field-') or invocation
-        executable = artifact / ('build/Core/dexkit_field_workload' if field else
+        executable = artifact / ('build/Core/dexkit_candidate_workload' if candidate else
+                                 'build/Core/dexkit_field_workload' if field else
                                  'build/Core/dexkit_batch_workload' if batch else
                                  'build/Core/dexkit_string_admission_workload' if admission else
                                  'build/Core/dexkit_string_workload' if string else

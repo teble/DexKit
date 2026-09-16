@@ -39,7 +39,7 @@ template<class Bean> struct CandidateOutcome {
     explicit CandidateOutcome(std::vector<Bean> value) : kind(Kind::Completed), result(std::move(value)) {}
     explicit CandidateOutcome(std::shared_ptr<const PreparedCandidates> value)
             : kind(Kind::Prepared), candidates(std::move(value)) {
-        if (!candidates) throw std::logic_error("Missing prepared candidates");
+        if (!candidates) FailQueryRunInvariant("Missing prepared candidates");
     }
 };
 
@@ -119,7 +119,7 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
             slots[i].preparation = run.SubmitFuture([&, source, reservation = std::move(*reservation)]() mutable {
                 CandidateTaskScope task_scope(context);
                 auto candidates = prepare(source, std::move(reservation));
-                if (!candidates) throw std::logic_error("Missing prepared candidates");
+                if (!candidates) FailQueryRunInvariant("Missing prepared candidates");
                 if (candidates->kind == CandidateView::Kind::FullRange) return Outcome(std::move(candidates));
                 if (!source.split || candidates->slices.size() <= 1) {
                     const auto slice = candidates->slices.empty() ? CandidateSlice{0, source.domain.count}
@@ -137,7 +137,7 @@ std::vector<Bean> RunCandidatePipeline(const std::vector<CandidateSource> &sourc
 
     submit_window();
     while (unresolved) {
-        if (pending.empty()) throw std::logic_error("Candidate reservation outlived its preparation window");
+        if (pending.empty()) FailQueryRunInvariant("Candidate reservation outlived its preparation window");
         const auto i = pending.front();
         pending.pop_front();
         auto outcome = slots[i].preparation.get();

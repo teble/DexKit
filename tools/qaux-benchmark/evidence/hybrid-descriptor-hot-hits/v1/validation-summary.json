@@ -1,0 +1,705 @@
+{
+  "engine_commit": "56c680c68f44987979c96f01ccd461a546a1e5cd",
+  "native_driver_commands": {
+    "normal": 40,
+    "trace": 56,
+    "isolated": 32,
+    "sanitize": 56
+  },
+  "native_driver_total": 184,
+  "qq": [
+    {
+      "name": "verify-hybrid-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "45851bb10f35e60c3f41e6bd2f784c166d0ca1a8deb6058311a95c216d32286e",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-hybrid-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "45851bb10f35e60c3f41e6bd2f784c166d0ca1a8deb6058311a95c216d32286e",
+      "baseline_results_equal": true
+    },
+    {
+      "name": "verify-hybrid-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "426489e2bbb405f60b551e755e3c7d49a957fa52a4fc439a38803db5b2d5f86f",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": null
+    },
+    {
+      "name": "verify-hybrid-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "45851bb10f35e60c3f41e6bd2f784c166d0ca1a8deb6058311a95c216d32286e",
+      "baseline_results_equal": true,
+      "final_field_rw_results_equal": true
+    }
+  ],
+  "census_driver_commands": 13,
+  "workload_smoke_commands": 42,
+  "gradle": {
+    "command": [
+      "bash",
+      "./gradlew",
+      ":dexkit:cmakeBuild",
+      ":dexkit:jar",
+      ":dexkit:test",
+      ":dexkit-android:assembleRelease",
+      "--max-workers=2",
+      "-I",
+      "tools/qaux-benchmark/force_tests.gradle",
+      "-PexperimentLazyDirectories=ON",
+      "-PexperimentCompactStrings=ON",
+      "-PexperimentNegativeStrings=ON",
+      "-PexperimentStructuralDescriptors=ON",
+      "-PexperimentDescriptorFastHits=ON",
+      "-PexperimentRawInterfaces=ON",
+      "-PexperimentFieldIdentitySplit=ON",
+      "-PexperimentCompactInvokes=ON",
+      "-PexperimentSingleRelation=ON",
+      "-PexperimentInvertedStrings=ON",
+      "-PexperimentInvertedStringRanges=ON",
+      "-PexperimentSkipEmptyCandidates=ON",
+      "-PexperimentMoveFindResults=ON",
+      "-PexperimentCompactCallers=ON",
+      "-PexperimentHybridDescriptors=ON",
+      "-PexperimentCandidatePipeline=OFF",
+      "-PexperimentCandidateSlices=OFF",
+      "-PexperimentPackedCrossInfo=OFF",
+      "-PexperimentPackedFieldUses=OFF",
+      "-PexperimentNodeDescriptors=OFF",
+      "-PexperimentSparseDescriptors=OFF"
+    ],
+    "tests": [
+      {
+        "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+        "tests": "11",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:35",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.503"
+      },
+      {
+        "name": "org.luckypray.dexkit.JavaReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:35",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.138"
+      },
+      {
+        "name": "org.luckypray.dexkit.KtReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:35",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.055"
+      },
+      {
+        "name": "org.luckypray.dexkit.UnitTest",
+        "tests": "44",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:35",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "1.372"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:37",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.001"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:37",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.011"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:37",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.12"
+      },
+      {
+        "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-16T16:26:37",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.003"
+      }
+    ],
+    "total_tests": 71,
+    "skipped": 0,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "cmake_caches": [
+      {
+        "abi": "arm64-v8a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/arm64-v8a/CMakeCache.txt",
+        "sha256": "f1b556df1634f7af70a0a17bf26f6711ef446c7dce9785c446fc0a2779d5acc9"
+      },
+      {
+        "abi": "armeabi-v7a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/armeabi-v7a/CMakeCache.txt",
+        "sha256": "1eb1f5161f1c0e68cea56240ce6ff98227d76cdeb3a4e63f97f72773f9e4c5bc"
+      },
+      {
+        "abi": "x86",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/x86/CMakeCache.txt",
+        "sha256": "82db93e04ef06063a82eed83f970e475d65716e3766cf4868d5f5552488e1021"
+      },
+      {
+        "abi": "x86_64",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/3l1w1e1w/x86_64/CMakeCache.txt",
+        "sha256": "d9b49de7420966d2b099ad6379126b7ca94ed5d554a5b0ea6366c8b48990f78a"
+      },
+      {
+        "abi": "desktop",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+        "sha256": "08a4262e293bebf7dd84207d3e26a573ba8af25c843b7c41e9a4c0664d3f29f2"
+      }
+    ],
+    "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "aar_sha256": "373b13f8ae5906dc17841be865b242d32521eb4512a54e5ad38cf8b85d901572"
+  },
+  "codegen": {
+    "scope": "macOS arm64 Release normal dylibs; total function instructions include cold branches, not a cycle estimate",
+    "getters": [
+      {
+        "file": "get-field-descriptor-after.s",
+        "instructions": 27,
+        "sha256": "4ba2019a15048ae92e6147efb4fcf46bf597a3e187fcd2eff2e9aa057e15e57f",
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true,
+        "only_abort_branch_sets_up_frame": true
+      },
+      {
+        "file": "get-field-descriptor-before.s",
+        "instructions": 38,
+        "sha256": "fc564bb038831ba773be1bb74397aafcb3a787a52b2d654f592f1c8a78d7e077"
+      },
+      {
+        "file": "get-field-descriptor-dense.s",
+        "instructions": 13,
+        "sha256": "215904322122e429a4c4cf34e282e74551b3c968b0710379600d4779c4254512"
+      },
+      {
+        "file": "get-method-descriptor-after.s",
+        "instructions": 27,
+        "sha256": "2d8656218d1df7921f626d5d02493bd96874b54423c53b9db07d20477869dabf",
+        "normal_hit_uses_stack": false,
+        "miss_tail_calls_cold": true,
+        "only_abort_branch_sets_up_frame": true
+      },
+      {
+        "file": "get-method-descriptor-before.s",
+        "instructions": 38,
+        "sha256": "c037870abd8feffe546d6e9e142b352bf24740b7c39d8896c9729cf8d041b37d"
+      },
+      {
+        "file": "get-method-descriptor-dense.s",
+        "instructions": 13,
+        "sha256": "694ff678c706cfaf4c652be90189e8fd63076b2d37eb010e1ce3d96bdcb77038"
+      }
+    ]
+  },
+  "diagnostic_pair_comparison": {
+    "cases": [
+      {
+        "case": "census-hybrid-trace-dense-output-sso-prefix.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          }
+        },
+        "before_sha256": "ddecfb6d219da5ba08c61813ebc0b5f3cf5b5b53cb9cb8545bec57c8e987e859",
+        "after_sha256": "a1d070fe3be8152232cdbf539417ecc040b1597acf55b0c99ce998b4c06b5a53"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-scattered.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 34560,
+            "dense_bytes": 0,
+            "block_bytes": 130560
+          }
+        },
+        "before_sha256": "b43ed27d59786efee91260a0cbee5fc7b2fbbb6385cdf8f9e9e22f66ffb42a40",
+        "after_sha256": "aa11c27ecc87f4cbfa3972f0742c474ff01ce095ff568431bd9aaa0d65d79e99"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-shard-k1.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 100000,
+            "hits": 99999,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          },
+          "field": {
+            "calls": 100000,
+            "hits": 99999,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          }
+        },
+        "before_sha256": "43de0a82fe38c1e7f33785fb4c57ebb15301b05e2f4ac20e678a3ee087c7b9ce",
+        "after_sha256": "7b4bd469c9e4e141115103e82c850594ddd5e2f5af446278134205df468daad8"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso-shard.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 15360,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 28560
+          },
+          "field": {
+            "calls": 16384,
+            "hits": 15360,
+            "records": 1024,
+            "dense_hits": 15360,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 28560
+          }
+        },
+        "before_sha256": "f7d33bf4802ac081cf907239a6aed689664d83fe67be4879878c8e2855acfc69",
+        "after_sha256": "a14b057a03d681d47cc233aaf4826cb1fc45ac7bd02d06a6ae5b79a60212b5ee"
+      },
+      {
+        "case": "census-hybrid-trace-dense-output-sso.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 120000,
+            "hits": 60000,
+            "records": 60000,
+            "dense_hits": 60000,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 480256,
+            "block_bytes": 1566720
+          },
+          "field": {
+            "calls": 120000,
+            "hits": 60000,
+            "records": 60000,
+            "dense_hits": 60000,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 480256,
+            "block_bytes": 1566720
+          }
+        },
+        "before_sha256": "a57f855822c35c7a9f7add3283606e71ca09e02641328ce0ba188f363e01af3b",
+        "after_sha256": "7ca9aa21feba164ac3b28b35cdf64e4d9ac7aa76a913f269a55800f2f4199854"
+      },
+      {
+        "case": "census-hybrid-trace-overload-lookup-prefix.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 2097409,
+            "hits": 2093313,
+            "records": 4096,
+            "dense_hits": 2093313,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "cd346cb76e231df1aa4bb6439d606fecee0e409bddfb394085aef4d7bf9acede",
+        "after_sha256": "2b4d41939211c23440b9bfde6fc051915d88375b2e9c4f5ba033092be8f6b764"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-concurrent-w1.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 220011,
+            "hits": 220002,
+            "records": 9,
+            "dense_hits": 220002,
+            "promotions": 9,
+            "bucket_bytes": 0,
+            "dense_bytes": 144,
+            "block_bytes": 36720
+          },
+          "field": {
+            "calls": 120006,
+            "hits": 120002,
+            "records": 4,
+            "dense_hits": 120002,
+            "promotions": 4,
+            "bucket_bytes": 0,
+            "dense_bytes": 64,
+            "block_bytes": 16320
+          }
+        },
+        "before_sha256": "87502aef81ff1b05fe68bffc2203044274f613585dc7a0a5f471cbb5247cd338",
+        "after_sha256": "00ad2b5e4c6687dcffde9597bd1d3ee13c5c4e70019ef47a231ea22639a77fcd"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-concurrent-w4.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 880044,
+            "hits": 880035,
+            "records": 9,
+            "dense_hits": 880034,
+            "promotions": 9,
+            "bucket_bytes": 0,
+            "dense_bytes": 144,
+            "block_bytes": 36720
+          },
+          "field": {
+            "calls": 480024,
+            "hits": 480020,
+            "records": 4,
+            "dense_hits": 480019,
+            "promotions": 4,
+            "bucket_bytes": 0,
+            "dense_bytes": 64,
+            "block_bytes": 16320
+          }
+        },
+        "before_sha256": "db51919864b7f706ad3506309c79fc55d71424263814a91a19349cdbe56f3053",
+        "after_sha256": "cbc058bd0e7a5076abd907a0ffa67fc40eea3c5ed32d5eedbee130cfa7583079"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup-hot.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 1100003,
+            "hits": 1099993,
+            "records": 10,
+            "dense_hits": 1099993,
+            "promotions": 9,
+            "bucket_bytes": 32,
+            "dense_bytes": 144,
+            "block_bytes": 40800
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "e3f4a2f807b514cd67133995648887d16035f3e8602bff31f593919ffafcdc1e",
+        "after_sha256": "0bb2d7514eebb4805d663ebff12acc819bfbe1b10c2a1703c788036744574d84"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-lookup.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 4194817,
+            "hits": 4190721,
+            "records": 4096,
+            "dense_hits": 4190721,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "b14f27a58376eff763a24d16e7bdf63c11bbabc48641926ab781f4e1c282dddd",
+        "after_sha256": "5dc88efb45f1ece5fa5c7ed5cb6540e65adb61a98a3c9713074ec00af5b50edc"
+      },
+      {
+        "case": "census-hybrid-trace-symbol-output.log",
+        "table_count": 192,
+        "counts": {
+          "method": {
+            "calls": 65536,
+            "hits": 61440,
+            "records": 4096,
+            "dense_hits": 61440,
+            "promotions": 32,
+            "bucket_bytes": 0,
+            "dense_bytes": 33104,
+            "block_bytes": 130560
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "2c507b5fdafcd3da502acbc22c9994659c8bffd0073d5413f3e9024fdf0878a3",
+        "after_sha256": "1ca4fbd2996513605d0c822a63e54d2a1dc323e8afc24bb2551a1c7b38b17099"
+      },
+      {
+        "case": "verify-hybrid-trace-census-w4/run.log",
+        "table_count": 2624,
+        "counts": {
+          "method": {
+            "calls": 18051,
+            "hits": 16423,
+            "records": 1628,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 46784,
+            "dense_bytes": 0,
+            "block_bytes": 3406800
+          },
+          "field": {
+            "calls": 0,
+            "hits": 0,
+            "records": 0,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 0,
+            "dense_bytes": 0,
+            "block_bytes": 0
+          }
+        },
+        "before_sha256": "ab64a14b5b9498e503354f955d6695385b2b6cee6c3a5ed374e42d58f105fa79",
+        "after_sha256": "cc5e30e859dacabbde6efb853a24c16b5f16bd501312cf0f9873994edca51e98"
+      },
+      {
+        "case": "boundary-1-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 1,
+            "hits": 0,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          },
+          "field": {
+            "calls": 1,
+            "hits": 0,
+            "records": 1,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 32,
+            "dense_bytes": 0,
+            "block_bytes": 4080
+          }
+        },
+        "before_sha256": "35151069ef237622f4d6e705d9c6c076a655e91d40790493b5ff8d880c080d73",
+        "after_sha256": "39c9a36dd085a7a9cc1b6921ab0d9262c0118cba720cbe97a5a7ea5ec28ca6f1"
+      },
+      {
+        "case": "boundary-448-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 448,
+            "hits": 0,
+            "records": 448,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 8696,
+            "dense_bytes": 0,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 448,
+            "hits": 0,
+            "records": 448,
+            "dense_hits": 0,
+            "promotions": 0,
+            "bucket_bytes": 8696,
+            "dense_bytes": 0,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "9ba59e76707741e39ef03449c2c843d143573f5f68732051484b196ac9baf32d",
+        "after_sha256": "d56b6479e90d3d9feb5376eca1e79f0f9e842c37985a2cf2848e1c0e72ecd1a9"
+      },
+      {
+        "case": "boundary-449-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 449,
+            "hits": 0,
+            "records": 449,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 449,
+            "hits": 0,
+            "records": 449,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "89ab585ca01ae5a84a6f0ca560cdeff6c06126e53d7e4930e756c37f0d3faefe",
+        "after_sha256": "d1deaec75415ccc8093edb5d2ba0e671260dab3cb571076825e698970c3e392a"
+      },
+      {
+        "case": "boundary-450-hybrid-trace-stderr.log",
+        "table_count": 64,
+        "counts": {
+          "method": {
+            "calls": 450,
+            "hits": 0,
+            "records": 450,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          },
+          "field": {
+            "calls": 450,
+            "hits": 0,
+            "records": 450,
+            "dense_hits": 0,
+            "promotions": 1,
+            "bucket_bytes": 0,
+            "dense_bytes": 15008,
+            "block_bytes": 12240
+          }
+        },
+        "before_sha256": "18a6b3c5426773c6fb330bd8de786b71b4c74fb72c69b8654da0ef3fa8b9a4ef",
+        "after_sha256": "dba378fa3d5f1af65708680ddda067bf664a13490df49154fb1fd3498b37f57c"
+      }
+    ],
+    "omitted_pair_comparison_fields": [
+      "dense_hits",
+      "promotion_ns"
+    ],
+    "scope": "Diagnostic requested layouts, calls, hits and records; not normal allocator physical decomposition."
+  },
+  "development_driver_corrections": [
+    "The first standalone compile used an incomplete phmap include path; corrected the driver path and preserved the failed compiler log."
+  ],
+  "limitations": [
+    "ASan/UBSan and concurrency execution were on the host; leak detection was disabled.",
+    "Android evidence covers four ABI builds, not Android execution/performance.",
+    "Latches and conversion counters are diagnostic-only; normal component checks do not execute those hooks.",
+    "Diagnostic deque requests are not an exact attribution of normal physical allocations.",
+    "Full frozen/independent API oracles precede the timed count/checksum checks."
+  ]
+}

@@ -13,12 +13,14 @@ class DexKit;
 
 struct BenchmarkDiagnostics {
     static void Dump(const DexKit &bridge, const char *phase);
+    static void DumpCallerBuild(const DexKit &bridge, const char *phase);
     static void CheckMetadata(std::string_view apk);
     static void CheckSymbols(std::string_view apk);
     static void CheckDenseDescriptors(std::string_view apk);
     static void DumpSymbols(std::string_view apk);
     static void CheckRelations(std::string_view apk, bool dump);
     static void CheckInvocations(std::string_view apk, bool dump);
+    static void CheckCallers(std::string_view apk, bool dump);
     static void CheckSources(std::string_view apk, bool dump);
     static void CheckInvertedStrings(std::string_view apk);
     static void CheckStringAdmission(std::string_view apk);

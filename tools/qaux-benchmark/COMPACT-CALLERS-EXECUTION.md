@@ -1,0 +1,72 @@
+# Compact caller experiment
+
+Baseline: `6fc9595137773c20d8fc98c44f37c16146bb48f4`, using the existing
+Small profile plus SKIP_EMPTY_CANDIDATES and MOVE_FIND_RESULTS. Keep candidate
+pipeline/slicing OFF. This experiment changes caller storage and construction
+only; cross_info and field storage remain unchanged.
+
+- [x] Implement a default-OFF COMPACT_CALLERS option on both build paths.
+- [x] Validate exact ordered results, raw reference rows, late construction,
+      shared-query publication, stable spans, and size arithmetic.
+- [ ] Review the fixed implementation with Pro and resolve concrete issues.
+- [ ] Complete native/JAR/JVM and Android ABI checks before formal timing.
+- [ ] Measure QQ and bounded adverse workloads in balanced fresh processes,
+      then repeat the same cases in an independent confirmation.
+- [ ] Record retained bytes, temporary bytes, physical peak, lifecycle and
+      cold/warm API results, including regressions and unresolved intervals.
+
+## Construction contract
+
+Each DEX owns one size_t counter per method ID while callers are being built.
+Cold joint invocation/caller extraction counts during the existing instruction
+walk. Late caller construction counts the already published invocation rows.
+Identity resolution and its existing cursor/representative behavior stay intact.
+
+Allocate one exact final edge array per DEX and an M+1 size_t prefix directory.
+The source rows transferred by cross-DEX aggregation remain empty. Each target
+row contains its original local contribution first, followed by source DEX and
+pending-work order. Duplicate instructions remain duplicate edges.
+
+Reuse the count array as the fill cursor array. Each pending import retains its
+length until validation; this is additional temporary storage and must be counted.
+Assign disjoint destination segments before parallel fill, so completion order
+does not choose edge order. Reuse the existing warmup/publication barrier. Release
+all count/cursor and pending-import storage before publishing final callers.
+Later RW/full warmup must not relocate published caller spans.
+
+Use a trivial two-field edge record with the same logical u16/u32 values and
+8-byte layout on the current host. Its exact array can be allocated without
+zeroing every edge before the fill. The existing Hungarian matcher may borrow
+the immutable span, as other compact relations already do; report that effect
+as part of the representation change. No scheduler or exception recovery work
+belongs to this experiment.
+
+## Validation and measurement boundaries
+
+Use complete ordered FlatBuffer results on bounded fixtures and independent
+raw relation expectations. Cover local/cross-DEX repeated edges, unresolved
+references before resolvable members, duplicate definitions, empty source rows,
+zero rows, cold/joint/late/full initialization, 1/4 workers and retained views.
+Keep long rows, empty rows and many sources importing into one target as adverse
+cases. Check the option independently of compact forward invocation storage.
+
+Normal measurements disable metrics and diagnostics and use identical compiler
+settings. Do not compile while timing. Use six balanced pairs per case and one
+independent confirmation, retaining all accepted samples. Include QQ 1/11 passes
+and native cold/late caller construction, early/late/multiple matches and output.
+Freeze the exact finite measurement list after fixture validation and before
+the first timed run. Do not select cases afterward to hide regressions.
+
+Capacity accounting is separate from process physical memory. Report raw DEX,
+final directory and edge sizes, real edge counts/capacity, count/cursor storage,
+pending-import capacity and release state. A smaller final table does not by
+itself prove a lower build peak or faster complete lifecycle.
+
+Development validation: the existing relation checks and tiny/mixed/giant
+invocation checks pass, including the previously frozen 29-query outputs.
+Both new control/compact diagnostic builds pass the caller index component
+checks and the five-DEX fixture (29 methods, 31 ordered edges), whose authored
+raw-row oracle is independent of native output. Their full dumps match.
+The 1/4-worker cold/late/full and queued-query cases check source-row clearing,
+released temporary capacity and stable caller addresses through later RW/full.
+Platform checks and formal non-diagnostic measurements are still pending.

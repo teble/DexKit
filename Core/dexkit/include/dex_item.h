@@ -69,6 +69,9 @@
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
 #include "compact_field_index.h"
 #endif
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+#include "compact_caller_index.h"
+#endif
 
 namespace dexkit {
 
@@ -405,6 +408,9 @@ private:
         uint32_t source_method_idx;
         uint16_t target_dex_id;
         uint32_t target_method_idx;
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        size_t source_count;
+#endif
     };
 
     struct PendingAggregateFieldWorkItem {
@@ -546,7 +552,11 @@ private:
 #endif
     // local reverse edges are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+    CompactCallerIndex method_caller_ids;
+#else
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;
+#endif
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_get_method_ids;
     std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;
     // one-shot aggregate worklists: pre-resolved source->target bindings that also

@@ -1581,6 +1581,12 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
     auto thread_num = NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
 
     if ((aggregate_flags & kCallerMethod) != 0) {
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        BuildCompactCallers(thread_num);
+#else
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        BenchmarkDiagnostics::DumpCallerBuild(*this, "before_aggregate");
+#endif
         struct MethodAggregateWorkItem {
             uint16_t source_dex_id;
             uint32_t source_method_idx;
@@ -1654,6 +1660,10 @@ void DexKit::BuildCrossRefAggregates(uint32_t aggregate_flags) {
             source_dex->pending_aggregate_method_work_items.clear();
             source_dex->pending_aggregate_method_work_items.shrink_to_fit();
         }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        BenchmarkDiagnostics::DumpCallerBuild(*this, "released");
+#endif
+#endif
     }
 
     if ((aggregate_flags & kRwFieldMethod) != 0) {

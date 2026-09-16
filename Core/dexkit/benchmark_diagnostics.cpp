@@ -87,6 +87,31 @@ void Descriptors(Counts &count, const PagedDescriptorCache &values, const char *
 #endif
 }
 
+void BenchmarkDiagnostics::DumpCallerBuild(const DexKit &bridge, const char *phase) {
+    uint64_t directory = 0, payload = 0, counters = 0, pending = 0, edges = 0;
+    for (const auto &owner : bridge.dex_items) {
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        const auto &index = owner->method_caller_ids;
+        directory += index.offsets_.capacity() * sizeof(size_t);
+        payload += index.edges_ * sizeof(CompactCallerIndex::Entry);
+        counters += index.build_.capacity() * sizeof(size_t);
+        edges += index.edges_;
+#else
+        directory += owner->method_caller_ids.capacity() * sizeof(decltype(owner->method_caller_ids)::value_type);
+        for (const auto &row : owner->method_caller_ids) {
+            payload += row.capacity() * sizeof(std::pair<uint16_t, uint32_t>);
+            edges += row.size();
+        }
+#endif
+        pending += owner->pending_aggregate_method_work_items.capacity() * sizeof(DexItem::PendingAggregateMethodWorkItem);
+    }
+    std::fprintf(stderr,
+        "BENCH_CALLER_BUILD {\"phase\":\"%s\",\"directory_bytes\":%llu,\"payload_capacity_bytes\":%llu,"
+        "\"count_cursor_capacity_bytes\":%llu,\"pending_capacity_bytes\":%llu,\"final_edges\":%llu}\n",
+        phase, (unsigned long long)directory, (unsigned long long)payload, (unsigned long long)counters,
+        (unsigned long long)pending, (unsigned long long)edges);
+}
+
 void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
     const auto begin = std::chrono::steady_clock::now();
     std::map<std::string, Counts> counts;
@@ -167,7 +192,38 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #else
         Rows(counts["invokes"], item.method_invoking_ids);
 #endif
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        const auto &caller_index = item.method_caller_ids;
+        auto &callers = counts["callers"];
+        callers.index_bytes += caller_index.offsets_.capacity() * sizeof(size_t);
+        callers.payload_bytes += caller_index.edges_ * sizeof(CompactCallerIndex::Entry);
+        callers.entries += caller_index.size();
+        callers.buffers += (caller_index.offsets_.capacity() != 0) + (caller_index.edges_ != 0);
+        for (size_t method = 0; method < caller_index.size(); ++method) callers.ready += !caller_index[method].empty();
+        Flat(counts["caller_build"], caller_index.build_);
+#else
         Rows(counts["callers"], item.method_caller_ids);
+#endif
+        if (!item.method_caller_ids.empty()) {
+            uint64_t hash = 14695981039346656037ULL, edges = 0, largest = 0;
+            auto append = [&hash](uint64_t value, size_t bytes) {
+                for (size_t i = 0; i < bytes; ++i) {
+                    hash = (hash ^ (value & 255)) * 1099511628211ULL;
+                    value >>= 8;
+                }
+            };
+            for (size_t method = 0; method < item.method_caller_ids.size(); ++method) {
+                const auto &row = item.method_caller_ids[method];
+                edges += row.size();
+                largest = std::max<uint64_t>(largest, row.size());
+                append(row.size(), 8);
+                for (auto [dex, caller] : row) { append(dex, 2); append(caller, 4); }
+            }
+            std::fprintf(stderr, "BENCH_CALLER_ROWS {\"phase\":\"%s\",\"dex\":%u,\"rows\":%zu,"
+                "\"edges\":%llu,\"largest_row\":%llu,\"ordered_hash\":\"%016llx\"}\n",
+                phase, item.dex_id, item.method_caller_ids.size(), (unsigned long long)edges,
+                (unsigned long long)largest, (unsigned long long)hash);
+        }
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
         const auto &field_index = item.method_using_field_ids;
         auto &fields = counts["using_fields"];

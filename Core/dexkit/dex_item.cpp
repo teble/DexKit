@@ -334,8 +334,12 @@ void DexItem::InitCache(uint32_t init_flags) {
         need_foreach_method = true;
     }
     if (need_method_caller) {
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        method_caller_ids.BeginCounts(reader.MethodIds().size());
+#else
         method_caller_ids.resize(reader.MethodIds().size());
         need_foreach_method = true;
+#endif
     }
     if (need_method_using_string) {
         method_using_string_ids.resize(reader.MethodIds().size());
@@ -465,6 +469,9 @@ void DexItem::InitCache(uint32_t init_flags) {
                             || (op >= 0x74 && op <= 0x78)) { // invoke-kind/range
                             auto index = ReadShort(ptr);
                             method_invoking_ptr->emplace_back(index);
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+                            if (need_method_caller) method_caller_ids.Count(index);
+#endif
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES && DEXKIT_BENCHMARK_DIAGNOSTICS
                             method_invoking_ids.ObserveAppend();
 #endif
@@ -491,13 +498,27 @@ void DexItem::InitCache(uint32_t init_flags) {
     }
 
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
-    if (need_field_rw_method) {
+    if (need_field_rw_method || need_method_caller) {
         std::fprintf(stderr, "BENCH_INSTRUCTION_WALK {\"dex\":%u,\"flags\":%u,\"rw_only\":%s,\"walk\":%s,\"methods\":%llu,\"instructions\":%llu}\n",
                      dex_id, init_flags, rw_only ? "true" : "false", need_foreach_method ? "true" : "false",
                      static_cast<unsigned long long>(walked_methods), static_cast<unsigned long long>(walked_instructions));
     }
 #endif
     if (need_method_caller) {
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        // Joint cold extraction counted at the invoke instruction above. Late
+        // caller construction only reads the already published forward rows.
+        if (!need_method_invoking) {
+            for (const auto &class_def : reader.ClassDefs())
+                for (auto method_id : class_method_ids[class_def.class_idx])
+                    for (auto invoke_id : method_invoking_ids[method_id])
+                        method_caller_ids.Count(invoke_id);
+        }
+#if DEXKIT_BENCHMARK_DIAGNOSTICS
+        std::fprintf(stderr, "BENCH_CALLER_COUNT {\"dex\":%u,\"source\":\"%s\"}\n",
+                     dex_id, need_method_invoking ? "instruction" : "forward");
+#endif
+#else
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
                 for (auto invoke_id: method_invoking_ids[method_id]) {
@@ -505,6 +526,7 @@ void DexItem::InitCache(uint32_t init_flags) {
                 }
             }
         }
+#endif
     }
 
     if (need_field_rw_method) {
@@ -669,11 +691,19 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+                    const auto source_count = method_caller_ids.LocalCount(curr_method_idx);
+                    if (source_count != 0) {
+#else
                     if (!method_caller_ids[curr_method_idx].empty()) {
+#endif
                         pending_aggregate_method_work_items.emplace_back(PendingAggregateMethodWorkItem{
                                 .source_method_idx = curr_method_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
-                                .target_method_idx = origin_method_idx
+                                .target_method_idx = origin_method_idx,
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+                                .source_count = source_count,
+#endif
                         });
                     }
                     ++cur_i;

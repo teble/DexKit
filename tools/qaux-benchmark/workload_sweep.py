@@ -19,6 +19,9 @@ CANDIDATE_MODES = ['candidate-' + case + '-w' + str(workers) + suffix
                    for case in ['method-multiple', 'class-multiple', 'method-equal-one', 'method-prefix-one',
                                 'class-one', 'method-empty', 'method-nested']
                    for workers in [1, 4] for suffix in ['', '-warm']]
+CALLER_BUILD_MODES = ['caller-' + case + '-' + stage + '-w' + str(workers)
+                     for case in ['match', 'early', 'multiple', 'output']
+                     for stage in ['cold', 'late', 'full'] for workers in [1, 4]]
 
 
 def sha(path):
@@ -51,7 +54,7 @@ def main():
                                          'string-prefix-tail', 'string-prefix-multiple', 'string-prefix-class', 'string-prefix-sparse',
                                          'string-class', 'string-sparse', 'string-contains', 'string-multiple', 'string-nested-broad',
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
-                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES, required=True)
+                                         'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES + CALLER_BUILD_MODES, required=True)
     parser.add_argument('--repeats', type=int, required=True)
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
@@ -134,6 +137,10 @@ def main():
                        pass0_api_ms=report['first_ns'] / 1e6, repeated_api_ms=report['repeated_ns'] / 1e6)
             for part in ['forward_first', 'forward_repeated', 'reverse_first', 'reverse_repeated']:
                 if part + '_ns' in report: row[part + '_ms'] = report[part + '_ns'] / 1e6
+            for part in ['forward_build', 'caller_build']:
+                if part + '_ns' in report: row[part + '_ms'] = report[part + '_ns'] / 1e6
+            for part in ['warm_footprint_bytes', 'warm_malloc_in_use_bytes', 'closed_footprint_bytes', 'closed_malloc_in_use_bytes']:
+                if report.get(part, -1) >= 0: row[part] = report[part]
             for metric, title in [('max_rss_bytes', 'maximum resident set size'), ('peak_footprint_bytes', 'peak memory footprint')]:
                 match = re.search(r'^\s*(\d+)\s+' + title + r'\s*$', run.stdout, re.M)
                 if not match:
@@ -150,7 +157,9 @@ def main():
                   metrics=summarize(rows, labels, args.pairs, args.seed,
                       metrics=['lifecycle_ms','create_ms','setup_ms','close_ms','pass0_api_ms',
                                'repeated_api_ms','positive_ms','negative_ms','max_rss_bytes','peak_footprint_bytes',
-                               'forward_first_ms','forward_repeated_ms','reverse_first_ms','reverse_repeated_ms']))
+                               'forward_first_ms','forward_repeated_ms','reverse_first_ms','reverse_repeated_ms',
+                               'forward_build_ms','caller_build_ms','warm_footprint_bytes','warm_malloc_in_use_bytes',
+                               'closed_footprint_bytes','closed_malloc_in_use_bytes']))
     (args.output / 'summary.json').write_text(json.dumps(result, indent=2) + '\n')
     for metric, value in result['metrics'].items():
         print(metric, f'{value["median_change_percent"]:+.2f}%', value['bootstrap95_percent'])

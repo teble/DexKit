@@ -39,6 +39,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=${providers.gradleProperty('experimentDescriptorFastHits').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_INTERFACES=${providers.gradleProperty('experimentRawInterfaces').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_COMPACT_INVOKES=${providers.gradleProperty('experimentCompactInvokes').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_COMPACT_CALLERS=${providers.gradleProperty('experimentCompactCallers').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_RAW_SOURCE_FILES=${providers.gradleProperty('experimentRawSourceFiles').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_SINGLE_RELATION=${providers.gradleProperty('experimentSingleRelation').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=${providers.gradleProperty('experimentFieldIdentitySplit').getOrElse('OFF')}"

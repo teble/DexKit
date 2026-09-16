@@ -113,6 +113,7 @@ public:
     void PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint32_t type_idx);
 
 private:
+    friend struct CallerBenchmark;
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     friend struct BenchmarkDiagnostics;
     std::atomic<uint64_t> benchmark_aggregate_calls{0};
@@ -161,6 +162,9 @@ private:
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
     void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;
     void BuildCrossRefAggregates(uint32_t aggregate_flags);
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+    void BuildCompactCallers(uint32_t thread_num);
+#endif
 
 #if DEXKIT_ENABLE_INTERNAL_METRICS
     static constexpr size_t kQueryMetricsHistoryCapacity = 256;

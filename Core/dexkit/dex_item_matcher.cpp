@@ -34,7 +34,7 @@
 
 namespace dexkit {
 
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS || DEXKIT_EXPERIMENT_COMPACT_CALLERS
 template<typename T, typename U, typename Targets = std::vector<T>>
 #else
 template<typename T, typename U>
@@ -42,7 +42,7 @@ template<typename T, typename U>
 class Hungarian {
 private:
     std::vector<U> left;
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS || DEXKIT_EXPERIMENT_COMPACT_CALLERS
     Targets right;
 #else
     std::vector<T> right;
@@ -53,7 +53,7 @@ private:
     std::function<bool(T&, U&)> judge;
     bool fast_fail = false;
 public:
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS || DEXKIT_EXPERIMENT_COMPACT_CALLERS
     Hungarian(const Targets &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
 #else
     Hungarian(const std::vector<T> &targets, const std::vector<U> &matchers, std::function<bool(T&, U&)> match) {
@@ -78,7 +78,7 @@ public:
         for (int j = 0; j < right.size(); ++j) {
             if (vis[j]) continue;
             if (!map[i][j]) {
-#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS
+#if DEXKIT_EXPERIMENT_RAW_INTERFACES || DEXKIT_EXPERIMENT_COMPACT_INVOKES || DEXKIT_EXPERIMENT_COMPACT_FIELDS || DEXKIT_EXPERIMENT_COMPACT_CALLERS
                 if constexpr (!std::is_same_v<Targets, std::vector<T>>) {
                     auto target = right[j];
                     map[i][j] = judge(target, left[i]) ? 1 : -1;
@@ -2132,7 +2132,8 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
         if (matcher->methods()->size() > ids.size()) {
             return false;
         }
-        auto IsMethodMatched = [this](std::pair<uint16_t, uint32_t> method_info, const schema::MethodMatcher *matcher) {
+        using Caller = typename std::decay_t<decltype(ids)>::value_type;
+        auto IsMethodMatched = [this](Caller method_info, const schema::MethodMatcher *matcher) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
             RelationJudgeTrace::Observe(method_info.first, method_info.second);
 #endif
@@ -2166,7 +2167,11 @@ bool DexItem::IsCallMethodsMatched(uint32_t method_idx, const schema::MethodsMat
         });
 
         auto &method_matchers = *ptr;
-        Hungarian<std::pair<uint16_t, uint32_t>, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
+#if DEXKIT_EXPERIMENT_COMPACT_CALLERS
+        Hungarian<Caller, const schema::MethodMatcher *, std::span<const Caller>> hungarian(ids, method_matchers, IsMethodMatched);
+#else
+        Hungarian<Caller, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
+#endif
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
             return false;

@@ -96,7 +96,9 @@ class HybridDescriptorCache {
         std::unique_ptr<Payload> payload;
         Map sparse;
         std::unique_ptr<DenseIndex> dense_owner;
-        std::atomic<DenseIndex *> published_dense{nullptr};
+        // Publish the fixed slot array directly, retaining the same owner and
+        // allocation sizes so readers skip only the owner-to-slots load.
+        std::atomic<Pointer *> published_slots{nullptr};
     };
     struct Shard {
         mutable std::mutex mutex;
@@ -143,11 +145,11 @@ class HybridDescriptorCache {
         for (size_t i = 0; i < slots; ++i) dense->slots[i].store(nullptr, std::memory_order_relaxed);
         for (const auto &[id, value] : domain.sparse)
             dense->slots[id / kShards].store(value, std::memory_order_relaxed);
-        auto *published = dense.get();
+        auto *published = dense->slots.get();
         domain.dense_owner = std::move(dense);
         domain.sparse.clear();
         domain.sparse.rehash(0); // clear alone retains buckets in bundled phmap.
-        domain.published_dense.store(published, std::memory_order_release);
+        domain.published_slots.store(published, std::memory_order_release);
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
         ++counters.promotions;
         counters.promotion_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -165,12 +167,12 @@ class HybridDescriptorCache {
 #endif
         std::lock_guard lock(shard.mutex);
         auto &domain = shard.domains[kind];
-        DenseIndex *dense = nullptr;
+        Pointer *dense = nullptr;
         // A caller can observe sparse, wait for a converter, then acquire this
         // lock after sparse buckets have been freed. Always recheck here.
-        if constexpr (Promote) dense = domain.published_dense.load(std::memory_order_acquire);
+        if constexpr (Promote) dense = domain.published_slots.load(std::memory_order_acquire);
         const std::string *found = nullptr;
-        if (dense) found = dense->slots[index / kShards].load(std::memory_order_acquire);
+        if (dense) found = dense[index / kShards].load(std::memory_order_acquire);
         else if (auto it = domain.sparse.find(index); it != domain.sparse.end()) found = it->second;
         if (found) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -196,7 +198,7 @@ class HybridDescriptorCache {
         else { domain.counters.char_bytes += value->capacity() + 1; ++domain.counters.char_buffers; }
 #endif
         if (dense) {
-            dense->slots[index / kShards].store(value, std::memory_order_release);
+            dense[index / kShards].store(value, std::memory_order_release);
         } else {
             const auto old_capacity = domain.sparse.capacity();
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
@@ -232,8 +234,8 @@ public:
         if (index >= limits_[kind]) std::abort();
         if constexpr (Promote) {
             auto &domain = shards_[index % kShards].domains[kind];
-            if (auto *dense = domain.published_dense.load(std::memory_order_acquire)) {
-                if (auto *value = dense->slots[index / kShards].load(std::memory_order_acquire)) {
+            if (auto *dense = domain.published_slots.load(std::memory_order_acquire)) {
+                if (auto *value = dense[index / kShards].load(std::memory_order_acquire)) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
                     domain.counters.calls.fetch_add(1, std::memory_order_relaxed);
                     domain.counters.hits.fetch_add(1, std::memory_order_relaxed);
@@ -277,7 +279,7 @@ public:
             std::unique_ptr<NormalPayload> payload;
             Map sparse;
             std::unique_ptr<DenseIndex> dense_owner;
-            std::atomic<DenseIndex *> published_dense;
+            std::atomic<Pointer *> published_slots;
         };
         struct NormalShard { std::mutex mutex; std::array<NormalDomain, 2> domains; };
         struct NormalCache {

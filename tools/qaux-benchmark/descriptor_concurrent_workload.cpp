@@ -35,22 +35,16 @@ uint64_t Query(DexKit &bridge) {
     Require(bridge.GetFieldData("Lfixture/Api;->a:F") == nullptr);
     return checksum;
 }
-} // namespace
-
-int main(int argc, char **argv) {
-    if (argc != 4) {
-        std::fprintf(stderr, "Usage: dexkit_descriptor_concurrent_workload symbols.apk warm_repeats calling_threads\n");
-        return 2;
-    }
-    char *end = nullptr;
-    const auto repeats = std::strtoull(argv[2], &end, 10);
-    Require(end && *end == '\0' && repeats > 0 && repeats <= 1000000);
-    const auto workers = std::strtoull(argv[3], &end, 10);
-    Require(end && *end == '\0' && (workers == 1 || workers == 4));
-    const auto lifecycle_start = Clock::now();
+struct Statistics {
+    int64_t create = 0, setup = 0, first = 0, warm = 0, close = 0;
+    uint64_t checksum = 0;
+};
+Statistics Run(const char *apk, size_t repeats, size_t workers) {
+    Statistics stats;
     auto begin = Clock::now();
-    auto bridge = std::make_unique<DexKit>(argv[1], 1);
-    const auto create = Ns(begin);
+    auto bridge = std::make_unique<DexKit>(apk, 1);
+    stats.create = Ns(begin);
+    begin = Clock::now();
     bridge->SetThreadNum(workers);
     // Stage barriers measure wall time. Four calling threads really issue
     // public APIs together; SetThreadNum alone would not exercise cache locks.
@@ -65,24 +59,43 @@ int main(int argc, char **argv) {
         for (size_t i = 0; i < repeats; ++i) checksums[worker] += Query(*bridge);
         stages.arrive_and_wait();
     });
+    stats.setup = Ns(begin);
     begin = Clock::now();
     stages.arrive_and_wait(); stages.arrive_and_wait();
-    const auto first = Ns(begin);
+    stats.first = Ns(begin);
     begin = Clock::now();
     stages.arrive_and_wait(); stages.arrive_and_wait();
-    const auto warm = Ns(begin);
+    stats.warm = Ns(begin);
     for (auto &thread : threads) thread.join();
-    uint64_t checksum = 0;
-    for (const auto value : checksums) { Require(value == checksums[0]); checksum += value; }
+    for (const auto value : checksums) { Require(value == checksums[0]); stats.checksum += value; }
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     BenchmarkDiagnostics::Dump(*bridge, "concurrent-workload-complete");
 #endif
     begin = Clock::now();
     bridge.reset();
-    const auto close = Ns(begin), lifecycle = Ns(lifecycle_start);
+    stats.close = Ns(begin);
+    return stats;
+}
+} // namespace
+
+int main(int argc, char **argv) {
+    if (argc != 4) {
+        std::fprintf(stderr, "Usage: dexkit_descriptor_concurrent_workload symbols.apk warm_repeats calling_threads\n");
+        return 2;
+    }
+    char *end = nullptr;
+    const auto repeats = std::strtoull(argv[2], &end, 10);
+    Require(end && *end == '\0' && repeats > 0 && repeats <= 1000000);
+    const auto workers = std::strtoull(argv[3], &end, 10);
+    Require(end && *end == '\0' && (workers == 1 || workers == 4));
+    const auto lifecycle_start = Clock::now();
+    const auto stats = Run(argv[1], repeats, workers);
+    // Includes destruction of the thread and checksum containers and barriers.
+    const auto lifecycle = Ns(lifecycle_start);
     std::printf("WORKLOAD {\"mode\":\"lookup-concurrent\",\"repeats\":%llu,\"calling_threads\":%llu,"
-        "\"create_ns\":%lld,\"first_ns\":%lld,\"repeated_ns\":%lld,\"close_ns\":%lld,\"lifecycle_ns\":%lld,"
-        "\"checksum\":%llu,\"returned\":%llu}\n", repeats, workers, (long long)create, (long long)first,
-        (long long)warm, (long long)close, (long long)lifecycle, (unsigned long long)checksum,
+        "\"create_ns\":%lld,\"setup_ns\":%lld,\"first_ns\":%lld,\"repeated_ns\":%lld,\"close_ns\":%lld,\"lifecycle_ns\":%lld,"
+        "\"checksum\":%llu,\"returned\":%llu}\n", repeats, workers, (long long)stats.create,
+        (long long)stats.setup, (long long)stats.first, (long long)stats.warm, (long long)stats.close,
+        (long long)lifecycle, (unsigned long long)stats.checksum,
         (repeats + 1) * workers * 2);
 }

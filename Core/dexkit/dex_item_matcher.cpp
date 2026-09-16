@@ -1919,9 +1919,9 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
         return true;
     }
     DEXKIT_CHECK(!method_using_field_ids.empty());
-    auto IsUsingFieldMatched = [this](std::pair<uint32_t, bool> field, const schema::UsingFieldMatcher *matcher) {
+    auto IsUsingFieldMatched = [this](FieldUse field, const schema::UsingFieldMatcher *matcher) {
         DEXKIT_FIELD_COUNT(judges, 1);
-        return this->IsUsingFieldMatched(field, matcher);
+        return this->IsUsingFieldMatched(DecodeFieldUse(field), matcher);
     };
     const auto &using_fields = this->method_using_field_ids[method_idx];
     DEXKIT_FIELD_COUNT(row_items, using_fields.size());
@@ -1956,10 +1956,10 @@ bool DexItem::IsUsingFieldsMatched(uint32_t method_idx, const schema::MethodMatc
     DEXKIT_FIELD_COUNT(solver_calls, 1);
     DEXKIT_FIELD_COUNT(prepared_items, using_field_matchers.size() <= using_fields.size() ? using_fields.size() : 0);
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
-    Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *,
-              std::span<const std::pair<uint32_t, bool>>> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
+    Hungarian<FieldUse, const schema::UsingFieldMatcher *,
+              std::span<const FieldUse>> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
 #else
-    Hungarian<std::pair<uint32_t, bool>, const schema::UsingFieldMatcher *> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
+    Hungarian<FieldUse, const schema::UsingFieldMatcher *> hungarian(using_fields, using_field_matchers, IsUsingFieldMatched);
 #endif
     auto count = hungarian.solve();
     if (count != using_field_matchers.size()) {

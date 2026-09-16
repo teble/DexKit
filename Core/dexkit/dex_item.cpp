@@ -389,7 +389,7 @@ void DexItem::InitCache(uint32_t init_flags) {
 
                 std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
                 std::vector<uint32_t> *method_using_string_ptr = nullptr;
-                std::vector<std::pair<uint32_t, bool>> *method_using_field_ptr = nullptr;
+                std::vector<FieldUse> *method_using_field_ptr = nullptr;
                 std::vector<uint32_t> *method_invoking_ptr = nullptr;
                 std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
 
@@ -537,8 +537,7 @@ void DexItem::InitCache(uint32_t init_flags) {
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
                 for (auto &field_using: method_using_field_ids[method_id]) {
-                    auto field_id = field_using.first;
-                    auto is_getter = field_using.second;
+                    const auto [field_id, is_getter] = DecodeFieldUse(field_using);
                     if (is_getter) {
                         field_get_method_ids[field_id].emplace_back(dex_id, method_id);
                     } else {
@@ -1262,9 +1261,10 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
     const auto &method_using_fields = this->method_using_field_ids[method_idx];
     std::vector<UsingFieldBean> using_fields;
     using_fields.reserve(method_using_fields.size());
-    for (auto [method_id, is_getting]: method_using_fields) {
+    for (auto field_use: method_using_fields) {
+        const auto [field_id, is_getting] = DecodeFieldUse(field_use);
         UsingFieldBean bean;
-        bean.field = GetFieldBean(method_id);
+        bean.field = GetFieldBean(field_id);
         bean.is_getting = is_getting;
         using_fields.emplace_back(bean);
     }

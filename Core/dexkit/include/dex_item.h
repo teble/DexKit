@@ -46,6 +46,7 @@
 #include "analyze.h"
 #include "descriptor_diagnostics.h"
 #include "cross_ref.h"
+#include "field_use.h"
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
 #include "inverted_string_index.h"
 #endif
@@ -559,7 +560,7 @@ private:
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
     CompactFieldIndex method_using_field_ids;
 #else
-    std::vector<std::vector<std::pair<uint32_t /*field_id*/, bool /*is_getting*/>>> method_using_field_ids;
+    std::vector<std::vector<FieldUse>> method_using_field_ids;
 #endif
     // local reverse edges are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase

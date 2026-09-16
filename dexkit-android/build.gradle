@@ -51,6 +51,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES=${providers.gradleProperty('experimentBatchStringIncludes').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_SINGLE_USING_FIELD=${providers.gradleProperty('experimentSingleUsingField').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_COMPACT_FIELDS=${providers.gradleProperty('experimentCompactFields').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_PACKED_FIELD_USES=${providers.gradleProperty('experimentPackedFieldUses').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_SKIP_RW_WALK=${providers.gradleProperty('experimentSkipRwWalk').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_INVERTED_STRINGS=${providers.gradleProperty('experimentInvertedStrings').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_INVERTED_STRING_RANGES=${providers.gradleProperty('experimentInvertedStringRanges').getOrElse('OFF')}"

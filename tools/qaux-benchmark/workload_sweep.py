@@ -45,7 +45,9 @@ def main():
     parser.add_argument('--fixture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--variant', nargs=2, action='append', metavar=('LABEL', 'ARTIFACT'), required=True)
-    parser.add_argument('--mode', choices=['output', 'output-sso', 'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
+    parser.add_argument('--mode', choices=['output', 'output-sso', 'output-sso-prefix', 'output-sso-scattered',
+                                         'output-sso-shard', 'lookup-concurrent-w1', 'lookup-concurrent-w4',
+                                         'lookup', 'lookup-prefix', 'lookup-hot', 'interfaces',
                                          'field-forward', 'field-late', 'field-full-first',
                                          'invoke-output', 'caller-output', 'invoke-match', 'caller-match',
                                          'invoke-early', 'caller-early', 'invoke-multiple', 'caller-multiple',
@@ -60,6 +62,7 @@ def main():
     parser.add_argument('--seed', type=int, default=2026091511)
     args = parser.parse_args()
     labels = [v[0] for v in args.variant]
+    concurrent = args.mode.startswith('lookup-concurrent-w')
     if len(labels) != 2 or len(set(labels)) != 2 or args.pairs < 2 or not 2 <= args.repeats <= 100000:
         raise SystemExit('Use two distinct labels, at least two pairs and 2..100000 repetitions.')
     if any(not label.replace('-', '').replace('_', '').isalnum() for label in labels):
@@ -80,7 +83,8 @@ def main():
         batch = args.mode.startswith('batch-')
         field = args.mode.startswith('using-')
         relation = args.mode.startswith('field-') or invocation
-        executable = artifact / ('build/Core/dexkit_candidate_workload' if candidate else
+        executable = artifact / ('build/Core/dexkit_descriptor_concurrent_workload' if concurrent else
+                                 'build/Core/dexkit_candidate_workload' if candidate else
                                  'build/Core/dexkit_field_workload' if field else
                                  'build/Core/dexkit_batch_workload' if batch else
                                  'build/Core/dexkit_string_admission_workload' if admission else
@@ -117,6 +121,8 @@ def main():
             if sha(executable) != variant['executable_sha256'] or sha(args.fixture) != fixture_hash:
                 raise SystemExit('Input changed during the sweep.')
             command = ['/usr/bin/time', '-l', str(executable), str(args.fixture.resolve()), args.mode, str(args.repeats)]
+            if concurrent:
+                command[-2:] = [str(args.repeats), args.mode[-1]]
             run = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=300)
             (args.output / f'pair-{pair:02d}-{variant["label"]}.log').write_text(run.stdout)
             if run.returncode:
@@ -128,13 +134,16 @@ def main():
             identity = (report['mode'], report['repeats'], report['checksum'], report['returned'])
             if expected is None:
                 expected = identity
-            if identity != expected or report['mode'] != args.mode or report['repeats'] != args.repeats:
+            expected_mode = 'lookup-concurrent' if concurrent else args.mode
+            if (identity != expected or report['mode'] != expected_mode or report['repeats'] != args.repeats
+                    or (concurrent and report['calling_threads'] != int(args.mode[-1]))):
                 raise SystemExit('Workload result identity differs.')
             row = dict(pair=pair, position=position, label=variant['label'], report=report,
                        lifecycle_ms=report['lifecycle_ns'] / 1e6, create_ms=report['create_ns'] / 1e6,
                        close_ms=report['close_ns'] / 1e6, setup_ms=report['setup_ns'] / 1e6,
-                       positive_ms=report['positive_ns'] / 1e6, negative_ms=report['negative_ns'] / 1e6,
                        pass0_api_ms=report['first_ns'] / 1e6, repeated_api_ms=report['repeated_ns'] / 1e6)
+            for part in ['positive', 'negative']:
+                if part + '_ns' in report: row[part + '_ms'] = report[part + '_ns'] / 1e6
             for part in ['forward_first', 'forward_repeated', 'reverse_first', 'reverse_repeated']:
                 if part + '_ns' in report: row[part + '_ms'] = report[part + '_ns'] / 1e6
             for part in ['forward_build', 'caller_build']:

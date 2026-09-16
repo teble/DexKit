@@ -1,5 +1,6 @@
 #pragma once
 
+#include "field_use.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -15,7 +16,7 @@ namespace dexkit {
 // Append directly in method traversal order; preserve every field use.
 class CompactFieldIndex {
 public:
-    using Use = std::pair<uint32_t, bool>;
+    using Use = FieldUse;
 
     void resize(size_t methods) {
         offsets_.resize(methods);

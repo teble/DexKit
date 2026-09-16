@@ -101,3 +101,24 @@ bytes. The character capacity is unchanged at 196369 bytes. Node totals include
 diagnostic counters are reported separately. The largest old+new bucket pair of
 any individual table is 216 bytes, not a process-wide peak. Formal measurements
 must still include full-coverage SSO, long output, lookup, close and physical peak.
+
+The field-use prototype keeps each method's vector and its append order. A
+checked uint32_t token encodes the currently supported 16-bit instruction field
+ID and Get/Put direction. Every forward getter, reverse builder and matcher
+decodes at its existing boundary. The Hungarian solver still copies its target
+vector; copying four-byte tokens instead of eight-byte pairs is part of this
+representation change. No new single-requirement shortcut is enabled. The type
+also composes with the old contiguous field experiment, which remains OFF in
+the primary comparisons.
+
+Small14 control and packed field development builds passed 42 driver commands,
+including four independent field fixture checks with both variants and complete
+frozen bytes. The boundary component covers all 65536 IDs with both directions,
+duplicates and vector relocation; values 65536 and UINT32_MAX abort instead of
+wrapping. QQ ordered verification and field-adverse relation bytes also match.
+
+The concurrent descriptor harness now measures lifecycle outside its worker
+container scope, so thread/checksum containers and barriers are destroyed before
+the final sample. Setup is reported separately. The paired harness admits sparse
+descriptor modes and 1/4 actual calling-thread modes and leaves unmeasured
+positive/negative breakdowns absent rather than fabricating timing values.

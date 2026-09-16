@@ -49,6 +49,7 @@ option(DEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES "Check batch keyword containment 
 option(DEXKIT_BENCHMARK_BATCH_TRACE "Count batch group and intersection work per DEX task" OFF)
 option(DEXKIT_EXPERIMENT_SINGLE_USING_FIELD "Match one using-field requirement without a general solver" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_FIELDS "Build forward field-use rows in contiguous storage" OFF)
+option(DEXKIT_EXPERIMENT_PACKED_FIELD_USES "Store each field use in a checked 32-bit token" OFF)
 option(DEXKIT_EXPERIMENT_SKIP_RW_WALK "Skip instruction traversal when only reverse field relations need it" OFF)
 option(DEXKIT_EXPERIMENT_INVERTED_STRINGS "Generate string-query candidates from compact reverse references" OFF)
 option(DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES "Admit guarded root ranges with at most one already-indexed string reference" OFF)
@@ -136,6 +137,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_BENCHMARK_BATCH_TRACE=$<BOOL:${DEXKIT_BENCHMARK_BATCH_TRACE}>
         DEXKIT_EXPERIMENT_SINGLE_USING_FIELD=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_USING_FIELD}>
         DEXKIT_EXPERIMENT_COMPACT_FIELDS=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_FIELDS}>
+        DEXKIT_EXPERIMENT_PACKED_FIELD_USES=$<BOOL:${DEXKIT_EXPERIMENT_PACKED_FIELD_USES}>
         DEXKIT_EXPERIMENT_SKIP_RW_WALK=$<BOOL:${DEXKIT_EXPERIMENT_SKIP_RW_WALK}>
         DEXKIT_EXPERIMENT_INVERTED_STRINGS=$<BOOL:${DEXKIT_EXPERIMENT_INVERTED_STRINGS}>
         DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES=$<BOOL:${DEXKIT_EXPERIMENT_INVERTED_STRING_RANGES}>
@@ -168,6 +170,9 @@ option(DEXKIT_BENCHMARK_STRING_WORKLOAD "Build ordinary usingStrings checks and 
 option(DEXKIT_BENCHMARK_BATCH_WORKLOAD "Build batch usingStrings checks and workloads" OFF)
 option(DEXKIT_BENCHMARK_FIELD_WORKLOAD "Build using-field checks and workloads" OFF)
 if (DEXKIT_BENCHMARK_FIELD_WORKLOAD)
+    add_executable(dexkit_field_use_checks ../tools/qaux-benchmark/field_use_checks.cpp)
+    target_compile_options(dexkit_field_use_checks PRIVATE -fno-exceptions)
+    target_link_libraries(dexkit_field_use_checks PRIVATE dexkit_static)
     add_executable(dexkit_field_checks ../tools/qaux-benchmark/field_checks.cpp)
     target_link_libraries(dexkit_field_checks PRIVATE dexkit_static)
     add_executable(dexkit_field_workload ../tools/qaux-benchmark/field_workload.cpp)

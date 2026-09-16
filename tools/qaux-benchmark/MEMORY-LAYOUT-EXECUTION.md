@@ -122,3 +122,14 @@ container scope, so thread/checksum containers and barriers are destroyed before
 the final sample. Setup is reported separately. The paired harness admits sparse
 descriptor modes and 1/4 actual calling-thread modes and leaves unmeasured
 positive/negative breakdowns absent rather than fabricating timing values.
+
+Normal timing artifacts were built from `62687fb6f0fef745f3614124650d45924293fd6c`
+for control, each of the three additions, cross+field, and all three together.
+No timing samples have been taken yet. A subsequent diagnostic-only correction
+accounts for alignment padding: on armeabi-v7a, subtracting counter member sizes
+from the diagnostic object overstates the normal object by 132 bytes per DEX.
+The diagnostic now uses the actual equivalent non-diagnostic layout. Separate
+normal/diagnostic compile probes agree for macOS arm64 and all four Android
+ABIs (normal object sizes: 5144, 4376, 1676, 1676, 4376 bytes respectively).
+The macOS census numbers above are unchanged; this correction is compiled out
+of normal artifacts.

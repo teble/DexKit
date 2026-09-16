@@ -100,13 +100,24 @@ public:
         std::array<size_t, 2> limits;
         size_t fixed_bytes = 0, instrumentation_bytes = 0;
     };
+    static constexpr size_t FixedObjectBytes() {
+        // Counters can increase Shard alignment on 32-bit ARM. Subtracting
+        // their member sizes alone would leave diagnostic padding in the total.
+        struct NormalShard { std::mutex mutex; std::array<Map, 2> maps; };
+        struct NormalCache {
+            std::array<NormalShard, kShards> shards;
+            std::array<size_t, 2> limits;
+            bool initialized;
+        };
+        return sizeof(NormalCache);
+    }
     // Diagnostics run after queries drain; locks also make each table snapshot
     // safe on its own. The aggregate is not a concurrent point-in-time snapshot.
     Statistics GetStatistics() const {
         Statistics stats{};
         stats.limits = limits_;
-        stats.instrumentation_bytes = kShards * sizeof(Shard::counters);
-        stats.fixed_bytes = sizeof(*this) - stats.instrumentation_bytes;
+        stats.fixed_bytes = FixedObjectBytes();
+        stats.instrumentation_bytes = sizeof(*this) - stats.fixed_bytes;
         for (size_t i = 0; i < kShards; ++i) {
             const auto &shard = shards_[i];
             std::lock_guard lock(shard.mutex);

@@ -75,7 +75,7 @@ threshold or adding access-frequency adaptation to this experiment.
 
 - [x] Read and locally check the focused Pro design and primary deque contract.
 - [x] Finish and preserve the preceding fixed memory-layout evidence.
-- [ ] Implement the lazy-deque sparse-only and single-rule hybrid variants,
+- [x] Implement the lazy-deque sparse-only and single-rule hybrid variants,
       default OFF, preserving current formatting, local IDs and lookup semantics.
 - [ ] Validate threshold-before/at/after, N=0/1/31/32/33 and nonmultiples,
       unequal member domains, last IDs, actual stale-sparse-reader interleaving,
@@ -93,3 +93,27 @@ threshold or adding access-frequency adaptation to this experiment.
 The sparse-only comparison is necessary to separate payload/flat-index changes
 from conversion and the extra state check. This document is a design and work
 plan, not evidence that the unimplemented hybrid already improves performance.
+
+## Prototype progress
+
+`DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS` selects the common lazy-deque payload
+with a flat pointer index. `DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS` also permits
+conversion. Both default OFF and are mutually exclusive with node/pointer/paged
+storage. Desktop and Android Gradle properties select the same Core options.
+
+The standalone component passed normal, diagnostic, and ASan/UBSan host runs
+(leak detection disabled). It covered real simultaneous construction/conversion,
+borrowed SSO/long/empty characters, deque block/directory growth, N=0/1/31/32/33
+and 1057 with unequal method/field domains, and a latch-controlled stale sparse
+reader. A fresh cache was stopped before, at and after its first conversion;
+the subsequent same-slot concurrent cold insertion constructed one empty string.
+Full native/JVM/Android and API oracle validation are still pending.
+
+The measured host layout has 6680 fixed cache bytes. For 60000 total method IDs,
+shard 0 has 1875 dense slots. At 448 records its hash requests 8696 bytes; the
+449th insertion grows the hash to 17400 bytes and triggers the 15008-byte dense
+index. The diagnostic table then reports zero hash capacity and bucket bytes.
+These are requested layout bytes, not allocator-rounded or process peak bytes.
+The workload accepts an explicit shard member count, allowing 448/449/450 members
+followed by immediate close and a separate one-member repeated workload without
+embedding that observed threshold in production code.

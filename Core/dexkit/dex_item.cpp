@@ -152,7 +152,9 @@ void DexItem::InitBaseCache() {
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
     const auto field_count = reader.FieldIds().size();
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+    hybrid_descriptors.Initialize(method_count, field_count);
+#elif DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     node_descriptors.Initialize(method_count, field_count);
 #elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     method_descriptors.Initialize(method_count);
@@ -166,14 +168,14 @@ void DexItem::InitBaseCache() {
     lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
 #endif
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
-    // Initialized together with the method map above.
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+    // Initialized together with the method index above.
 #elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     field_descriptors.Initialize(field_count);
 #else
     field_descriptors.resize(field_count);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
     method_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(method_count);
     field_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(field_count);
 #endif
@@ -1313,8 +1315,12 @@ std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Called(true);
 #endif
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     return node_descriptors.GetOrCreate<true>(method_idx,
+#else
+    return hybrid_descriptors.GetOrCreate<true>(method_idx,
+#endif
             [this, method_idx] { return BuildMethodDescriptorCold(method_idx); });
 }
 
@@ -1417,8 +1423,12 @@ std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Called(false);
 #endif
+#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
     return node_descriptors.GetOrCreate<false>(field_idx,
+#else
+    return hybrid_descriptors.GetOrCreate<false>(field_idx,
+#endif
             [this, field_idx] { return BuildFieldDescriptorCold(field_idx); });
 }
 

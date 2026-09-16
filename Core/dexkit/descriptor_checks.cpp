@@ -33,7 +33,7 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
         std::snprintf(expected, sizeof(expected), "LA;->f%05u:I", index);
         require(item.GetFieldDescriptor(index) == expected, "field content");
     };
-#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
     for (uint32_t i = 0; i < count; ++i) check(i);
 #endif
     std::latch start(1);
@@ -260,7 +260,7 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     require(retained_field.data() == retained_field_address && retained_field == retained_field_copy,
             "retained field view survives growth and full warm-up");
 
-#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
     // The legacy cache does not publish concurrent cold writes. Its control
     // tests warm reads; experimental publication is stressed below from cold.
     for (const auto &symbol : methods) cold.dex_items[symbol.dex]->GetMethodDescriptor(symbol.id);

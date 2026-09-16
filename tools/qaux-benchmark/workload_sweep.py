@@ -58,13 +58,17 @@ def main():
                                          'batch-method', 'batch-class', 'using-early', 'using-late', 'using-miss',
                                          'using-sparse', 'using-multiple', 'using-class', 'using-output'] + ADMISSION_MODES + CANDIDATE_MODES + CALLER_BUILD_MODES, required=True)
     parser.add_argument('--repeats', type=int, required=True)
+    parser.add_argument('--selected-count', type=int, help='Explicit member count for output-sso-shard.')
     parser.add_argument('--pairs', type=int, default=6)
     parser.add_argument('--seed', type=int, default=2026091511)
     args = parser.parse_args()
     labels = [v[0] for v in args.variant]
     concurrent = args.mode.startswith('lookup-concurrent-w')
-    if len(labels) != 2 or len(set(labels)) != 2 or args.pairs < 2 or not 2 <= args.repeats <= 100000:
-        raise SystemExit('Use two distinct labels, at least two pairs and 2..100000 repetitions.')
+    minimum_repeats = 1 if args.mode == 'output-sso-shard' else 2
+    if len(labels) != 2 or len(set(labels)) != 2 or args.pairs < 2 or not minimum_repeats <= args.repeats <= 100000:
+        raise SystemExit('Use two distinct labels, at least two pairs and 2..100000 repetitions (1 allowed for shard output).')
+    if args.selected_count is not None and (args.mode != 'output-sso-shard' or not 1 <= args.selected_count <= 1875):
+        raise SystemExit('Explicit count requires output-sso-shard and 1..1875 members.')
     if any(not label.replace('-', '').replace('_', '').isalnum() for label in labels):
         raise SystemExit('Use simple variant labels.')
     if args.output.exists() and any(args.output.iterdir()):
@@ -123,6 +127,8 @@ def main():
             command = ['/usr/bin/time', '-l', str(executable), str(args.fixture.resolve()), args.mode, str(args.repeats)]
             if concurrent:
                 command[-2:] = [str(args.repeats), args.mode[-1]]
+            if args.selected_count is not None:
+                command.append(str(args.selected_count))
             run = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=300)
             (args.output / f'pair-{pair:02d}-{variant["label"]}.log').write_text(run.stdout)
             if run.returncode:
@@ -138,6 +144,8 @@ def main():
             if (identity != expected or report['mode'] != expected_mode or report['repeats'] != args.repeats
                     or (concurrent and report['calling_threads'] != int(args.mode[-1]))):
                 raise SystemExit('Workload result identity differs.')
+            if args.selected_count is not None and report.get('selected_count') != args.selected_count:
+                raise SystemExit('Workload did not apply the selected member count.')
             row = dict(pair=pair, position=position, label=variant['label'], report=report,
                        lifecycle_ms=report['lifecycle_ns'] / 1e6, create_ms=report['create_ns'] / 1e6,
                        close_ms=report['close_ns'] / 1e6, setup_ms=report['setup_ns'] / 1e6,
@@ -159,6 +167,7 @@ def main():
             (args.output / 'samples.json').write_text(json.dumps(rows, indent=2) + '\n')
             print(f'pair={pair:02d} {variant["label"]} lifecycle={row["lifecycle_ms"]:.3f} ms', flush=True)
     result = dict(mode=args.mode, repeats=args.repeats, pairs=args.pairs, seed=args.seed,
+                  selected_count=args.selected_count,
                   fixture_sha256=fixture_hash, variants=variants, reversed_order=order,
                   notes='Native-only fixture; includes setup, output serialization/destruction and bridge close. '
                         'Balanced fresh processes; file caches are not flushed. Negative changes favor the second label. '

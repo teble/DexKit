@@ -125,6 +125,46 @@ void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *ph
         phase, dex, kind, values.size(), nonempty, noncontiguous, entries,
         values.capacity() * sizeof(std::vector<uint32_t>), capacity * sizeof(uint32_t));
 }
+#if DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+template<bool Promote>
+void Descriptors(Counts &count, const HybridDescriptorCache<Promote> &values, const char *phase, uint32_t dex) {
+    const auto stats = values.GetStatistics();
+    count.index_bytes += stats.fixed_bytes;
+    count.entries += stats.limits[0] + stats.limits[1];
+    std::fprintf(stderr, "BENCH_HYBRID_DESCRIPTOR_CACHE {\"phase\":\"%s\",\"dex\":%u,"
+        "\"promotion_enabled\":%s,\"fixed_bytes\":%zu,\"instrumentation_bytes\":%zu}\n", phase, dex,
+        Promote ? "true" : "false", stats.fixed_bytes, stats.instrumentation_bytes);
+    for (size_t shard = 0; shard < stats.tables.size(); ++shard) for (size_t kind = 0; kind < 2; ++kind) {
+        const auto &table = stats.tables[shard][kind];
+        const auto &blocks = table.allocations.blocks, &directory = table.allocations.directory;
+        count.index_bytes += table.bucket_bytes + table.dense_bytes + table.payload_owner_bytes + directory.bytes;
+        count.payload_bytes += blocks.bytes + table.char_bytes;
+        count.ready += table.records;
+        count.buffers += (table.capacity != 0) + 2 * (table.dense_bytes != 0) + (table.payload_owner_bytes != 0)
+                + blocks.live + directory.live + table.char_buffers;
+        std::fprintf(stderr, "BENCH_HYBRID_DESCRIPTOR_TABLE {\"phase\":\"%s\",\"dex\":%u,"
+            "\"shard\":%zu,\"kind\":\"%s\",\"slots\":%zu,\"records\":%zu,\"capacity\":%zu,"
+            "\"bucket_bytes\":%zu,\"dense_bytes\":%zu,\"payload_owner_bytes\":%zu,"
+            "\"payload_instrumentation_bytes\":%zu,\"block_bytes\":%zu,\"block_live\":%zu,"
+            "\"block_allocations\":%zu,\"block_peak_bytes\":%zu,\"directory_bytes\":%zu,"
+            "\"directory_live\":%zu,\"directory_allocations\":%zu,\"directory_peak_bytes\":%zu,"
+            "\"char_bytes\":%zu,\"char_buffers\":%zu,\"sso_records\":%zu,"
+            "\"calls\":%llu,\"hits\":%llu,\"dense_hits\":%llu,\"growths\":%zu,"
+            "\"largest_bucket_overlap\":%zu,\"promotions\":%zu,\"promotion_records\":%zu,"
+            "\"promotion_capacity\":%zu,\"promotion_hash_bytes\":%zu,\"promotion_payload_bytes\":%zu,"
+            "\"promotion_overlap_bytes\":%zu,\"promotion_ns\":%llu}\n", phase, dex, shard,
+            kind == 0 ? "method" : "field", table.slots, table.records, table.capacity,
+            table.bucket_bytes, table.dense_bytes, table.payload_owner_bytes, table.payload_instrumentation_bytes,
+            blocks.bytes, blocks.live, blocks.allocations, blocks.peak_bytes,
+            directory.bytes, directory.live, directory.allocations, directory.peak_bytes,
+            table.char_bytes, table.char_buffers, table.sso_records,
+            (unsigned long long)table.calls, (unsigned long long)table.hits, (unsigned long long)table.dense_hits,
+            table.growths, table.largest_bucket_overlap, table.promotions, table.promotion_records,
+            table.promotion_capacity, table.promotion_hash_bytes, table.promotion_payload_bytes,
+            table.promotion_overlap_bytes, (unsigned long long)table.promotion_ns);
+    }
+}
+#endif
 #if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
 void Descriptors(Counts &count, const NodeDescriptorCache &values, const char *phase, uint32_t dex) {
     const auto stats = values.GetStatistics();
@@ -228,7 +268,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         field_ids += item.reader.FieldIds().size();
         if (std::string_view(phase) == "pre_close") {
             NameIndex(item.type_ids_map, phase, item.dex_id, "type_ids");
-#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
             DescriptorOccupancy(item.method_descriptors, phase, item.dex_id, "method");
             DescriptorOccupancy(item.field_descriptors, phase, item.dex_id, "field");
 #endif
@@ -243,7 +283,9 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
+        Descriptors(counts["descriptors"], item.hybrid_descriptors, phase, item.dex_id);
+#elif DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
         Descriptors(counts["descriptors"], item.node_descriptors, phase, item.dex_id);
 #elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
         Descriptors(counts["descriptors"], item.method_descriptors, phase, item.dex_id, "method");
@@ -261,7 +303,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
         publication.index_bytes += sizeof(item.descriptor_mutexes);

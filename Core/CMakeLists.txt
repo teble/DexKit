@@ -18,13 +18,20 @@ option(DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS "Compare raw member identities w
 option(DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS "Publish stable standard strings through dense atomic pointers" OFF)
 option(DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS "Store descriptors in paged stable byte records" OFF)
 option(DEXKIT_EXPERIMENT_NODE_DESCRIPTORS "Cache generated descriptors in growing sharded node hash tables" OFF)
+option(DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS "Index stable deque strings through sparse flat hash tables" OFF)
+option(DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS "Convert sparse descriptor indexes to dense atomic arrays by byte cost" OFF)
 option(DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS "Align paged descriptor bodies to 16 bytes" OFF)
 option(DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS "Separate descriptor cache hits from cold construction" OFF)
-if (DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS AND NOT (DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS OR DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS OR DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS OR DEXKIT_EXPERIMENT_NODE_DESCRIPTORS))
+if (DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS AND NOT (DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS OR DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS OR DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS OR DEXKIT_EXPERIMENT_NODE_DESCRIPTORS OR DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS OR DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS))
     message(FATAL_ERROR "Descriptor fast hits require a published descriptor cache")
 endif ()
-if ((DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS AND DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS) OR
-        (DEXKIT_EXPERIMENT_NODE_DESCRIPTORS AND (DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS OR DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS)))
+set(descriptor_storage_count 0)
+foreach(storage POINTER PAGED NODE SPARSE HYBRID)
+    if (DEXKIT_EXPERIMENT_${storage}_DESCRIPTORS)
+        math(EXPR descriptor_storage_count "${descriptor_storage_count} + 1")
+    endif ()
+endforeach()
+if (descriptor_storage_count GREATER 1)
     message(FATAL_ERROR "Choose only one descriptor storage experiment")
 endif ()
 if (DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS AND NOT DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS)
@@ -119,6 +126,8 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_NODE_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_NODE_DESCRIPTORS}>
+        DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS}>
+        DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=$<BOOL:${DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS}>
         DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=$<BOOL:${DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP}>
@@ -272,6 +281,9 @@ if (DEXKIT_BENCHMARK_SYMBOL_CHECKS)
     add_executable(dexkit_node_descriptor_checks ../tools/qaux-benchmark/node_descriptor_checks.cpp)
     target_compile_options(dexkit_node_descriptor_checks PRIVATE -fno-exceptions)
     target_link_libraries(dexkit_node_descriptor_checks PRIVATE dexkit_static)
+    add_executable(dexkit_hybrid_descriptor_checks ../tools/qaux-benchmark/hybrid_descriptor_checks.cpp)
+    target_compile_options(dexkit_hybrid_descriptor_checks PRIVATE -fno-exceptions)
+    target_link_libraries(dexkit_hybrid_descriptor_checks PRIVATE dexkit_static)
 endif ()
 if (DEXKIT_BENCHMARK_MEMO_CHECKS)
     if (NOT DEXKIT_EXPERIMENT_NEGATIVE_STRINGS)

@@ -51,7 +51,7 @@ std::unique_ptr<flatbuffers::FlatBufferBuilder> InterfaceQuery(bool conflict) {
     return builder;
 }
 
-Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
+Statistics Run(std::string_view apk, std::string_view mode, size_t repeats, size_t selected_count) {
     Statistics stats;
     auto begin = Clock::now();
     auto bridge = std::make_unique<DexKit>(apk, 1);
@@ -73,7 +73,7 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
         Require(ids.size() == 60000 && field_ids.size() == 60000, "dense fixture size");
         if (mode != "output-sso") {
             std::vector<int64_t> selected_methods, selected_fields;
-            for (size_t i = 0; i < 1024; ++i) {
+            for (size_t i = 0; i < (selected_count ? selected_count : 1024); ++i) {
                 const auto index = mode == "output-sso-prefix" ? i
                         : mode == "output-sso-shard" ? i * 32 : i * 53 % 60000;
                 selected_methods.push_back(ids[index]);
@@ -176,8 +176,8 @@ Statistics Run(std::string_view apk, std::string_view mode, size_t repeats) {
 } // namespace
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|output-sso[-prefix|-scattered|-shard]|lookup|lookup-prefix|lookup-hot|interfaces repeats\n");
+    if (argc != 4 && argc != 5) {
+        std::fprintf(stderr, "Usage: dexkit_descriptor_workload symbols.apk output|output-sso[-prefix|-scattered|-shard]|lookup|lookup-prefix|lookup-hot|interfaces repeats [shard-member-count]\n");
         return 2;
     }
     const std::string_view mode(argv[2]);
@@ -187,13 +187,19 @@ int main(int argc, char **argv) {
     char *end = nullptr;
     const auto repeats = std::strtoull(argv[3], &end, 10);
     Require(end && *end == '\0' && repeats > 0 && repeats <= 100000, "repeat count");
+    size_t selected_count = 0;
+    if (argc == 5) {
+        selected_count = std::strtoull(argv[4], &end, 10);
+        Require(mode == "output-sso-shard" && end && *end == '\0' && selected_count > 0
+                && selected_count <= 1875, "selected shard member count");
+    }
     const auto begin = Clock::now();
-    const auto stats = Run(argv[1], mode, repeats);
+    const auto stats = Run(argv[1], mode, repeats, selected_count);
     const auto lifecycle = Ns(begin);
-    std::printf("WORKLOAD {\"mode\":\"%s\",\"repeats\":%llu,\"create_ns\":%lld,\"setup_ns\":%lld,"
+    std::printf("WORKLOAD {\"mode\":\"%s\",\"repeats\":%llu,\"selected_count\":%zu,\"create_ns\":%lld,\"setup_ns\":%lld,"
         "\"first_ns\":%lld,\"repeated_ns\":%lld,\"close_ns\":%lld,\"lifecycle_ns\":%lld,"
         "\"positive_ns\":%lld,\"negative_ns\":%lld,\"checksum\":%llu,\"returned\":%llu}\n", argv[2], (unsigned long long) repeats,
-        (long long) stats.create_ns, (long long) stats.setup_ns, (long long) stats.first_ns,
+        selected_count, (long long) stats.create_ns, (long long) stats.setup_ns, (long long) stats.first_ns,
         (long long) stats.repeated_ns, (long long) stats.close_ns, (long long) lifecycle,
         (long long) stats.positive_ns, (long long) stats.negative_ns,
         (unsigned long long) stats.checksum, (unsigned long long) stats.returned);

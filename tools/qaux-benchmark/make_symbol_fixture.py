@@ -120,14 +120,18 @@ def make_dex(classes, methods, fields, references=(), field_references=(), extra
 
     code_offsets = {}
     for method, assembler in (code or {}).items():
-        if method not in methods or method[2:] != ('V', ()):
-            raise ValueError('Code fixtures currently support defined static ()V methods only.')
+        if method not in methods or method[2] != 'V':
+            raise ValueError('Code fixtures support defined static void methods only.')
+        incoming = sum(2 if parameter in ('J', 'D') else 1 for parameter in method[3])
+        if incoming > 65533:
+            raise ValueError('Fixture parameters exceed the DEX register limit.')
         units = assembler(method_ids, field_ids, string_ids)
         align()
         if not code_offsets:
             sections.append((0x2001, len(code), len(image)))
         code_offsets[method_ids[method]] = len(image)
-        image.extend(struct.pack('<HHHHII', 2, 0, 0, 0, 0, len(units)))
+        # Keep v0/v1 as locals; static parameters occupy the final registers.
+        image.extend(struct.pack('<HHHHII', 2 + incoming, incoming, 0, 0, 0, len(units)))
         image.extend(struct.pack('<' + 'H' * len(units), *units))
 
     class_data_count = 0

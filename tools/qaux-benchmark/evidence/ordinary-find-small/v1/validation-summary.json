@@ -1,0 +1,306 @@
+{
+  "engine_commit": "47eb54bf6e2a5d1d5db160b4f7589bb910b6d4d2",
+  "native_configurations": 8,
+  "small_matches_previous_binary": true,
+  "focused_checks_compile_without_exceptions": true,
+  "validation_commands": {
+    "normal": 22,
+    "extra": 38
+  },
+  "empty_task_counts": [
+    {
+      "fixture": "admission-final",
+      "variant": "control-trace",
+      "proven_empty_dexes": 21,
+      "tasks_per_empty": 1,
+      "class_empty": 5
+    },
+    {
+      "fixture": "admission-final",
+      "variant": "both-trace",
+      "proven_empty_dexes": 21,
+      "tasks_per_empty": 0,
+      "class_empty": 5
+    },
+    {
+      "fixture": "multidex",
+      "variant": "control-trace",
+      "proven_empty_dexes": 42,
+      "tasks_per_empty": 1,
+      "class_empty": 10
+    },
+    {
+      "fixture": "multidex",
+      "variant": "both-trace",
+      "proven_empty_dexes": 42,
+      "tasks_per_empty": 0,
+      "class_empty": 10
+    }
+  ],
+  "oracles": [
+    {
+      "kind": "string",
+      "fixture": "strings-correctness-v1",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 90
+    },
+    {
+      "kind": "batch",
+      "fixture": "strings-correctness-v1",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 36
+    },
+    {
+      "kind": "string",
+      "fixture": "strings-correctness-wide-v1",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 90
+    },
+    {
+      "kind": "batch",
+      "fixture": "strings-correctness-wide-v1",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 36
+    },
+    {
+      "kind": "admission",
+      "fixture": "admission-final",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 58,
+      "states": 3
+    },
+    {
+      "kind": "admission",
+      "fixture": "multidex",
+      "phase": "normal",
+      "variants": [
+        "old-small",
+        "control",
+        "empty",
+        "move",
+        "both"
+      ],
+      "queries": 58,
+      "states": 3
+    },
+    {
+      "kind": "string",
+      "fixture": "strings-correctness-v1",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 90
+    },
+    {
+      "kind": "batch",
+      "fixture": "strings-correctness-v1",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 36
+    },
+    {
+      "kind": "string",
+      "fixture": "strings-correctness-wide-v1",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 90
+    },
+    {
+      "kind": "batch",
+      "fixture": "strings-correctness-wide-v1",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 36
+    },
+    {
+      "kind": "admission",
+      "fixture": "admission-final",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 58,
+      "states": 3
+    },
+    {
+      "kind": "admission",
+      "fixture": "multidex",
+      "phase": "extra",
+      "variants": [
+        "old-small",
+        "control-trace",
+        "both-trace",
+        "pipeline-trace",
+        "slices-sanitized"
+      ],
+      "queries": 58,
+      "states": 3
+    }
+  ],
+  "qq_verification": [
+    {
+      "label": "control",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "c678e1940564c90d020d45b13428339a8e7d9eb6b868977d09040152c90ae027"
+    },
+    {
+      "label": "empty",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "68af5aa745ce389c200a323c0cb4f841e650e6690e880caf4c55bfb994cf6fa9"
+    },
+    {
+      "label": "move",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "3254694b8239231fda3033cfff0c756e160b957de556b8d6100747063fff8fa8"
+    },
+    {
+      "label": "both",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "a7e75da9e777f2dceef851d67b9f56a2ac821327ada9f0a2c3f58b9f4c57391b"
+    },
+    {
+      "label": "both-trace",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "421b64eee667d48a3b53c1b2347b691022f49e11d6d54b37132f540656ed34da"
+    },
+    {
+      "label": "pipeline-trace",
+      "passes": 11,
+      "threads": 4,
+      "passed": true,
+      "metadata_sha256": "af0c7c64aef2e1bab42d670a44fd68068e69379915d565a52ac954608407c7f0"
+    }
+  ],
+  "gradle": {
+    "small": {
+      "tests": 71,
+      "failed": 0,
+      "skipped": 0,
+      "abis": null,
+      "fixture_abis": [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86",
+        "x86_64"
+      ]
+    },
+    "pipeline": {
+      "tests": 71,
+      "failed": 0,
+      "skipped": 0,
+      "abis": [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86",
+        "x86_64"
+      ]
+    }
+  },
+  "verified_jars_unchanged_after_gradle": true,
+  "parameter_metadata": [
+    {
+      "label": "control",
+      "checked_method_records": 40482,
+      "distinct_methods": 4500,
+      "ordered_payload_sha256": "3883167b44448e7743a402f84b03d694f58d089427e29df91834506fffb91ffa",
+      "executable_sha256": "4b513c09a561314e9f3857f2237aa65e14f0d33eab89572f13caebda09f70407"
+    },
+    {
+      "label": "move",
+      "checked_method_records": 40482,
+      "distinct_methods": 4500,
+      "ordered_payload_sha256": "3883167b44448e7743a402f84b03d694f58d089427e29df91834506fffb91ffa",
+      "executable_sha256": "4b0a6a344609f46709ccfd39e2fba58fd7d1fb765bde6b6398f494dd03828ac4"
+    },
+    {
+      "label": "both",
+      "checked_method_records": 40482,
+      "distinct_methods": 4500,
+      "ordered_payload_sha256": "3883167b44448e7743a402f84b03d694f58d089427e29df91834506fffb91ffa",
+      "executable_sha256": "da5dd894f8cc392616c42d5d262650cdea4650c711e55d750321567ed0be7fdf"
+    },
+    {
+      "label": "slices-sanitized",
+      "checked_method_records": 40482,
+      "distinct_methods": 4500,
+      "ordered_payload_sha256": "3883167b44448e7743a402f84b03d694f58d089427e29df91834506fffb91ffa",
+      "executable_sha256": "78e559d712a3ba70bc68bce693453a1e7d45dfb1d461a256807502b2efe14077"
+    }
+  ],
+  "generator_compatibility": {
+    "zero_parameter_fixture_unchanged": true,
+    "dex_sha256": "1a1749d2150f6d8f220c25d7af3c2e9e939ffcbc6ab58fbeeb65e3c99f5064a9"
+  }
+}

@@ -1,5 +1,10 @@
 # Ordinary candidate execution: results
 
+This report records the `82d6afb` experiment. The subsequent
+[ordinary find extraction](ORDINARY-FIND-EXTRACTION.md) at `47eb54b` removes
+QueryRun and exception recovery, and measures Empty bypass and result moves
+independently on the Small path. Its results are separate from this report.
+
 The bounded FindMethod/FindClass refactor is implemented at
 `82d6afb49d9faa5e49ee899ae948675d490ac99a`. Candidate storage, complete root-string
 truth, task lifetime and ordered consumption now have separate contracts.

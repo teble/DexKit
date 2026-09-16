@@ -1,5 +1,10 @@
 # Ordinary candidate execution: review record
 
+Historical review of the `9227210` / `82d6afb` implementation. The later
+[ordinary find extraction](ORDINARY-FIND-EXTRACTION.md) removes QueryRun and its
+exception recovery at the user's request. That change has separate local
+validation; it was not part of the Pro review recorded below.
+
 Conversation: https://chatgpt.com/c/6aa81c3c-a104-83ee-b6fe-8bcdd4732ff3
 
 The user authorized implementation after the finite design review. The existing

@@ -1,7 +1,12 @@
 # Ordinary candidate execution
 
-Status: complete at `82d6afb49d9faa5e49ee899ae948675d490ac99a`; both new options remain default OFF.
+Initial validation: `82d6afb49d9faa5e49ee899ae948675d490ac99a`; both pipeline options remain default OFF.
 Base: `0dc49fff2042cd33b91fdd97cc3813d7e50098e9`.
+
+The [ordinary find extraction](ORDINARY-FIND-EXTRACTION.md) follow-up at
+`47eb54b` removes QueryRun and its exception recovery at the user's request.
+The execution contract below reflects that simplification; the completed
+measurements and original source review remain tied to their recorded commits.
 
 The user authorized the reviewed ordinary FindMethod/FindClass refactor.
 The existing conservative string admission policy remains fixed. This work
@@ -13,9 +18,8 @@ and findFirst entrances retain their existing behavior.
 
 - Select the candidate source once, before executing a query's tasks.
 - All-Legacy queries keep the existing submission path and consume the frozen
-  decisions. The new query run is used only when at least one ordinary source
-  is admitted. It activates before accepting work so exceptional cleanup
-  never needs to start a partially submitted queue.
+  decisions. The candidate coordinator is used only when at least one ordinary
+  source is admitted. It activates before submitting dynamic preparation work.
 - Separate candidate preparation and consumption in the interface. Legacy
   queries submit their original slices directly. Empty means proven empty,
   never an exception, cancellation, or uninitialized result.
@@ -24,9 +28,8 @@ and findFirst entrances retain their existing behavior.
   ranges. One candidate, one occupied range, and one-worker execution retain
   inline validation. Inline does not mean execution on the caller thread.
 - A preparation capability or budget rejection restores the original ranges.
-  Previous preparation costs remain part of the query. In exception-enabled
-  builds, exceptions propagate after accepted tasks have been drained; they
-  are not negative results. Android retains its no-exceptions build policy.
+  Previous preparation costs remain part of the query. The candidate path has
+  no exception recovery policy and supports the project's no-exceptions builds.
 - Candidates carry query/DEX/entity identity and enumeration coordinates.
   Method ranges use Method IDs; class ranges use ClassDef ordinals, while
   class string truth uses Type IDs. Preserve output order and final descriptor
@@ -34,10 +37,12 @@ and findFirst entrances retain their existing behavior.
 - Keep complete root-string truth separate from the candidate view. A slice
   does not truncate the proof domain. Every consuming task binds its own
   scoped proof, including the query identity.
-- A query run owns the executor and tracks accepted work through capture
-  cleanup. Activation, sealing, draining and detachment are distinct events.
-  Workers never wait for their own child tasks. Budget ownership is independent
-  of QueryContext so late destruction cannot access a released context.
+- Existing futures wait for normal completion. Candidate task wrappers move
+  their owning captures onto the worker stack, releasing them before result
+  readiness. After consuming all futures, the coordinator detaches the executor
+  while QueryContext is still alive. Legacy tasks retain only borrowed inputs,
+  and complete their scoped query work inside the task body. Workers never wait
+  for their own child tasks. Budget ownership is independent of QueryContext.
 - Bound explicitly accounted arrays across preparation, futures and consumers:
   bitmap payloads, keyword-plane headers, last-string IDs, cold-index counts
   and seen IDs, the single output-group entry, class IDs, and slice records.
@@ -69,6 +74,10 @@ and findFirst entrances retain their existing behavior.
 - [x] Review the actual implementation, archive evidence, and report the
   measured result and limitations without claiming general speedups.
 
+These steps describe the initial implementation and validation. The follow-up
+replaces exception injection checks with normal completion and retained-capture
+checks, compiled without exceptions.
+
 ## Design review
 
 The Pro design review read the fixed base and completed in 8m37s. It supported
@@ -77,6 +86,10 @@ Batch flow. It specifically rejected mandatory two-queue execution for every
 ordinary query, and required explicit proof coverage, bounded retained
 candidate storage and exception-safe task cleanup. It did not execute tests
 or measure the proposed implementation.
+
+The user subsequently rejected exception recovery for this project. The
+follow-up removes that machinery while preserving normal completion and storage
+lifetimes; the original review is not presented as a review of that later change.
 
 Conversation: https://chatgpt.com/c/6aa81c3c-a104-83ee-b6fe-8bcdd4732ff3
 

@@ -1,0 +1,30 @@
+[
+  {
+    "fixture": "admission-final",
+    "variant": "control-trace",
+    "proven_empty_dexes": 21,
+    "tasks_per_empty": 1,
+    "class_empty": 5
+  },
+  {
+    "fixture": "admission-final",
+    "variant": "both-trace",
+    "proven_empty_dexes": 21,
+    "tasks_per_empty": 0,
+    "class_empty": 5
+  },
+  {
+    "fixture": "multidex",
+    "variant": "control-trace",
+    "proven_empty_dexes": 42,
+    "tasks_per_empty": 1,
+    "class_empty": 10
+  },
+  {
+    "fixture": "multidex",
+    "variant": "both-trace",
+    "proven_empty_dexes": 42,
+    "tasks_per_empty": 0,
+    "class_empty": 10
+  }
+]

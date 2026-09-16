@@ -1,0 +1,6 @@
+{
+  "engine_commit": "47eb54bf6e2a5d1d5db160b4f7589bb910b6d4d2",
+  "base_commit": "699c01dc28845a32cc9c1051fe629ba36556a8fe",
+  "source_tree": "e1a0599941d4507678c092f3c93bb93ba1deaa15",
+  "source_note": "Timed native code is fixed at the engine commit. Follow-up fixture/checker/report scripts are included verbatim. Reproduction also needs the repository at that commit, the separately obtained QQ APK/corpus, JDK and compiler/SDK."
+}

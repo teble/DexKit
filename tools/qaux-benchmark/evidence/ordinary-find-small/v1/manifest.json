@@ -1,0 +1,16 @@
+{
+  "archive": "raw-evidence.tar.gz",
+  "archive_bytes": 17749224,
+  "archive_sha256": "9fb0fc2e0c2c1692730c1882830f048d3bffe625ae14d356474ba99a543d8b1b",
+  "files": 1713,
+  "verified_readback": true,
+  "engine_commit": "47eb54bf6e2a5d1d5db160b4f7589bb910b6d4d2",
+  "accepted_sweeps": 40,
+  "accepted_fresh_processes": 480,
+  "excluded_measurements": 0,
+  "omitted": [
+    "QQ APK",
+    "compiled native/JVM/Android artifacts"
+  ],
+  "integrity_sha256": "80e3190a0c1e2f9f7a1e104db54d15e71bc0590ab9be20ef29073a52872264d8"
+}

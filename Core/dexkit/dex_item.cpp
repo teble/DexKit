@@ -690,7 +690,7 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
 #endif
                         continue;
                     }
-                    method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
+                    method_cross_info[curr_method_idx] = PackedCrossRef::Target(origin_dex->dex_id, origin_method_idx);
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
                     const auto source_count = method_caller_ids.LocalCount(curr_method_idx);
                     if (source_count != 0) {
@@ -729,7 +729,7 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
 #endif
                         continue;
                     }
-                    field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
+                    field_cross_info[curr_field_idx] = PackedCrossRef::Target(origin_dex->dex_id, origin_field_idx);
                     if (keep_empty_field_bindings || !field_get_method_ids[curr_field_idx].empty()
                             || !field_put_method_ids[curr_field_idx].empty()) {
                         pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
@@ -807,7 +807,8 @@ MethodBean DexItem::GetMethodBean(uint32_t method_idx) {
     if (!this->type_def_flag[method_def.class_idx]) {
         auto cross_info = this->method_cross_info[method_idx];
         if (cross_info.has_value()) {
-            return this->dexkit->GetDexItem(cross_info->first)->GetMethodBean(cross_info->second);
+            const auto [dex, method] = cross_info.value();
+            return this->dexkit->GetDexItem(dex)->GetMethodBean(method);
         }
     }
     auto &proto_def = this->reader.ProtoIds()[method_def.proto_idx];
@@ -835,7 +836,8 @@ FieldBean DexItem::GetFieldBean(uint32_t field_idx) {
     if (!this->type_def_flag[field_def.class_idx]) {
         auto cross_info = this->field_cross_info[field_idx];
         if (cross_info.has_value()) {
-            return this->dexkit->GetDexItem(cross_info->first)->GetFieldBean(cross_info->second);
+            const auto [dex, field] = cross_info.value();
+            return this->dexkit->GetDexItem(dex)->GetFieldBean(field);
         }
     }
     FieldBean bean;

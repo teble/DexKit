@@ -45,6 +45,7 @@
 #include "dexkit.h"
 #include "analyze.h"
 #include "descriptor_diagnostics.h"
+#include "cross_ref.h"
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
 #include "inverted_string_index.h"
 #endif
@@ -521,8 +522,8 @@ private:
     std::vector<ir::AnnotationSet *> field_annotations;
     std::vector<std::vector<ir::AnnotationSet *>> method_parameter_annotations;
 
-    std::vector<std::optional<std::pair<uint16_t, uint32_t>>> method_cross_info;
-    std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;
+    std::vector<CrossRefInfo> method_cross_info;
+    std::vector<CrossRefInfo> field_cross_info;
 
     std::unique_ptr<LazyMethodUsingStringsSlot[]> lazy_method_using_string_slots;
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS

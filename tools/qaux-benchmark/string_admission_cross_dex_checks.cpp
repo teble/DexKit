@@ -66,7 +66,7 @@ void dexkit::BenchmarkDiagnostics::CheckStringAdmission(std::string_view apk) {
             if (variant) {
                 bool resolved = false;
                 for (const auto &binding : bridge.dex_items[0]->method_cross_info)
-                    resolved |= binding && binding->first == 1 && binding->second == 1;
+                    resolved |= binding && binding.value().first == 1 && binding.value().second == 1;
                 Require(resolved);
             }
             const std::string bytes(reinterpret_cast<const char *>(result->GetBufferPointer()), result->GetSize());

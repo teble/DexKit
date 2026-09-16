@@ -1628,8 +1628,8 @@ bool DexItem::IsMethodMatched(uint32_t method_idx, const schema::MethodMatcher *
     }
     auto &cross_info = this->method_cross_info[method_idx];
     if (cross_info.has_value()) {
-        auto dex = dexkit->GetDexItem(cross_info->first);
-        return dex->IsMethodMatched(cross_info->second, matcher);
+        const auto [dex_id, method_id] = cross_info.value();
+        return dexkit->GetDexItem(dex_id)->IsMethodMatched(method_id, matcher);
     }
     auto &method_def = this->reader.MethodIds()[method_idx];
     auto method_name = this->strings[method_def.name_idx];
@@ -2206,8 +2206,8 @@ bool DexItem::IsFieldMatched(uint32_t field_idx, const schema::FieldMatcher *mat
     }
     auto &cross_info = this->field_cross_info[field_idx];
     if (cross_info.has_value()) {
-        auto dex = dexkit->GetDexItem(cross_info->first);
-        return dex->IsFieldMatched(cross_info->second, matcher);
+        const auto [dex_id, field_id] = cross_info.value();
+        return dexkit->GetDexItem(dex_id)->IsFieldMatched(field_id, matcher);
     }
     auto &field_def = this->reader.FieldIds()[field_idx];
     auto field_name = this->strings[field_def.name_idx];

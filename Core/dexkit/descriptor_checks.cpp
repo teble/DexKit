@@ -228,7 +228,7 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
         if (client.type_names[raw.class_idx] != "Lfixture/Api;") continue;
         const auto name = client.strings[raw.name_idx];
         require(client.method_cross_info[m].has_value() == (name == "a"), "legacy method cross-reference progression");
-        if (name == "a") require(client.method_cross_info[m]->first == 2, "method reference target DEX");
+        if (name == "a") require(client.method_cross_info[m].value().first == 2, "method reference target DEX");
         blocked_later_references += name == "c" || name == "\xce\xbb";
     }
     for (uint32_t f = 0; f < client.reader.FieldIds().size(); ++f) {

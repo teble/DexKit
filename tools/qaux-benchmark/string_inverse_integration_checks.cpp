@@ -75,7 +75,7 @@ void dexkit::BenchmarkDiagnostics::CheckInvertedStrings(std::string_view apk) {
         // ID as the matching root caller in DEX 0 (a TLS identity trap).
         bool witnessed = false;
         for (const auto &binding : bridge.dex_items[0]->method_cross_info)
-            witnessed |= binding && binding->first == 1 && binding->second == 1;
+            witnessed |= binding && binding.value().first == 1 && binding.value().second == 1;
         Require(witnessed);
     }
     for (unsigned attempt = 0; attempt < 4; ++attempt) {

@@ -35,6 +35,7 @@ endif ()
 option(DEXKIT_EXPERIMENT_RAW_INTERFACES "Borrow raw DEX interface type lists" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_INVOKES "Build forward invocation rows in contiguous storage" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_CALLERS "Count and fill exact contiguous caller rows" OFF)
+option(DEXKIT_EXPERIMENT_PACKED_CROSS_INFO "Store optional cross-DEX identities in eight bytes" OFF)
 option(DEXKIT_EXPERIMENT_RAW_SOURCE_FILES "Read source file views through existing ClassDef indexes" OFF)
 option(DEXKIT_EXPERIMENT_SINGLE_RELATION "Match one invocation or caller requirement without a general solver" OFF)
 option(DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT "Resolve field identity without building reverse field graphs" OFF)
@@ -120,6 +121,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_RAW_INTERFACES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_INTERFACES}>
         DEXKIT_EXPERIMENT_COMPACT_INVOKES=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_INVOKES}>
         DEXKIT_EXPERIMENT_COMPACT_CALLERS=$<BOOL:${DEXKIT_EXPERIMENT_COMPACT_CALLERS}>
+        DEXKIT_EXPERIMENT_PACKED_CROSS_INFO=$<BOOL:${DEXKIT_EXPERIMENT_PACKED_CROSS_INFO}>
         DEXKIT_EXPERIMENT_RAW_SOURCE_FILES=$<BOOL:${DEXKIT_EXPERIMENT_RAW_SOURCE_FILES}>
         DEXKIT_EXPERIMENT_SINGLE_RELATION=$<BOOL:${DEXKIT_EXPERIMENT_SINGLE_RELATION}>
         DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=$<BOOL:${DEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT}>
@@ -236,9 +238,12 @@ if (DEXKIT_BENCHMARK_RELATION_CHECKS)
     target_link_libraries(dexkit_caller_checks PRIVATE dexkit_static)
 endif ()
 if (DEXKIT_BENCHMARK_RELATION_WORKLOAD OR DEXKIT_BENCHMARK_RELATION_CHECKS)
+    add_executable(dexkit_cross_ref_checks ../tools/qaux-benchmark/cross_ref_checks.cpp)
+    target_include_directories(dexkit_cross_ref_checks PRIVATE dexkit/include)
     add_executable(dexkit_caller_index_checks ../tools/qaux-benchmark/caller_index_checks.cpp)
     target_include_directories(dexkit_caller_index_checks PRIVATE dexkit/include)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_compile_options(dexkit_cross_ref_checks PRIVATE -fno-exceptions)
         target_compile_options(dexkit_caller_index_checks PRIVATE -fno-exceptions)
     endif ()
 endif ()

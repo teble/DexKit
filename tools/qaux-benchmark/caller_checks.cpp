@@ -47,7 +47,8 @@ void dexkit::BenchmarkDiagnostics::CheckCallers(std::string_view apk, bool dump)
                     && item.strings[raw.name_idx] == "bUnused") {
                 const auto &binding = item.method_cross_info[method];
                 Require(binding.has_value() && expected[dex][method].empty(), "zero-count reference still resolves");
-                std::fprintf(stderr, "CHECK_CALLER_ZERO_BINDING [%u,%u,%u,%u]\n", item.dex_id, method, binding->first, binding->second);
+                const auto [target_dex, target_method] = binding.value();
+                std::fprintf(stderr, "CHECK_CALLER_ZERO_BINDING [%u,%u,%u,%u]\n", item.dex_id, method, target_dex, target_method);
             }
         }
     }

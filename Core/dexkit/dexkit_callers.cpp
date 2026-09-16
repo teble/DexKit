@@ -73,7 +73,7 @@ void DexKit::BuildCompactCallers(uint32_t thread_num) {
                 for (auto invoked : source->method_invoking_ids[caller]) {
                     auto &cursor = index.Cursor(invoked);
                     const auto &binding = source->method_cross_info[invoked];
-                    auto &target = binding ? dex_items[binding->first]->method_caller_ids : index;
+                    auto &target = binding ? dex_items[binding.value().first]->method_caller_ids : index;
                     target.Write(cursor++, static_cast<uint16_t>(source->dex_id), caller);
                 }
             }

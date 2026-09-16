@@ -57,6 +57,74 @@ void Descriptors(Counts &count, const std::vector<std::optional<std::string>> &v
         }
     }
 }
+
+// These snapshots run only in diagnostic builds, after query work has drained.
+// The bundled phmap helper uses its actual allocation layout, including control
+// bytes and padding. It excludes allocator overhead and borrowed string bytes.
+template<class Map>
+void NameIndex(const Map &values, const char *phase, int64_t dex, const char *kind) {
+    using Access = phmap::priv::hashtable_debug_internal::HashtableDebugAccess<Map>;
+    std::fprintf(stderr, "BENCH_NAME_INDEX {\"phase\":\"%s\",\"dex\":%lld,\"kind\":\"%s\","
+        "\"size\":%zu,\"capacity\":%zu,\"allocation_bytes\":%zu,\"object_bytes\":%zu}\n",
+        phase, (long long)dex, kind, values.size(), values.capacity(),
+        Access::AllocatedByteSize(values), sizeof(Map));
+}
+
+void DescriptorOccupancy(const std::vector<std::optional<std::string>> &values,
+                         const char *phase, uint32_t dex, const char *kind) {
+    for (size_t page_size : {64U, 256U, 1024U}) {
+        std::vector<uint32_t> pages((values.size() + page_size - 1) / page_size);
+        size_t ready = 0, touched = 0, single = 0, largest = 0;
+        for (size_t id = 0; id < values.size(); ++id) {
+            if (values[id]) { ++pages[id / page_size]; ++ready; }
+        }
+        for (auto entries : pages) {
+            touched += entries != 0;
+            single += entries == 1;
+            largest = std::max(largest, size_t(entries));
+        }
+        std::fprintf(stderr, "BENCH_DESCRIPTOR_OCCUPANCY {\"phase\":\"%s\",\"dex\":%u,\"kind\":\"%s\","
+            "\"slots\":%zu,\"ready\":%zu,\"page_size\":%zu,\"total_pages\":%zu,\"touched_pages\":%zu,"
+            "\"single_entry_pages\":%zu,\"largest_page_entries\":%zu,\"string_object_bytes_per_page\":%zu}\n",
+            phase, dex, kind, values.size(), ready, page_size, pages.size(), touched,
+            single, largest, page_size * sizeof(std::string));
+    }
+}
+
+template<class CrossRefs, class Ids>
+void CrossRefOccupancy(const CrossRefs &values, const Ids &ids, const std::vector<bool> &defined,
+                       const char *phase, uint32_t dex, const char *kind) {
+    size_t mapped_defined = 0, mapped_undefined = 0, unmapped_defined = 0, unmapped_undefined = 0;
+    for (size_t id = 0; id < values.size(); ++id) {
+        if (defined[ids[id].class_idx]) {
+            if (values[id]) ++mapped_defined; else ++unmapped_defined;
+        } else {
+            if (values[id]) ++mapped_undefined; else ++unmapped_undefined;
+        }
+    }
+    std::fprintf(stderr, "BENCH_CROSS_REF {\"phase\":\"%s\",\"dex\":%u,\"kind\":\"%s\","
+        "\"slots\":%zu,\"capacity_bytes\":%zu,\"element_bytes\":%zu,\"mapped_defined\":%zu,"
+        "\"mapped_undefined\":%zu,\"unmapped_defined\":%zu,\"unmapped_undefined\":%zu}\n",
+        phase, dex, kind, values.size(), values.capacity() * sizeof(typename CrossRefs::value_type),
+        sizeof(typename CrossRefs::value_type), mapped_defined, mapped_undefined,
+        unmapped_defined, unmapped_undefined);
+}
+
+void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *phase,
+                uint32_t dex, const char *kind) {
+    size_t entries = 0, capacity = 0, nonempty = 0, noncontiguous = 0;
+    for (const auto &row : values) {
+        entries += row.size(); capacity += row.capacity(); nonempty += !row.empty();
+        for (size_t i = 1; i < row.size(); ++i) {
+            if (uint64_t(row[i - 1]) + 1 != row[i]) { ++noncontiguous; break; }
+        }
+    }
+    std::fprintf(stderr, "BENCH_MEMBER_ROWS {\"phase\":\"%s\",\"dex\":%u,\"kind\":\"%s\","
+        "\"rows\":%zu,\"nonempty_rows\":%zu,\"noncontiguous_rows\":%zu,\"entries\":%zu,"
+        "\"directory_bytes\":%zu,\"payload_capacity_bytes\":%zu}\n",
+        phase, dex, kind, values.size(), nonempty, noncontiguous, entries,
+        values.capacity() * sizeof(std::vector<uint32_t>), capacity * sizeof(uint32_t));
+}
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
 void Descriptors(Counts &count, const PointerDescriptorCache &values) {
     const auto stats = values.GetStatistics();
@@ -130,6 +198,19 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         const auto methods = item.reader.MethodIds().size();
         method_ids += methods;
         field_ids += item.reader.FieldIds().size();
+        if (std::string_view(phase) == "pre_close") {
+            NameIndex(item.type_ids_map, phase, item.dex_id, "type_ids");
+#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS
+            DescriptorOccupancy(item.method_descriptors, phase, item.dex_id, "method");
+            DescriptorOccupancy(item.field_descriptors, phase, item.dex_id, "field");
+#endif
+            CrossRefOccupancy(item.method_cross_info, item.reader.MethodIds(), item.type_def_flag,
+                              phase, item.dex_id, "method");
+            CrossRefOccupancy(item.field_cross_info, item.reader.FieldIds(), item.type_def_flag,
+                              phase, item.dex_id, "field");
+            MemberRows(item.class_method_ids, phase, item.dex_id, "method");
+            MemberRows(item.class_field_ids, phase, item.dex_id, "field");
+        }
         if (images.insert(item._image.get()).second) mapped_bytes += item._image->len();
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
@@ -275,6 +356,8 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
             counts["full_opcodes"].buffers += row->capacity() != 0;
         }
     }
+    if (std::string_view(phase) == "pre_close")
+        NameIndex(bridge.class_declare_dex_map, phase, -1, "class_declarations");
     std::fprintf(stderr, "BENCH_CENSUS {\"phase\":\"%s\",\"dexes\":%zu,\"method_ids\":%llu,"
         "\"field_ids\":%llu,\"mapped_bytes\":%llu,\"slot_sizes\":[%zu,%zu,%zu]}\n",
         phase, bridge.dex_items.size(), (unsigned long long) method_ids, (unsigned long long) field_ids,

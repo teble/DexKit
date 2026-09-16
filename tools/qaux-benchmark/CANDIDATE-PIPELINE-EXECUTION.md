@@ -1,6 +1,6 @@
 # Ordinary candidate execution
 
-Status: implementation in progress.
+Status: complete at `82d6afb49d9faa5e49ee899ae948675d490ac99a`; both new options remain default OFF.
 Base: `0dc49fff2042cd33b91fdd97cc3813d7e50098e9`.
 
 The user authorized the reviewed ordinary FindMethod/FindClass refactor.
@@ -58,14 +58,15 @@ and findFirst entrances retain their existing behavior.
   changing admission or matcher semantics; validate before the class path.
 - [x] Migrate FindClass with explicit ClassDef ordering and complete Type-ID
   truth. Preserve Batch and the special query entrances.
-- [ ] Verify independent ordered results, cross-DEX/recursive proof use,
+- [x] Verify independent ordered results, cross-DEX/recursive proof use,
   frozen decisions, failures during preparation/validation/submission, and
   one/four-worker execution. Run native, JAR/JVM and all Android ABI checks.
-- [ ] Freeze artifacts and compare interface-only combined execution,
-  preparation fallback, and separately enabled successful re-slicing against
-  the current B/Small engine. Keep pure-string and one-candidate overhead,
+- [x] Freeze artifacts and compare combined execution and separately enabled
+  successful re-slicing against the current B/Small engine. Validate preparation
+  fallback for original ranges, order and cleanup; do not claim a measured
+  production fallback speedup. Keep pure-string and one-candidate overhead,
   known regressions, cold/warm states, memory and lifecycle visible.
-- [ ] Review the actual implementation, archive evidence, and report the
+- [x] Review the actual implementation, archive evidence, and report the
   measured result and limitations without claiming general speedups.
 
 ## Design review
@@ -78,3 +79,24 @@ candidate storage and exception-safe task cleanup. It did not execute tests
 or measure the proposed implementation.
 
 Conversation: https://chatgpt.com/c/6aa81c3c-a104-83ee-b6fe-8bcdd4732ff3
+
+## Completed evidence
+
+[Results](CANDIDATE-PIPELINE-RESULTS.md) record 52 accepted sweeps / 624 fresh
+processes, seven final native configurations, 71 JVM tests and all four Android
+ABIs. The initial Android no-exceptions failure and a native benchmark adapter
+deployment-target mismatch are retained separately, with their corrections.
+All 22 affected native sweeps were excluded and repeated with matching compiler
+settings; QQ and combined-to-slices samples were unaffected.
+
+[Source review](CANDIDATE-PIPELINE-REVIEW.md) distinguishes the Pro-reviewed
+`9227210` implementation from local follow-up fixes at `82d6afb`. Its findings
+added keyword metadata accounting and failure checks using an externally owned
+real scheduler. The inherited scheduler-internal OOM boundary remains outside
+this refactor.
+
+The finite comparison does not establish a QQ speedup or justify enabling
+successful re-slicing: the latter raises multi-result peak footprint without a
+repeatable latency benefit. Keep combined validation when using the pipeline,
+and retain both experimental defaults as OFF. No admission expansion was used
+to obtain the reported results.

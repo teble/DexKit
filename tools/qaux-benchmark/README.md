@@ -304,6 +304,32 @@ pairs, for both one and eleven passes. The same JAR, input fingerprints, options
 and fixed memory probe must be used in verification and measurement. Never
 run Gradle, native builds or another benchmark during a measured sweep.
 
+## Ordinary candidate execution
+
+`CANDIDATE-PIPELINE-EXECUTION.md`, `CANDIDATE-PIPELINE-REVIEW.md` and
+`CANDIDATE-PIPELINE-RESULTS.md` describe the bounded ordinary Find refactor.
+Batch and existing string admission remain unchanged. Both options default OFF:
+
+| Behavior | CMake suffix after `DEXKIT_EXPERIMENT_` | Gradle property |
+| --- | --- | --- |
+| Candidate preparation/consumption and query lifetime | `CANDIDATE_PIPELINE` | `experimentCandidatePipeline` |
+| Optional successful candidate re-slicing | `CANDIDATE_SLICES` | `experimentCandidateSlices` |
+
+Pipeline requires INVERTED_STRINGS; slicing requires pipeline. When enabled,
+successful candidates validate in the preparation worker unless re-slicing is
+separately enabled and multiple original ranges can use several workers.
+The evaluated re-slicing has no repeatable latency benefit and increases peak
+footprint in multi-result cases. The results report preserves both improvements
+and regressions; neither option is enabled by this experiment.
+
+`make_candidate_fixture.py` builds cross-slice method/interface and reversed
+ClassDef checks. `make_candidate_skew_fixture.py` builds bounded uneven DEX
+inputs. With `DEXKIT_BENCHMARK_STRING_WORKLOAD=ON`, CMake builds the candidate
+workload and runtime/coordinator/no-exceptions checks; diagnostic builds add the
+private production-consumer integration checker. Use `workload_sweep.py` with
+the archived plans. It checks the native executable's actual deployment target
+against the engine manifest and requires common compiler settings before timing.
+
 ## Source attribution
 
 QAuxiliary source files identify their terms as AGPL-3.0-or-later plus the

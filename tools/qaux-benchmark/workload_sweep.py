@@ -25,6 +25,18 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def deployment_targets(executable, manifest):
+    # An adapter linked after the engine build can accidentally use the host's
+    # newer default target even when the engine manifest still says 11.0.
+    commands = subprocess.check_output(['otool', '-l', str(executable)], text=True)
+    targets = re.findall(r'^\s*minos (\d+(?:\.\d+)*)\s*$', commands, re.M)
+    expected = manifest['cmake_options'].get('CMAKE_OSX_DEPLOYMENT_TARGET')
+    normalize = lambda version: (tuple(map(int, version.split('.'))) + (0, 0))[:3]
+    if not expected or not targets or any(normalize(t) != normalize(expected) for t in targets):
+        raise SystemExit('Workload executable deployment target differs from its engine manifest.')
+    return targets
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fixture', type=Path, required=True)
@@ -87,7 +99,12 @@ def main():
                   if relation else 'DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD')
         if manifest['cmake_options'][option] != 'ON':
             raise SystemExit('Artifact must include the workload executable.')
-        variants.append(dict(label=label, executable=str(executable), executable_sha256=sha(executable), artifact=manifest))
+        variants.append(dict(label=label, executable=str(executable), executable_sha256=sha(executable),
+                             deployment_targets=deployment_targets(executable, manifest), artifact=manifest))
+    for key in ['CMAKE_CXX_COMPILER', 'CMAKE_CXX_FLAGS_RELEASE', 'CMAKE_OSX_ARCHITECTURES',
+                'CMAKE_OSX_SYSROOT', 'CMAKE_OSX_DEPLOYMENT_TARGET']:
+        if variants[0]['artifact']['cmake_options'].get(key) != variants[1]['artifact']['cmake_options'].get(key):
+            raise SystemExit('Compared artifacts have different compiler settings: ' + key)
     order = [pair % 2 for pair in range(args.pairs)]
     random.Random(args.seed).shuffle(order)
     rows, expected = [], None

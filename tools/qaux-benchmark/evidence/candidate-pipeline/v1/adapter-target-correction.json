@@ -1,0 +1,119 @@
+{
+  "excluded_sweeps": 22,
+  "excluded_samples": 264,
+  "records": [
+    {
+      "name": "combined-main-tiny-method-multiple-w1",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-tiny-method-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-cross-method-multiple-w1",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-cross-method-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-cross-method-multiple-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-cross-class-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-skew-method-multiple-w1",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-skew-method-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-equal-one-w1-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-equal-one-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-prefix-one-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-class-one-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-equal-one-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-empty-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-admission-method-empty-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-main-nested-method-nested-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-cross-method-multiple-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-cross-class-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-skew-method-multiple-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-admission-method-equal-one-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-admission-class-one-w4-warm",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    },
+    {
+      "name": "combined-confirm-nested-method-nested-w4",
+      "reason": "Baseline adapter minos 26.0 differs from engine and compared CMake executable minos 11.0",
+      "samples": 12
+    }
+  ],
+  "old_engine_native_sha256": "fc6f407b5691d9d0e5e5462229b81ed6ca1a9eadcf55b3bb2f058b60d7b300c1",
+  "correction": "Rerun every combined native sweep using the current CMake control workload. Its engine library is byte-identical to old Small; its compiler settings and deployment target match the combined/slices workloads. QQ dynamic-library and combined-to-slices measurements were unaffected and retained.",
+  "old_adapter_artifact_sha256": "4d7d0f138a24d2f5169e17c8d193841f94283230990dcede67e264c48d354042"
+}

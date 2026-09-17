@@ -378,3 +378,11 @@ the lifetime of those owning values; managed result bytes/schema stay unchanged.
 The comparison includes old dense with raw lookup as a separate attribution
 control. Persistent-cache census excludes temporary result owners; process peaks
 and complete lifecycle retain their allocations, copies and destruction costs.
+
+The uncached comparison is complete: [results](UNCACHED-DESCRIPTORS-RESULTS.md),
+[source review](UNCACHED-DESCRIPTORS-REVIEW.md), and
+[evidence manifest](evidence/uncached-descriptors/v1/manifest.json). The 116 sweeps
+retain substantial repeat-output and lookup regressions alongside memory savings.
+Uncached long-output peak exceeds old dense despite zero persistent descriptor
+storage. Keep this experiment OFF by default; the report separates raw lookup
+from cache removal and does not infer a general speed improvement.

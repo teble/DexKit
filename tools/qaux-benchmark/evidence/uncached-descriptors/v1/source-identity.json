@@ -1,0 +1,26 @@
+{
+  "base_source": "6544800dd1ab34bf77c2b59f1ae1eaf12ae7bf62",
+  "normal_engine_commit": "2be1a63f1ac9de56f6e5cd53123322388e598006",
+  "diagnostic_engine_commit": "2be1a63f1ac9de56f6e5cd53123322388e598006",
+  "harness_commit": "4462724487ef515eb682287564e50ab0c98d616b",
+  "native_libraries": {
+    "control": {
+      "bytes": 1047904,
+      "sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    "raw-dense": {
+      "bytes": 1048176,
+      "sha256": "7ff214a4802b1c99a151f2dd6ab9a3e0f7dd99199829e121b71c88ef09fe2488"
+    },
+    "vector": {
+      "bytes": 1068912,
+      "sha256": "649cd4ea2e48a9bb779802aa12203457b564a7f5fc4668b66fcfc59f89f614a6"
+    },
+    "uncached": {
+      "bytes": 1066528,
+      "sha256": "095cfb7f54fe184fd8c6cb122c70e1784898ea693908bbf9f77d530dd129ecad"
+    }
+  },
+  "frozen_plan_sha256": "c8326c5d06ba854fffd1b70663b595ce8b6e11f80cc245ac6f91beb9f09596e0",
+  "note": "All four normal variants, diagnostic and validation Core archives were built at 2be1a63. The additive host shape checker links the unchanged normal uncached Core archive; its source, commands and hashes are retained. The existing timed native/Python/Java harness is exported from the engine and frozen 4462724 snapshots. External experiment drivers are included separately. There was no production change after source review or during timing. Reports describe the completed batch. Obtain APK/corpus, repository and compiler/runtime inputs separately."
+}

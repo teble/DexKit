@@ -1,0 +1,875 @@
+{
+  "engine_commit": "2be1a63f1ac9de56f6e5cd53123322388e598006",
+  "native_driver_commands": {
+    "normal": 47,
+    "trace": 80,
+    "isolated": 19,
+    "sanitize": 24,
+    "default": 23
+  },
+  "native_driver_total": 193,
+  "additional_host_ownership_shape": {
+    "compile": [
+      "/Library/Developer/CommandLineTools/usr/bin/c++",
+      "-DDEXKIT_BENCHMARK_BATCH_TRACE=0",
+      "-DDEXKIT_BENCHMARK_DIAGNOSTICS=0",
+      "-DDEXKIT_BENCHMARK_FIELD_TRACE=0",
+      "-DDEXKIT_BENCHMARK_STRING_TRACE=0",
+      "-DDEXKIT_ENABLE_INTERNAL_METRICS=0",
+      "-DDEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_BATCH_STRING_INCLUDES=0",
+      "-DDEXKIT_EXPERIMENT_CANDIDATE_PIPELINE=0",
+      "-DDEXKIT_EXPERIMENT_CANDIDATE_SLICES=0",
+      "-DDEXKIT_EXPERIMENT_COMPACT_CALLERS=1",
+      "-DDEXKIT_EXPERIMENT_COMPACT_FIELDS=0",
+      "-DDEXKIT_EXPERIMENT_COMPACT_INVOKES=1",
+      "-DDEXKIT_EXPERIMENT_COMPACT_STRINGS=1",
+      "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=1",
+      "-DDEXKIT_EXPERIMENT_FIELD_IDENTITY_SPLIT=1",
+      "-DDEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_INVERTED_STRINGS=1",
+      "-DDEXKIT_EXPERIMENT_INVERTED_STRING_RANGES=1",
+      "-DDEXKIT_EXPERIMENT_LAZY_DIRECTORIES=1",
+      "-DDEXKIT_EXPERIMENT_MOVE_FIND_RESULTS=1",
+      "-DDEXKIT_EXPERIMENT_NEGATIVE_STRINGS=1",
+      "-DDEXKIT_EXPERIMENT_NODE_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_PACKED_CROSS_INFO=0",
+      "-DDEXKIT_EXPERIMENT_PACKED_FIELD_USES=0",
+      "-DDEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_POINTER_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=1",
+      "-DDEXKIT_EXPERIMENT_RAW_INTERFACES=1",
+      "-DDEXKIT_EXPERIMENT_RAW_SOURCE_FILES=0",
+      "-DDEXKIT_EXPERIMENT_SINGLE_RELATION=1",
+      "-DDEXKIT_EXPERIMENT_SINGLE_STRING_DIRECT=0",
+      "-DDEXKIT_EXPERIMENT_SINGLE_STRING_ID=0",
+      "-DDEXKIT_EXPERIMENT_SINGLE_STRING_PREFIX=0",
+      "-DDEXKIT_EXPERIMENT_SINGLE_USING_FIELD=0",
+      "-DDEXKIT_EXPERIMENT_SKIP_EMPTY_CANDIDATES=1",
+      "-DDEXKIT_EXPERIMENT_SKIP_RW_WALK=0",
+      "-DDEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_STRING_MEMO_BYTES=1048576",
+      "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=1",
+      "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+      "-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS=0",
+      "-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION=0",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/slicer/export",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/thread_helper",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/aho_corasick_trie",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/parallel_hashmap",
+      "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include",
+      "-Wno-empty-body",
+      "-Wno-unused-private-field",
+      "-Wno-unused-value",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-pthread",
+      "-O3",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-mmacosx-version-min=11.0",
+      "-fno-exceptions",
+      "-std=gnu++20",
+      "-MD",
+      "-MT",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check.o",
+      "-MF",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check.d",
+      "-o",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check.o",
+      "-c",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/uncached_descriptor_checks.cpp"
+    ],
+    "link": [
+      "/Library/Developer/CommandLineTools/usr/bin/c++",
+      "-Wno-empty-body",
+      "-Wno-unused-private-field",
+      "-Wno-unused-value",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-pthread",
+      "-O3",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-mmacosx-version-min=11.0",
+      "-Wl,-search_paths_first",
+      "-Wl,-headerpad_max_install_names",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check.o",
+      "-o",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check",
+      "Core/libdexkit_static.a",
+      "-lz"
+    ],
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/ownership-shape/check",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/dense-descriptors/dense-descriptors.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk"
+    ],
+    "source_sha256": "76361b8d6498faa1a1d7ff9c422ae88170b46a0d20441117f95a45cd90a85b6d",
+    "original_sha256": "970502c160579782de9e1084897d55194d733757d7d699481a00206691399325",
+    "core_sha256": "90393a6188112dacfdb179b3774d73af6e5c9b86fad72cc281f397d7650b42d9",
+    "executable_sha256": "f22d6511ceca2195fbd6f430ef795665e3387e3f007815d0ac26d69e9d5c8a97",
+    "log_sha256": "f78a300f75f497f659181b6b270b24ffd052e6c6c189e2ab822928d2bb40a2a1",
+    "host_shapes": [
+      {
+        "long_strings": false,
+        "method_length": 14,
+        "method_capacity": 22,
+        "method_copy_capacity": 22,
+        "method_inline": true,
+        "field_length": 13,
+        "field_capacity": 22,
+        "field_copy_capacity": 22,
+        "field_inline": true
+      },
+      {
+        "long_strings": true,
+        "method_length": 1778,
+        "method_capacity": 2815,
+        "method_copy_capacity": 1783,
+        "method_inline": false,
+        "field_length": 30,
+        "field_capacity": 47,
+        "field_copy_capacity": 31,
+        "field_inline": false
+      }
+    ],
+    "limitation": "Host observations only; Android was compiled, not executed."
+  },
+  "workload_smoke_commands": 80,
+  "qq": [
+    {
+      "name": "verify-control-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    {
+      "name": "verify-control-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a"
+    },
+    {
+      "name": "verify-raw-dense-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "7ff214a4802b1c99a151f2dd6ab9a3e0f7dd99199829e121b71c88ef09fe2488"
+    },
+    {
+      "name": "verify-raw-dense-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "7ff214a4802b1c99a151f2dd6ab9a3e0f7dd99199829e121b71c88ef09fe2488"
+    },
+    {
+      "name": "verify-vector-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "649cd4ea2e48a9bb779802aa12203457b564a7f5fc4668b66fcfc59f89f614a6"
+    },
+    {
+      "name": "verify-vector-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "649cd4ea2e48a9bb779802aa12203457b564a7f5fc4668b66fcfc59f89f614a6"
+    },
+    {
+      "name": "verify-uncached-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "095cfb7f54fe184fd8c6cb122c70e1784898ea693908bbf9f77d530dd129ecad"
+    },
+    {
+      "name": "verify-uncached-w1",
+      "passes": 1,
+      "threads": 1,
+      "native_sha256": "095cfb7f54fe184fd8c6cb122c70e1784898ea693908bbf9f77d530dd129ecad"
+    },
+    {
+      "name": "verify-uncached-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "e423a41a7fc675fe5e7da4b5321f8f2ed9fcd9c32670ef3099fa4c9e339c7557",
+      "field_tail": null
+    },
+    {
+      "name": "verify-raw-dense-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "846ec2507175c97c7a2a420f12dabd11cc8597dd1e20d698f80dc71d27b15fd6",
+      "field_tail": null
+    },
+    {
+      "name": "verify-vector-trace-census-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "01a8df8893b6c17c59c5070d613f822fcda6dffe0e0615593c9ce60c7b2e11df",
+      "field_tail": null
+    },
+    {
+      "name": "verify-uncached-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "095cfb7f54fe184fd8c6cb122c70e1784898ea693908bbf9f77d530dd129ecad",
+      "field_tail": true
+    },
+    {
+      "name": "verify-control-tail-w4",
+      "passes": 11,
+      "threads": 4,
+      "native_sha256": "1493dfaee385690cd2bf83e90ebf644de15555682b7353dd2c19490d28918c7a",
+      "field_tail": true
+    }
+  ],
+  "native_census_commands": 60,
+  "gradle": {
+    "command": [
+      "bash",
+      "./gradlew",
+      ":dexkit:cmakeBuild",
+      ":dexkit:jar",
+      ":dexkit:test",
+      ":dexkit-android:assembleRelease",
+      "--max-workers=2",
+      "-I",
+      "tools/qaux-benchmark/force_tests.gradle",
+      "-PexperimentLazyDirectories=ON",
+      "-PexperimentCompactStrings=ON",
+      "-PexperimentNegativeStrings=ON",
+      "-PexperimentStructuralDescriptors=ON",
+      "-PexperimentDescriptorFastHits=ON",
+      "-PexperimentRawInterfaces=ON",
+      "-PexperimentFieldIdentitySplit=ON",
+      "-PexperimentCompactInvokes=ON",
+      "-PexperimentSingleRelation=ON",
+      "-PexperimentInvertedStrings=ON",
+      "-PexperimentInvertedStringRanges=ON",
+      "-PexperimentSkipEmptyCandidates=ON",
+      "-PexperimentMoveFindResults=ON",
+      "-PexperimentCompactCallers=ON",
+      "-PexperimentUncachedDescriptors=ON",
+      "-PexperimentRawDescriptorLookup=ON",
+      "-PexperimentCandidatePipeline=OFF",
+      "-PexperimentCandidateSlices=OFF",
+      "-PexperimentPackedCrossInfo=OFF",
+      "-PexperimentPackedFieldUses=OFF",
+      "-PexperimentHybridDescriptors=OFF",
+      "-PexperimentVectorDescriptorsNoPromotion=OFF",
+      "-PexperimentVectorDescriptors=OFF",
+      "-PexperimentNodeDescriptors=OFF",
+      "-PexperimentSparseDescriptors=OFF"
+    ],
+    "tests": [
+      {
+        "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+        "tests": "11",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:45",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.469"
+      },
+      {
+        "name": "org.luckypray.dexkit.JavaReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:45",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.133"
+      },
+      {
+        "name": "org.luckypray.dexkit.KtReadMeTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:45",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.187"
+      },
+      {
+        "name": "org.luckypray.dexkit.UnitTest",
+        "tests": "44",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:46",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "1.362"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:47",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.0"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:47",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.013"
+      },
+      {
+        "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+        "tests": "5",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:47",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.112"
+      },
+      {
+        "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-09-17T02:57:47",
+        "hostname": "tebles-MacBook-Pro.local",
+        "time": "0.003"
+      }
+    ],
+    "total_tests": 71,
+    "skipped": 0,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "cmake_caches": [
+      {
+        "abi": "arm64-v8a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/8142d1p5/arm64-v8a/CMakeCache.txt",
+        "sha256": "8ba0dde149649890a70b987a511530300243d1acdb6836045175e0b5590cff69"
+      },
+      {
+        "abi": "armeabi-v7a",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/8142d1p5/armeabi-v7a/CMakeCache.txt",
+        "sha256": "cb1287659ada147d529832a580843ceaa5e87f7d3d14281e4a7ea1e8c0074841"
+      },
+      {
+        "abi": "x86",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/8142d1p5/x86/CMakeCache.txt",
+        "sha256": "f6b6ede041ae9dac666d0eea1151f41f6f9919be8c747486fea82a419e078dbd"
+      },
+      {
+        "abi": "x86_64",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/8142d1p5/x86_64/CMakeCache.txt",
+        "sha256": "02cc91ff3a21f00ad16e36c526e2dd3f5953b61d4e32b5fcf0be159c793c9264"
+      },
+      {
+        "abi": "desktop",
+        "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+        "sha256": "f99cfabd89d30d3bc45e7dcf21a8ac9bef586d55160082bd963afad718835ca5"
+      }
+    ],
+    "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+    "aar_sha256": "70f1727aabe443e4fde5b797b0dfa45af62d9caa5f9b017c26ebe49760709b79"
+  },
+  "abi_layouts": [
+    {
+      "abi": "desktop",
+      "variants": [
+        {
+          "uncached": false,
+          "command": [
+            "clang++",
+            "-mmacosx-version-min=11.0",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/desktop-0.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=0",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 64,
+            "field_bean": 40,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "e6fabf8e5a55f9db30f4d1665f3ea95ea63bcdffc6c3ff89b24120758436d563"
+        },
+        {
+          "uncached": true,
+          "command": [
+            "clang++",
+            "-mmacosx-version-min=11.0",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/desktop-1.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 72,
+            "field_bean": 48,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "40def7645c3c5d41f50286255632c800a349680abd26f0d6f6179f5435832e0a"
+        }
+      ]
+    },
+    {
+      "abi": "arm64-v8a",
+      "variants": [
+        {
+          "uncached": false,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/arm64-v8a-0.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=0",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 64,
+            "field_bean": 40,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "65315999d88ce95d61356b8d000d8cb6a6a2a95de7ac9ad53eec273a8b0c4f34"
+        },
+        {
+          "uncached": true,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/arm64-v8a-1.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 72,
+            "field_bean": 48,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "8d41b9b9ab74a06f75bf3d3d923929a89067111bf0b219caa1b5ce0b229d6dff"
+        }
+      ]
+    },
+    {
+      "abi": "armeabi-v7a",
+      "variants": [
+        {
+          "uncached": false,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/armeabi-v7a-0.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=0",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 40,
+            "field_bean": 28,
+            "class_bean": 68,
+            "string_object": 12,
+            "string_view_object": 8
+          },
+          "assembly_sha256": "e3e67e8baf01834c18faf7a16fae6cdd93c53352650e710fea4339fc420ccea6"
+        },
+        {
+          "uncached": true,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/armeabi-v7a-1.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 44,
+            "field_bean": 32,
+            "class_bean": 68,
+            "string_object": 12,
+            "string_view_object": 8
+          },
+          "assembly_sha256": "b39d3c397cb33048d99be6a159dcb9269efeca0dc1d27ec06041b40a2f133177"
+        }
+      ]
+    },
+    {
+      "abi": "x86",
+      "variants": [
+        {
+          "uncached": false,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/x86-0.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=0",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 40,
+            "field_bean": 28,
+            "class_bean": 68,
+            "string_object": 12,
+            "string_view_object": 8
+          },
+          "assembly_sha256": "ec40e51668b80f18fba3453110e97fc2ad627ffaee00f2b1bc71740705620f40"
+        },
+        {
+          "uncached": true,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/x86-1.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 44,
+            "field_bean": 32,
+            "class_bean": 68,
+            "string_object": 12,
+            "string_view_object": 8
+          },
+          "assembly_sha256": "4307e9b1c5f446aedfbe3ebcdf79718282d90e3fbc5e797092240b7dcac582f3"
+        }
+      ]
+    },
+    {
+      "abi": "x86_64",
+      "variants": [
+        {
+          "uncached": false,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/x86_64-0.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=0",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 64,
+            "field_bean": 40,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "d0741a1960fc5762e521d2c7e28550e12a9b3b6acbe3ba6b68753a3fe4a234fd"
+        },
+        {
+          "uncached": true,
+          "command": [
+            "/Users/teble/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang++",
+            "-std=c++20",
+            "-fno-exceptions",
+            "-O2",
+            "-S",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/layout.cpp",
+            "-o",
+            "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/layout/x86_64-1.s",
+            "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=1",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/dexkit/include",
+            "-I/Users/teble/project/android/DexKit-qaux-benchmark/Core/third_party/flatbuffers/include"
+          ],
+          "sizes": {
+            "method_bean": 72,
+            "field_bean": 48,
+            "class_bean": 128,
+            "string_object": 24,
+            "string_view_object": 16
+          },
+          "assembly_sha256": "0fc53b3f9fccfd7eb31e044ed3402f697613ddf4d60b8f930800edfcdd57f0e8"
+        }
+      ]
+    }
+  ],
+  "cmake_configuration_checks": [
+    {
+      "name": "default",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/default",
+        "-G",
+        "Ninja"
+      ],
+      "exit_code": 0,
+      "expected_valid": true
+    },
+    {
+      "name": "minimal",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/minimal",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON"
+      ],
+      "exit_code": 0,
+      "expected_valid": true
+    },
+    {
+      "name": "fast",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/fast",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=ON"
+      ],
+      "exit_code": 0,
+      "expected_valid": true
+    },
+    {
+      "name": "missing-both",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/missing-both",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "missing-lookup",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/missing-lookup",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "missing-structural",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/missing-structural",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-pointer",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-pointer",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_POINTER_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-paged",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-paged",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_PAGED_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-node",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-node",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_NODE_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-sparse",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-sparse",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-hybrid",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-hybrid",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    },
+    {
+      "name": "conflict-vector",
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/teble/project/android/DexKit-qaux-benchmark/Core",
+        "-B",
+        "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/uncached-descriptors-v1/validation/config/conflict-vector",
+        "-G",
+        "Ninja",
+        "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS=ON",
+        "-DDEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP=ON",
+        "-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS=ON"
+      ],
+      "exit_code": 1,
+      "expected_valid": false
+    }
+  ],
+  "limitations": [
+    "ASan/UBSan host execution disables leak detection; Android evidence is build/layout only.",
+    "Only MethodBean/FieldBean descriptors own their bytes; other native raw/query-backed views retain their old lifetime.",
+    "A string_view into a temporary or subsequently moved/mutated owning Bean can be invalid.",
+    "Raw descriptor lookup differs from the cached-text baseline and has a raw-dense attribution control.",
+    "Descriptor construction counters exclude Bean string copies and are not total allocation counters.",
+    "Zero persistent cache census does not include transient owning results or allocator retention.",
+    "Four calling threads perform four times the work.",
+    "Preflight/development timings are not included in the fixed 1392-process batch."
+  ]
+}

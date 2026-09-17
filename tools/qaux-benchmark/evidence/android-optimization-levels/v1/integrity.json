@@ -1,0 +1,7 @@
+{
+  "archive": "raw-evidence.tar.gz",
+  "archive_sha256": "ab6d0dc31400b287007756c5d219bfdb64d8c2cff4167f0cfb244db39a88ea1c",
+  "archive_bytes": 333781,
+  "member_count": 155,
+  "every_member_read_back_and_verified": true
+}

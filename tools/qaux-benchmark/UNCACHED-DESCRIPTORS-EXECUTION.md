@@ -49,8 +49,8 @@ Review the actual source delta through the existing authorized Pro conversation.
 - [x] Implement and inspect the guarded candidate and owning result contract.
 - [x] Complete native/oracle/lifetime/sanitizer/JVM/Android verification.
 - [x] Read and reconcile the complete source review.
-- [ ] Freeze and execute the paired performance matrix.
-- [ ] Archive all evidence, report benefits and adverse cases, and push the fork.
+- [x] Freeze and execute the paired performance matrix.
+- [x] Archive all evidence, report benefits and adverse cases, and push the fork.
 
 Before timing, 193 native driver commands passed across normal, diagnostic,
 minimal, sanitizer and all-experiments-OFF builds. Eight normal QQ oracles plus
@@ -71,3 +71,10 @@ output/lookup cases also compare raw dense with uncached. QQ p1/w4, p11/w4 and
 p1/w1 compare both direct baselines, with raw dense added to the two w4 cases.
 All four normal engines are `2be1a63`; only VECTOR, UNCACHED and RAW_LOOKUP differ.
 The complete finite plan, input hashes and commands are frozen before execution.
+
+Completed: all 116 sweeps / 1392 fresh processes finished without excluding a
+successful sample. The [results](UNCACHED-DESCRIPTORS-RESULTS.md) and
+[verified evidence](evidence/uncached-descriptors/v1/manifest.json) were committed
+and pushed to the authorized fork. These completion annotations were added after
+measurement and evidence packing. The archive retains the exact pre-timing plan
+from `4462724`, matching the frozen input hash; production remains `2be1a63`.

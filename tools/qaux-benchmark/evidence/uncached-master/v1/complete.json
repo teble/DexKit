@@ -1,0 +1,6 @@
+{
+  "sweeps": 8,
+  "samples": 96,
+  "frozen_inputs_unchanged": true,
+  "frozen_plan_sha256": "8c5be76400677965f278123d6e13a0579886ee7e3a178a7d03ca03c82367d87f"
+}

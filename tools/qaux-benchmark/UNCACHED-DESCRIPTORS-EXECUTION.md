@@ -47,7 +47,27 @@ Review the actual source delta through the existing authorized Pro conversation.
 ## Progress
 
 - [x] Implement and inspect the guarded candidate and owning result contract.
-- [ ] Complete native/oracle/lifetime/sanitizer/JVM/Android verification.
-- [ ] Read and reconcile the complete source review.
+- [x] Complete native/oracle/lifetime/sanitizer/JVM/Android verification.
+- [x] Read and reconcile the complete source review.
 - [ ] Freeze and execute the paired performance matrix.
 - [ ] Archive all evidence, report benefits and adverse cases, and push the fork.
+
+Before timing, 193 native driver commands passed across normal, diagnostic,
+minimal, sanitizer and all-experiments-OFF builds. Eight normal QQ oracles plus
+three diagnostic and two final field-relation oracles passed. All 80 normal
+workload smokes agree, with independent ID/count checks for transition cases.
+Sixty diagnostic native cases confirm zero persistent uncached descriptor
+storage and one construction per getter call; result string copies are separate.
+The 71 JVM tests (zero skipped), four Android ABI release build, five ABI Bean
+layout probes, 12 CMake dependency/exclusion configurations and docs install/build
+passed. An additional normal-host ownership check observes actual inline/heap
+storage and construction/copy capacities. The complete source review found no
+confirmed production blocker. These checks are not performance samples.
+
+The fixed matrix has 116 sweeps / 1392 fresh processes. Each of the main and
+independently seeded confirmation phases uses six balanced AB/BA pairs per sweep.
+Twenty native cases compare old dense and vector directly with uncached; ten
+output/lookup cases also compare raw dense with uncached. QQ p1/w4, p11/w4 and
+p1/w1 compare both direct baselines, with raw dense added to the two w4 cases.
+All four normal engines are `2be1a63`; only VECTOR, UNCACHED and RAW_LOOKUP differ.
+The complete finite plan, input hashes and commands are frozen before execution.

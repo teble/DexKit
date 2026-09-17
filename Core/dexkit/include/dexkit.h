@@ -132,6 +132,9 @@ public:
 
 private:
     friend struct CallerBenchmark;
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    friend struct UncachedDescriptorBenchmark;
+#endif
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     friend class DexItem;
     friend struct VectorDescriptorBenchmark;

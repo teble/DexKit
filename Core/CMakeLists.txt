@@ -21,6 +21,7 @@ option(DEXKIT_EXPERIMENT_NODE_DESCRIPTORS "Cache generated descriptors in growin
 option(DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS "Index stable deque strings through sparse flat hash tables" OFF)
 option(DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS "Convert sparse descriptor indexes to dense atomic arrays by byte cost" OFF)
 option(DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS "Discard sparse descriptors at query boundaries and use independent string vectors" OFF)
+option(DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS "Return owning member descriptors without a persistent cache" OFF)
 option(DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION "Keep vector experiment borrowing and accounting without converting" OFF)
 if (DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION AND NOT DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS)
     message(FATAL_ERROR "The vector no-promotion control requires vector descriptors")
@@ -31,7 +32,7 @@ if (DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS AND NOT (DEXKIT_EXPERIMENT_PAGED_DESC
     message(FATAL_ERROR "Descriptor fast hits require a published descriptor cache")
 endif ()
 set(descriptor_storage_count 0)
-foreach(storage POINTER PAGED NODE SPARSE HYBRID VECTOR)
+foreach(storage POINTER PAGED NODE SPARSE HYBRID VECTOR UNCACHED)
     if (DEXKIT_EXPERIMENT_${storage}_DESCRIPTORS)
         math(EXPR descriptor_storage_count "${descriptor_storage_count} + 1")
     endif ()
@@ -45,6 +46,9 @@ endif ()
 option(DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP "Use raw structural descriptor lookup instead of cached text" OFF)
 if (DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP AND NOT DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS)
     message(FATAL_ERROR "Raw descriptor lookup requires structural descriptor publication support")
+endif ()
+if (DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS AND NOT (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS AND DEXKIT_EXPERIMENT_RAW_DESCRIPTOR_LOOKUP))
+    message(FATAL_ERROR "Uncached descriptors require structural identities and raw descriptor lookup")
 endif ()
 option(DEXKIT_EXPERIMENT_RAW_INTERFACES "Borrow raw DEX interface type lists" OFF)
 option(DEXKIT_EXPERIMENT_COMPACT_INVOKES "Build forward invocation rows in contiguous storage" OFF)
@@ -134,6 +138,7 @@ target_compile_definitions(${PROJECT_NAME}_static PUBLIC
         DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS}>
+        DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION=$<BOOL:${DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION}>
         DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=$<BOOL:${DEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS}>
         DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=$<BOOL:${DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS}>
@@ -285,6 +290,11 @@ if (DEXKIT_BENCHMARK_DESCRIPTOR_WORKLOAD)
         add_executable(dexkit_vector_descriptor_checks ../tools/qaux-benchmark/vector_descriptor_checks.cpp)
         target_compile_options(dexkit_vector_descriptor_checks PRIVATE -fno-exceptions)
         target_link_libraries(dexkit_vector_descriptor_checks PRIVATE dexkit_static)
+    endif ()
+    if (DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS)
+        add_executable(dexkit_uncached_descriptor_checks ../tools/qaux-benchmark/uncached_descriptor_checks.cpp)
+        target_compile_options(dexkit_uncached_descriptor_checks PRIVATE -fno-exceptions)
+        target_link_libraries(dexkit_uncached_descriptor_checks PRIVATE dexkit_static)
     endif ()
 endif ()
 if (DEXKIT_BENCHMARK_SYMBOL_CHECKS)

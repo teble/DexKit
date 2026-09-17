@@ -39,6 +39,7 @@ android {
                 arguments "-DDEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=${providers.gradleProperty('experimentSparseDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=${providers.gradleProperty('experimentHybridDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS=${providers.gradleProperty('experimentVectorDescriptors').getOrElse('OFF')}"
+                arguments "-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=${providers.gradleProperty('experimentUncachedDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION=${providers.gradleProperty('experimentVectorDescriptorsNoPromotion').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=${providers.gradleProperty('experimentAlignedDescriptors').getOrElse('OFF')}"
                 arguments "-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=${providers.gradleProperty('experimentDescriptorFastHits').getOrElse('OFF')}"

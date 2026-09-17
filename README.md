@@ -417,6 +417,12 @@ until all borrowed descriptor views and worker tasks are finished. Java/Kotlin A
 that scope internally. See the [native lifetime contract](doc-source/src/en/guide/performance-optimization.md#native-descriptor-storage-experiment)
 before enabling this option; its performance is still under evaluation.
 
+The alternative `DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS` (default OFF) gives
+method/field Beans owning strings instead of a persistent native descriptor
+cache. It requires structural identities and raw descriptor lookup. Its C++
+types/ABI differ; all native consumers must use matching options. Managed result
+formats stay unchanged. See the [uncached lifetime contract](doc-source/src/en/guide/performance-optimization.md#uncached-member-descriptors).
+
 ## Third-Party Open Source References
 
 - [slicer](https://cs.android.com/android/platform/superproject/+/main:tools/dexter/slicer/)

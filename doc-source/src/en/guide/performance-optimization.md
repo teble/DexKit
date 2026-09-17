@@ -120,3 +120,32 @@ The owner check does not detect an expired captured context. Do not reuse it
 after its owning session ends, and include any descriptor-reading task destructors
 in the worker lifetime. Avoid conflicting acquisition/wait orders when using
 sessions for more than one bridge.
+
+## Uncached member descriptors
+
+`DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS` defaults OFF. Gradle uses
+`-PexperimentUncachedDescriptors=ON`; also enable `experimentStructuralDescriptors`
+and `experimentRawDescriptorLookup`. It is mutually exclusive with the other
+descriptor storage experiments, including vector. The fast-hit option has no
+effect on uncached descriptor access.
+
+In this experiment, `MethodBean::dex_descriptor` and `FieldBean::dex_descriptor`
+are owning `std::string` values. Copying a Bean copies its descriptor; moving the
+Bean transfers ownership. A `string_view` derived from a Bean borrows that Bean's
+string and must not outlive it or survive an invalidating move/mutation. Do not
+store a view obtained from a temporary Bean. All native users and the library
+must agree on this option because it changes C++ types and ABI.
+
+Every requested method/field descriptor is generated again. The bridge retains
+no descriptor array/hash cache, ready bytes or descriptor publication locks, and
+does not use the vector experiment's borrowing sessions. Existing bridge warmup,
+query admission and native close/mutation restrictions still apply. Class and
+other DEX-backed views retain their existing lifetime requirements; this option
+does not make all native metadata own its underlying data.
+
+Result assembly and textual cross-DEX deduplication use live owning Bean strings.
+Serialized FlatBuffers and Java/Kotlin results retain their existing bytes and
+API behavior. Repeated output may spend more time generating descriptors, and
+simultaneous owning results can increase temporary allocations. Performance must
+be evaluated with the complete workload; removing persistent storage is not a
+guarantee of lower process peak memory.

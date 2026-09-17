@@ -407,6 +407,11 @@ Java/Kotlin API 会在内部管理该作用域。启用前请阅读
 [原生生命周期约定](doc-source/src/zh-cn/guide/performance-optimization.md#原生描述符存储实验)；
 此方案的性能仍在评估中。
 
+另一项 `DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS` 实验（默认关闭）让方法/字段 Bean 拥有
+字符串，取消原生层的长期描述符缓存；它要求同时开启结构化身份比较和原始描述符查找。
+该选项改变 C++ 类型及 ABI，所有原生调用方必须使用一致的编译选项；Java/Kotlin 返回格式不变。
+详见[无缓存生命周期约定](doc-source/src/zh-cn/guide/performance-optimization.md#无缓存成员描述符)。
+
 ## 第三方开源引用
 
 - [slicer](https://cs.android.com/android/platform/superproject/+/main:tools/dexter/slicer/)

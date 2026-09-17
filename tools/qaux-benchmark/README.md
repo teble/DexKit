@@ -367,3 +367,14 @@ its `VECTOR_DESCRIPTORS_NO_PROMOTION` control (Gradle
 `experimentVectorDescriptorsNoPromotion`) default OFF. The control requires the
 vector option. Direct native Bean consumers must follow the documented borrowing
 contract; ordinary Java/Kotlin APIs manage it internally.
+
+The [uncached descriptor experiment](UNCACHED-DESCRIPTORS-EXECUTION.md) removes
+long-lived native member descriptor storage. `DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS`
+(Gradle `experimentUncachedDescriptors`) defaults OFF, requires
+`STRUCTURAL_DESCRIPTORS` and `RAW_DESCRIPTOR_LOOKUP`, and excludes other storage
+backends. Method/field Beans and descriptor getter results own their strings in
+this mode. Native consumers must use matching compile definitions and respect
+the lifetime of those owning values; managed result bytes/schema stay unchanged.
+The comparison includes old dense with raw lookup as a separate attribution
+control. Persistent-cache census excludes temporary result owners; process peaks
+and complete lifecycle retain their allocations, copies and destruction costs.

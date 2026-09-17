@@ -39,6 +39,7 @@ cmake {
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS=${providers.gradleProperty('experimentSparseDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS=${providers.gradleProperty('experimentHybridDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS=${providers.gradleProperty('experimentVectorDescriptors').getOrElse('OFF')}")
+            cmakeArgs.add("-DDEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS=${providers.gradleProperty('experimentUncachedDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS_NO_PROMOTION=${providers.gradleProperty('experimentVectorDescriptorsNoPromotion').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_ALIGNED_DESCRIPTORS=${providers.gradleProperty('experimentAlignedDescriptors').getOrElse('OFF')}")
             cmakeArgs.add("-DDEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS=${providers.gradleProperty('experimentDescriptorFastHits').getOrElse('OFF')}")

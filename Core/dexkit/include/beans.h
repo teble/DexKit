@@ -20,12 +20,21 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
 #include <variant>
 
 #include "schema/enums_generated.h"
 #include "schema/results_generated.h"
 
 namespace dexkit {
+
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+// The returned value owns its bytes. Views into it must not outlive the value.
+using MemberDescriptor = std::string;
+#else
+using MemberDescriptor = std::string_view;
+#endif
 
 class ClassBean {
 public:
@@ -50,7 +59,7 @@ public:
     uint32_t dex_id = -1;
     uint32_t class_id = -1;
     uint32_t access_flags = 0;
-    std::string_view dex_descriptor;
+    MemberDescriptor dex_descriptor;
     uint32_t return_type = -1;
     std::vector<uint32_t> parameter_types;
 
@@ -65,7 +74,7 @@ public:
     uint32_t dex_id = -1;
     uint32_t class_id = -1;
     uint32_t access_flags = 0;
-    std::string_view dex_descriptor;
+    MemberDescriptor dex_descriptor;
     uint32_t type_id = -1;
 
 public:

@@ -310,7 +310,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         field_ids += item.reader.FieldIds().size();
         if (std::string_view(phase) == "pre_close") {
             NameIndex(item.type_ids_map, phase, item.dex_id, "type_ids");
-#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && !DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
             DescriptorOccupancy(item.method_descriptors, phase, item.dex_id, "method");
             DescriptorOccupancy(item.field_descriptors, phase, item.dex_id, "field");
 #endif
@@ -325,7 +325,11 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         Slots(counts["lazy_opcodes"], item.lazy_method_opcode_slots, methods);
         Slots(counts["lazy_strings"], item.lazy_method_using_string_slots, methods);
         Slots(counts["lazy_numbers"], item.lazy_using_numbers_slots, methods);
-#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+        // This census covers persistent bridge storage. Owning result strings
+        // are temporary output allocations and remain included in OS peaks.
+        counts["descriptors"];
+#elif DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
         Descriptors(counts["descriptors"], item.vector_descriptors, phase, item.dex_id);
 #elif DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS
         Descriptors(counts["descriptors"], item.hybrid_descriptors, phase, item.dex_id);
@@ -347,7 +351,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         }
         method_comparisons += item.descriptor_diagnostics.method_comparisons.load(std::memory_order_relaxed);
         field_comparisons += item.descriptor_diagnostics.field_comparisons.load(std::memory_order_relaxed);
-#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if (DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS) && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && !DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
         auto &publication = counts["descriptor_publication"];
 #if DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
         publication.index_bytes += sizeof(item.descriptor_mutexes);

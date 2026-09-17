@@ -97,3 +97,24 @@ Java/Kotlin 查询 API 及现有示例保持原有生命周期行为。并发关
 的原生生命周期。
 owner 检查无法检测已过期的 context，因此不能在原会话结束后复用它；读取描述符的任务析构
 也必须包含在工作任务的生命周期内。使用多个 bridge 的会话时，调用方需避免相反的获取或等待顺序。
+
+## 无缓存成员描述符
+
+`DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS` 默认关闭。Gradle 使用
+`-PexperimentUncachedDescriptors=ON`，同时开启 `experimentStructuralDescriptors` 和
+`experimentRawDescriptorLookup`。此选项与包括 vector 在内的其他描述符存储实验互斥。
+fast-hit 选项不影响无缓存描述符访问。
+
+开启后，`MethodBean::dex_descriptor` 和 `FieldBean::dex_descriptor` 是拥有内容的
+`std::string`。复制 Bean 会复制字符串，移动 Bean 会转移所有权。从 Bean 取得的 `string_view`
+仍然借用该 Bean 的字符串，不可超过其生命周期或跨越使视图失效的移动、修改；不要保存从临时
+Bean 中取得的视图。该选项改变 C++ 类型及 ABI，原生调用方与库必须使用一致的编译选项。
+
+每次请求方法或字段描述符都会重新生成。bridge 不保留描述符数组、哈希表、ready 字节或描述符
+发布锁，也不使用 vector 实验的借用会话。现有缓存预热、查询准入和关闭、修改 bridge 的限制
+继续适用。类描述符及其他借用 DEX 的视图仍遵守原生命周期要求；此选项不使所有原生元数据拥有
+底层数据。
+
+结果汇总和跨 DEX 文本去重使用仍然存活的 Bean 字符串。已序列化 FlatBuffer 与 Java/Kotlin
+结果的字节及 API 行为保持不变。重复输出会重复生成字符串，同时存活的结果可能增加临时分配。
+性能需要按完整工作负载评估，取消长期缓存并不保证进程峰值内存一定降低。

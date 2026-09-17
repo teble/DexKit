@@ -152,7 +152,9 @@ void DexItem::InitBaseCache() {
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
     const auto field_count = reader.FieldIds().size();
-#if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    // No descriptor slots are allocated for this DEX.
+#elif DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     vector_descriptors.Initialize(method_count, field_count, [](void *owner) {
         static_cast<DexKit *>(owner)->RequestDescriptorMaintenance();
     }, dexkit);
@@ -172,14 +174,16 @@ void DexItem::InitBaseCache() {
     lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
     lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
 #endif
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    // No field descriptor slots are allocated either.
+#elif DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     // Initialized together with the method index above.
 #elif DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS || DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS
     field_descriptors.Initialize(field_count);
 #else
     field_descriptors.resize(field_count);
 #endif
-#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_STRUCTURAL_DESCRIPTORS && !DEXKIT_EXPERIMENT_PAGED_DESCRIPTORS && !DEXKIT_EXPERIMENT_POINTER_DESCRIPTORS && !DEXKIT_EXPERIMENT_NODE_DESCRIPTORS && !DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS && !DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS && !DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS && !DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
     method_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(method_count);
     field_descriptor_ready = std::make_unique<std::atomic<uint8_t>[]>(field_count);
 #endif
@@ -1330,11 +1334,14 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
     return beans;
 }
 
-std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
+MemberDescriptor DexItem::GetMethodDescriptor(uint32_t method_idx) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Called(true);
 #endif
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS || DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    return BuildMethodDescriptorCold(method_idx);
+#else
 #if (DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS) && DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     if (auto *cached = vector_descriptors.TryGet<true>(method_idx)) return *cached;
@@ -1354,6 +1361,7 @@ std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
     return hybrid_descriptors.GetOrCreate<true>(method_idx,
 #endif
             [this, method_idx] { return BuildMethodDescriptorCold(method_idx); });
+#endif
 }
 
 std::string DexItem::BuildMethodDescriptorCold(uint32_t method_idx) {
@@ -1451,11 +1459,14 @@ std::string_view DexItem::GetMethodDescriptorCold(uint32_t method_idx) {
 #endif
 }
 
-std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
+MemberDescriptor DexItem::GetFieldDescriptor(uint32_t field_idx) {
 #if DEXKIT_BENCHMARK_DIAGNOSTICS
     descriptor_diagnostics.Called(false);
 #endif
-#if DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS || DEXKIT_EXPERIMENT_NODE_DESCRIPTORS || DEXKIT_EXPERIMENT_SPARSE_DESCRIPTORS || DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    return BuildFieldDescriptorCold(field_idx);
+#else
 #if (DEXKIT_EXPERIMENT_HYBRID_DESCRIPTORS || DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS) && DEXKIT_EXPERIMENT_DESCRIPTOR_FAST_HITS
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     if (auto *cached = vector_descriptors.TryGet<false>(field_idx)) return *cached;
@@ -1475,6 +1486,7 @@ std::string_view DexItem::GetFieldDescriptorCold(uint32_t field_idx) {
     return hybrid_descriptors.GetOrCreate<false>(field_idx,
 #endif
             [this, field_idx] { return BuildFieldDescriptorCold(field_idx); });
+#endif
 }
 
 std::string DexItem::BuildFieldDescriptorCold(uint32_t field_idx) {

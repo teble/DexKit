@@ -43,7 +43,7 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
 #endif
     std::latch start(1);
     std::vector<std::thread> readers;
-    std::array<std::string_view, 8> same_methods, same_fields;
+    std::array<MemberDescriptor, 8> same_methods, same_fields;
     for (size_t worker = 0; worker < same_methods.size(); ++worker) readers.emplace_back([&, worker] {
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
         DescriptorBorrowScope borrowed_scope(borrowed_context);
@@ -56,8 +56,13 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
     start.count_down();
     for (auto &reader : readers) reader.join();
     for (size_t i = 0; i < same_methods.size(); ++i) {
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+        require(same_methods[i] == same_methods[0], "independently owned method content");
+        require(same_fields[i] == same_fields[0], "independently owned field content");
+#else
         require(same_methods[i] == same_methods[0] && same_methods[i].data() == same_methods[0].data(), "method publication");
         require(same_fields[i] == same_fields[0] && same_fields[i].data() == same_fields[0].data(), "field publication");
+#endif
     }
     require(method == "LA;->m00000()V" && method.data() == method_address, "retained method");
     require(field == "LA;->f00000:I" && field.data() == field_address, "retained field");
@@ -65,7 +70,11 @@ void BenchmarkDiagnostics::CheckDenseDescriptors(std::string_view apk) {
     for (size_t reason = 0; reason < 3; ++reason)
         built += item.descriptor_diagnostics.method_builds[reason].load()
                + item.descriptor_diagnostics.field_builds[reason].load();
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+    require(built == 2 + same_methods.size() * (2 + 2 * count), "one construction per uncached access");
+#else
     require(built == 2 * count, "exactly one construction per slot");
+#endif
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
     }
 #endif
@@ -122,7 +131,7 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     std::map<std::string_view, std::vector<size_t>> method_names, field_names;
     std::set<std::string> defined_methods, defined_fields;
     uint64_t pairs = 0, different_index_matches = 0;
-    std::string_view retained_method, retained_field;
+    MemberDescriptor retained_method, retained_field;
     std::string retained_method_copy, retained_field_copy;
     const char *retained_method_address = nullptr, *retained_field_address = nullptr;
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
@@ -310,7 +319,7 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     auto cold_borrow = cold.BorrowDescriptors();
     const auto borrowed_context = DescriptorBorrowScope::Capture();
 #endif
-    std::array<std::string_view, 8> same_slot;
+    std::array<MemberDescriptor, 8> same_slot;
     std::vector<std::thread> readers;
     for (size_t worker = 0; worker < same_slot.size(); ++worker) readers.emplace_back([&, worker] {
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
@@ -331,7 +340,13 @@ void BenchmarkDiagnostics::CheckSymbols(std::string_view apk) {
     });
     start.count_down();
     for (auto &reader : readers) reader.join();
-    for (auto view : same_slot) require(view == same_slot[0] && view.data() == same_slot[0].data(), "same-slot stable publication");
+    for (const auto &view : same_slot) {
+#if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
+        require(view == same_slot[0], "same-slot independent owning results");
+#else
+        require(view == same_slot[0] && view.data() == same_slot[0].data(), "same-slot stable publication");
+#endif
+    }
     std::fprintf(stderr,
         "CHECK_SYMBOLS {\"methods\":%zu,\"fields\":%zu,\"pairs\":%llu,\"different_index_matches\":%llu,\"passed\":true}\n",
         methods.size(), fields.size(), (unsigned long long) pairs, (unsigned long long) different_index_matches);

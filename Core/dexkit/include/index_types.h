@@ -25,8 +25,13 @@ static_assert(sizeof(MethodReference) == (sizeof(LocalMethodId) == 2 ? 4 : 8));
 // Only storage is narrowed. Arithmetic and public IDs retain their full width.
 template<class To, class From>
 constexpr To CheckedIndexCast(From value) {
-    static_assert(std::is_integral_v<To> && std::is_integral_v<From>);
-    if (!std::in_range<To>(value)) std::abort();
+    static_assert(std::is_integral_v<To> && std::is_unsigned_v<To> && std::is_integral_v<From>);
+    static_assert(sizeof(To) <= sizeof(uintmax_t) && sizeof(From) <= sizeof(uintmax_t));
+    // The Android prefab standard library does not provide std::in_range.
+    if constexpr (std::is_signed_v<From>) {
+        if (value < 0) std::abort();
+    }
+    if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<To>::max())) std::abort();
     return static_cast<To>(value);
 }
 

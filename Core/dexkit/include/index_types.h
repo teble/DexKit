@@ -11,13 +11,16 @@ namespace dexkit {
 
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
 using CacheOffset = uint32_t;
-using LocalMethodId = uint16_t;
+using InvokeOperandId = uint16_t;
 using ClassDefIndex = uint16_t;
 #else
 using CacheOffset = size_t;
-using LocalMethodId = uint32_t;
+using InvokeOperandId = uint32_t;
 using ClassDefIndex = uint32_t;
 #endif
+
+// Method definitions/metadata can have wider IDs than invoke operands.
+using LocalMethodId = uint32_t;
 
 using MethodReference = std::pair<uint16_t, LocalMethodId>;
 static_assert(sizeof(MethodReference) == (sizeof(LocalMethodId) == 2 ? 4 : 8));

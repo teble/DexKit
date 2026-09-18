@@ -86,14 +86,13 @@ int main() {
         overflow.Allocate();
     });
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
-    Aborts([&] { callers.Write(0, 0, uint32_t{UINT16_MAX} + 1); });
     if constexpr (sizeof(size_t) > sizeof(uint32_t)) {
         Aborts([&] { CompactCallerIndex::CheckedAdd(static_cast<size_t>(uint64_t{UINT32_MAX} + 1), 0); });
     }
 #endif
 #endif
-    std::printf("CHECK_INDEX_TYPES {\"method_bytes\":%zu,\"offset_bytes\":%zu,\"caller_bytes\":%zu,"
+    std::printf("CHECK_INDEX_TYPES {\"method_bytes\":%zu,\"invoke_bytes\":%zu,\"offset_bytes\":%zu,\"caller_bytes\":%zu,"
                 "\"rw_bytes\":%zu,\"class_def_bytes\":%zu,\"max_id\":65535,\"long_row\":70000,\"string_ids_32bit\":true}\n",
-                sizeof(LocalMethodId), sizeof(CacheOffset), sizeof(CompactCallerIndex::Entry),
+                sizeof(LocalMethodId), sizeof(InvokeOperandId), sizeof(CacheOffset), sizeof(CompactCallerIndex::Entry),
                 sizeof(MethodReference), sizeof(ClassDefIndex));
 }

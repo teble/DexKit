@@ -390,9 +390,10 @@ from cache removal and does not infer a general speed improvement.
 The [narrow-type increment](NARROW-TYPES-EXECUTION.md) changes stored integer
 widths only. `DEXKIT_EXPERIMENT_NARROW_TYPES` (Gradle `experimentNarrowTypes`)
 defaults OFF. It uses checked 32-bit compact-index offsets/counts and 16-bit
-local method/class-definition IDs; caller and field reader/writer records are
-four bytes. Per-row lengths and string IDs stay 32-bit, including jumbo strings.
-The opt-in build accepts up to 65536 method IDs per DEX; ID 65535 is valid.
-Larger method tables or unrepresentable accumulated offsets fail explicitly.
+invoke operands/class-definition indexes. Method identities, per-row lengths
+and string IDs stay 32-bit, including jumbo strings and methods above ID 65535.
+Class-definition tables must fit 65536 entries; accumulated offsets must fit u32.
+Caller/reader/writer method identities retain the original u32 domain and their
+eight-byte record layout; no method-table limit is introduced. ID 65535 is valid.
 Native type/ABI options must match. The same-source comparison keeps existing
-vector growth and all other flags fixed; no forward-capacity trimming is included.
+vector growth and other flags fixed; no forward-capacity trimming is included.

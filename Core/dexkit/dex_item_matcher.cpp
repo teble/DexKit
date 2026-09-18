@@ -2100,9 +2100,9 @@ bool DexItem::IsInvokingMethodsMatched(uint32_t method_idx, const schema::Method
 
         auto &method_matchers = *ptr;
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
-        Hungarian<LocalMethodId, const schema::MethodMatcher *, std::span<const LocalMethodId>> hungarian(invoking_methods, method_matchers, IsMethodMatched);
+        Hungarian<InvokeOperandId, const schema::MethodMatcher *, std::span<const InvokeOperandId>> hungarian(invoking_methods, method_matchers, IsMethodMatched);
 #else
-        Hungarian<LocalMethodId, const schema::MethodMatcher *> hungarian(invoking_methods, method_matchers, IsMethodMatched);
+        Hungarian<InvokeOperandId, const schema::MethodMatcher *> hungarian(invoking_methods, method_matchers, IsMethodMatched);
 #endif
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {

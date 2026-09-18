@@ -387,7 +387,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
         invokes.index_bytes += invoke_index.offsets_.capacity() * sizeof(CacheOffset)
                              + invoke_index.lengths_.capacity() * sizeof(uint32_t);
         invokes.entries += invoke_index.offsets_.size();
-        invokes.payload_bytes += invoke_index.ids_.capacity() * sizeof(LocalMethodId);
+        invokes.payload_bytes += invoke_index.ids_.capacity() * sizeof(InvokeOperandId);
         invokes.buffers += (invoke_index.offsets_.capacity() != 0) + (invoke_index.lengths_.capacity() != 0)
                          + (invoke_index.ids_.capacity() != 0);
         for (auto length : invoke_index.lengths_) invokes.ready += length != 0;

@@ -581,7 +581,7 @@ private:
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
     CompactInvocationIndex method_invoking_ids;
 #else
-    std::vector<std::vector<LocalMethodId /*invoke_method_id*/>> method_invoking_ids;
+    std::vector<std::vector<InvokeOperandId /*invoke_method_id*/>> method_invoking_ids;
 #endif
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
     CompactFieldIndex method_using_field_ids;

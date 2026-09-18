@@ -10,14 +10,15 @@ views, raw metadata lookup changes, or class-field ranges in this increment.
 - Add default-OFF `DEXKIT_EXPERIMENT_NARROW_TYPES` and its Gradle property.
 - Use checked 32-bit offsets for compact string, invocation, field and caller
   directories, including the temporary caller counts/write cursors.
-- Store invocation targets and class-method/work-list IDs in 16 bits. Store
-  caller and field reader/writer references as two 16-bit IDs (four bytes).
+- Store invocation instruction operands in 16 bits. Preserve 32-bit method
+  identities in class-method/work lists, callers and field reader/writer rows.
 - Store class-definition indexes in 16 bits. Keep string IDs, row lengths,
   access flags, public metadata IDs and cross-reference identities unchanged.
-- This opt-in representation requires each input DEX to contain at most 65536
-  method IDs. Check that domain during base initialization, before narrowing.
-  ID 65535 is valid; no ID value doubles as an empty marker. Check cumulative
-  offsets/counts before arithmetic or casts, including cross-DEX aggregation.
+- The user explicitly selected compatibility with methods above ID 65535. Do
+  not introduce a method-table limit. Class-definition indexes have a checked
+  16-bit domain; cumulative cache offsets/counts have a checked 32-bit domain.
+  No ID value doubles as an empty marker. Check counts before arithmetic or
+  casts, including cross-DEX aggregation.
 - Preserve the existing wide representation with the switch OFF. Do not enable
   unrelated packed-field/cross-reference switches in the comparison.
 
@@ -42,3 +43,12 @@ caller contract oracle, the mixed invocation oracle, and field relation bytes.
 The first build exposed one remaining class-method matcher template fixed to
 uint32_t; it now follows the stored local method type. These are development
 checks, not final verification or performance samples.
+
+The first prototype restricted method tables to 65536 entries. A real 65537-entry
+fixture confirmed that the old Reader accepts the wider domain. The user chose
+to preserve it, so the final candidate separates InvokeOperandId from the still
+32-bit LocalMethodId and removes the new method-table check. Earlier prototype
+artifacts/tests remain separate and are not the final comparison. The Android
+prefab library also required a portable equivalent of std::in_range; the fixed
+prototype passed 71 JVM tests and all four AAR ABIs. The compatible final source
+must repeat the affected builds and boundary/oracle checks before timing.

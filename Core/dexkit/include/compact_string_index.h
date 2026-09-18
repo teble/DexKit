@@ -68,6 +68,6 @@ private:
 
 // Invocation rows share the same checked append/freeze representation.
 using CompactStringIndex = CompactIdIndex<uint32_t>;
-using CompactInvocationIndex = CompactIdIndex<LocalMethodId>;
+using CompactInvocationIndex = CompactIdIndex<InvokeOperandId>;
 
 } // namespace dexkit

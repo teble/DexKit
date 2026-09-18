@@ -58,7 +58,6 @@ int main() {
     Aborts([&] { (void)rows[5]; });
     Aborts([&] { Index invalid; invalid.BeginCounts(1); invalid.Count(1); });
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
-    Aborts([&] { rows.Write(0, 0, uint32_t{UINT16_MAX} + 1); });
     Aborts([&] {
         Index invalid; invalid.BeginCounts(1); invalid.BeginLayout();
         invalid.AddRowCount(0, limit); invalid.AddRowCount(0, 1);

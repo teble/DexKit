@@ -46,9 +46,7 @@ DexItem::DexItem(uint32_t id, std::shared_ptr<MemMap> mmap, uint32_t header_off,
 
 void DexItem::InitBaseCache() {
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
-    // The opt-in storage domain includes ID 65535 and 65536-entry tables.
-    if (reader.MethodIds().size() > uint64_t{UINT16_MAX} + 1
-            || reader.ClassDefs().size() > uint64_t{UINT16_MAX} + 1) std::abort();
+    if (reader.ClassDefs().size() > uint64_t{UINT16_MAX} + 1) std::abort();
 #endif
     strings.resize(reader.StringIds().size());
     auto strings_it = strings.begin();
@@ -251,7 +249,7 @@ void DexItem::InitBaseCache() {
             if (code_off) {
                 method_codes[class_method_idx] = reader.dataPtr<const dex::Code>(code_off);
             }
-            methods.emplace_back(CheckedIndexCast<LocalMethodId>(class_method_idx));
+            methods.emplace_back(class_method_idx);
         }
         for (uint32_t i = 0, class_method_idx = 0; i < virtual_methods_count; ++i) {
             class_method_idx += ReadULeb128(&class_data);
@@ -260,7 +258,7 @@ void DexItem::InitBaseCache() {
             if (code_off) {
                 method_codes[class_method_idx] = reader.dataPtr<const dex::Code>(code_off);
             }
-            methods.emplace_back(CheckedIndexCast<LocalMethodId>(class_method_idx));
+            methods.emplace_back(class_method_idx);
         }
         std::sort(methods.begin(), methods.end());
     }
@@ -273,7 +271,7 @@ void DexItem::InitBaseCache() {
     auto method_idx = 0;
     for (auto &method_def: reader.MethodIds()) {
         if (!type_def_flag[method_def.class_idx]) {
-            pending_cross_ref_method_ids[method_def.class_idx].emplace_back(CheckedIndexCast<LocalMethodId>(method_idx));
+            pending_cross_ref_method_ids[method_def.class_idx].emplace_back(method_idx);
         }
         ++method_idx;
     }
@@ -405,7 +403,7 @@ void DexItem::InitCache(uint32_t init_flags) {
                 std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
                 std::vector<uint32_t> *method_using_string_ptr = nullptr;
                 std::vector<FieldUse> *method_using_field_ptr = nullptr;
-                std::vector<LocalMethodId> *method_invoking_ptr = nullptr;
+                std::vector<InvokeOperandId> *method_invoking_ptr = nullptr;
                 std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
 
                 if (need_op_seq) {
@@ -487,7 +485,7 @@ void DexItem::InitCache(uint32_t init_flags) {
                         if ((op >= 0x6e && op <= 0x72) // invoke-kind
                             || (op >= 0x74 && op <= 0x78)) { // invoke-kind/range
                             auto index = ReadShort(ptr);
-                            method_invoking_ptr->emplace_back(CheckedIndexCast<LocalMethodId>(index));
+                            method_invoking_ptr->emplace_back(CheckedIndexCast<InvokeOperandId>(index));
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
                             if (need_method_caller) method_caller_ids.Count(index);
 #endif
@@ -808,11 +806,7 @@ ClassBean DexItem::GetClassBean(uint32_t type_idx) {
         bean.interface_ids = this->class_interface_ids[type_idx];
 #endif
         bean.field_ids = this->class_field_ids[type_idx];
-#if DEXKIT_EXPERIMENT_NARROW_TYPES
-        bean.method_ids.assign(class_method_ids[type_idx].begin(), class_method_ids[type_idx].end());
-#else
         bean.method_ids = this->class_method_ids[type_idx];
-#endif
     }
     return bean;
 }

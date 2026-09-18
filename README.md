@@ -424,10 +424,11 @@ types/ABI differ; all native consumers must use matching options. Managed result
 formats stay unchanged. See the [uncached lifetime contract](doc-source/src/en/guide/performance-optimization.md#uncached-member-descriptors).
 
 `DEXKIT_EXPERIMENT_NARROW_TYPES` (default OFF, Gradle `experimentNarrowTypes`)
-uses 16-bit local method IDs and 32-bit relation offsets without changing vector
-growth. This experimental build accepts at most 65536 method IDs per DEX and
-checks cumulative index bounds before narrowing. Native consumers must use
-matching compile definitions. See the [index storage contract](doc-source/src/en/guide/performance-optimization.md#narrow-native-index-types).
+uses 16-bit invoke operands and class-definition indexes, plus checked 32-bit
+relation offsets, without changing vector growth. Method identities retain their
+32-bit domain, including caller and field reader/writer records. Native consumers
+must use matching compile definitions. See the
+[index storage contract](doc-source/src/en/guide/performance-optimization.md#narrow-native-index-types).
 
 ## Third-Party Open Source References
 

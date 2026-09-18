@@ -153,17 +153,19 @@ guarantee of lower process peak memory.
 ## Narrow native index types
 
 `DEXKIT_EXPERIMENT_NARROW_TYPES` defaults OFF; Gradle accepts
-`-PexperimentNarrowTypes=ON`. It uses 16-bit stored local method IDs and class
-definition indexes, four-byte caller/field-reader/field-writer references, and
-32-bit offsets in compact relation indexes. Vector growth and row ordering are
-unchanged. String IDs and row lengths remain 32-bit; jumbo string references and
-rows longer than 65535 entries are preserved. Public Bean/schema IDs stay wide.
+`-PexperimentNarrowTypes=ON`. It uses 16-bit stored invoke operands and class
+definition indexes, and 32-bit offsets in compact relation indexes. Vector
+growth and row ordering are unchanged. Method definitions and reverse-edge
+identities remain 32-bit, since a method's own ID can be wider than the operand
+of an invoke instruction. String IDs and row lengths remain 32-bit; jumbo
+strings, methods above ID 65535 and long rows are preserved. Public IDs stay wide.
 
-This opt-in representation requires at most 65536 method IDs per DEX and checks
-that bound during initialization. ID 65535 is valid, rather than an empty marker.
-Unrepresentable accumulated offsets/counts and narrowing conversions terminate
-through an always-enabled check; they never wrap silently. These are experiment
-limits, not a claim that every input accepted by the original Reader fits the
-narrow representation. Keep the switch OFF when the wider input domain is needed.
+The compact offsets/counts must fit u32, and class-definition tables must have
+at most 65536 entries. Unrepresentable values terminate through an always-enabled
+check; they never wrap silently. These are representation limits, not a claim
+that every malformed input tolerated by the original Reader fits the new layout.
+
+Caller and field reader/writer records retain their eight-byte representation,
+including the full u32 source method ID. No method-table size limit is added.
 All native consumers must use matching definitions because internal C++ layout
 and types differ. The Java/Kotlin API and serialized result format are unchanged.

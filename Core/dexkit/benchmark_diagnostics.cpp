@@ -110,7 +110,8 @@ void CrossRefOccupancy(const CrossRefs &values, const Ids &ids, const std::vecto
         unmapped_defined, unmapped_undefined);
 }
 
-void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *phase,
+template<class Id>
+void MemberRows(const std::vector<std::vector<Id>> &values, const char *phase,
                 uint32_t dex, const char *kind) {
     size_t entries = 0, capacity = 0, nonempty = 0, noncontiguous = 0;
     for (const auto &row : values) {
@@ -123,7 +124,7 @@ void MemberRows(const std::vector<std::vector<uint32_t>> &values, const char *ph
         "\"rows\":%zu,\"nonempty_rows\":%zu,\"noncontiguous_rows\":%zu,\"entries\":%zu,"
         "\"directory_bytes\":%zu,\"payload_capacity_bytes\":%zu}\n",
         phase, dex, kind, values.size(), nonempty, noncontiguous, entries,
-        values.capacity() * sizeof(std::vector<uint32_t>), capacity * sizeof(uint32_t));
+        values.capacity() * sizeof(std::vector<Id>), capacity * sizeof(Id));
 }
 #if DEXKIT_EXPERIMENT_VECTOR_DESCRIPTORS
 template<bool Promote>
@@ -261,14 +262,14 @@ void BenchmarkDiagnostics::DumpCallerBuild(const DexKit &bridge, const char *pha
     for (const auto &owner : bridge.dex_items) {
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
         const auto &index = owner->method_caller_ids;
-        directory += index.offsets_.capacity() * sizeof(size_t);
+        directory += index.offsets_.capacity() * sizeof(CacheOffset);
         payload += index.edges_ * sizeof(CompactCallerIndex::Entry);
-        counters += index.build_.capacity() * sizeof(size_t);
+        counters += index.build_.capacity() * sizeof(CacheOffset);
         edges += index.edges_;
 #else
         directory += owner->method_caller_ids.capacity() * sizeof(decltype(owner->method_caller_ids)::value_type);
         for (const auto &row : owner->method_caller_ids) {
-            payload += row.capacity() * sizeof(std::pair<uint16_t, uint32_t>);
+            payload += row.capacity() * sizeof(MethodReference);
             edges += row.size();
         }
 #endif
@@ -368,7 +369,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #if DEXKIT_EXPERIMENT_COMPACT_STRINGS
         const auto &index = item.method_using_string_ids;
         auto &strings = counts["using_strings"];
-        strings.index_bytes += index.offsets_.capacity() * sizeof(size_t)
+        strings.index_bytes += index.offsets_.capacity() * sizeof(CacheOffset)
                              + index.lengths_.capacity() * sizeof(uint32_t);
         strings.entries += index.offsets_.size();
         strings.payload_bytes += index.ids_.capacity() * sizeof(uint32_t);
@@ -383,10 +384,10 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
         const auto &invoke_index = item.method_invoking_ids;
         auto &invokes = counts["invokes"];
-        invokes.index_bytes += invoke_index.offsets_.capacity() * sizeof(size_t)
+        invokes.index_bytes += invoke_index.offsets_.capacity() * sizeof(CacheOffset)
                              + invoke_index.lengths_.capacity() * sizeof(uint32_t);
         invokes.entries += invoke_index.offsets_.size();
-        invokes.payload_bytes += invoke_index.ids_.capacity() * sizeof(uint32_t);
+        invokes.payload_bytes += invoke_index.ids_.capacity() * sizeof(LocalMethodId);
         invokes.buffers += (invoke_index.offsets_.capacity() != 0) + (invoke_index.lengths_.capacity() != 0)
                          + (invoke_index.ids_.capacity() != 0);
         for (auto length : invoke_index.lengths_) invokes.ready += length != 0;
@@ -398,7 +399,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
         const auto &caller_index = item.method_caller_ids;
         auto &callers = counts["callers"];
-        callers.index_bytes += caller_index.offsets_.capacity() * sizeof(size_t);
+        callers.index_bytes += caller_index.offsets_.capacity() * sizeof(CacheOffset);
         callers.payload_bytes += caller_index.edges_ * sizeof(CompactCallerIndex::Entry);
         callers.entries += caller_index.size();
         callers.buffers += (caller_index.offsets_.capacity() != 0) + (caller_index.edges_ != 0);
@@ -430,7 +431,7 @@ void BenchmarkDiagnostics::Dump(const DexKit &bridge, const char *phase) {
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
         const auto &field_index = item.method_using_field_ids;
         auto &fields = counts["using_fields"];
-        fields.index_bytes += field_index.offsets_.capacity() * sizeof(size_t)
+        fields.index_bytes += field_index.offsets_.capacity() * sizeof(CacheOffset)
                             + field_index.lengths_.capacity() * sizeof(uint32_t);
         fields.entries += field_index.offsets_.size();
         fields.payload_bytes += field_index.uses_.capacity() * sizeof(CompactFieldIndex::Use);

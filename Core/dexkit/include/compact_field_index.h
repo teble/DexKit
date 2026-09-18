@@ -1,6 +1,7 @@
 #pragma once
 
 #include "field_use.h"
+#include "index_types.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -26,13 +27,14 @@ public:
     bool empty() const { return offsets_.empty(); }
 
     std::vector<Use> *BeginMethod(uint32_t method) {
-        offsets_[method] = uses_.size();
+        offsets_[method] = CheckedIndexCast<CacheOffset>(uses_.size());
         return &uses_;
     }
 
     void EndMethod(uint32_t method) {
         const auto begin = offsets_[method];
         if (begin > uses_.size() || uses_.size() - begin > std::numeric_limits<uint32_t>::max()) std::abort();
+        CheckedIndexCast<CacheOffset>(uses_.size());
         lengths_[method] = static_cast<uint32_t>(uses_.size() - begin);
     }
 
@@ -60,7 +62,7 @@ private:
     friend struct BenchmarkDiagnostics;
     size_t growth_count_ = 0, moved_bytes_ = 0, overlap_bytes_ = 0, observed_capacity_ = 0;
 #endif
-    std::vector<size_t> offsets_;
+    std::vector<CacheOffset> offsets_;
     std::vector<uint32_t> lengths_;
     std::vector<Use> uses_;
 };

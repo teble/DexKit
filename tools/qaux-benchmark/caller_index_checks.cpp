@@ -41,25 +41,34 @@ int main() {
     Require(rows.size() == 5 && rows[0].empty() && rows[1].empty() && rows[2].empty());
     Require(rows[3].size() == 2 && rows[4].size() == 1);
     rows.Write(rows.RowBegin(3), 0, 0);
-    rows.Write(rows.RowBegin(3) + 1, UINT16_MAX, UINT32_MAX);
+    constexpr auto largest_method = std::numeric_limits<dexkit::LocalMethodId>::max();
+    rows.Write(rows.RowBegin(3) + 1, UINT16_MAX, largest_method);
     rows.Write(rows.RowBegin(4), 7, 19);
     auto held = rows[3];
     rows.ReleaseBuild();
     Require(rows.BuildCapacityBytes() == 0 && held.data() == rows[3].data());
-    Require(held[0] == Index::Entry{0, 0} && held[1] == Index::Entry{UINT16_MAX, UINT32_MAX});
+    Require(held[0] == Index::Entry{0, 0} && held[1] == Index::Entry{UINT16_MAX, largest_method});
     Require(rows[4][0] == Index::Entry{7, 19});
-    const auto limit = std::numeric_limits<size_t>::max();
+    const auto limit = std::numeric_limits<dexkit::CacheOffset>::max();
     Require(Index::CheckedAdd(limit - 1, 1) == limit && Index::CheckedAdd(limit, 0) == limit);
 #ifndef _WIN32
     Aborts([&] { Index::CheckedAdd(limit, 1); });
-    Aborts([&] { Index invalid; invalid.BeginCounts(limit); });
+    Aborts([&] { Index invalid; invalid.BeginCounts(std::numeric_limits<size_t>::max()); });
     Aborts([&] { rows.Write(3, 0, 0); });
     Aborts([&] { (void)rows[5]; });
     Aborts([&] { Index invalid; invalid.BeginCounts(1); invalid.Count(1); });
+#if DEXKIT_EXPERIMENT_NARROW_TYPES
+    Aborts([&] { rows.Write(0, 0, uint32_t{UINT16_MAX} + 1); });
+    Aborts([&] {
+        Index invalid; invalid.BeginCounts(1); invalid.BeginLayout();
+        invalid.AddRowCount(0, limit); invalid.AddRowCount(0, 1);
+    });
+#else
     Aborts([&] {
         Index invalid; invalid.BeginCounts(1); invalid.BeginLayout();
         invalid.AddRowCount(0, limit / sizeof(Index::Entry) + 1); invalid.Allocate();
     });
+#endif
 #endif
     std::puts("CHECK_CALLER_INDEX {\"empty\":true,\"boundaries\":true,\"stable\":true,\"released\":true}");
 }

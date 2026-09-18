@@ -104,7 +104,7 @@ void dexkit::BenchmarkDiagnostics::CheckInvocations(std::string_view apk, bool d
     for (bool queued : {false, true}) {
         DexKit bridge(apk, 1);
         bridge.SetThreadNum(4);
-        std::vector<std::vector<std::span<const uint32_t>>> held(bridge.dex_items.size());
+        std::vector<std::vector<std::span<const LocalMethodId>>> held(bridge.dex_items.size());
         std::thread caller;
         {
             auto guard = bridge.EnterQueryExecution(kMethodInvoking);

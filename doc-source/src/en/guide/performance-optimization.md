@@ -149,3 +149,21 @@ API behavior. Repeated output may spend more time generating descriptors, and
 simultaneous owning results can increase temporary allocations. Performance must
 be evaluated with the complete workload; removing persistent storage is not a
 guarantee of lower process peak memory.
+
+## Narrow native index types
+
+`DEXKIT_EXPERIMENT_NARROW_TYPES` defaults OFF; Gradle accepts
+`-PexperimentNarrowTypes=ON`. It uses 16-bit stored local method IDs and class
+definition indexes, four-byte caller/field-reader/field-writer references, and
+32-bit offsets in compact relation indexes. Vector growth and row ordering are
+unchanged. String IDs and row lengths remain 32-bit; jumbo string references and
+rows longer than 65535 entries are preserved. Public Bean/schema IDs stay wide.
+
+This opt-in representation requires at most 65536 method IDs per DEX and checks
+that bound during initialization. ID 65535 is valid, rather than an empty marker.
+Unrepresentable accumulated offsets/counts and narrowing conversions terminate
+through an always-enabled check; they never wrap silently. These are experiment
+limits, not a claim that every input accepted by the original Reader fits the
+narrow representation. Keep the switch OFF when the wider input domain is needed.
+All native consumers must use matching definitions because internal C++ layout
+and types differ. The Java/Kotlin API and serialized result format are unchanged.

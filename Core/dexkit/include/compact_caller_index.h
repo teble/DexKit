@@ -1,5 +1,6 @@
 #pragma once
 
+#include "index_types.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -18,15 +19,15 @@ class CompactCallerIndex {
 public:
     struct Entry {
         uint16_t first;
-        uint32_t second;
+        LocalMethodId second;
         bool operator==(const Entry &) const = default;
     };
     static_assert(std::is_trivial_v<Entry>);
-    static_assert(sizeof(Entry) == 8);
+    static_assert(sizeof(Entry) == (sizeof(LocalMethodId) == 2 ? 4 : 8));
 
     void BeginCounts(size_t methods) {
         if (!build_.empty() || !offsets_.empty()
-                || methods >= std::numeric_limits<size_t>::max() / sizeof(size_t)) std::abort();
+                || methods >= std::numeric_limits<size_t>::max() / sizeof(CacheOffset)) std::abort();
         build_.resize(methods);
     }
 
@@ -59,15 +60,15 @@ public:
 
     size_t RowBegin(uint32_t method) const { return offsets_[method]; }
     size_t RowEnd(uint32_t method) const { return offsets_[method + 1]; }
-    size_t &Cursor(uint32_t method) { return build_[method]; }
+    CacheOffset &Cursor(uint32_t method) { return build_[method]; }
 
     void Write(size_t position, uint16_t dex, uint32_t method) {
         if (position >= edges_) std::abort();
-        values_[position] = Entry{dex, method};
+        values_[position] = Entry{dex, CheckedIndexCast<LocalMethodId>(method)};
     }
 
-    void ReleaseBuild() { std::vector<size_t>().swap(build_); }
-    size_t BuildCapacityBytes() const { return build_.capacity() * sizeof(size_t); }
+    void ReleaseBuild() { std::vector<CacheOffset>().swap(build_); }
+    size_t BuildCapacityBytes() const { return build_.capacity() * sizeof(CacheOffset); }
     bool empty() const { return offsets_.size() <= 1; }
     size_t size() const { return offsets_.empty() ? 0 : offsets_.size() - 1; }
 
@@ -79,15 +80,14 @@ public:
         return {values_.get() + begin, end - begin};
     }
 
-    static size_t CheckedAdd(size_t left, size_t right) {
-        if (right > std::numeric_limits<size_t>::max() - left) std::abort();
-        return left + right;
+    static CacheOffset CheckedAdd(size_t left, size_t right) {
+        return CheckedOffsetAdd(CheckedIndexCast<CacheOffset>(left), right);
     }
 
 private:
     friend struct BenchmarkDiagnostics;
-    std::vector<size_t> build_;
-    std::vector<size_t> offsets_;
+    std::vector<CacheOffset> build_;
+    std::vector<CacheOffset> offsets_;
     std::unique_ptr<Entry[]> values_;
     size_t edges_ = 0;
 };

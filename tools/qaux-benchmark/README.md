@@ -386,3 +386,13 @@ retain substantial repeat-output and lookup regressions alongside memory savings
 Uncached long-output peak exceeds old dense despite zero persistent descriptor
 storage. Keep this experiment OFF by default; the report separates raw lookup
 from cache removal and does not infer a general speed improvement.
+
+The [narrow-type increment](NARROW-TYPES-EXECUTION.md) changes stored integer
+widths only. `DEXKIT_EXPERIMENT_NARROW_TYPES` (Gradle `experimentNarrowTypes`)
+defaults OFF. It uses checked 32-bit compact-index offsets/counts and 16-bit
+local method/class-definition IDs; caller and field reader/writer records are
+four bytes. Per-row lengths and string IDs stay 32-bit, including jumbo strings.
+The opt-in build accepts up to 65536 method IDs per DEX; ID 65535 is valid.
+Larger method tables or unrepresentable accumulated offsets fail explicitly.
+Native type/ABI options must match. The same-source comparison keeps existing
+vector growth and all other flags fixed; no forward-capacity trimming is included.

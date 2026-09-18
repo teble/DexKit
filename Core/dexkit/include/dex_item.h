@@ -47,6 +47,7 @@
 #include "descriptor_diagnostics.h"
 #include "cross_ref.h"
 #include "field_use.h"
+#include "index_types.h"
 #if DEXKIT_EXPERIMENT_INVERTED_STRINGS
 #include "inverted_string_index.h"
 #endif
@@ -430,11 +431,11 @@ private:
 #endif
 
     struct PendingAggregateMethodWorkItem {
-        uint32_t source_method_idx;
+        LocalMethodId source_method_idx;
         uint16_t target_dex_id;
-        uint32_t target_method_idx;
+        LocalMethodId target_method_idx;
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
-        size_t source_count;
+        CacheOffset source_count;
 #endif
     };
 
@@ -494,7 +495,7 @@ private:
     std::vector<std::string_view> type_names;
     std::vector<uint8_t> type_name_array_count;
     phmap::flat_hash_map<std::string_view /*type_name*/, uint32_t /*type_id*/> type_ids_map;
-    std::vector<uint32_t /*class_def_id*/> type_def_idx;
+    std::vector<ClassDefIndex /*class_def_id*/> type_def_idx;
     // dex declared types flag
     std::vector<bool /*def_in_class_def*/> type_def_flag;
     // class source file name, eg: "HelloWorld.java", maybe obfuscated
@@ -521,9 +522,9 @@ private:
     std::vector<std::optional<std::string>> method_descriptors;
 #endif
     // stable base member indexes; after init only members declared in this dex stay here
-    std::vector<std::vector<uint32_t /*method_id*/>> class_method_ids;
+    std::vector<std::vector<LocalMethodId /*method_id*/>> class_method_ids;
     // one-shot worklists for cross-ref against members whose declaring class is outside this dex
-    std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
+    std::vector<std::vector<LocalMethodId /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
 #if DEXKIT_EXPERIMENT_UNCACHED_DESCRIPTORS
     // Field descriptor strings also belong to the returned values.
@@ -580,7 +581,7 @@ private:
 #if DEXKIT_EXPERIMENT_COMPACT_INVOKES
     CompactInvocationIndex method_invoking_ids;
 #else
-    std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
+    std::vector<std::vector<LocalMethodId /*invoke_method_id*/>> method_invoking_ids;
 #endif
 #if DEXKIT_EXPERIMENT_COMPACT_FIELDS
     CompactFieldIndex method_using_field_ids;
@@ -592,10 +593,10 @@ private:
 #if DEXKIT_EXPERIMENT_COMPACT_CALLERS
     CompactCallerIndex method_caller_ids;
 #else
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;
+    std::vector<std::vector<MethodReference>> method_caller_ids;
 #endif
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_get_method_ids;
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;
+    std::vector<std::vector<MethodReference>> field_get_method_ids;
+    std::vector<std::vector<MethodReference>> field_put_method_ids;
     // one-shot aggregate worklists: pre-resolved source->target bindings that also
     // carry reverse-edge payload, so BuildCrossRefAggregates can skip re-reading cross_info
     // With field identity splitting, field bindings survive until reverse rows

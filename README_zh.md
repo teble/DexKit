@@ -412,6 +412,11 @@ Java/Kotlin API 会在内部管理该作用域。启用前请阅读
 该选项改变 C++ 类型及 ABI，所有原生调用方必须使用一致的编译选项；Java/Kotlin 返回格式不变。
 详见[无缓存生命周期约定](doc-source/src/zh-cn/guide/performance-optimization.md#无缓存成员描述符)。
 
+`DEXKIT_EXPERIMENT_NARROW_TYPES`（默认关闭，Gradle 属性 `experimentNarrowTypes`）使用
+16 位本地方法 ID 和 32 位关系偏移，保留原来的 vector 扩容策略。此实验构建要求每个 DEX
+最多包含 65536 个方法 ID，并在窄化前检查累计索引边界。原生调用方必须使用一致的编译选项。
+详见[索引存储约定](doc-source/src/zh-cn/guide/performance-optimization.md#窄类型原生索引)。
+
 ## 第三方开源引用
 
 - [slicer](https://cs.android.com/android/platform/superproject/+/main:tools/dexter/slicer/)

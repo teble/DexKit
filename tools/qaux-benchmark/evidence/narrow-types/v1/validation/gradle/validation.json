@@ -1,0 +1,158 @@
+{
+  "command": [
+    "bash",
+    "./gradlew",
+    ":dexkit:cmakeBuild",
+    ":dexkit:jar",
+    ":dexkit:test",
+    ":dexkit-android:assembleRelease",
+    "--max-workers=2",
+    "-I",
+    "tools/qaux-benchmark/force_tests.gradle",
+    "-PexperimentLazyDirectories=ON",
+    "-PexperimentCompactStrings=ON",
+    "-PexperimentNegativeStrings=ON",
+    "-PexperimentStructuralDescriptors=ON",
+    "-PexperimentDescriptorFastHits=ON",
+    "-PexperimentRawInterfaces=ON",
+    "-PexperimentFieldIdentitySplit=ON",
+    "-PexperimentCompactInvokes=ON",
+    "-PexperimentSingleRelation=ON",
+    "-PexperimentInvertedStrings=ON",
+    "-PexperimentInvertedStringRanges=ON",
+    "-PexperimentSkipEmptyCandidates=ON",
+    "-PexperimentMoveFindResults=ON",
+    "-PexperimentCompactCallers=ON",
+    "-PexperimentUncachedDescriptors=ON",
+    "-PexperimentRawDescriptorLookup=ON",
+    "-PexperimentNarrowTypes=ON",
+    "-PexperimentCandidatePipeline=OFF",
+    "-PexperimentCandidateSlices=OFF",
+    "-PexperimentPackedCrossInfo=OFF",
+    "-PexperimentPackedFieldUses=OFF",
+    "-PexperimentHybridDescriptors=OFF",
+    "-PexperimentVectorDescriptorsNoPromotion=OFF",
+    "-PexperimentVectorDescriptors=OFF",
+    "-PexperimentNodeDescriptors=OFF",
+    "-PexperimentSparseDescriptors=OFF"
+  ],
+  "tests": [
+    {
+      "name": "org.luckypray.dexkit.DexKitCacheBridgeTest",
+      "tests": "11",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:41",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.444"
+    },
+    {
+      "name": "org.luckypray.dexkit.JavaReadMeTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:41",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.124"
+    },
+    {
+      "name": "org.luckypray.dexkit.KtReadMeTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:42",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.05"
+    },
+    {
+      "name": "org.luckypray.dexkit.UnitTest",
+      "tests": "44",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:42",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "1.457"
+    },
+    {
+      "name": "org.luckypray.dexkit.cache.CacheBridgeKeysTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:43",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.001"
+    },
+    {
+      "name": "org.luckypray.dexkit.cache.CacheBridgeRegistryTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:43",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.016"
+    },
+    {
+      "name": "org.luckypray.dexkit.cache.CacheBridgeStoreTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:43",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.112"
+    },
+    {
+      "name": "org.luckypray.dexkit.util.InstanceUtilTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-18T07:51:43",
+      "hostname": "tebles-MacBook-Pro.local",
+      "time": "0.003"
+    }
+  ],
+  "total_tests": 71,
+  "skipped": 0,
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86",
+    "x86_64"
+  ],
+  "cmake_caches": [
+    {
+      "abi": "arm64-v8a",
+      "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/1532y659/arm64-v8a/CMakeCache.txt",
+      "sha256": "5895d059579400028ece7bff9ff4410bb62f3d76df6521584dc1bd60355e1a7c"
+    },
+    {
+      "abi": "armeabi-v7a",
+      "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/1532y659/armeabi-v7a/CMakeCache.txt",
+      "sha256": "2d2a779232e5625b06db2ebffd31a56b30fd74ec0ff0b15dc0a8b89fc960d8f2"
+    },
+    {
+      "abi": "x86",
+      "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/1532y659/x86/CMakeCache.txt",
+      "sha256": "65b0cdcefa61d3b76d45a45f8bc423d91929261caa65a95a49f7e5986c1be850"
+    },
+    {
+      "abi": "x86_64",
+      "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit-android/.cxx/Release/1532y659/x86_64/CMakeCache.txt",
+      "sha256": "06a1e98095bfe2f735ff028e9d864cf65a0317ebe4ef1c581518323e953deaf5"
+    },
+    {
+      "abi": "desktop",
+      "source": "/Users/teble/project/android/DexKit-qaux-benchmark/dexkit/build/cmake/main/mac-aarch64/CMakeCache.txt",
+      "sha256": "d4a49689569f2d04e6f0f2d5ff7c18721f0a7c1ea5b468f8acf5830f7b05bbd8"
+    }
+  ],
+  "jar_sha256": "aad51ff2f604056be1a1b2cbb0a41adae32ac17e855e7eac8a6db10898383e9a",
+  "aar_sha256": "c2fec1c85a08abdcff24cdd2250fc431b58400ec89941f35807624bd4c9241d6"
+}

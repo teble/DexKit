@@ -1,0 +1,14 @@
+{
+  "method_count": 65537,
+  "source": 65536,
+  "local": 1,
+  "reference": 0,
+  "string_id": 65545,
+  "field_id": 0,
+  "apk_sha256": "f1f994ba3d89efb73b7657f58cb10331da913c2372606c5d9b87762526104829",
+  "dex_sha256": "63ff306ee08d210dc71d9995cf42e79f96fc64e90f2a2b68224eccdd26274cd9",
+  "source_descriptor": "Lwidth/Source;->m65535()V",
+  "instructions": 70004,
+  "invoke_records": 70000,
+  "purpose": "DEX parser/index boundaries; not an Android application execution fixture"
+}

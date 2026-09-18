@@ -34,8 +34,8 @@ of process memory; report any input-domain restriction and performance tradeoff.
 ## Progress
 
 - [x] Implement the guarded storage types and update consumers/diagnostics.
-- [ ] Complete boundary, oracle, sanitizer, JVM and Android verification.
-- [ ] Review the source delta and reconcile relevant findings.
+- [x] Complete boundary, oracle, sanitizer, JVM and Android verification.
+- [x] Review the source delta and reconcile relevant findings.
 - [ ] Record measured layout changes and a bounded performance comparison.
 
 The second development build passes the component boundary checks, the complete
@@ -52,3 +52,27 @@ artifacts/tests remain separate and are not the final comparison. The Android
 prefab library also required a portable equivalent of std::in_range; the fixed
 prototype passed 71 JVM tests and all four AAR ABIs. The compatible final source
 must repeat the affected builds and boundary/oracle checks before timing.
+
+The final compatible source c537b23 passed normal/diagnostic, independent
+NARROW-only/all-OFF, ASan/UBSan and packed-field/compact-field combination
+checks, frozen full-output oracles, both real width fixtures, QQ 1/11-pass
+oracles, 71 JVM tests (zero skips), all four Android ABIs and the docs build.
+Five actual compiler configurations confirm the intended sizes; the Android
+boundary components were also compiled with the project's prefab C++ library.
+These are Android compilation/layout checks, not device runtime measurements.
+
+Final QQ census saves 66,208,612 bytes (63.14 MiB), with identical logical
+caller rows, member rows, growth counts and element capacities. One long-field
+dump failed its final output-write check while the disk was full; lossless
+compression of this task's old prototype logs/oracles released space. The same
+binary and input then passed. Both the failed output and successful retry are
+retained; no production code changed for that environmental failure.
+
+Freeze a finite comparison before collecting performance: same-source control
+versus NARROW_TYPES, with the retained Small14/raw/uncached combination unchanged.
+Use six relation cases (match, duplicate match, large output, late/cold/full
+caller construction) plus QQ p1/w4, p11/w4, p1/w1 and p1/w4 with final field
+reverse access. Main and independently seeded confirmation each use six
+balanced AB/BA pairs: 20 sweeps, 240 fresh processes. Keep adverse samples and
+measure complete lifecycle plus physical peak. No builds, correctness checks,
+profiling, archive compression or further tuning during timing.

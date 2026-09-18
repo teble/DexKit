@@ -1,0 +1,8 @@
+{
+  "local_operand": 0,
+  "source_id": 1,
+  "remote_definition_id": 65536,
+  "remote_method_count": 65537,
+  "apk_sha256": "db0cccdc156512dcc9145b23c3ce4506d4f0f971d14fa87a6b2e019ec897967d",
+  "purpose": "Low local invoke operand resolves to a remote method definition above 65535"
+}

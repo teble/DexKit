@@ -1,0 +1,16 @@
+[
+  {
+    "command": [
+      "yarn",
+      "install"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "yarn",
+      "docs:build"
+    ],
+    "exit_code": 0
+  }
+]

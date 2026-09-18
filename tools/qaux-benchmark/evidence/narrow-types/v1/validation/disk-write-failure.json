@@ -1,0 +1,24 @@
+{
+  "failure": "SIGABRT in final fwrite check; output file empty after three completed bridge destructions; disk at 100 percent during run",
+  "retry": "Unchanged binary and fixture passed full trace validation after lossless prototype compression",
+  "files": [
+    {
+      "original": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/control-trace/oracle.bin",
+      "compressed": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/control-trace/oracle.bin.gz",
+      "original_bytes": 100917928,
+      "sha256": "d96b584a6372cb0ff1f9e4c33501ae35e34e006d6904d70cc5c2a85e858b1c45"
+    },
+    {
+      "original": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/control-trace/stderr.log",
+      "compressed": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/control-trace/stderr.log.gz",
+      "original_bytes": 38670824,
+      "sha256": "c6257a87cce8c96592647c2fece13636035d4a0f516dd70116380320cee3376e"
+    },
+    {
+      "original": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/narrow-trace/stderr.log",
+      "compressed": "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/validation/fields-trace-long-failed-disk/narrow-trace/stderr.log.gz",
+      "original_bytes": 38663582,
+      "sha256": "249861a58f80f8ccb83237564b2423d107c436039b99c7f5d1129c028ff31ad5"
+    }
+  ]
+}

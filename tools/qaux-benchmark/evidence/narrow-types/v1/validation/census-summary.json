@@ -1,0 +1,404 @@
+{
+  "categories": [
+    {
+      "category": "aggregate_work",
+      "before": {
+        "phase": "pre_close",
+        "category": "aggregate_work",
+        "index_bytes": 2125824,
+        "payload_capacity_bytes": 0,
+        "entries": 128884,
+        "nonempty_or_ready": 0,
+        "live_buffers": 41
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "aggregate_work",
+        "index_bytes": 2125824,
+        "payload_capacity_bytes": 0,
+        "entries": 128884,
+        "nonempty_or_ready": 0,
+        "live_buffers": 41
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "annotations",
+      "before": {
+        "phase": "pre_close",
+        "category": "annotations",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "annotations",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "base_arrays",
+      "before": {
+        "phase": "pre_close",
+        "category": "base_arrays",
+        "index_bytes": 160614118,
+        "payload_capacity_bytes": 0,
+        "entries": 17414998,
+        "nonempty_or_ready": 0,
+        "live_buffers": 492
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "base_arrays",
+        "index_bytes": 159226010,
+        "payload_capacity_bytes": 0,
+        "entries": 17414998,
+        "nonempty_or_ready": 0,
+        "live_buffers": 492
+      },
+      "saved_bytes": 1388108
+    },
+    {
+      "category": "caller_build",
+      "before": {
+        "phase": "pre_close",
+        "category": "caller_build",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "caller_build",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "callers",
+      "before": {
+        "phase": "pre_close",
+        "category": "callers",
+        "index_bytes": 20800576,
+        "payload_capacity_bytes": 87490896,
+        "entries": 2600031,
+        "nonempty_or_ready": 1315612,
+        "live_buffers": 82
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "callers",
+        "index_bytes": 10400288,
+        "payload_capacity_bytes": 87490896,
+        "entries": 2600031,
+        "nonempty_or_ready": 1315612,
+        "live_buffers": 82
+      },
+      "saved_bytes": 10400288
+    },
+    {
+      "category": "class_members",
+      "before": {
+        "phase": "pre_close",
+        "category": "class_members",
+        "index_bytes": 33314592,
+        "payload_capacity_bytes": 17512000,
+        "entries": 1388108,
+        "nonempty_or_ready": 772500,
+        "live_buffers": 772582
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "class_members",
+        "index_bytes": 33314592,
+        "payload_capacity_bytes": 17512000,
+        "entries": 1388108,
+        "nonempty_or_ready": 772500,
+        "live_buffers": 772582
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "descriptors",
+      "before": {
+        "phase": "pre_close",
+        "category": "descriptors",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "descriptors",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "field_readers",
+      "before": {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "field_readers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "field_writers",
+      "before": {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "field_writers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "full_numbers",
+      "before": {
+        "phase": "pre_close",
+        "category": "full_numbers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "full_numbers",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "full_opcodes",
+      "before": {
+        "phase": "pre_close",
+        "category": "full_opcodes",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "full_opcodes",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "invokes",
+      "before": {
+        "phase": "pre_close",
+        "category": "invokes",
+        "index_bytes": 31200372,
+        "payload_capacity_bytes": 67239936,
+        "entries": 2600031,
+        "nonempty_or_ready": 1651553,
+        "live_buffers": 123
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "invokes",
+        "index_bytes": 20800248,
+        "payload_capacity_bytes": 33619968,
+        "entries": 2600031,
+        "nonempty_or_ready": 1651553,
+        "live_buffers": 123
+      },
+      "saved_bytes": 44020092
+    },
+    {
+      "category": "lazy_numbers",
+      "before": {
+        "phase": "pre_close",
+        "category": "lazy_numbers",
+        "index_bytes": 1046128,
+        "payload_capacity_bytes": 680,
+        "entries": 65383,
+        "nonempty_or_ready": 9,
+        "live_buffers": 19
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "lazy_numbers",
+        "index_bytes": 1046128,
+        "payload_capacity_bytes": 680,
+        "entries": 65383,
+        "nonempty_or_ready": 9,
+        "live_buffers": 19
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "lazy_opcodes",
+      "before": {
+        "phase": "pre_close",
+        "category": "lazy_opcodes",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "lazy_opcodes",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "lazy_strings",
+      "before": {
+        "phase": "pre_close",
+        "category": "lazy_strings",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "lazy_strings",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "pending_cross_refs",
+      "before": {
+        "phase": "pre_close",
+        "category": "pending_cross_refs",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "pending_cross_refs",
+        "index_bytes": 0,
+        "payload_capacity_bytes": 0,
+        "entries": 0,
+        "nonempty_or_ready": 0,
+        "live_buffers": 0
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "using_fields",
+      "before": {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 62400744,
+        "payload_capacity_bytes": 55446792,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 1540690
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "using_fields",
+        "index_bytes": 62400744,
+        "payload_capacity_bytes": 55446792,
+        "entries": 2600031,
+        "nonempty_or_ready": 1540649,
+        "live_buffers": 1540690
+      },
+      "saved_bytes": 0
+    },
+    {
+      "category": "using_strings",
+      "before": {
+        "phase": "pre_close",
+        "category": "using_strings",
+        "index_bytes": 31200372,
+        "payload_capacity_bytes": 11436032,
+        "entries": 2600031,
+        "nonempty_or_ready": 552475,
+        "live_buffers": 123
+      },
+      "after": {
+        "phase": "pre_close",
+        "category": "using_strings",
+        "index_bytes": 20800248,
+        "payload_capacity_bytes": 11436032,
+        "entries": 2600031,
+        "nonempty_or_ready": 552475,
+        "live_buffers": 123
+      },
+      "saved_bytes": 10400124
+    }
+  ],
+  "saved_bytes": 66208612,
+  "logical_caller_rows_identical": true,
+  "member_rows_identical": true,
+  "growth_counts_and_element_capacities_identical": true
+}

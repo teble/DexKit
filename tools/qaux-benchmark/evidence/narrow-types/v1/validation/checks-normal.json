@@ -1,0 +1,180 @@
+[
+  {
+    "name": "owning-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_uncached_descriptor_checks",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/dense-descriptors/dense-descriptors.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "409e38592d0ef971c50f5818c6d696ff6b696913152d4992f96f9e2e446fb65b"
+  },
+  {
+    "name": "index_types-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_index_types_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "958ab9599f81dc166ec03670834740de2cf0eeca7a789482823a0b1ef83d9748"
+  },
+  {
+    "name": "caller_index-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_caller_index_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "d56d388e5f9c3152d71fdd5bacc477f9e8e2919b403d3b51b4de1de51375ac3c"
+  },
+  {
+    "name": "candidate_runtime-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_candidate_runtime_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "3acc01fe2356502e9cc74575c882636de4d4817b1393217216c25e6c6179cdcc"
+  },
+  {
+    "name": "candidate_noexceptions-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_candidate_noexceptions_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "4c7f4de26fdafced6ede096adace4879fd23858e930f24a11d58e0398c7bad2c"
+  },
+  {
+    "name": "candidate_pipeline-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_candidate_pipeline_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "bb94f98ec92db75a61b6437e00945d05700a55210f5102d281a6d22a6949acee"
+  },
+  {
+    "name": "inverted_string-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_inverted_string_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "f931e48a2afb8bea449148247521c40463dc043789b9ff66cc4a1aa4f5db7002"
+  },
+  {
+    "name": "concurrent-1-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_descriptor_concurrent_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk",
+      "2000",
+      "1"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "c70b0906a38fac6434cc36f09e9e8186199f4c51229377fd9d1cda79440a5875"
+  },
+  {
+    "name": "concurrent-4-control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_descriptor_concurrent_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk",
+      "2000",
+      "4"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "f6f8e88007edc01ec28ea5a8deb8c7aeee78a209dfd5bd13c5827f43f9adf086"
+  },
+  {
+    "name": "owning-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_uncached_descriptor_checks",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/dense-descriptors/dense-descriptors.apk",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "409e38592d0ef971c50f5818c6d696ff6b696913152d4992f96f9e2e446fb65b"
+  },
+  {
+    "name": "index_types-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_index_types_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "3b2eab95b9f905b9d9a1be778570174655fc6e447904ecee893818d392e7b13a"
+  },
+  {
+    "name": "caller_index-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_caller_index_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "d56d388e5f9c3152d71fdd5bacc477f9e8e2919b403d3b51b4de1de51375ac3c"
+  },
+  {
+    "name": "candidate_runtime-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_candidate_runtime_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "3acc01fe2356502e9cc74575c882636de4d4817b1393217216c25e6c6179cdcc"
+  },
+  {
+    "name": "candidate_noexceptions-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_candidate_noexceptions_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "4c7f4de26fdafced6ede096adace4879fd23858e930f24a11d58e0398c7bad2c"
+  },
+  {
+    "name": "candidate_pipeline-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_candidate_pipeline_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "bb94f98ec92db75a61b6437e00945d05700a55210f5102d281a6d22a6949acee"
+  },
+  {
+    "name": "inverted_string-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_inverted_string_checks"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "f931e48a2afb8bea449148247521c40463dc043789b9ff66cc4a1aa4f5db7002"
+  },
+  {
+    "name": "concurrent-1-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_descriptor_concurrent_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk",
+      "2000",
+      "1"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "d60e33961aba7de16d11675d9ec39033584996ff2b1fdf68c1b5cb84fa520e63"
+  },
+  {
+    "name": "concurrent-4-narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_descriptor_concurrent_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/raw-metadata/symbol-fixture/symbols.apk",
+      "2000",
+      "4"
+    ],
+    "exit_code": 0,
+    "binary": false,
+    "output_sha256": "64f103f0d967105b47da4f93ef2418c7602576ab8da4787de19ee7af7b432b9c"
+  }
+]

@@ -1,0 +1,362 @@
+[
+  {
+    "case": "mixed-invoke-match",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "invoke-match",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-match",
+      "repeats": 2,
+      "create_ns": 640667,
+      "setup_ns": 45584,
+      "first_ns": 12913958,
+      "repeated_ns": 15154166,
+      "close_ns": 125375,
+      "lifecycle_ns": 28881000,
+      "positive_ns": 12214709,
+      "negative_ns": 15853126,
+      "checksum": 1262720397782,
+      "returned": 196,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "mixed-invoke-match",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "invoke-match",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-match",
+      "repeats": 2,
+      "create_ns": 1495708,
+      "setup_ns": 120000,
+      "first_ns": 18931875,
+      "repeated_ns": 13220959,
+      "close_ns": 179125,
+      "lifecycle_ns": 33948917,
+      "positive_ns": 18526291,
+      "negative_ns": 13626292,
+      "checksum": 1262720397782,
+      "returned": 196,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "mixed-invoke-multiple",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "invoke-multiple",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-multiple",
+      "repeats": 2,
+      "create_ns": 776708,
+      "setup_ns": 18500,
+      "first_ns": 3443667,
+      "repeated_ns": 1536833,
+      "close_ns": 70583,
+      "lifecycle_ns": 5847209,
+      "positive_ns": 1833834,
+      "negative_ns": 3146417,
+      "checksum": 1236950593632,
+      "returned": 192,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "mixed-invoke-multiple",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "invoke-multiple",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-multiple",
+      "repeats": 2,
+      "create_ns": 346583,
+      "setup_ns": 11916,
+      "first_ns": 2090542,
+      "repeated_ns": 1405500,
+      "close_ns": 57084,
+      "lifecycle_ns": 3912333,
+      "positive_ns": 1005499,
+      "negative_ns": 2490459,
+      "checksum": 1236950593632,
+      "returned": 192,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "giant-invoke-output",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-giant/invocations.apk",
+      "invoke-output",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-output",
+      "repeats": 2,
+      "create_ns": 893708,
+      "setup_ns": 14000,
+      "first_ns": 28240250,
+      "repeated_ns": 19207708,
+      "close_ns": 80625,
+      "lifecycle_ns": 48437292,
+      "positive_ns": 0,
+      "negative_ns": 0,
+      "checksum": 2251799822336000,
+      "returned": 262144,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "giant-invoke-output",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-giant/invocations.apk",
+      "invoke-output",
+      "2"
+    ],
+    "report": {
+      "mode": "invoke-output",
+      "repeats": 2,
+      "create_ns": 457209,
+      "setup_ns": 9708,
+      "first_ns": 24790916,
+      "repeated_ns": 18567958,
+      "close_ns": 91500,
+      "lifecycle_ns": 43918250,
+      "positive_ns": 0,
+      "negative_ns": 0,
+      "checksum": 2251799822336000,
+      "returned": 262144,
+      "forward_build_ns": 0,
+      "caller_build_ns": 0,
+      "warm_footprint_bytes": -1,
+      "warm_malloc_in_use_bytes": -1,
+      "closed_footprint_bytes": -1,
+      "closed_malloc_in_use_bytes": -1
+    }
+  },
+  {
+    "case": "mixed-caller-late-w1",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "caller-match-late-w1",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-match-late-w1",
+      "repeats": 2,
+      "create_ns": 266584,
+      "setup_ns": 1487416,
+      "first_ns": 12750334,
+      "repeated_ns": 12289042,
+      "close_ns": 60791,
+      "lifecycle_ns": 26895375,
+      "positive_ns": 12463375,
+      "negative_ns": 12575959,
+      "checksum": 17179869376,
+      "returned": 2,
+      "forward_build_ns": 563750,
+      "caller_build_ns": 524542,
+      "warm_footprint_bytes": 3425216,
+      "warm_malloc_in_use_bytes": 1421376,
+      "closed_footprint_bytes": 2835392,
+      "closed_malloc_in_use_bytes": 14704
+    }
+  },
+  {
+    "case": "mixed-caller-late-w1",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "caller-match-late-w1",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-match-late-w1",
+      "repeats": 2,
+      "create_ns": 295875,
+      "setup_ns": 1126542,
+      "first_ns": 11928792,
+      "repeated_ns": 12143291,
+      "close_ns": 48875,
+      "lifecycle_ns": 25579541,
+      "positive_ns": 12218041,
+      "negative_ns": 11853667,
+      "checksum": 17179869376,
+      "returned": 2,
+      "forward_build_ns": 559542,
+      "caller_build_ns": 519666,
+      "warm_footprint_bytes": 3064768,
+      "warm_malloc_in_use_bytes": 1157904,
+      "closed_footprint_bytes": 2507712,
+      "closed_malloc_in_use_bytes": 14704
+    }
+  },
+  {
+    "case": "mixed-caller-cold-w4",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "caller-multiple-cold-w4",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-multiple-cold-w4",
+      "repeats": 2,
+      "create_ns": 282667,
+      "setup_ns": 867542,
+      "first_ns": 979959,
+      "repeated_ns": 817792,
+      "close_ns": 79958,
+      "lifecycle_ns": 3062250,
+      "positive_ns": 176959,
+      "negative_ns": 1620750,
+      "checksum": 34359738752,
+      "returned": 4,
+      "forward_build_ns": 0,
+      "caller_build_ns": 816959,
+      "warm_footprint_bytes": 3457984,
+      "warm_malloc_in_use_bytes": 1421376,
+      "closed_footprint_bytes": 3392448,
+      "closed_malloc_in_use_bytes": 14816
+    }
+  },
+  {
+    "case": "mixed-caller-cold-w4",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-mixed/invocations.apk",
+      "caller-multiple-cold-w4",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-multiple-cold-w4",
+      "repeats": 2,
+      "create_ns": 278125,
+      "setup_ns": 596791,
+      "first_ns": 882250,
+      "repeated_ns": 803833,
+      "close_ns": 67542,
+      "lifecycle_ns": 2658291,
+      "positive_ns": 131250,
+      "negative_ns": 1554791,
+      "checksum": 34359738752,
+      "returned": 4,
+      "forward_build_ns": 0,
+      "caller_build_ns": 553583,
+      "warm_footprint_bytes": 3179456,
+      "warm_malloc_in_use_bytes": 1157904,
+      "closed_footprint_bytes": 3130304,
+      "closed_malloc_in_use_bytes": 14816
+    }
+  },
+  {
+    "case": "giant-caller-full-w4",
+    "label": "control",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/control/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-giant/invocations.apk",
+      "caller-output-full-w4",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-output-full-w4",
+      "repeats": 2,
+      "create_ns": 456375,
+      "setup_ns": 1585833,
+      "first_ns": 46156375,
+      "repeated_ns": 37072208,
+      "close_ns": 69583,
+      "lifecycle_ns": 85394333,
+      "positive_ns": 0,
+      "negative_ns": 0,
+      "checksum": 3377673968287610,
+      "returned": 524284,
+      "forward_build_ns": 0,
+      "caller_build_ns": 1526291,
+      "warm_footprint_bytes": 8176576,
+      "warm_malloc_in_use_bytes": 4821232,
+      "closed_footprint_bytes": 140543232,
+      "closed_malloc_in_use_bytes": 14704
+    }
+  },
+  {
+    "case": "giant-caller-full-w4",
+    "label": "narrow",
+    "command": [
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/narrow-types-v1/r3/artifacts/narrow/build/Core/dexkit_invocation_workload",
+      "/Users/teble/project/android/DexKit-benchmark-data/qq-9.3.55/followup/fixtures/invoke-giant/invocations.apk",
+      "caller-output-full-w4",
+      "2"
+    ],
+    "report": {
+      "mode": "caller-output-full-w4",
+      "repeats": 2,
+      "create_ns": 473584,
+      "setup_ns": 1348250,
+      "first_ns": 47172417,
+      "repeated_ns": 37083833,
+      "close_ns": 71583,
+      "lifecycle_ns": 86204500,
+      "positive_ns": 0,
+      "negative_ns": 0,
+      "checksum": 3377673968287610,
+      "returned": 524284,
+      "forward_build_ns": 0,
+      "caller_build_ns": 1298208,
+      "warm_footprint_bytes": 6996928,
+      "warm_malloc_in_use_bytes": 3772512,
+      "closed_footprint_bytes": 140838144,
+      "closed_malloc_in_use_bytes": 14704
+    }
+  }
+]

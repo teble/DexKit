@@ -78,6 +78,13 @@ int main() {
     Aborts([&] { CheckedIndexCast<uint16_t>(uint32_t{UINT16_MAX} + 1); });
     Aborts([&] { CheckedIndexCast<uint32_t>(uint64_t{UINT32_MAX} + 1); });
     Aborts([&] { CheckedIndexCast<uint32_t>(-1); });
+    Aborts([&] {
+        CompactCallerIndex overflow;
+        overflow.BeginCounts(2); overflow.BeginLayout();
+        overflow.AddRowCount(0, limit); overflow.AddRowCount(1, 1);
+        // Each row fits, but their prefix sum must fail before payload allocation.
+        overflow.Allocate();
+    });
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
     Aborts([&] { callers.Write(0, 0, uint32_t{UINT16_MAX} + 1); });
     if constexpr (sizeof(size_t) > sizeof(uint32_t)) {

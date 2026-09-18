@@ -80,7 +80,9 @@ int main() {
     Aborts([&] { CheckedIndexCast<uint32_t>(-1); });
 #if DEXKIT_EXPERIMENT_NARROW_TYPES
     Aborts([&] { callers.Write(0, 0, uint32_t{UINT16_MAX} + 1); });
-    Aborts([&] { CompactCallerIndex::CheckedAdd(uint64_t{UINT32_MAX} + 1, 0); });
+    if constexpr (sizeof(size_t) > sizeof(uint32_t)) {
+        Aborts([&] { CompactCallerIndex::CheckedAdd(static_cast<size_t>(uint64_t{UINT32_MAX} + 1), 0); });
+    }
 #endif
 #endif
     std::printf("CHECK_INDEX_TYPES {\"method_bytes\":%zu,\"offset_bytes\":%zu,\"caller_bytes\":%zu,"

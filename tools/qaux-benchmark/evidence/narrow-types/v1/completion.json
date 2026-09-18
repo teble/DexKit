@@ -1,0 +1,9 @@
+{
+  "completed_at_utc": "2026-09-18T08:22:28.726479+00:00",
+  "driver_exit_code": 0,
+  "sweeps": 20,
+  "samples": 240,
+  "frozen_inputs_checked_before_and_after": true,
+  "frozen_plan_sha256": "339e5c2bcaadcdf28f2a09121ea3c62051445f59f2c8e015a2a4c77461d7cdd0",
+  "message": "COMPLETE 20 sweeps / 240 fresh processes; frozen inputs unchanged"
+}

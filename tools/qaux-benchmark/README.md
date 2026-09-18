@@ -397,3 +397,11 @@ Caller/reader/writer method identities retain the original u32 domain and their
 eight-byte record layout; no method-table limit is introduced. ID 65535 is valid.
 Native type/ABI options must match. The same-source comparison keeps existing
 vector growth and other flags fixed; no forward-capacity trimming is included.
+
+The type-only comparison is complete: [results](NARROW-TYPES-RESULTS.md),
+[source review](NARROW-TYPES-REVIEW.md) and
+[evidence](evidence/narrow-types/v1/manifest.json). QQ persistent capacity drops
+63.14 MiB, and host physical peaks fall 4.02--4.77% across main/confirmation.
+The 240 fresh processes show no complete-lifecycle regression supported in both
+batches; only two cases have a repeated speed benefit. Android evidence covers
+four-ABI compilation and actual layout, separately from host runtime results.

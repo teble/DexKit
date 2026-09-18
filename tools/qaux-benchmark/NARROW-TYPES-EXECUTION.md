@@ -36,7 +36,7 @@ of process memory; report any input-domain restriction and performance tradeoff.
 - [x] Implement the guarded storage types and update consumers/diagnostics.
 - [x] Complete boundary, oracle, sanitizer, JVM and Android verification.
 - [x] Review the source delta and reconcile relevant findings.
-- [ ] Record measured layout changes and a bounded performance comparison.
+- [x] Record measured layout changes and a bounded performance comparison.
 
 The second development build passes the component boundary checks, the complete
 caller contract oracle, the mixed invocation oracle, and field relation bytes.
@@ -50,8 +50,8 @@ to preserve it, so the final candidate separates InvokeOperandId from the still
 32-bit LocalMethodId and removes the new method-table check. Earlier prototype
 artifacts/tests remain separate and are not the final comparison. The Android
 prefab library also required a portable equivalent of std::in_range; the fixed
-prototype passed 71 JVM tests and all four AAR ABIs. The compatible final source
-must repeat the affected builds and boundary/oracle checks before timing.
+prototype passed 71 JVM tests and all four AAR ABIs. Those results were kept
+separate; the compatible final source repeated the affected checks before timing.
 
 The final compatible source c537b23 passed normal/diagnostic, independent
 NARROW-only/all-OFF, ASan/UBSan and packed-field/compact-field combination
@@ -76,3 +76,11 @@ reverse access. Main and independently seeded confirmation each use six
 balanced AB/BA pairs: 20 sweeps, 240 fresh processes. Keep adverse samples and
 measure complete lifecycle plus physical peak. No builds, correctness checks,
 profiling, archive compression or further tuning during timing.
+
+All 20 sweeps / 240 fresh processes completed, with frozen inputs unchanged.
+QQ physical peaks decrease 4.02--4.77% across both batches and all four cases.
+Mixed invocation matching and single-thread/single-pass QQ have a repeated
+lifecycle benefit; other lifecycle comparisons remain unresolved, with no
+regression supported in both batches. See the complete
+[results](NARROW-TYPES-RESULTS.md) and
+[evidence](evidence/narrow-types/v1/manifest.json).

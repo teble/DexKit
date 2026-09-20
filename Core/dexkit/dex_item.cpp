@@ -139,18 +139,12 @@ void DexItem::InitBaseCache() {
     type_def_idx.resize(reader.TypeIds().size());
     class_source_files.resize(reader.TypeIds().size());
     class_access_flags.resize(reader.TypeIds().size());
-    class_interface_ids.resize(reader.TypeIds().size());
     class_method_ids.resize(reader.TypeIds().size());
     pending_cross_ref_method_ids.resize(reader.TypeIds().size());
     const auto method_count = reader.MethodIds().size();
     const auto field_count = reader.FieldIds().size();
-    method_descriptors.resize(method_count);
     method_access_flags.resize(method_count);
     method_codes.resize(method_count);
-    lazy_method_opcode_slots = std::make_unique<LazyMethodOpCodesSlot[]>(method_count);
-    lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(method_count);
-    lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(method_count);
-    field_descriptors.resize(field_count);
     field_access_flags.resize(field_count);
 
     method_cross_info.resize(method_count);
@@ -163,19 +157,8 @@ void DexItem::InitBaseCache() {
             class_source_files[class_def.class_idx] = strings[class_def.source_file_idx];
         }
         type_def_flag[class_def.class_idx] = true;
-        type_def_idx[class_def.class_idx] = def_idx;
+        type_def_idx[class_def.class_idx] = CheckedIndexCast<ClassDefIndex>(def_idx);
         class_access_flags[class_def.class_idx] = class_def.access_flags;
-
-        if (class_def.interfaces_off) {
-            auto interface_type_list = this->reader.dataPtr<dex::TypeList>(class_def.interfaces_off);
-            if (interface_type_list != nullptr) {
-                auto &interfaces = this->class_interface_ids[class_def.class_idx];
-                interfaces.reserve(interface_type_list->size);
-                for (auto i = 0; i < interface_type_list->size; ++i) {
-                    interfaces.emplace_back(interface_type_list->list[i].type_idx);
-                }
-            }
-        }
 
         if (class_def.class_data_off == 0) {
             continue;
@@ -305,8 +288,7 @@ void DexItem::InitCache(uint32_t init_flags) {
         need_foreach_method = true;
     }
     if (need_method_caller) {
-        method_caller_ids.resize(reader.MethodIds().size());
-        need_foreach_method = true;
+        method_caller_ids.BeginCounts(reader.MethodIds().size());
     }
     if (need_method_using_string) {
         method_using_string_ids.resize(reader.MethodIds().size());
@@ -327,31 +309,25 @@ void DexItem::InitCache(uint32_t init_flags) {
     }
 
     if (need_foreach_method) {
-        for (auto &class_def: reader.ClassDefs()) {
-            for (auto method_id: class_method_ids[class_def.class_idx]) {
-                auto code = method_codes[method_id];
-                if (code == nullptr) {
-                    continue;
-                }
+        // The code table is indexed by method ID across both direct and virtual
+        // methods. Empty rows also need boundaries in the compact indexes.
+        for (uint32_t method_id = 0; method_id < method_codes.size(); ++method_id) {
+            auto *method_using_string_ptr = need_method_using_string
+                    ? method_using_string_ids.BeginMethod(method_id) : nullptr;
+            auto *method_invoking_ptr = need_method_invoking
+                    ? method_invoking_ids.BeginMethod(method_id) : nullptr;
 
+            if (auto code = method_codes[method_id]) {
                 std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
-                std::vector<uint32_t> *method_using_string_ptr = nullptr;
                 std::vector<std::pair<uint32_t, bool>> *method_using_field_ptr = nullptr;
-                std::vector<uint32_t> *method_invoking_ptr = nullptr;
                 std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
 
                 if (need_op_seq) {
                     op_seq_ptr = &method_opcode_seq[method_id];
                     *op_seq_ptr = std::vector<uint8_t>();
                 }
-                if (need_method_using_string) {
-                    method_using_string_ptr = &method_using_string_ids[method_id];
-                }
                 if (need_method_using_field) {
                     method_using_field_ptr = &method_using_field_ids[method_id];
-                }
-                if (need_method_invoking) {
-                    method_invoking_ptr = &method_invoking_ids[method_id];
                 }
                 if (need_method_using_number) {
                     method_using_number_ptr = &method_using_numbers[method_id];
@@ -395,7 +371,8 @@ void DexItem::InitCache(uint32_t init_flags) {
                         if ((op >= 0x6e && op <= 0x72) // invoke-kind
                             || (op >= 0x74 && op <= 0x78)) { // invoke-kind/range
                             auto index = ReadShort(ptr);
-                            method_invoking_ptr->emplace_back(index);
+                            method_invoking_ptr->emplace_back(CheckedIndexCast<InvokeOperandId>(index));
+                            if (need_method_caller) method_caller_ids.Count(index);
                         }
                     }
 
@@ -406,16 +383,23 @@ void DexItem::InitCache(uint32_t init_flags) {
                     p += width;
                 }
             }
+            if (need_method_invoking) method_invoking_ids.EndMethod(method_id);
+            if (need_method_using_string) method_using_string_ids.EndMethod(method_id);
         }
     }
 
+    // Validate totals before reverse counting, cross-DEX binding or publication.
+    if (need_method_invoking) method_invoking_ids.FinishBuild();
+    if (need_method_using_string) method_using_string_ids.FinishBuild();
+
     if (need_method_caller) {
-        for (auto &class_def: reader.ClassDefs()) {
-            for (auto method_id: class_method_ids[class_def.class_idx]) {
-                for (auto invoke_id: method_invoking_ids[method_id]) {
-                    method_caller_ids[invoke_id].emplace_back(dex_id, method_id);
-                }
-            }
+        // Joint cold extraction counted at the invoke instruction above. Late
+        // caller construction only reads the already published forward rows.
+        if (!need_method_invoking) {
+            for (const auto &class_def : reader.ClassDefs())
+                for (auto method_id : class_method_ids[class_def.class_idx])
+                    for (auto invoke_id : method_invoking_ids[method_id])
+                        method_caller_ids.Count(invoke_id);
         }
     }
 
@@ -423,8 +407,7 @@ void DexItem::InitCache(uint32_t init_flags) {
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
                 for (auto &field_using: method_using_field_ids[method_id]) {
-                    auto field_id = field_using.first;
-                    auto is_getter = field_using.second;
+                    const auto [field_id, is_getter] = field_using;
                     if (is_getter) {
                         field_get_method_ids[field_id].emplace_back(dex_id, method_id);
                     } else {
@@ -492,12 +475,12 @@ void DexItem::InitCache(uint32_t init_flags) {
 }
 
 bool DexItem::NeedPutCrossRef(uint32_t need_cross_flag) const {
-    DEXKIT_CHECK((need_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((need_cross_flag & ~kCrossRefIdentityFlags) == 0);
     return (dex_cross_flag.load(std::memory_order_acquire) & need_cross_flag) != need_cross_flag;
 }
 
 uint32_t DexItem::BeginPutCrossRef(uint32_t put_cross_flag) {
-    DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);
     std::unique_lock lock(cross_ref_state_mutex);
     while (true) {
         auto ready_flags = dex_cross_flag.load(std::memory_order_acquire);
@@ -533,9 +516,12 @@ void DexItem::WaitPutCrossRef(uint32_t put_cross_flag) const {
 }
 
 void DexItem::PutCrossRef(uint32_t put_cross_flag) {
-    DEXKIT_CHECK((put_cross_flag & ~(kCallerMethod | kRwFieldMethod)) == 0);
+    DEXKIT_CHECK((put_cross_flag & ~kCrossRefIdentityFlags) == 0);
     bool need_caller_cross = (put_cross_flag & kCallerMethod) != 0;
-    bool need_rw_field_cross = (put_cross_flag & kRwFieldMethod) != 0;
+    bool need_rw_field_cross = (put_cross_flag & kFieldIdentity) != 0;
+    // InitDexCache has already published all requested local caches. Preserve
+    // the original payload filter when reverse rows exist in this same warmup.
+    const bool keep_empty_field_bindings = (dex_flag.load(std::memory_order_acquire) & kRwFieldMethod) == 0;
 
     for (int type_idx = 0; type_idx < type_names.size(); ++type_idx) {
         if (!this->type_def_flag[type_idx] && type_names[type_idx][0] != '[') {
@@ -557,17 +543,17 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_method_ids.size() && cur_i < method_ids.size(); ++ori_i) {
                     auto origin_method_idx = origin_method_ids[ori_i];
                     auto curr_method_idx = method_ids[cur_i];
-                    auto origin_method_descriptor = origin_dex->GetMethodDescriptor(origin_method_idx);
-                    auto curr_method_descriptor = this->GetMethodDescriptor(curr_method_idx);
-                    if (curr_method_descriptor != origin_method_descriptor) {
+                    if (!HasSameMethodIdentity(curr_method_idx, *origin_dex, origin_method_idx)) {
                         continue;
                     }
-                    method_cross_info[curr_method_idx] = {origin_dex->dex_id, origin_method_idx};
-                    if (!method_caller_ids[curr_method_idx].empty()) {
+                    method_cross_info[curr_method_idx] = std::pair<uint16_t, uint32_t>(origin_dex->dex_id, origin_method_idx);
+                    const auto source_count = method_caller_ids.LocalCount(curr_method_idx);
+                    if (source_count != 0) {
                         pending_aggregate_method_work_items.emplace_back(PendingAggregateMethodWorkItem{
                                 .source_method_idx = curr_method_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
-                                .target_method_idx = origin_method_idx
+                                .target_method_idx = origin_method_idx,
+                                .source_count = source_count,
                         });
                     }
                     ++cur_i;
@@ -581,13 +567,12 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                 for (int ori_i = 0, cur_i = 0; ori_i < origin_field_ids.size() && cur_i < field_ids.size(); ++ori_i) {
                     auto origin_field_idx = origin_field_ids[ori_i];
                     auto curr_field_idx = field_ids[cur_i];
-                    auto origin_field_descriptor = origin_dex->GetFieldDescriptor(origin_field_idx);
-                    auto curr_field_descriptor = this->GetFieldDescriptor(curr_field_idx);
-                    if (origin_field_descriptor != curr_field_descriptor) {
+                    if (!HasSameFieldIdentity(curr_field_idx, *origin_dex, origin_field_idx)) {
                         continue;
                     }
-                    field_cross_info[curr_field_idx] = {origin_dex->dex_id, origin_field_idx};
-                    if (!field_get_method_ids[curr_field_idx].empty() || !field_put_method_ids[curr_field_idx].empty()) {
+                    field_cross_info[curr_field_idx] = std::pair<uint16_t, uint32_t>(origin_dex->dex_id, origin_field_idx);
+                    if (keep_empty_field_bindings || !field_get_method_ids[curr_field_idx].empty()
+                            || !field_put_method_ids[curr_field_idx].empty()) {
                         pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
                                 .source_field_idx = curr_field_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
@@ -631,11 +616,20 @@ ClassBean DexItem::GetClassBean(uint32_t type_idx) {
         bean.source_file = this->class_source_files[type_idx];
         bean.access_flags = class_def.access_flags;
         bean.super_class_id = class_def.superclass_idx;
-        bean.interface_ids = this->class_interface_ids[type_idx];
+        const auto interfaces = GetInterfaceTypeIds(type_idx);
+        bean.interface_ids.resize(interfaces.size());
+        for (size_t i = 0; i < interfaces.size(); ++i) bean.interface_ids[i] = interfaces[i];
         bean.field_ids = this->class_field_ids[type_idx];
         bean.method_ids = this->class_method_ids[type_idx];
     }
     return bean;
+}
+
+DexTypeListView DexItem::GetInterfaceTypeIds(uint32_t type_idx) const {
+    if (!type_def_flag[type_idx]) return {};
+    const auto &definition = reader.ClassDefs()[type_def_idx[type_idx]];
+    return DexTypeListView(definition.interfaces_off
+            ? reader.dataPtr<dex::TypeList>(definition.interfaces_off) : nullptr);
 }
 
 // NOLINTNEXTLINE
@@ -644,7 +638,8 @@ MethodBean DexItem::GetMethodBean(uint32_t method_idx) {
     if (!this->type_def_flag[method_def.class_idx]) {
         auto cross_info = this->method_cross_info[method_idx];
         if (cross_info.has_value()) {
-            return this->dexkit->GetDexItem(cross_info->first)->GetMethodBean(cross_info->second);
+            const auto [dex, method] = cross_info.value();
+            return this->dexkit->GetDexItem(dex)->GetMethodBean(method);
         }
     }
     auto &proto_def = this->reader.ProtoIds()[method_def.proto_idx];
@@ -672,7 +667,8 @@ FieldBean DexItem::GetFieldBean(uint32_t field_idx) {
     if (!this->type_def_flag[field_def.class_idx]) {
         auto cross_info = this->field_cross_info[field_idx];
         if (cross_info.has_value()) {
-            return this->dexkit->GetDexItem(cross_info->first)->GetFieldBean(cross_info->second);
+            const auto [dex, field] = cross_info.value();
+            return this->dexkit->GetDexItem(dex)->GetFieldBean(field);
         }
     }
     FieldBean bean;
@@ -686,9 +682,11 @@ FieldBean DexItem::GetFieldBean(uint32_t field_idx) {
 }
 
 std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_view method_descriptor) {
+    const auto descriptor = internal::ParseMethodDescriptorView(method_descriptor);
+    if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
     auto &methods = this->class_method_ids[type_idx];
     for (auto method_idx: methods) {
-        if (this->GetMethodDescriptor(method_idx) == method_descriptor) {
+        if (MatchesDescriptor(method_idx, *descriptor)) {
             return this->GetMethodBean(method_idx);
         }
     }
@@ -696,13 +694,66 @@ std::optional<MethodBean> DexItem::GetMethodBean(uint32_t type_idx, std::string_
 }
 
 std::optional<FieldBean> DexItem::GetFieldBean(uint32_t type_idx, std::string_view method_descriptor) {
+    const auto descriptor = internal::ParseFieldDescriptorView(method_descriptor);
+    if (!descriptor || descriptor->declaring_type != type_names[type_idx]) return std::nullopt;
     auto &fields = this->class_field_ids[type_idx];
     for (auto field_idx: fields) {
-        if (this->GetFieldDescriptor(field_idx) == method_descriptor) {
+        if (MatchesDescriptor(field_idx, *descriptor)) {
             return this->GetFieldBean(field_idx);
         }
     }
     return std::nullopt;
+}
+
+bool DexItem::HasSameMethodIdentity(uint32_t method_idx, const DexItem &other, uint32_t other_idx) const {
+    const auto &left = reader.MethodIds()[method_idx];
+    const auto &right = other.reader.MethodIds()[other_idx];
+    if (strings[left.name_idx] != other.strings[right.name_idx]
+        || type_names[left.class_idx] != other.type_names[right.class_idx]) return false;
+    const auto *left_types = proto_type_list[left.proto_idx];
+    const auto *right_types = other.proto_type_list[right.proto_idx];
+    const auto count = left_types ? left_types->size : 0;
+    if (count != (right_types ? right_types->size : 0)) return false;
+    const auto &left_proto = reader.ProtoIds()[left.proto_idx];
+    const auto &right_proto = other.reader.ProtoIds()[right.proto_idx];
+    if (type_names[left_proto.return_type_idx] != other.type_names[right_proto.return_type_idx]) return false;
+    for (uint32_t i = 0; i < count; ++i) {
+        if (type_names[left_types->list[i].type_idx] != other.type_names[right_types->list[i].type_idx]) return false;
+    }
+    return true;
+}
+
+bool DexItem::HasSameFieldIdentity(uint32_t field_idx, const DexItem &other, uint32_t other_idx) const {
+    const auto &left = reader.FieldIds()[field_idx];
+    const auto &right = other.reader.FieldIds()[other_idx];
+    return strings[left.name_idx] == other.strings[right.name_idx]
+        && type_names[left.class_idx] == other.type_names[right.class_idx]
+        && type_names[left.type_idx] == other.type_names[right.type_idx];
+}
+
+bool DexItem::MatchesDescriptor(uint32_t method_idx, const internal::MethodDescriptorView &descriptor) const {
+    const auto &method = reader.MethodIds()[method_idx];
+    if (strings[method.name_idx] != descriptor.name
+        || type_names[method.class_idx] != descriptor.declaring_type) return false;
+    const auto *types = proto_type_list[method.proto_idx];
+    const auto count = types ? types->size : 0;
+    if (count != descriptor.parameter_count) return false;
+    const auto &proto = reader.ProtoIds()[method.proto_idx];
+    if (type_names[proto.return_type_idx] != descriptor.return_type) return false;
+    auto remaining = descriptor.parameters;
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto type = type_names[types->list[i].type_idx];
+        if (!remaining.starts_with(type)) return false;
+        remaining.remove_prefix(type.size());
+    }
+    return remaining.empty();
+}
+
+bool DexItem::MatchesDescriptor(uint32_t field_idx, const internal::FieldDescriptorView &descriptor) const {
+    const auto &field = reader.FieldIds()[field_idx];
+    return strings[field.name_idx] == descriptor.name
+        && type_names[field.class_idx] == descriptor.declaring_type
+        && type_names[field.type_idx] == descriptor.type;
 }
 
 // NOLINTNEXTLINE
@@ -992,14 +1043,14 @@ std::vector<std::string_view> DexItem::GetUsingStrings(uint32_t method_idx) {
     // Using-strings follows the same rule as opcodes: per-method lazy fallback is allowed
     // for metadata getters, while matcher/query hot paths rely on the outer ready barrier.
     std::vector<std::string_view> using_strings;
-    const std::vector<uint32_t> *method_using_strings = nullptr;
+    std::span<const uint32_t> method_using_strings;
     if ((dex_flag.load(std::memory_order_acquire) & kUsingString) != 0) {
-        method_using_strings = &method_using_string_ids[method_idx];
+        method_using_strings = method_using_string_ids[method_idx];
     } else {
-        method_using_strings = &GetLazyMethodUsingStringIds(method_idx);
+        method_using_strings = GetLazyMethodUsingStringIds(method_idx);
     }
-    using_strings.reserve(method_using_strings->size());
-    for (auto string_id: *method_using_strings) {
+    using_strings.reserve(method_using_strings.size());
+    for (auto string_id: method_using_strings) {
         using_strings.emplace_back(this->strings[string_id]);
     }
     return using_strings;
@@ -1012,9 +1063,10 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
     const auto &method_using_fields = this->method_using_field_ids[method_idx];
     std::vector<UsingFieldBean> using_fields;
     using_fields.reserve(method_using_fields.size());
-    for (auto [method_id, is_getting]: method_using_fields) {
+    for (auto field_use: method_using_fields) {
+        const auto [field_id, is_getting] = field_use;
         UsingFieldBean bean;
-        bean.field = GetFieldBean(method_id);
+        bean.field = GetFieldBean(field_id);
         bean.is_getting = is_getting;
         using_fields.emplace_back(bean);
     }
@@ -1053,47 +1105,32 @@ std::vector<MethodBean> DexItem::FieldPutMethods(uint32_t field_idx) {
     return beans;
 }
 
-std::string_view DexItem::GetMethodDescriptor(uint32_t method_idx) {
-    auto &method_desc = this->method_descriptors[method_idx];
-    if (method_desc != std::nullopt) {
-        return method_desc.value();
-    }
-    auto &method_def = this->reader.MethodIds()[method_idx];
-    auto &proto_def = this->reader.ProtoIds()[method_def.proto_idx];
-    auto &type_list = this->proto_type_list[method_def.proto_idx];
-    auto type_defs = this->reader.TypeIds();
-
-    std::string descriptor(this->type_names[method_def.class_idx]);
+std::string DexItem::GetMethodDescriptor(uint32_t method_idx) {
+    const auto &method = reader.MethodIds()[method_idx];
+    const auto &proto = reader.ProtoIds()[method.proto_idx];
+    const auto *parameters = proto_type_list[method.proto_idx];
+    const auto types = reader.TypeIds();
+    std::string descriptor(type_names[method.class_idx]);
     descriptor += "->";
-    descriptor += this->strings[method_def.name_idx];
+    descriptor += strings[method.name_idx];
     descriptor += "(";
-    auto len = type_list ? type_list->size : 0;
-    for (int i = 0; i < len; ++i) {
-        descriptor += strings[type_defs[type_list->list[i].type_idx].descriptor_idx];
-    }
+    const auto count = parameters ? parameters->size : 0;
+    for (uint32_t i = 0; i < count; ++i)
+        descriptor += strings[types[parameters->list[i].type_idx].descriptor_idx];
     descriptor += ')';
-    descriptor += strings[type_defs[proto_def.return_type_idx].descriptor_idx];
-
-    method_desc = descriptor;
-    return method_desc.value();
+    descriptor += strings[types[proto.return_type_idx].descriptor_idx];
+    return descriptor;
 }
 
-std::string_view DexItem::GetFieldDescriptor(uint32_t field_idx) {
-    auto &field_desc = this->field_descriptors[field_idx];
-    if (field_desc != std::nullopt) {
-        return field_desc.value();
-    }
-    auto &field_id = this->reader.FieldIds()[field_idx];
-    auto &type_id = this->reader.TypeIds()[field_id.type_idx];
-
-    std::string descriptor(this->type_names[field_id.class_idx]);
+std::string DexItem::GetFieldDescriptor(uint32_t field_idx) {
+    const auto &field = reader.FieldIds()[field_idx];
+    const auto &type = reader.TypeIds()[field.type_idx];
+    std::string descriptor(type_names[field.class_idx]);
     descriptor += "->";
-    descriptor += this->strings[field_id.name_idx];
+    descriptor += strings[field.name_idx];
     descriptor += ":";
-    descriptor += this->strings[type_id.descriptor_idx];
-
-    field_desc = descriptor;
-    return field_desc.value();
+    descriptor += strings[type.descriptor_idx];
+    return descriptor;
 }
 
 std::vector<uint8_t> DexItem::GetOpSeqFromCode(uint32_t method_idx) {
@@ -1136,6 +1173,9 @@ std::vector<uint32_t> DexItem::GetUsingStringsFromCode(uint32_t method_idx) {
 }
 
 const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
+    std::call_once(lazy_opcode_directory_once, [this] {
+        lazy_method_opcode_slots = std::make_unique<LazyMethodOpCodesSlot[]>(reader.MethodIds().size());
+    });
     auto &slot = lazy_method_opcode_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
@@ -1167,6 +1207,9 @@ const std::vector<uint8_t> &DexItem::GetLazyMethodOpCodes(uint32_t method_idx) {
 }
 
 const std::vector<uint32_t> &DexItem::GetLazyMethodUsingStringIds(uint32_t method_idx) {
+    std::call_once(lazy_string_directory_once, [this] {
+        lazy_method_using_string_slots = std::make_unique<LazyMethodUsingStringsSlot[]>(reader.MethodIds().size());
+    });
     auto &slot = lazy_method_using_string_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {
@@ -1295,6 +1338,9 @@ const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
 
     // Using-numbers remains a sparse per-method lazy cache because full warm-up cost and
     // resident memory are too high for the typical "read one method's metadata" path.
+    std::call_once(lazy_number_directory_once, [this] {
+        lazy_using_numbers_slots = std::make_unique<LazyUsingNumbersSlot[]>(reader.MethodIds().size());
+    });
     auto &slot = lazy_using_numbers_slots[method_idx];
     auto state = slot.state.load(std::memory_order_acquire);
     if (state == static_cast<uint8_t>(LazyMethodFeatureState::Ready)) {

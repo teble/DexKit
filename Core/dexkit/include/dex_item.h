@@ -21,9 +21,11 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <string_view>
 #include <vector>
 #include <condition_variable>
+#include <span>
 
 #include "beans.h"
 #include "common.h"
@@ -42,6 +44,12 @@
 #include "query_context.h"
 #include "dexkit.h"
 #include "analyze.h"
+#include "index_types.h"
+#include "inverted_string_index.h"
+#include "dex_type_list_view.h"
+#include "member_descriptor_view.h"
+#include "compact_id_index.h"
+#include "compact_caller_index.h"
 
 namespace dexkit {
 
@@ -103,7 +111,8 @@ public:
             trie::PackageTrie &packageTrie,
             uint32_t start,
             uint32_t end,
-            QueryContext &query_context
+            QueryContext &query_context,
+            const inverted_string::QueryPlan &string_plan = {}
     );
     std::vector<MethodBean> FindMethod(
             const schema::FindMethod *query,
@@ -112,7 +121,8 @@ public:
             trie::PackageTrie &packageTrie,
             uint32_t start,
             uint32_t end,
-            QueryContext &query_context
+            QueryContext &query_context,
+            const inverted_string::QueryPlan &string_plan = {}
     );
     std::vector<FieldBean> FindField(
             const schema::FindField *query,
@@ -213,8 +223,8 @@ private:
     void InitBaseCache();
     inline std::mutex &GetTypeDefMutex(uint32_t type_idx);
 
-    std::string_view GetMethodDescriptor(uint32_t method_idx);
-    std::string_view GetFieldDescriptor(uint32_t field_idx);
+    std::string GetMethodDescriptor(uint32_t method_idx);
+    std::string GetFieldDescriptor(uint32_t field_idx);
 
     std::vector<uint8_t> GetOpSeqFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetUsingStringsFromCode(uint32_t method_idx);
@@ -273,11 +283,35 @@ private:
 
 private:
     friend class DexKit;
+    using StringMatcherVector = flatbuffers::Vector<flatbuffers::Offset<schema::StringMatcher>>;
+    using StringCandidateGroups = std::vector<std::pair<std::string_view, inverted_string::Bits>>;
+    bool CanUseInvertedStrings(const StringMatcherVector *matchers) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const schema::MethodMatcher *matcher) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const schema::ClassMatcher *matcher) const;
+    inverted_string::QueryPlan PlanRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+            bool strings_only) const;
+    bool EnsureInvertedStrings();
+    bool BuildRootStringCandidates(const StringMatcherVector *matchers, bool classes,
+            const inverted_string::QueryPlan &plan, inverted_string::Bits &hits);
+    bool BuildStringCandidateGroups(acdat::AhoCorasickDoubleArrayTrie<std::string_view> &trie,
+            const std::map<std::string_view, std::set<std::string_view>> &groups,
+            const phmap::flat_hash_map<std::string_view, schema::StringMatchType> &types,
+            bool classes, StringCandidateGroups &result);
+    std::once_flag inverted_strings_once;
+    std::atomic<bool> inverted_strings_ready{false};
+    inverted_string::Index inverted_strings;
+    DexTypeListView GetInterfaceTypeIds(uint32_t type_idx) const;
+
+    bool HasSameMethodIdentity(uint32_t method_idx, const DexItem &other, uint32_t other_idx) const;
+    bool HasSameFieldIdentity(uint32_t field_idx, const DexItem &other, uint32_t other_idx) const;
+    bool MatchesDescriptor(uint32_t method_idx, const internal::MethodDescriptorView &descriptor) const;
+    bool MatchesDescriptor(uint32_t field_idx, const internal::FieldDescriptorView &descriptor) const;
 
     struct PendingAggregateMethodWorkItem {
-        uint32_t source_method_idx;
+        LocalMethodId source_method_idx;
         uint16_t target_dex_id;
-        uint32_t target_method_idx;
+        LocalMethodId target_method_idx;
+        CacheOffset source_count;
     };
 
     struct PendingAggregateFieldWorkItem {
@@ -336,20 +370,19 @@ private:
     std::vector<std::string_view> type_names;
     std::vector<uint8_t> type_name_array_count;
     phmap::flat_hash_map<std::string_view /*type_name*/, uint32_t /*type_id*/> type_ids_map;
-    std::vector<uint32_t /*class_def_id*/> type_def_idx;
+    std::vector<ClassDefIndex /*class_def_id*/> type_def_idx;
     // dex declared types flag
     std::vector<bool /*def_in_class_def*/> type_def_flag;
     // class source file name, eg: "HelloWorld.java", maybe obfuscated
     std::vector<std::string_view> class_source_files;
     std::vector<uint32_t /*access_flag*/> class_access_flags;
-    std::vector<std::vector<uint32_t>> class_interface_ids;
-    std::vector<std::optional<std::string>> method_descriptors;
+    // Descriptor strings belong to returned Beans; no persistent member cache.
     // stable base member indexes; after init only members declared in this dex stay here
-    std::vector<std::vector<uint32_t /*method_id*/>> class_method_ids;
+    std::vector<std::vector<LocalMethodId /*method_id*/>> class_method_ids;
     // one-shot worklists for cross-ref against members whose declaring class is outside this dex
-    std::vector<std::vector<uint32_t /*method_id*/>> pending_cross_ref_method_ids;
+    std::vector<std::vector<LocalMethodId /*method_id*/>> pending_cross_ref_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
-    std::vector<std::optional<std::string>> field_descriptors;
+    // Field descriptor strings also belong to the returned values.
     std::vector<std::vector<uint32_t /*field_id*/>> class_field_ids;
     std::vector<std::vector<uint32_t /*field_id*/>> pending_cross_ref_field_ids;
     std::vector<uint32_t /*access_flag*/> field_access_flags;
@@ -367,20 +400,26 @@ private:
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;
 
     std::unique_ptr<LazyMethodUsingStringsSlot[]> lazy_method_using_string_slots;
-    std::vector<std::vector<uint32_t /*using_string*/>> method_using_string_ids;
+    CompactStringIndex method_using_string_ids;
     std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
     std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
+    // call_once publishes whole arrays; they remain alive through full warm-up.
+    std::once_flag lazy_opcode_directory_once;
+    std::once_flag lazy_string_directory_once;
+    std::once_flag lazy_number_directory_once;
     std::unique_ptr<std::array<std::mutex, 64>> lazy_method_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
     std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
-    std::vector<std::vector<uint32_t /*invoke_method_id*/>> method_invoking_ids;
-    std::vector<std::vector<std::pair<uint32_t /*method_id*/, bool /*is_getting*/>>> method_using_field_ids;
+    CompactInvocationIndex method_invoking_ids;
+    std::vector<std::vector<std::pair<uint32_t, bool>>> method_using_field_ids;
     // local reverse edges are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*call_method_id*/>>> method_caller_ids;
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_get_method_ids;
-    std::vector<std::vector<std::pair<uint16_t /*dex_id*/, uint32_t /*field_id*/>>> field_put_method_ids;
+    CompactCallerIndex method_caller_ids;
+    std::vector<std::vector<MethodReference>> field_get_method_ids;
+    std::vector<std::vector<MethodReference>> field_put_method_ids;
     // one-shot aggregate worklists: pre-resolved source->target bindings that also
     // carry reverse-edge payload, so BuildCrossRefAggregates can skip re-reading cross_info
+    // With field identity splitting, field bindings survive until reverse rows
+    // are built; they also include resolved fields with no eventual payload.
     std::vector<PendingAggregateMethodWorkItem> pending_aggregate_method_work_items;
     std::vector<PendingAggregateFieldWorkItem> pending_aggregate_field_work_items;
 };

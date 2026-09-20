@@ -47,11 +47,11 @@ public:
     class QueryExecutionGuard {
     public:
         explicit QueryExecutionGuard(DexKit *owner) : owner_(owner) {}
-        QueryExecutionGuard(const QueryExecutionGuard &) = delete;
-        QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
         QueryExecutionGuard(QueryExecutionGuard &&other) noexcept : owner_(other.owner_) {
             other.owner_ = nullptr;
         }
+        QueryExecutionGuard(const QueryExecutionGuard &) = delete;
+        QueryExecutionGuard &operator=(const QueryExecutionGuard &) = delete;
         QueryExecutionGuard &operator=(QueryExecutionGuard &&other) = delete;
         ~QueryExecutionGuard();
 
@@ -157,6 +157,7 @@ private:
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
     void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;
     void BuildCrossRefAggregates(uint32_t aggregate_flags);
+    void BuildCompactCallers(uint32_t thread_num);
 
 #if DEXKIT_ENABLE_INTERNAL_METRICS
     static constexpr size_t kQueryMetricsHistoryCapacity = 256;

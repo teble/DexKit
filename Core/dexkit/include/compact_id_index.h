@@ -54,6 +54,18 @@ public:
 
     bool empty() const { return offsets_.size() <= 1; }
 
+    // Sparse builders may stage a source offset in each ending boundary.
+    // Visit rows in order and read the source before EndRow replaces it.
+    void StageRowSource(uint32_t row, CacheOffset source) {
+        DEXKIT_CHECK(ids_.empty() && !empty() && row < offsets_.size() - 1);
+        offsets_[size_t(row) + 1] = source;
+    }
+
+    CacheOffset RowSource(uint32_t row) const {
+        DEXKIT_CHECK(!empty() && row < offsets_.size() - 1);
+        return offsets_[size_t(row) + 1];
+    }
+
     std::vector<Id> *BeginRow(uint32_t row) {
         DEXKIT_CHECK(!empty() && row < offsets_.size() - 1);
         offsets_[row] = static_cast<CacheOffset>(ids_.size());

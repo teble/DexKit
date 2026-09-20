@@ -395,7 +395,8 @@ private:
     std::vector<ir::AnnotationSet *> class_annotations;
     std::vector<ir::AnnotationSet *> method_annotations;
     std::vector<ir::AnnotationSet *> field_annotations;
-    std::vector<std::vector<ir::AnnotationSet *>> method_parameter_annotations;
+    // Reader owns the annotation sets; null slots preserve parameter positions.
+    CompactIdIndex<ir::AnnotationSet *> method_parameter_annotations;
 
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> method_cross_info;
     std::vector<std::optional<std::pair<uint16_t, uint32_t>>> field_cross_info;

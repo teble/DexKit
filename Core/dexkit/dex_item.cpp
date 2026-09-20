@@ -442,6 +442,8 @@ void DexItem::InitCache(uint32_t init_flags) {
             method_parameter_annotations.resize(reader.MethodIds().size());
         }
 
+        uint64_t parameter_annotation_count = 0;
+        bool has_parameter_annotation_rows = false;
         for (auto &class_def: reader.ClassDefs()) {
             if (class_def.annotations_off == 0) {
                 continue;
@@ -473,13 +475,32 @@ void DexItem::InitCache(uint32_t init_flags) {
                 for (dex::u4 i = 0; i < dex_annotations->parameters_size; ++i) {
                     auto dex_parameter_annotation = reinterpret_cast<const dex::ParameterAnnotationsItem *>(ptr);
                     auto dex_annotation_set_ref_list = reader.dataPtr<dex::AnnotationSetRefList>(dex_parameter_annotation->annotations_off);
-                    for (dex::u4 j = 0; j < dex_annotation_set_ref_list->size; ++j) {
-                        auto dex_annotation_set_ref_item = dex_annotation_set_ref_list->list[j];
-                        method_parameter_annotations[dex_parameter_annotation->method_idx].emplace_back(reader.ExtractAnnotationSet(dex_annotation_set_ref_item.annotations_off));
-                    }
+                    method_parameter_annotations.StageRowSource(dex_parameter_annotation->method_idx,
+                            dex_parameter_annotation->annotations_off);
+                    parameter_annotation_count += dex_annotation_set_ref_list->size;
+                    has_parameter_annotation_rows = true;
                     ptr += sizeof(dex::ParameterAnnotationsItem);
                 }
             }
+        }
+        if (need_param_annotation) {
+            method_parameter_annotations.ReserveValues(parameter_annotation_count);
+            if (has_parameter_annotation_rows) {
+                const auto method_count = reader.MethodIds().size();
+                for (uint32_t method_id = 0; method_id < method_count; ++method_id) {
+                    const auto source = method_parameter_annotations.RowSource(method_id);
+                    auto *annotations = method_parameter_annotations.BeginRow(method_id);
+                    if (source != 0) {
+                        const auto *list = reader.dataPtr<const dex::AnnotationSetRefList>(source);
+                        for (uint32_t i = 0; i < list->size; ++i) {
+                            annotations->emplace_back(reader.ExtractAnnotationSet(list->list[i].annotations_off));
+                        }
+                    }
+                    method_parameter_annotations.EndRow(method_id);
+                }
+            }
+            method_parameter_annotations.FinishBuild();
+            DEXKIT_CHECK(method_parameter_annotations.ValueCount() == parameter_annotation_count);
         }
     }
 }
@@ -979,10 +1000,11 @@ DexItem::GetParameterAnnotationBeans(uint32_t method_idx) {
         return {};
     }
     std::vector<std::vector<AnnotationBean>> beans;
-    auto param_annotations = this->method_parameter_annotations[method_idx];
+    const auto param_annotations = this->method_parameter_annotations[method_idx];
     if (param_annotations.empty()) {
         return {};
     }
+    beans.reserve(param_annotations.size());
     for (auto annotationSet: param_annotations) {
         std::vector<AnnotationBean> annotationBeans;
         if (annotationSet) {

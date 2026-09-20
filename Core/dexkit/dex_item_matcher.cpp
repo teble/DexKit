@@ -1542,7 +1542,7 @@ bool DexItem::IsParametersMatched(uint32_t method_idx, const schema::ParametersM
         if (type_list_size != matcher->parameters()->size()) {
             return false;
         }
-        const std::vector<ir::AnnotationSet *> *method_parameter_annotation = nullptr;
+        std::span<ir::AnnotationSet *const> method_parameter_annotation;
         for (size_t i = 0; i < type_list_size; ++i) {
             auto parameter_matcher = matcher->parameters()->Get(i);
             DEXKIT_CHECK(parameter_matcher);
@@ -1550,14 +1550,14 @@ bool DexItem::IsParametersMatched(uint32_t method_idx, const schema::ParametersM
                 return false;
             }
             if (parameter_matcher->annotations()) {
-                if (method_parameter_annotation == nullptr) {
-                    DEXKIT_CHECK(method_parameter_annotations.size() == reader.MethodIds().size());
-                    method_parameter_annotation = &this->method_parameter_annotations[method_idx];
+                if (method_parameter_annotation.empty()) {
+                    DEXKIT_CHECK(!method_parameter_annotations.empty());
+                    method_parameter_annotation = this->method_parameter_annotations[method_idx];
                 }
-                if (method_parameter_annotation->size() <= i) {
+                if (method_parameter_annotation.size() <= i) {
                     return false;
                 }
-                if (!IsAnnotationsMatched((*method_parameter_annotation)[i], parameter_matcher->annotations())) {
+                if (!IsAnnotationsMatched(method_parameter_annotation[i], parameter_matcher->annotations())) {
                     return false;
                 }
             }

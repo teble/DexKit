@@ -1045,6 +1045,64 @@ class UnitTest {
     }
 
     @Test
+    fun testFieldReverseRowsSurviveWarmupAndConcurrentReads() {
+        val fieldIds: List<Long>
+        val methodIds: List<Long>
+        fun rows(target: DexKitBridge, ids: List<Long>) = ids.associateWith { id ->
+            // Read through the bridge each time, bypassing FieldData's lazy values.
+            target.readFieldMethods(id).map { it.getEncodeId() } to
+                    target.writeFieldMethods(id).map { it.getEncodeId() }
+        }
+        val expected: Map<Long, Pair<List<Long>, List<Long>>>
+        DexKitBridge.create(demoApkPath).use { reference ->
+            fieldIds = reference.findField {
+                searchPackages("org.luckypray.dexkit.demo")
+            }.map { it.getEncodeId() }
+            methodIds = reference.findMethod {
+                searchPackages("org.luckypray.dexkit.demo")
+            }.map { it.getEncodeId() }
+            reference.initFullCache()
+            expected = rows(reference, fieldIds)
+        }
+        assertTrue(fieldIds.isNotEmpty() && methodIds.isNotEmpty())
+        assertTrue(expected.values.any { it.first.isNotEmpty() })
+        assertTrue(expected.values.any { it.second.isNotEmpty() })
+        assertTrue(expected.values.any { it.first.isEmpty() || it.second.isEmpty() })
+        for (schedule in 0..3) {
+            DexKitBridge.create(demoApkPath).use { target ->
+                if (schedule == 1) methodIds.forEach { target.getMethodUsingFields(it) }
+                if (schedule == 2) methodIds.forEach { target.getCallMethods(it) }
+                if (schedule == 3) {
+                    val start = CountDownLatch(1)
+                    val executor = Executors.newFixedThreadPool(3)
+                    try {
+                        val readers = executor.submit<Unit> {
+                            start.await(10, TimeUnit.SECONDS)
+                            assertEquals(expected, rows(target, fieldIds))
+                        }
+                        val callers = executor.submit<Unit> {
+                            start.await(10, TimeUnit.SECONDS)
+                            methodIds.forEach { target.getCallMethods(it) }
+                        }
+                        val warmup = executor.submit<Unit> {
+                            start.await(10, TimeUnit.SECONDS)
+                            target.initFullCache()
+                        }
+                        start.countDown()
+                        listOf(readers, callers, warmup).forEach { it.get(60, TimeUnit.SECONDS) }
+                    } finally {
+                        executor.shutdownNow()
+                    }
+                }
+                // List equality preserves occurrence order and repeated uses.
+                assertEquals(expected, rows(target, fieldIds))
+                target.initFullCache()
+                assertEquals(expected, rows(target, fieldIds))
+            }
+        }
+    }
+
+    @Test
     fun testColdMetadataReadersRaceFullWarmup() {
         val descriptor = "Lorg/luckypray/dexkit/demo/PlayActivity;->onCreate(Landroid/os/Bundle;)V"
         val expectedStrings: List<String>

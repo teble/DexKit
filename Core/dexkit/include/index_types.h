@@ -36,7 +36,12 @@ using ClassDefIndex = uint16_t;
 // Method definitions/metadata can have wider IDs than invoke operands.
 using LocalMethodId = uint32_t;
 
-using MethodReference = std::pair<uint16_t, LocalMethodId>;
+struct MethodReference {
+    uint16_t first;
+    LocalMethodId second;
+    bool operator==(const MethodReference &) const = default;
+};
+static_assert(std::is_trivial_v<MethodReference>);
 static_assert(sizeof(MethodReference) == 8);
 
 // Only storage is narrowed. Arithmetic and public IDs retain their full width.

@@ -49,7 +49,7 @@
 #include "dex_type_list_view.h"
 #include "member_descriptor_view.h"
 #include "compact_id_index.h"
-#include "compact_caller_index.h"
+#include "compact_method_index.h"
 
 namespace dexkit {
 
@@ -311,7 +311,6 @@ private:
         LocalMethodId source_method_idx;
         uint16_t target_dex_id;
         LocalMethodId target_method_idx;
-        CacheOffset source_count;
     };
 
     struct PendingAggregateFieldWorkItem {
@@ -411,13 +410,13 @@ private:
     std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
     CompactInvocationIndex method_invoking_ids;
     std::vector<std::vector<std::pair<uint32_t, bool>>> method_using_field_ids;
-    // local reverse edges are collected during InitCache;
+    // Local reverse counts are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
-    CompactCallerIndex method_caller_ids;
-    std::vector<std::vector<MethodReference>> field_get_method_ids;
-    std::vector<std::vector<MethodReference>> field_put_method_ids;
+    CompactMethodIndex method_caller_ids;
+    CompactMethodIndex field_get_method_ids;
+    CompactMethodIndex field_put_method_ids;
     // one-shot aggregate worklists: pre-resolved source->target bindings that also
-    // carry reverse-edge payload, so BuildCrossRefAggregates can skip re-reading cross_info
+    // identify reverse rows, so BuildCrossRefAggregates preserves source/work-list order
     // With field identity splitting, field bindings survive until reverse rows
     // are built; they also include resolved fields with no eventual payload.
     std::vector<PendingAggregateMethodWorkItem> pending_aggregate_method_work_items;

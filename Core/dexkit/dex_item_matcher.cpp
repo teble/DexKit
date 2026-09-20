@@ -2055,7 +2055,7 @@ bool DexItem::IsFieldGetMethodsMatched(uint32_t field_idx, const schema::Methods
         });
 
         auto &method_matchers = *ptr;
-        Hungarian<MethodReference, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
+        Hungarian<MethodReference, const schema::MethodMatcher *, std::span<const MethodReference>> hungarian(ids, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
             return false;
@@ -2101,7 +2101,7 @@ bool DexItem::IsFieldPutMethodsMatched(uint32_t field_idx, const schema::Methods
         });
 
         auto &method_matchers = *ptr;
-        Hungarian<MethodReference, const schema::MethodMatcher *> hungarian(ids, method_matchers, IsMethodMatched);
+        Hungarian<MethodReference, const schema::MethodMatcher *, std::span<const MethodReference>> hungarian(ids, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
             return false;

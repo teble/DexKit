@@ -37,20 +37,14 @@ namespace dexkit {
 
 // Built under the existing bridge warmup barrier and immutable after publication.
 // The build array holds local counts first, then destination write cursors.
-class CompactCallerIndex {
+class CompactMethodIndex {
 public:
-    struct Entry {
-        uint16_t first;
-        LocalMethodId second;
-        bool operator==(const Entry &) const = default;
-    };
-    static_assert(std::is_trivial_v<Entry>);
-    static_assert(sizeof(Entry) == 8);
+    using Entry = MethodReference;
 
-    void BeginCounts(size_t methods) {
+    void BeginCounts(size_t rows) {
         DEXKIT_CHECK(build_.empty() && offsets_.empty());
-        if (methods >= std::numeric_limits<size_t>::max() / sizeof(CacheOffset)) std::abort();
-        build_.resize(methods);
+        if (rows >= std::numeric_limits<size_t>::max() / sizeof(CacheOffset)) std::abort();
+        build_.resize(rows);
     }
 
     void Count(uint32_t method) {
@@ -61,12 +55,16 @@ public:
 
     CacheOffset LocalCount(uint32_t method) const { return build_[method]; }
 
-    // The forward invoke index has validated this total before any local
-    // count is consumed. Each local row therefore also fits CacheOffset.
-    void BeginLayout(size_t local_edges) {
-        DEXKIT_CHECK(local_edges <= std::numeric_limits<CacheOffset>::max());
-        DEXKIT_CHECK(std::accumulate(build_.begin(), build_.end(), uint64_t{0}) == local_edges);
+    // Validate local totals before cross-DEX binding consumes the row counts.
+    // Individual row counters are debug-checked; an oversized total is rejected
+    // here before a wrapped counter can become a layout or write bound.
+    void FinishCounts(uint64_t local_edges) {
+        (void)CheckedIndexCast<CacheOffset>(local_edges);
         edges_ = local_edges;
+    }
+
+    void BeginLayout() {
+        DEXKIT_CHECK(std::accumulate(build_.begin(), build_.end(), uint64_t{0}) == edges_);
         offsets_.resize(build_.size() + 1);
         std::copy(build_.begin(), build_.end(), offsets_.begin() + 1);
     }
@@ -97,18 +95,45 @@ public:
         // Entry is trivial: default initialization leaves the exact payload
         // untouched. Every element is filled before the publication barrier.
         if (edges_) values_.reset(new Entry[static_cast<size_t>(edges_)]);
+#if !defined(NDEBUG)
+        expected_ends_.resize(build_.size());
+#endif
     }
 
     CacheOffset RowBegin(uint32_t method) const { return offsets_[method]; }
     CacheOffset RowEnd(uint32_t method) const { return offsets_[method + 1]; }
     CacheOffset &Cursor(uint32_t method) { return build_[method]; }
 
+    void ReserveLocal(uint32_t row) {
+        const auto begin = RowBegin(row);
+        const auto count = LocalCount(row);
+        DEXKIT_CHECK(uint64_t(begin) + count <= RowEnd(row));
+        build_[row] = begin + count;
+#if !defined(NDEBUG)
+        expected_ends_[row] = build_[row];
+#endif
+    }
+
+    void SetImportCursor(uint32_t row, CacheOffset begin) {
+#if !defined(NDEBUG)
+        DEXKIT_CHECK(uint64_t(begin) + LocalCount(row) <= std::numeric_limits<CacheOffset>::max());
+        expected_ends_[row] = begin + LocalCount(row);
+#endif
+        build_[row] = begin;
+    }
+
     void Write(size_t position, uint16_t dex, uint32_t method) {
         DEXKIT_CHECK(position < edges_);
         values_[position] = Entry{dex, method};
     }
 
-    void ReleaseBuild() { std::vector<CacheOffset>().swap(build_); }
+    void ReleaseBuild() {
+#if !defined(NDEBUG)
+        DEXKIT_CHECK(build_ == expected_ends_);
+        std::vector<CacheOffset>().swap(expected_ends_);
+#endif
+        std::vector<CacheOffset>().swap(build_);
+    }
     bool empty() const { return offsets_.size() <= 1; }
     size_t size() const { return offsets_.empty() ? 0 : offsets_.size() - 1; }
 
@@ -122,6 +147,9 @@ public:
 
 private:
     std::vector<CacheOffset> build_;
+#if !defined(NDEBUG)
+    std::vector<CacheOffset> expected_ends_;
+#endif
     std::vector<CacheOffset> offsets_;
     std::unique_ptr<Entry[]> values_;
     // Wide during layout so overflowing provisional row counts cannot hide

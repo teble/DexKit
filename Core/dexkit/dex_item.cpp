@@ -299,8 +299,8 @@ void DexItem::InitCache(uint32_t init_flags) {
         need_foreach_method = true;
     }
     if (need_field_rw_method) {
-        field_get_method_ids.resize(reader.FieldIds().size());
-        field_put_method_ids.resize(reader.FieldIds().size());
+        field_get_method_ids.BeginCounts(reader.FieldIds().size());
+        field_put_method_ids.BeginCounts(reader.FieldIds().size());
         need_foreach_method = true;
     }
     if (need_method_using_number) {
@@ -401,21 +401,28 @@ void DexItem::InitCache(uint32_t init_flags) {
                     for (auto invoke_id : method_invoking_ids[method_id])
                         method_caller_ids.Count(invoke_id);
         }
+        method_caller_ids.FinishCounts(method_invoking_ids.ValueCount());
     }
 
     if (need_field_rw_method) {
+        uint64_t get_edges = 0;
+        uint64_t put_edges = 0;
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
                 for (auto &field_using: method_using_field_ids[method_id]) {
                     const auto [field_id, is_getter] = field_using;
                     if (is_getter) {
-                        field_get_method_ids[field_id].emplace_back(dex_id, method_id);
+                        field_get_method_ids.Count(field_id);
+                        ++get_edges;
                     } else {
-                        field_put_method_ids[field_id].emplace_back(dex_id, method_id);
+                        field_put_method_ids.Count(field_id);
+                        ++put_edges;
                     }
                 }
             }
         }
+        field_get_method_ids.FinishCounts(get_edges);
+        field_put_method_ids.FinishCounts(put_edges);
     }
 
     if (need_annotation) {
@@ -553,7 +560,6 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                                 .source_method_idx = curr_method_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),
                                 .target_method_idx = origin_method_idx,
-                                .source_count = source_count,
                         });
                     }
                     ++cur_i;
@@ -571,8 +577,8 @@ void DexItem::PutCrossRef(uint32_t put_cross_flag) {
                         continue;
                     }
                     field_cross_info[curr_field_idx] = std::pair<uint16_t, uint32_t>(origin_dex->dex_id, origin_field_idx);
-                    if (keep_empty_field_bindings || !field_get_method_ids[curr_field_idx].empty()
-                            || !field_put_method_ids[curr_field_idx].empty()) {
+                    if (keep_empty_field_bindings || field_get_method_ids.LocalCount(curr_field_idx) != 0
+                            || field_put_method_ids.LocalCount(curr_field_idx) != 0) {
                         pending_aggregate_field_work_items.emplace_back(PendingAggregateFieldWorkItem{
                                 .source_field_idx = curr_field_idx,
                                 .target_dex_id = static_cast<uint16_t>(origin_dex->dex_id),

@@ -41,6 +41,7 @@
 namespace dexkit {
 
 class DexItem;
+class CompactMethodIndex;
 
 class DexKit {
 public:
@@ -157,7 +158,9 @@ private:
     void FinishBuildCrossRefAggregates(uint32_t aggregate_flags);
     void WaitBuildCrossRefAggregates(uint32_t aggregate_flags) const;
     void BuildCrossRefAggregates(uint32_t aggregate_flags);
+    void PrepareCompactMethodIndex(CompactMethodIndex DexItem::*member, bool fields);
     void BuildCompactCallers(uint32_t thread_num);
+    void BuildCompactFields(uint32_t thread_num);
 
 #if DEXKIT_ENABLE_INTERNAL_METRICS
     static constexpr size_t kQueryMetricsHistoryCapacity = 256;

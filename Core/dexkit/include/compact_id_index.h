@@ -22,6 +22,7 @@
 
 #include "common.h"
 #include "index_types.h"
+#include "field_use.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -90,5 +91,6 @@ private:
 using CompactClassMethodIndex = CompactIdIndex<LocalMethodId>;
 using CompactStringIndex = CompactIdIndex<uint32_t>;
 using CompactInvocationIndex = CompactIdIndex<InvokeOperandId>;
+using CompactFieldUseIndex = CompactIdIndex<FieldUse>;
 
 } // namespace dexkit

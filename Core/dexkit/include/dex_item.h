@@ -411,7 +411,7 @@ private:
     std::unique_ptr<std::array<std::mutex, 64>> lazy_method_wait_mutexes = std::make_unique<std::array<std::mutex, 64>>();
     std::unique_ptr<std::array<std::condition_variable, 64>> lazy_method_wait_cvs = std::make_unique<std::array<std::condition_variable, 64>>();
     CompactInvocationIndex method_invoking_ids;
-    std::vector<std::vector<std::pair<uint32_t, bool>>> method_using_field_ids;
+    CompactFieldUseIndex method_using_field_ids;
     // Local reverse counts are collected during InitCache;
     // cross-dex contributions are merged into these final indexes by DexKit during aggregate phase
     CompactMethodIndex method_caller_ids;

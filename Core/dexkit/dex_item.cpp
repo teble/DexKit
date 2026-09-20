@@ -328,18 +328,16 @@ void DexItem::InitCache(uint32_t init_flags) {
                     ? method_using_string_ids.BeginRow(method_id) : nullptr;
             auto *method_invoking_ptr = need_method_invoking
                     ? method_invoking_ids.BeginRow(method_id) : nullptr;
+            auto *method_using_field_ptr = need_method_using_field
+                    ? method_using_field_ids.BeginRow(method_id) : nullptr;
 
             if (auto code = method_codes[method_id]) {
                 std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
-                std::vector<std::pair<uint32_t, bool>> *method_using_field_ptr = nullptr;
                 std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
 
                 if (need_op_seq) {
                     op_seq_ptr = &method_opcode_seq[method_id];
                     *op_seq_ptr = std::vector<uint8_t>();
-                }
-                if (need_method_using_field) {
-                    method_using_field_ptr = &method_using_field_ids[method_id];
                 }
                 if (need_method_using_number) {
                     method_using_number_ptr = &method_using_numbers[method_id];
@@ -366,17 +364,10 @@ void DexItem::InitCache(uint32_t init_flags) {
                         }
                     }
 
-                    if (need_method_using_field) {
-                        if (op >= 0x52 && op <= 0x6d) {
-                            // iget, iget-wide, iget-object, iget-boolean, iget-byte, iget-char, iget-short
-                            // sget, sget-wide, sget-object, sget-boolean, sget-byte, sget-char, sget-short
-                            auto is_getter = ((op >= 0x52 && op <= 0x58) || (op >= 0x60 && op <= 0x66));
-                            // iput, iput-wide, iput-object, iput-boolean, iput-byte, iput-char, iput-short
-                            // sput, sput-wide, sput-object, sput-boolean, sput-byte, sput-char, sput-short
-                            auto is_setter = ((op >= 0x59 && op <= 0x5f) || (op >= 0x67 && op <= 0x6d));
-                            auto index = ReadShort(ptr);
-                            method_using_field_ptr->emplace_back(index, is_getter);
-                        }
+                    if (need_method_using_field && op >= 0x52 && op <= 0x6d) {
+                        const bool is_getter = (op >= 0x52 && op <= 0x58)
+                                || (op >= 0x60 && op <= 0x66);
+                        method_using_field_ptr->emplace_back(EncodeFieldUse(ReadShort(ptr), is_getter));
                     }
 
                     if (need_method_invoking) {
@@ -397,12 +388,14 @@ void DexItem::InitCache(uint32_t init_flags) {
             }
             if (need_method_invoking) method_invoking_ids.EndRow(method_id);
             if (need_method_using_string) method_using_string_ids.EndRow(method_id);
+            if (need_method_using_field) method_using_field_ids.EndRow(method_id);
         }
     }
 
     // Validate totals before reverse counting, cross-DEX binding or publication.
     if (need_method_invoking) method_invoking_ids.FinishBuild();
     if (need_method_using_string) method_using_string_ids.FinishBuild();
+    if (need_method_using_field) method_using_field_ids.FinishBuild();
 
     if (need_method_caller) {
         // Joint cold extraction counted at the invoke instruction above. Late
@@ -421,8 +414,8 @@ void DexItem::InitCache(uint32_t init_flags) {
         uint64_t put_edges = 0;
         for (auto &class_def: reader.ClassDefs()) {
             for (auto method_id: class_method_ids[class_def.class_idx]) {
-                for (auto &field_using: method_using_field_ids[method_id]) {
-                    const auto [field_id, is_getter] = field_using;
+                for (auto field_use: method_using_field_ids[method_id]) {
+                    const auto [field_id, is_getter] = DecodeFieldUse(field_use);
                     if (is_getter) {
                         field_get_method_ids.Count(field_id);
                         ++get_edges;
@@ -1090,7 +1083,7 @@ std::vector<UsingFieldBean> DexItem::GetUsingFields(uint32_t method_idx) {
     std::vector<UsingFieldBean> using_fields;
     using_fields.reserve(method_using_fields.size());
     for (auto field_use: method_using_fields) {
-        const auto [field_id, is_getting] = field_use;
+        const auto [field_id, is_getting] = DecodeFieldUse(field_use);
         UsingFieldBean bean;
         bean.field = GetFieldBean(field_id);
         bean.is_getting = is_getting;

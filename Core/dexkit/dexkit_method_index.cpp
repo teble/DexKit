@@ -110,7 +110,8 @@ void DexKit::BuildCompactFields(uint32_t thread_num) {
     const auto fill_source = [this](DexItem *source) {
         for (const auto &definition : source->reader.ClassDefs()) {
             for (auto method : source->class_method_ids[definition.class_idx]) {
-                for (const auto &[field, is_getter] : source->method_using_field_ids[method]) {
+                for (auto field_use : source->method_using_field_ids[method]) {
+                    const auto [field, is_getter] = DecodeFieldUse(field_use);
                     const auto &binding = source->field_cross_info[field];
                     auto *target = binding ? dex_items[binding.value().first].get() : source;
                     auto &index = is_getter ? source->field_get_method_ids : source->field_put_method_ids;

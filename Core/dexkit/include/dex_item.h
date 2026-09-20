@@ -50,6 +50,7 @@
 #include "member_descriptor_view.h"
 #include "compact_id_index.h"
 #include "compact_method_index.h"
+#include "member_id_range.h"
 
 namespace dexkit {
 
@@ -301,6 +302,8 @@ private:
     std::atomic<bool> inverted_strings_ready{false};
     inverted_string::Index inverted_strings;
     DexTypeListView GetInterfaceTypeIds(uint32_t type_idx) const;
+    MemberIdRange GetFieldIds(uint32_t type_idx) const;
+    MemberIdRange GetClassFieldIds(uint32_t type_idx) const;
 
     bool HasSameMethodIdentity(uint32_t method_idx, const DexItem &other, uint32_t other_idx) const;
     bool HasSameFieldIdentity(uint32_t field_idx, const DexItem &other, uint32_t other_idx) const;
@@ -376,14 +379,13 @@ private:
     std::vector<std::string_view> class_source_files;
     std::vector<uint32_t /*access_flag*/> class_access_flags;
     // Descriptor strings belong to returned Beans; no persistent member cache.
-    // stable base member indexes; after init only members declared in this dex stay here
-    std::vector<std::vector<LocalMethodId /*method_id*/>> class_method_ids;
-    // one-shot worklists for cross-ref against members whose declaring class is outside this dex
-    std::vector<std::vector<LocalMethodId /*method_id*/>> pending_cross_ref_method_ids;
+    // Defined methods only, sorted within each type row and immutable after init.
+    CompactClassMethodIndex class_method_ids;
     std::vector<uint32_t /*access_flag*/> method_access_flags;
     // Field descriptor strings also belong to the returned values.
-    std::vector<std::vector<uint32_t /*field_id*/>> class_field_ids;
-    std::vector<std::vector<uint32_t /*field_id*/>> pending_cross_ref_field_ids;
+    // Raw FieldIds are grouped by declaring type. These boundaries serve both
+    // defined-class member views and external references during identity binding.
+    std::vector<uint32_t> field_id_offsets;
     std::vector<uint32_t /*access_flag*/> field_access_flags;
     std::vector<const dex::Code *> method_codes;
     // method parameter types

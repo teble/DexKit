@@ -1365,7 +1365,7 @@ bool DexItem::IsFieldsMatched(uint32_t type_idx, const schema::FieldsMatcher *ma
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
-    const auto &fields = this->class_field_ids[type_idx];
+    const auto fields = GetClassFieldIds(type_idx);
     if (matcher->field_count()) {
         if (fields.size() < matcher->field_count()->min()
         || fields.size() > matcher->field_count()->max()) {
@@ -1387,7 +1387,7 @@ bool DexItem::IsFieldsMatched(uint32_t type_idx, const schema::FieldsMatcher *ma
         });
 
         auto &field_matchers = *ptr;
-        Hungarian<uint32_t, const schema::FieldMatcher *> hungarian(fields, field_matchers, IsFieldMatched);
+        Hungarian<uint32_t, const schema::FieldMatcher *, MemberIdRange> hungarian(fields, field_matchers, IsFieldMatched);
         auto count = hungarian.solve();
         if (count != field_matchers.size()) {
             return false;
@@ -1408,7 +1408,7 @@ bool DexItem::IsMethodsMatched(uint32_t type_idx, const schema::MethodsMatcher *
     if (!this->type_def_flag[type_idx]) {
         return false;
     }
-    const auto &methods = this->class_method_ids[type_idx];
+    const auto methods = this->class_method_ids[type_idx];
     if (matcher->method_count()) {
         if (methods.size() < matcher->method_count()->min()
         || methods.size() > matcher->method_count()->max()) {
@@ -1430,7 +1430,7 @@ bool DexItem::IsMethodsMatched(uint32_t type_idx, const schema::MethodsMatcher *
         });
 
         auto &method_matchers = *ptr;
-        Hungarian<LocalMethodId, const schema::MethodMatcher *> hungarian(methods, method_matchers, IsMethodMatched);
+        Hungarian<LocalMethodId, const schema::MethodMatcher *, std::span<const LocalMethodId>> hungarian(methods, method_matchers, IsMethodMatched);
         auto count = hungarian.solve();
         if (count != method_matchers.size()) {
             return false;

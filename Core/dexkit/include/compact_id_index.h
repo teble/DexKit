@@ -31,30 +31,39 @@
 
 namespace dexkit {
 
-// Immutable after publication. Build every row in method-ID order, including
-// empty methods. Adjacent boundaries delimit each row; decoding keeps duplicates.
+// Immutable after publication. Build every row in increasing row-ID order,
+// including empty rows. Adjacent boundaries delimit rows and preserve duplicates.
 template<class Id>
 class CompactIdIndex {
 public:
     using value_type = Id;
-    void resize(size_t methods) {
-        if (methods == std::numeric_limits<size_t>::max()) std::abort();
-        offsets_.resize(methods + 1);
+    void resize(size_t rows) {
+        if (rows == std::numeric_limits<size_t>::max()) std::abort();
+        offsets_.resize(rows + 1);
+    }
+
+    // Known-size rows can append into one allocation without zero-initializing
+    // a second payload. Check the wide total before narrowing or allocating.
+    void ReserveValues(uint64_t values) {
+        DEXKIT_CHECK(ids_.empty());
+        if (values > std::numeric_limits<CacheOffset>::max()
+                || values > std::numeric_limits<size_t>::max() / sizeof(Id)) std::abort();
+        ids_.reserve(static_cast<size_t>(values));
     }
 
     bool empty() const { return offsets_.size() <= 1; }
 
-    std::vector<Id> *BeginMethod(uint32_t method) {
-        DEXKIT_CHECK(!empty() && method < offsets_.size() - 1);
-        offsets_[method] = static_cast<CacheOffset>(ids_.size());
+    std::vector<Id> *BeginRow(uint32_t row) {
+        DEXKIT_CHECK(!empty() && row < offsets_.size() - 1);
+        offsets_[row] = static_cast<CacheOffset>(ids_.size());
         return &ids_;
     }
 
-    void EndMethod(uint32_t method) {
-        DEXKIT_CHECK(!empty() && method < offsets_.size() - 1);
+    void EndRow(uint32_t row) {
+        DEXKIT_CHECK(!empty() && row < offsets_.size() - 1);
         const auto end = static_cast<CacheOffset>(ids_.size());
-        DEXKIT_CHECK(offsets_[method] <= end);
-        offsets_[size_t(method) + 1] = end;
+        DEXKIT_CHECK(offsets_[row] <= end);
+        offsets_[size_t(row) + 1] = end;
     }
 
     // No offsets may be consumed before this check. The vector retains the
@@ -65,9 +74,9 @@ public:
 
     size_t ValueCount() const { return ids_.size(); }
 
-    std::span<const Id> operator[](size_t method) const {
-        DEXKIT_CHECK(!empty() && method < offsets_.size() - 1);
-        const auto begin = offsets_[method], end = offsets_[method + 1];
+    std::span<const Id> operator[](size_t row) const {
+        DEXKIT_CHECK(!empty() && row < offsets_.size() - 1);
+        const auto begin = offsets_[row], end = offsets_[row + 1];
         DEXKIT_CHECK(begin <= end && end <= ids_.size());
         return std::span<const Id>(ids_).subspan(begin, end - begin);
     }
@@ -77,7 +86,8 @@ private:
     std::vector<Id> ids_;
 };
 
-// Invocation rows share the same checked append/freeze representation.
+// Base members and code-derived IDs share the checked append/freeze representation.
+using CompactClassMethodIndex = CompactIdIndex<LocalMethodId>;
 using CompactStringIndex = CompactIdIndex<uint32_t>;
 using CompactInvocationIndex = CompactIdIndex<InvokeOperandId>;
 

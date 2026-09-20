@@ -452,9 +452,9 @@ DexItem::FindField(
         return true;
     };
     if (query_context.IsEarlyExitEnabled()) {
-        ScanFindItems<true>(this->class_field_ids[type_idx], query_context, try_match_field);
+        ScanFindItems<true>(GetClassFieldIds(type_idx), query_context, try_match_field);
     } else {
-        ScanFindItems<false>(this->class_field_ids[type_idx], query_context, try_match_field);
+        ScanFindItems<false>(GetClassFieldIds(type_idx), query_context, try_match_field);
     }
 
     std::vector<FieldBean> result;

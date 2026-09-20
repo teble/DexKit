@@ -332,13 +332,10 @@ void DexItem::InitCache(uint32_t init_flags) {
             auto *method_using_field_ptr = need_method_using_field
                     ? method_using_field_ids.BeginRow(method_id) : nullptr;
 
+            auto *method_using_number_ptr = need_method_using_number
+                    ? method_using_numbers.BeginRow(method_id) : nullptr;
+
             if (auto code = method_codes[method_id]) {
-                std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
-
-                if (need_method_using_number) {
-                    method_using_number_ptr = &method_using_numbers[method_id];
-                }
-
                 auto p = code->insns;
                 auto end_p = p + code->insns_size;
                 while (p < end_p) {
@@ -386,6 +383,7 @@ void DexItem::InitCache(uint32_t init_flags) {
             if (need_method_invoking) method_invoking_ids.EndRow(method_id);
             if (need_method_using_string) method_using_string_ids.EndRow(method_id);
             if (need_method_using_field) method_using_field_ids.EndRow(method_id);
+            if (need_method_using_number) method_using_numbers.EndRow(method_id);
         }
     }
 
@@ -394,6 +392,7 @@ void DexItem::InitCache(uint32_t init_flags) {
     if (need_method_invoking) method_invoking_ids.FinishBuild();
     if (need_method_using_string) method_using_string_ids.FinishBuild();
     if (need_method_using_field) method_using_field_ids.FinishBuild();
+    if (need_method_using_number) method_using_numbers.FinishBuild();
 
     if (need_method_caller) {
         // Joint cold extraction counted at the invoke instruction above. Late
@@ -1370,7 +1369,7 @@ std::vector<EncodeNumber> DexItem::ParseUsingNumbersFromCode(uint32_t method_idx
     return using_numbers;
 }
 
-const std::vector<EncodeNumber> &DexItem::GetUsingNumbers(uint32_t method_idx) {
+std::span<const EncodeNumber> DexItem::GetUsingNumbers(uint32_t method_idx) {
     if ((dex_flag.load(std::memory_order_acquire) & kUsingNumber) != 0) {
         return method_using_numbers[method_idx];
     }

@@ -234,7 +234,7 @@ private:
     const std::vector<uint8_t> &GetLazyMethodOpCodes(uint32_t method_idx);
     const std::vector<uint32_t> &GetLazyMethodUsingStringIds(uint32_t method_idx);
     std::vector<EncodeNumber> ParseUsingNumbersFromCode(uint32_t method_idx);
-    const std::vector<EncodeNumber> &GetUsingNumbers(uint32_t method_idx);
+    std::span<const EncodeNumber> GetUsingNumbers(uint32_t method_idx);
 
     static bool IsStringMatched(std::string_view str, const schema::StringMatcher *matcher);
     static bool IsAccessFlagsMatched(uint32_t access_flags, const schema::AccessFlagsMatcher *matcher);
@@ -403,7 +403,7 @@ private:
 
     std::unique_ptr<LazyMethodUsingStringsSlot[]> lazy_method_using_string_slots;
     CompactStringIndex method_using_string_ids;
-    std::vector<std::vector<EncodeNumber /*using_number*/>> method_using_numbers;
+    CompactIdIndex<EncodeNumber> method_using_numbers;
     std::unique_ptr<LazyUsingNumbersSlot[]> lazy_using_numbers_slots;
     // call_once publishes whole arrays; they remain alive through full warm-up.
     std::once_flag lazy_opcode_directory_once;

@@ -1746,7 +1746,7 @@ bool DexItem::IsUsingNumbersMatched(uint32_t method_idx, const schema::MethodMat
     if (matcher->using_numbers() == nullptr) {
         return true;
     }
-    const auto &using_numbers = this->GetUsingNumbers(method_idx);
+    const auto using_numbers = this->GetUsingNumbers(method_idx);
     if (matcher->using_numbers()->size() > using_numbers.size()) {
         return false;
     }
@@ -1817,7 +1817,7 @@ bool DexItem::IsUsingNumbersMatched(uint32_t method_idx, const schema::MethodMat
     };
 
     auto &numbers = *ptr;
-    Hungarian<EncodeNumber, EncodeNumber> hungarian(using_numbers, numbers, IsNumberMatched);
+    Hungarian<EncodeNumber, EncodeNumber, std::span<const EncodeNumber>> hungarian(using_numbers, numbers, IsNumberMatched);
     auto count = hungarian.solve();
     if (count != numbers.size()) {
         return false;

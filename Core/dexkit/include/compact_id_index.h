@@ -87,10 +87,11 @@ private:
     std::vector<Id> ids_;
 };
 
-// Base members and code-derived IDs share the checked append/freeze representation.
+// Base members and code-derived rows share the checked append/freeze representation.
 using CompactClassMethodIndex = CompactIdIndex<LocalMethodId>;
 using CompactStringIndex = CompactIdIndex<uint32_t>;
 using CompactInvocationIndex = CompactIdIndex<InvokeOperandId>;
 using CompactFieldUseIndex = CompactIdIndex<FieldUse>;
+using CompactOpcodeIndex = CompactIdIndex<uint8_t>;
 
 } // namespace dexkit

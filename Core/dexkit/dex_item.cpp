@@ -292,7 +292,7 @@ void DexItem::InitCache(uint32_t init_flags) {
     bool need_method_using_number = (init_flags & kUsingNumber) != 0;
 
     if (need_op_seq) {
-        method_opcode_seq.resize(reader.MethodIds().size(), std::nullopt);
+        method_opcode_seq.resize(reader.MethodIds().size());
         need_foreach_method = true;
     }
     if (need_method_invoking) {
@@ -324,6 +324,7 @@ void DexItem::InitCache(uint32_t init_flags) {
         // The code table is indexed by method ID across both direct and virtual
         // methods. Empty rows also need boundaries in the compact indexes.
         for (uint32_t method_id = 0; method_id < method_codes.size(); ++method_id) {
+            auto *op_seq_ptr = need_op_seq ? method_opcode_seq.BeginRow(method_id) : nullptr;
             auto *method_using_string_ptr = need_method_using_string
                     ? method_using_string_ids.BeginRow(method_id) : nullptr;
             auto *method_invoking_ptr = need_method_invoking
@@ -332,13 +333,8 @@ void DexItem::InitCache(uint32_t init_flags) {
                     ? method_using_field_ids.BeginRow(method_id) : nullptr;
 
             if (auto code = method_codes[method_id]) {
-                std::optional<std::vector<uint8_t>> *op_seq_ptr = nullptr;
                 std::vector<EncodeNumber> *method_using_number_ptr = nullptr;
 
-                if (need_op_seq) {
-                    op_seq_ptr = &method_opcode_seq[method_id];
-                    *op_seq_ptr = std::vector<uint8_t>();
-                }
                 if (need_method_using_number) {
                     method_using_number_ptr = &method_using_numbers[method_id];
                 }
@@ -348,7 +344,7 @@ void DexItem::InitCache(uint32_t init_flags) {
                 while (p < end_p) {
                     auto op = (uint8_t) *p;
                     if (need_op_seq) {
-                        op_seq_ptr->value().emplace_back(op);
+                        op_seq_ptr->emplace_back(op);
                     }
                     auto ptr = p;
                     auto width = GetBytecodeWidth(ptr++);
@@ -386,6 +382,7 @@ void DexItem::InitCache(uint32_t init_flags) {
                     p += width;
                 }
             }
+            if (need_op_seq) method_opcode_seq.EndRow(method_id);
             if (need_method_invoking) method_invoking_ids.EndRow(method_id);
             if (need_method_using_string) method_using_string_ids.EndRow(method_id);
             if (need_method_using_field) method_using_field_ids.EndRow(method_id);
@@ -393,6 +390,7 @@ void DexItem::InitCache(uint32_t init_flags) {
     }
 
     // Validate totals before reverse counting, cross-DEX binding or publication.
+    if (need_op_seq) method_opcode_seq.FinishBuild();
     if (need_method_invoking) method_invoking_ids.FinishBuild();
     if (need_method_using_string) method_using_string_ids.FinishBuild();
     if (need_method_using_field) method_using_field_ids.FinishBuild();
@@ -1025,8 +1023,8 @@ DexItem::GetMethodOpCodes(uint32_t method_idx) {
     // OpCodes stay as a per-method lazy exception: cold metadata reads should not force
     // bridge-level kOpSequence warm-up for the whole DexKit instance.
     if ((dex_flag.load(std::memory_order_acquire) & kOpSequence) != 0) {
-        const auto &op_seq = method_opcode_seq[method_idx];
-        return op_seq.has_value() ? op_seq.value() : std::vector<uint8_t>();
+        const auto op_seq = method_opcode_seq[method_idx];
+        return {op_seq.begin(), op_seq.end()};
     }
     return GetLazyMethodOpCodes(method_idx);
 }

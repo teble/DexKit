@@ -391,7 +391,7 @@ private:
     // method parameter types
     std::vector<const dex::TypeList *> proto_type_list;
     std::unique_ptr<LazyMethodOpCodesSlot[]> lazy_method_opcode_slots;
-    std::vector<std::optional<std::vector<uint8_t /*opcode*/>>> method_opcode_seq;
+    CompactOpcodeIndex method_opcode_seq;
     std::vector<ir::AnnotationSet *> class_annotations;
     std::vector<ir::AnnotationSet *> method_annotations;
     std::vector<ir::AnnotationSet *> field_annotations;

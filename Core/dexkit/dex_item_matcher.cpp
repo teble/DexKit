@@ -1570,8 +1570,8 @@ bool DexItem::IsOpCodesMatched(uint32_t method_idx, const schema::OpCodesMatcher
     if (matcher == nullptr) {
         return true;
     }
-    auto &opt_opcodes = this->method_opcode_seq[method_idx];
-    auto op_code_size = opt_opcodes.has_value() ? opt_opcodes->size() : 0;
+    const auto opcodes = this->method_opcode_seq[method_idx];
+    const auto op_code_size = opcodes.size();
     if (matcher->op_code_count()) {
         if (op_code_size < matcher->op_code_count()->min()
         || op_code_size > matcher->op_code_count()->max()) {
@@ -1603,7 +1603,6 @@ bool DexItem::IsOpCodesMatched(uint32_t method_idx, const schema::OpCodesMatcher
         }
 
         if (!matcher_opcodes.empty()) {
-            auto &opcodes = opt_opcodes.value();
             bool condition = false;
             if (matcher->match_type() == schema::OpCodeMatchType::EndWith) {
                 // kmp::FindIndex returns the first occurrence, which is not

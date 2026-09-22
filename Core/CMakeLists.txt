@@ -10,9 +10,13 @@ endif ()
 
 set(CMAKE_CXX_STANDARD 20)
 option(DEXKIT_ENABLE_INTERNAL_METRICS "Compile internal metrics into core" OFF)
+option(DEXKIT_ENABLE_SMALI "Compile native smali output" ON)
 
 file(GLOB_RECURSE SLICER_SRC_FILES CONFIGURE_DEPENDS third_party/slicer/*.cc)
 file(GLOB_RECURSE DEXKIT_SRC_FILES CONFIGURE_DEPENDS dexkit/*.cpp)
+if (NOT DEXKIT_ENABLE_SMALI)
+    list(FILTER DEXKIT_SRC_FILES EXCLUDE REGEX "/smali/.*\\.cpp$")
+endif ()
 
 set(SLICER_SOURCES
         ${SLICER_SRC_FILES}
@@ -40,6 +44,7 @@ target_include_directories(${PROJECT_NAME}_static
 )
 
 set_target_properties(${PROJECT_NAME}_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_SMALI=$<BOOL:${DEXKIT_ENABLE_SMALI}>)
 if (DEXKIT_ENABLE_INTERNAL_METRICS)
     target_compile_definitions(${PROJECT_NAME}_static PUBLIC DEXKIT_ENABLE_INTERNAL_METRICS=1)
 else ()
@@ -60,6 +65,9 @@ endif ()
 
 option(DEXKIT_BUILD_SMALI_TESTS "Build native smali regression tests" OFF)
 if (DEXKIT_BUILD_SMALI_TESTS)
+    if (NOT DEXKIT_ENABLE_SMALI)
+        message(FATAL_ERROR "Smali tests require DEXKIT_ENABLE_SMALI")
+    endif ()
     enable_testing()
     add_executable(dexkit_smali_tests tests/smali_reader_test.cpp)
     target_link_libraries(dexkit_smali_tests PRIVATE dexkit_static)

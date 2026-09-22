@@ -13,7 +13,8 @@ link_libraries(cxx::cxx)
 add_subdirectory(../Core Core)
 
 add_library(${PROJECT_NAME} SHARED
-        ../dexkit/src/main/cpp/native-bridge.cpp)
+        ../dexkit/src/main/cpp/native-bridge.cpp
+        ../dexkit/src/main/cpp/native-bridge-smali.cpp)
 
 if (DEXKIT_ENABLE_INTERNAL_METRICS_API)
     target_sources(${PROJECT_NAME} PRIVATE ../dexkit/src/main/cpp/native-bridge-metrics.cpp)

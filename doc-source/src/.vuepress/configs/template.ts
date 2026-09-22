@@ -10,6 +10,7 @@ const navigationLinks = {
         '/guide/performance-optimization.md',
         '/guide/structural-zoom-table',
         '/guide/run-on-desktop',
+        '/guide/smali',
     ],
     about: [
         '/about/contacts',
@@ -59,6 +60,7 @@ export const navBarItems = {
                 { text: 'Performance optimization', link: i18n.string(navigationLinks.start[5], 'en') },
                 { text: 'Structural Zoom Table', link: i18n.string(navigationLinks.start[6], 'en') },
                 { text: 'Run on Desktop', link: i18n.string(navigationLinks.start[7], 'en') },
+                { text: 'Native smali', link: i18n.string(navigationLinks.start[8], 'en') },
             ]
         }, {
             text: 'About',
@@ -81,6 +83,7 @@ export const navBarItems = {
                 { text: '性能优化', link: i18n.string(navigationLinks.start[5], 'zh-cn') },
                 { text: '结构速查表', link: i18n.string(navigationLinks.start[6], 'zh-cn') },
                 { text: '桌面平台运行', link: i18n.string(navigationLinks.start[7], 'zh-cn') },
+                { text: '原生 smali', link: i18n.string(navigationLinks.start[8], 'zh-cn') },
             ]
         }, {
             text: '关于',

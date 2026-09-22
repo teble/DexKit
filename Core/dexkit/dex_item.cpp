@@ -24,6 +24,9 @@
 #include "utils/byte_code_util.h"
 #include "utils/opcode_util.h"
 #include "utils/dex_descriptor_util.h"
+#if DEXKIT_ENABLE_SMALI
+#include "smali/writer.h"
+#endif
 
 namespace dexkit {
 
@@ -31,6 +34,7 @@ inline void PushEncodeNumber(dex::InstructionFormat op_format, uint8_t op, const
 
 DexItem::DexItem(uint32_t id, std::shared_ptr<MemMap> mmap, uint32_t header_off, DexKit *dexkit) :
         _image(std::move(mmap)),
+        smali_header_offset_(header_off),
         dexkit(dexkit),
         // NOTE: the size passed here is just (mapped_length - header_off).
         // It is NOT the actual logical DEX size. Reader::ValidateHeader()
@@ -1097,6 +1101,32 @@ DexItem::GetMethodOpCodes(uint32_t method_idx) {
         return {op_seq.begin(), op_seq.end()};
     }
     return GetLazyMethodOpCodes(method_idx);
+}
+
+SmaliStatus DexItem::GetMethodSmali(uint32_t method_idx, const SmaliOptions& options, std::string& output) {
+#if DEXKIT_ENABLE_SMALI
+    if (method_idx >= reader.MethodIds().size()) return {SmaliError::InvalidIdentity};
+    const auto type = reader.MethodIds()[method_idx].class_idx;
+    if (type >= type_def_flag.size()) return {SmaliError::MalformedInput};
+    if (!type_def_flag[type]) return {SmaliError::NotDefined};
+    auto source = _image; // Own the mapping until every borrowed byte is released.
+    return smali::WriteMethod({source->data(), source->len()}, smali_header_offset_,
+                             type_def_idx[type], method_idx, options, output);
+#else
+    return {SmaliError::Unsupported};
+#endif
+}
+
+SmaliStatus DexItem::GetClassSmali(uint32_t type_idx, const SmaliOptions& options, std::string& output) {
+#if DEXKIT_ENABLE_SMALI
+    if (type_idx >= type_def_flag.size()) return {SmaliError::InvalidIdentity};
+    if (!type_def_flag[type_idx]) return {SmaliError::NotDefined};
+    auto source = _image;
+    return smali::WriteClass({source->data(), source->len()}, smali_header_offset_,
+                            type_def_idx[type_idx], options, output);
+#else
+    return {SmaliError::Unsupported};
+#endif
 }
 
 std::vector<MethodBean> DexItem::GetCallMethods(uint32_t method_idx) {

@@ -27,6 +27,7 @@ import org.luckypray.dexkit.DexAccessFlags
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerMethodMeta
 import org.luckypray.dexkit.annotations.DexKitExperimentalApi
+import org.luckypray.dexkit.smali.SmaliOptions
 import org.luckypray.dexkit.result.base.BaseData
 import org.luckypray.dexkit.util.InstanceUtil
 import org.luckypray.dexkit.util.OpCodeUtil
@@ -56,6 +57,12 @@ class MethodData private constructor(
     private val returnTypeId: Int,
     private val paramTypeIds: List<Int>
 ) : BaseData(bridge, id, dexId) {
+
+    /** Returns an owning .method fragment from this result's source DEX. */
+    @DexKitExperimentalApi
+    @JvmOverloads
+    fun toSmali(options: SmaliOptions = SmaliOptions()): String =
+        bridge.getSmali(getEncodeId(), true, options)
 
     internal companion object `-Companion` {
 

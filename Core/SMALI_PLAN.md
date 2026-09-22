@@ -24,9 +24,9 @@ that the existing DexKit loader validates arbitrary hostile DEX input.
 - [ ] Compare a reachable CodeIr path and a lightweight slicer decoding path
       on the same small supported subset; record actual size and allocation
       tradeoffs before choosing the production body writer.
-- [ ] Implement bounded method selection, text emission, reference/annotation
+- [x] Implement bounded method selection, text emission, reference/annotation
       handling, payload/try validation and explicit error results.
-- [ ] Implement complete class output and Core/JNI/Kotlin entry points under
+- [x] Implement complete class output and Core/JNI/Kotlin entry points under
       existing query and bridge lifecycle protection.
 - [ ] Test assembly and normalized semantics with pinned host-only smali/dexlib2;
       cover failure isolation, limits, Unicode, metadata, modern opcodes,
@@ -69,8 +69,13 @@ Hidden-API metadata, unrepresentable names/values and unsupported variants requi
 explicit rejection. The complete supported profile is still under implementation.
 
 Status: baseline Android build and initial body linkage experiment complete (see
-`experiments/SMALI_SIZE.md`). A bounded reader and text/encoding primitives are
-being implemented and tested with ASan/UBSan. No public smali API is connected yet.
+`experiments/SMALI_SIZE.md`). Method and class output with Debug.None is connected
+through Core/JNI/Kotlin, with transactional output, modern references and typed
+errors. First semantic round trips cover methods, fields, annotations, constants,
+custom/polymorphic calls, sparse switch, array payload and exception handlers.
+Strict debug is not implemented yet: existing debug streams are explicitly
+rejected when Strict is requested. Broader failure, lifecycle/container and
+memory checks, the S1 probe, final size work and Pro implementation review remain.
 The full Reader-versus-lightweight end-to-end comparison is deliberately not
 claimed by the body-only experiment. Production is provisionally moving toward
 direct slicer decoding to keep the new checked boundary independent of the old
@@ -85,3 +90,14 @@ These are being covered by dedicated regression fixtures. The next experiment
 extension is a bounded packed-switch/array-data/catch-all subset, after which the
 CodeIr experiment stops growing. The production writer is checked independently
 with host smali/dexlib2 rather than building a second complete implementation.
+
+Current integration validation: 122 JVM tests across 14 suites passed, native
+reader/selector tests passed, all four Android ABI release libraries built, and
+the bilingual VuePress docs built. A new large annotated-class test detected
+that the desktop Gradle plugin did not track Core inputs; the Ninja task now
+tracks those inputs, and the test passes with the rebuilt library. Android and
+desktop tests also track the copied native library as an input, so a native
+change cannot leave the test task incorrectly up to date. Android and
+desktop Gradle builds explicitly select probe=none to prevent cached experiments
+from leaking into packaging. Whole-class annotation selection validates one
+borrowed directory view and binary-searches it instead of scanning it per member.

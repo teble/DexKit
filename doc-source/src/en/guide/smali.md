@@ -1,0 +1,79 @@
+# Native smali output
+
+The experimental `MethodData.toSmali()` and `ClassData.toSmali()` APIs generate
+smali on demand from the result's original DEX. They use the existing bridge and
+do not require a runtime smali/baksmali dependency. Opt in with
+`@OptIn(DexKitExperimentalApi::class)` in Kotlin.
+
+```kotlin
+val method = bridge.getMethodData("Lexample/Target;->run()V")!!
+val fragment: String = method.toSmali()
+val completeClass: String = bridge.getClassData("Lexample/Target;")!!.toSmali()
+```
+
+A method result is a `.method` through `.end method` fragment. A class result
+contains its declaration, source, interfaces, fields, initial values, methods
+and annotations. A referenced but undefined class/method returns `NOT_DEFINED`;
+the API does not redirect a result to a different DEX's same-named definition.
+The fragment needs its original class context before assembly.
+
+Both calls return independent strings. Closing the bridge does not invalidate
+previous text, but another call on its result throws `SmaliException` with
+`BRIDGE_CLOSED`. Requests share the bridge's query admission and lifecycle lock.
+Temporary parsing/output state is released per request; whole-class output
+releases each method plan before processing the next. Source memory borrowed by
+a bridge must stay immutable during all operations.
+
+## Options and errors
+
+`org.luckypray.dexkit.smali.SmaliOptions` defaults to `SmaliDebugMode.NONE`.
+This skips method debug parsing, including parameter names, line numbers and
+local-variable events. It retains class `.source`, parameter annotations and
+exception handlers. Strict debug output is still being implemented on this
+development branch; a request with an existing debug stream currently returns
+`UNSUPPORTED`, without silently omitting the stream.
+
+Limits apply to one complete request, including all methods in a class:
+
+| Option | Default | Meaning |
+| --- | ---: | --- |
+| `maxOutputBytes` | 16 MiB | UTF-8 output bytes; also bounds temporary text fragments |
+| `maxInputBytes` | 64 MiB | Cumulative bytes visited, including repeated references |
+| `maxCodeUnits` | 1,048,576 | Maximum 16-bit code units in one method |
+| `maxItems` | 1,048,576 | Cumulative record/plan work budget |
+| `maxAnnotationDepth` | 64 | Maximum nested annotation/array depth; at most 256 |
+
+These limits do not cap total process memory: output capacity, conversion buffers
+and the Java String can coexist. Android builds disable C++ exceptions and do not
+promise recovery from arbitrary allocator exhaustion.
+
+`SmaliException` exposes stable error and phase codes, source DEX/member identity,
+`containerByteOffset`, `codeUnitOffset`, and numeric detail. An unknown offset is
+`-1`. A failed request returns no partial text and does not invalidate the bridge.
+C++ `DexKit::GetMethodSmali` / `GetClassSmali` return `SmaliStatus` and leave the
+caller's output string unchanged on failure. Native callers must synchronize
+destruction with all operations on the same instance.
+
+## Compatibility
+
+The reader accepts ordinary little-endian DEX 035, 037, 038, 039, 040 and the
+experimental 041 container layout. The 041 path uses physical container offsets,
+including references beyond a logical DEX span. This is input compatibility, not
+a promise to recreate the original container layout or DEX bytes.
+
+Standard instructions include polymorphic/custom calls, method types and handles.
+The development round-trip tests use host-only `org.smali:smali:2.5.2`, API 28,
+and dexlib2 as an independent reader. Version and edge-case coverage is still
+being expanded before this branch's implementation is considered complete.
+
+Unsupported input fails explicitly: CompactDex, odex/quickened or reserved
+instructions, reverse-endian/unknown versions, link data, hidden-API metadata,
+shared or orphan switch payloads, extended names outside the supported unquoted
+grammar, and encoded NaN payload/sign bits that smali cannot preserve. Strings
+preserve UTF-16 code units, including embedded NUL and isolated surrogates; names
+require representable Unicode. Checks cover the structures needed for emission,
+not ART type-flow verification or hardening of the existing bridge loader.
+
+For custom native builds, `-DDEXKIT_ENABLE_SMALI=OFF` removes the implementation;
+the API then returns `UNSUPPORTED`. Size experiments are separate and must use
+`DEXKIT_SMALI_SIZE_PROBE=none` for production builds.

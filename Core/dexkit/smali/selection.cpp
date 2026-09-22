@@ -142,4 +142,59 @@ bool CheckMetadataProfile(CheckedDex& dex) {
            (!count || dex.state().Fail(SmaliError::Unsupported, offset, 0xf000));
 }
 
+bool AnnotationDirectory::Init(CheckedDex& dex, const dex::ClassDef& owner) {
+    *this = {};
+    if (!owner.annotations_off) return true;
+    auto& state = dex.state();
+    dex::AnnotationsDirectoryItem directory;
+    if (!dex.Data(owner.annotations_off, sizeof(directory), 4) ||
+        !dex.Object(owner.annotations_off, directory)) return false;
+    class_annotations_ = directory.class_annotations_off;
+    counts_[0] = directory.fields_size;
+    counts_[1] = directory.methods_size;
+    counts_[2] = directory.parameters_size;
+    size_t cursor = size_t(owner.annotations_off) + sizeof(directory);
+    for (unsigned group = 0; group < 3; ++group) {
+        constexpr size_t width = sizeof(dex::MethodAnnotationsItem);
+        if (counts_[group] > (dex.size() - cursor) / width)
+            return state.Fail(SmaliError::MalformedInput, cursor);
+        size_t bytes = size_t(counts_[group]) * width;
+        if (!dex.Data(cursor, bytes, 4) || !state.Items(counts_[group])) return false;
+        offsets_[group] = cursor;
+        uint32_t previous = 0;
+        for (uint32_t i = 0; i < counts_[group]; ++i) {
+            dex::MethodAnnotationsItem item;
+            if (!dex.Object(cursor + size_t(i) * width, item)) return false;
+            if ((i && item.method_idx <= previous) || !item.annotations_off ||
+                item.method_idx >= (group == 0 ? dex.header().field_ids_size : dex.header().method_ids_size))
+                return state.Fail(SmaliError::MalformedInput, cursor + size_t(i) * width);
+            previous = item.method_idx;
+        }
+        cursor += bytes;
+    }
+    return true;
+}
+
+bool AnnotationDirectory::Find(CheckedDex& dex, SmaliMemberKind kind, uint32_t member_id,
+                               AnnotationOffsets& offsets) const {
+    offsets = {};
+    if (kind == SmaliMemberKind::Class) { offsets.annotations = class_annotations_; return true; }
+    for (unsigned group = kind == SmaliMemberKind::Field ? 0 : 1;
+         group < (kind == SmaliMemberKind::Field ? 1U : 3U); ++group) {
+        uint32_t low = 0, high = counts_[group];
+        while (low < high) {
+            uint32_t middle = low + (high - low) / 2;
+            dex::MethodAnnotationsItem item;
+            if (!dex.state().Items() ||
+                !dex.Object(offsets_[group] + size_t(middle) * sizeof(item), item)) return false;
+            if (item.method_idx == member_id) {
+                (group == 2 ? offsets.parameters : offsets.annotations) = item.annotations_off;
+                break;
+            }
+            if (item.method_idx < member_id) low = middle + 1; else high = middle;
+        }
+    }
+    return true;
+}
+
 } // namespace dexkit::smali

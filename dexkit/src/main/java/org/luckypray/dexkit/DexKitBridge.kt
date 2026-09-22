@@ -55,6 +55,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 
 class DexKitBridge : Closeable {
 
+    @JvmSynthetic
+    internal fun getSmali(encodedId: Long, method: Boolean,
+                          options: org.luckypray.dexkit.smali.SmaliOptions): String {
+        return lifecycleLock.read {
+            if (token == 0L) throw org.luckypray.dexkit.smali.SmaliException(
+                8, 0, encodedId ushr 32, if (method) 3 else 1,
+                encodedId and 0xffffffffL, -1, -1, 0)
+            nativeGetSmali(token, encodedId, method, options.debug.code, options.maxOutputBytes,
+                options.maxInputBytes, options.maxCodeUnits, options.maxItems, options.maxAnnotationDepth)
+        }
+    }
+
     @Volatile
     private var token: Long = 0L
 
@@ -758,6 +770,11 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeGetMethodOpCodes(nativePtr: Long, methodId: Long): IntArray
+
+        @JvmStatic
+        private external fun nativeGetSmali(nativePtr: Long, encodedId: Long, method: Boolean,
+            debug: Int, maxOutputBytes: Long, maxInputBytes: Long, maxCodeUnits: Long,
+            maxItems: Long, maxAnnotationDepth: Int): String
 
         @JvmStatic
         private external fun nativeGetCallMethods(nativePtr: Long, encodeId: Long): ByteArray

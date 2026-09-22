@@ -20,6 +20,18 @@ struct ClassMembers {
     std::vector<Member> static_fields, instance_fields, direct_methods, virtual_methods;
 };
 
+// Per-class borrowed directory view. Validate fixed records once, then binary
+// search without reparsing every annotation directory for every member.
+class AnnotationDirectory {
+public:
+    bool Init(CheckedDex& dex, const dex::ClassDef& owner);
+    bool Find(CheckedDex& dex, SmaliMemberKind kind, uint32_t member_id, AnnotationOffsets& offsets) const;
+private:
+    uint32_t class_annotations_ = 0;
+    size_t offsets_[3]{};
+    uint32_t counts_[3]{};
+};
+
 // Selectors only inspect definition/directory records. They never follow code,
 // debug or recursive annotation offsets for an unrelated member.
 bool SelectMethod(CheckedDex& dex, const dex::ClassDef& owner, uint32_t method_id, Member& method);

@@ -29,6 +29,8 @@ import org.luckypray.dexkit.InnerClassMeta
 import org.luckypray.dexkit.query.FindField
 import org.luckypray.dexkit.query.FindMethod
 import org.luckypray.dexkit.result.base.BaseData
+import org.luckypray.dexkit.annotations.DexKitExperimentalApi
+import org.luckypray.dexkit.smali.SmaliOptions
 import org.luckypray.dexkit.util.InstanceUtil
 import org.luckypray.dexkit.wrap.DexClass
 
@@ -55,6 +57,12 @@ class ClassData private constructor(
     private val methodIds: List<Int>,
     private val fieldIds: List<Int>,
 ): BaseData(bridge, id, dexId) {
+
+    /** Returns a complete smali class, or fails without returning partial text. */
+    @DexKitExperimentalApi
+    @JvmOverloads
+    fun toSmali(options: SmaliOptions = SmaliOptions()): String =
+        bridge.getSmali(getEncodeId(), false, options)
 
     internal companion object `-Companion` {
         fun from(bridge: DexKitBridge, classMeta: InnerClassMeta) = ClassData(

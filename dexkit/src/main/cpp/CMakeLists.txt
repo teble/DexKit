@@ -25,7 +25,8 @@ if (DISABLE_DEXKIT_LOG)
 endif ()
 
 add_library(${PROJECT_NAME} SHARED
-        native-bridge.cpp)
+        native-bridge.cpp
+        native-bridge-smali.cpp)
 
 if (DEXKIT_ENABLE_INTERNAL_METRICS_API)
     target_sources(${PROJECT_NAME} PRIVATE native-bridge-metrics.cpp)

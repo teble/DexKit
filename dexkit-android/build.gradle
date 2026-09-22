@@ -12,6 +12,7 @@ def KDockRepoName = "LuckyPray/DexKit-Doc"
 
 def libVersion = "2.3.0"
 def enableInternalMetricsApi = false
+def enableSmali = providers.gradleProperty("enableSmali").map { it.toBoolean() }.orElse(true).get()
 
 android {
     namespace = "org.luckypray.dexkit"
@@ -29,6 +30,8 @@ android {
                 arguments "-DANDROID_STL=none"
                 arguments "-DDEXKIT_ENABLE_INTERNAL_METRICS=${enableInternalMetricsApi ? 'ON' : 'OFF'}"
                 arguments "-DDEXKIT_ENABLE_INTERNAL_METRICS_API=${enableInternalMetricsApi ? 'ON' : 'OFF'}"
+                arguments "-DDEXKIT_ENABLE_SMALI=${enableSmali ? 'ON' : 'OFF'}"
+                arguments "-DDEXKIT_SMALI_SIZE_PROBE=none"
                 def flags = [
                         "-funwind-tables",
                         "-fasynchronous-unwind-tables",

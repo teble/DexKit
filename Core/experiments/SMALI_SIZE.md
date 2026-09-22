@@ -47,6 +47,23 @@ CodeIr and 205 us with direct decoding, including the common preflight and text
 copy (no JNI). This synthetic case is not a latency forecast for APK methods.
 No allocation peak was measured in this first experiment.
 
+The host driver is `smali_probe_driver.py`. For the original S0 comparison use
+commit `d7429c8` in an isolated checkout and configure two separate directories:
+
+```sh
+cmake -S dexkit/src/main/cpp -B /tmp/smali-probe-ir -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release -DDEXKIT_SMALI_SIZE_PROBE=ir \
+  -DCMAKE_CXX_FLAGS_RELEASE='-Os -DNDEBUG -fno-rtti -fno-exceptions'
+cmake --build /tmp/smali-probe-ir --target dexkit
+# Repeat into /tmp/smali-probe-light with DEXKIT_SMALI_SIZE_PROBE=light.
+python3 Core/experiments/smali_probe_driver.py \
+  --ir /tmp/smali-probe-ir/libdexkit.dylib \
+  --light /tmp/smali-probe-light/libdexkit.dylib
+```
+
+Use the platform's shared-library suffix and set JAVA_HOME to a matching host
+JDK for JNI discovery. The driver checks output equality/refusals before timing.
+
 The body linkage result favors proceeding with the lightweight path, subject to
 checking its full control-flow/metadata implementation and final Android sizes.
 The full feature's enabled/disabled builds must be measured again for every ABI.
@@ -54,3 +71,21 @@ The full feature's enabled/disabled builds must be measured again for every ABI.
 The baseline AAR built at the start of the task contained: arm64-v8a 394888,
 armeabi-v7a 262908, x86 433444, x86_64 418872 bytes. Preserve compiler/configuration
 identity when comparing these with final builds.
+
+## First production API checkpoint (Debug.None)
+
+The initial complete method/class path, including bounded reading, metadata,
+modern references, JNI UTF conversion and error construction, built as follows:
+
+| ABI | stripped bytes | delta from original baseline |
+| --- | ---: | ---: |
+| arm64-v8a | 447776 | 52888 |
+| armeabi-v7a | 300004 | 37096 |
+| x86 | 489388 | 55944 |
+| x86_64 | 478696 | 59824 |
+
+This includes the real `nativeGetSmali` endpoint and excludes the probe export.
+All 122 JVM tests passed against the rebuilt host library, including independent
+semantic assembly checks. Strict debug, further size tuning and final enabled/
+disabled measurements are still pending; these numbers are a development
+checkpoint, not the final feature budget.

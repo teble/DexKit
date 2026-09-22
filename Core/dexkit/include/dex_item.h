@@ -31,6 +31,7 @@
 #include "common.h"
 #include "constant.h"
 #include "dexkit_error.h"
+#include "smali.h"
 #include "string_match.h"
 
 #include "parallel_hashmap/phmap.h"
@@ -197,6 +198,8 @@ public:
     std::vector<std::vector<AnnotationBean>> GetParameterAnnotationBeans(uint32_t method_idx);
     std::optional<std::vector<std::optional<std::string_view>>> GetParameterNames(uint32_t method_idx);
     std::vector<uint8_t> GetMethodOpCodes(uint32_t method_idx);
+    SmaliStatus GetMethodSmali(uint32_t method_idx, const SmaliOptions& options, std::string& output);
+    SmaliStatus GetClassSmali(uint32_t type_idx, const SmaliOptions& options, std::string& output);
     std::vector<std::string_view> GetUsingStrings(uint32_t method_idx);
 
     // Cross-ref accessors read final shared indexes and therefore require the outer
@@ -345,6 +348,7 @@ private:
 
     DexKit *dexkit;
     std::shared_ptr<MemMap> _image;
+    uint32_t smali_header_offset_;
     dex::Reader reader;
 
     std::atomic<uint32_t> dex_cross_flag = 0;

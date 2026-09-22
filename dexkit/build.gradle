@@ -10,6 +10,7 @@ def enableInternalMetricsApi = providers.gradleProperty("enableInternalMetricsAp
         .map { it.toBoolean() }
         .orElse(false)
         .get()
+def enableSmali = providers.gradleProperty("enableSmali").map { it.toBoolean() }.orElse(true).get()
 
 cmake {
     targets {
@@ -29,8 +30,19 @@ cmake {
             cmakeArgs.add("-DCMAKE_C_FLAGS_RELEASE=$configFlags")
             cmakeArgs.add("-DDEXKIT_ENABLE_INTERNAL_METRICS=${enableInternalMetricsApi ? 'ON' : 'OFF'}")
             cmakeArgs.add("-DDEXKIT_ENABLE_INTERNAL_METRICS_API=${enableInternalMetricsApi ? 'ON' : 'OFF'}")
+            cmakeArgs.add("-DDEXKIT_ENABLE_SMALI=${enableSmali ? 'ON' : 'OFF'}")
+            cmakeArgs.add("-DDEXKIT_SMALI_SIZE_PROBE=none")
         }
     }
+}
+
+// The CMake plugin only tracks the JNI project's sources by default. Core lives
+// outside that directory, so changes there must also invalidate the build task.
+tasks.matching { it.name.endsWith("_runGeneratorNinja") }.configureEach {
+    inputs.files(rootProject.fileTree("Core") {
+        include("**/*.cpp", "**/*.cc", "**/*.h", "**/*.hpp", "**/CMakeLists.txt", "**/*.cmake")
+        exclude("**/build/**", "**/cmake-build-*/**", "**/.cxx/**")
+    }).withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 java {
@@ -66,6 +78,7 @@ tasks.withType(KotlinCompile).configureEach {
 test {
     systemProperty("java.library.path", "${layout.buildDirectory.file("library").get().asFile.absolutePath}")
     systemProperty("apk.path", "${layout.projectDirectory.file("apk").asFile.absolutePath}")
+    inputs.dir(layout.buildDirectory.dir("library")).withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 dependencies {

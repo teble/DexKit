@@ -102,6 +102,11 @@ public:
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetParameterAnnotations(int64_t encode_method_id);
     std::optional<std::vector<std::optional<std::string_view>>> GetParameterNames(int64_t encode_method_id);
     std::vector<uint8_t> GetMethodOpCodes(int64_t encode_method_id);
+    // IDs are local to this instance. Calls borrow immutable source bytes;
+    // native callers must synchronize object destruction with all operations.
+    // Failure leaves output unchanged. No persistent disassembly cache is kept.
+    SmaliStatus GetMethodSmali(uint64_t encoded_id, const SmaliOptions& options, std::string& output);
+    SmaliStatus GetClassSmali(uint64_t encoded_id, const SmaliOptions& options, std::string& output);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetCallMethods(int64_t encode_method_id);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetInvokeMethods(int64_t encode_method_id);
     std::vector<std::string_view> GetUsingStrings(int64_t encode_method_id);

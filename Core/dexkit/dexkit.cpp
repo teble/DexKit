@@ -1295,6 +1295,38 @@ DexKit::GetMethodOpCodes(int64_t encode_method_id) {
     return dex_items[dex_id]->GetMethodOpCodes(method_id);
 }
 
+SmaliStatus DexKit::GetMethodSmali(uint64_t encoded_id, const SmaliOptions& options, std::string& output) {
+    auto execution_guard = EnterQueryExecution(0);
+    const uint32_t dex_id = static_cast<uint32_t>(encoded_id >> 32);
+    const uint32_t method_id = static_cast<uint32_t>(encoded_id);
+    auto status = dex_id < dex_items.size()
+        ? dex_items[dex_id]->GetMethodSmali(method_id, options, output)
+        : SmaliStatus{SmaliError::InvalidIdentity};
+    status.dex_id = dex_id;
+    if (status.member_kind == SmaliMemberKind::None) {
+        status.member_kind = SmaliMemberKind::Method;
+        status.member_id = method_id;
+    }
+    return status;
+}
+
+SmaliStatus DexKit::GetClassSmali(uint64_t encoded_id, const SmaliOptions& options, std::string& output) {
+    // Internal class emission calls its own member writer, never this public
+    // method entry point, so a concurrency limit of one cannot self-deadlock.
+    auto execution_guard = EnterQueryExecution(0);
+    const uint32_t dex_id = static_cast<uint32_t>(encoded_id >> 32);
+    const uint32_t type_id = static_cast<uint32_t>(encoded_id);
+    auto status = dex_id < dex_items.size()
+        ? dex_items[dex_id]->GetClassSmali(type_id, options, output)
+        : SmaliStatus{SmaliError::InvalidIdentity};
+    status.dex_id = dex_id;
+    if (status.member_kind == SmaliMemberKind::None || status.member_id == UINT32_MAX) {
+        status.member_kind = SmaliMemberKind::Class;
+        status.member_id = type_id;
+    }
+    return status;
+}
+
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetCallMethods(int64_t encode_method_id) {
     // Cross-ref metadata reads consume final shared indexes, so they must stay behind the

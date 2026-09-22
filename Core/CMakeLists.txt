@@ -57,3 +57,11 @@ if (EXECUTABLE_TEST)
             main.cpp
             )
 endif ()
+
+option(DEXKIT_BUILD_SMALI_TESTS "Build native smali regression tests" OFF)
+if (DEXKIT_BUILD_SMALI_TESTS)
+    enable_testing()
+    add_executable(dexkit_smali_tests tests/smali_reader_test.cpp)
+    target_link_libraries(dexkit_smali_tests PRIVATE dexkit_static)
+    add_test(NAME smali_checked_reader COMMAND dexkit_smali_tests)
+endif ()

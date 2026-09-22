@@ -57,4 +57,21 @@ escaping; descriptor/name grammar and JNI encoding need separate handling.
 DEX 041 offsets refer to the physical container and may reach beyond the logical
 DEX span. Resource limits are checked before growing temporary structures.
 
-Status: planning and baseline measurements; no smali implementation yet.
+The first implementation-planning review read `161590b` and the baseline Core,
+JNI and Kotlin call paths. Adopt its single-admission rule: public method/class
+entry points enter query execution once; internal member emitters never enter it
+again (nested guards can deadlock at a concurrency limit of one or with warmup).
+Class output uses one cumulative budget and releases each method plan in turn.
+Source bytes must remain immutable throughout a call, including borrowed input.
+Status values have explicit stable numeric IDs and identify the failing member.
+Method debug suppression does not suppress class `.source` or parameter annotations.
+Hidden-API metadata, unrepresentable names/values and unsupported variants require
+explicit rejection. The complete supported profile is still under implementation.
+
+Status: baseline Android build and initial body linkage experiment complete (see
+`experiments/SMALI_SIZE.md`). A bounded reader and text/encoding primitives are
+being implemented and tested with ASan/UBSan. No public smali API is connected yet.
+The full Reader-versus-lightweight end-to-end comparison is deliberately not
+claimed by the body-only experiment. Production is provisionally moving toward
+direct slicer decoding to keep the new checked boundary independent of the old
+Reader/CodeIr fail-fast and debug-merging paths.

@@ -25,3 +25,5 @@ target_link_libraries(${PROJECT_NAME}
         dexkit_static
         z
         ${log-lib})
+
+include(../Core/experiments/smali_size_probe.cmake)

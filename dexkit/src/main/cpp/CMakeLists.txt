@@ -46,3 +46,5 @@ endif()
 target_link_libraries(${PROJECT_NAME}
         dexkit_static
 )
+
+include(../../../../Core/experiments/smali_size_probe.cmake)

@@ -14,7 +14,7 @@ namespace dexkit::smali {
 // All state is owned by one request. Source bytes are borrowed under the
 // bridge read lock and query guard; this class never changes the shared Reader.
 struct State {
-    const SmaliOptions& options;
+    const SmaliOptions options;
     SmaliStatus status;
     SmaliPhase phase = SmaliPhase::Resolve;
     uint32_t code_offset = UINT32_MAX;
@@ -28,6 +28,7 @@ struct State {
     bool Input(size_t count, size_t offset);
     bool Items(size_t count = 1);
     bool Append(std::string_view text);
+    bool TemporaryAppend(std::string& temporary, std::string_view text);
     bool Number(int64_t value);
     bool Hex(uint64_t value, bool wide = false);
 };
@@ -46,8 +47,11 @@ public:
         return Read(offset, &output, sizeof(T));
     }
     template<class T> bool Entry(size_t offset, uint32_t count, uint32_t index, T& output) {
+        if (!Range(offset, 0)) return false;
+        if (count > (image_.size() - offset) / sizeof(T))
+            return state_.Fail(SmaliError::MalformedInput, offset);
         if (index >= count) return state_.Fail(SmaliError::MalformedInput, offset, index);
-        // Init() validates the complete table before any indexed reads.
+        // Self-contained protection also covers newly discovered map tables.
         return Object(offset + size_t(index) * sizeof(T), output);
     }
 

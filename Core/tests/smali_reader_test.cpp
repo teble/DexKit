@@ -186,6 +186,11 @@ void SelectionIsolation() {
     ClassMembers members;
     Check(SelectClass(dex, owner, members));
     Check(members.direct_methods.size() == 2 && members.direct_methods[1].code_offset == 65535);
+    dex::ClassDef empty{};
+    Check(SelectClass(dex, empty, members));
+    Check(members.static_fields.empty() && members.instance_fields.empty() &&
+          members.direct_methods.empty() && members.virtual_methods.empty());
+    Check(SelectClass(dex, owner, members));
     // Corrupt a record after the target. A target request may stop as soon as
     // it is located; class selection has to read and reject the later record.
     fixture.bytes[200] = 0; // Second method's index delta duplicates the first.
@@ -196,6 +201,96 @@ void SelectionIsolation() {
     CheckedDex class_dex(fixture.bytes, 0, class_state);
     Check(class_dex.Init() && !SelectClass(class_dex, owner, members));
     Check(class_state.status.error == SmaliError::MalformedInput);
+    Check(members.direct_methods.size() == 2); // Failed selection is transactional.
+
+    fixture.bytes[194] = 0;
+    fixture.bytes[195] = 2; // Put static/private/constructor in the virtual group.
+    for (uint8_t access : {uint8_t(9), uint8_t(2)}) {
+        fixture.bytes[197] = access;
+        State bad_group{options};
+        CheckedDex bad_dex(fixture.bytes, 0, bad_group);
+        Check(bad_dex.Init() && !SelectMethod(bad_dex, owner, 0, target));
+        Check(bad_group.status.error == SmaliError::MalformedInput);
+    }
+    fixture.bytes[194] = 2; fixture.bytes[195] = 0;
+    fixture.bytes[197] = 1; // Ordinary public instance method in direct group.
+    State bad_direct{options};
+    CheckedDex direct_dex(fixture.bytes, 0, bad_direct);
+    Check(direct_dex.Init() && !SelectMethod(direct_dex, owner, 0, target));
+}
+
+void ReviewRegressions() {
+    Fixture fixture;
+    fixture.header.data_size = 16;
+    fixture.header.map_off = 140;
+    fixture.Sync();
+    fixture.Put<uint32_t>(140, 1);
+    fixture.Put(144, dex::MapItem{0, 0, 1, 0});
+    SmaliOptions options;
+    State map_state{options};
+    CheckedDex map_dex(fixture.bytes, 0, map_state);
+    Check(map_dex.Init());
+    Check(!CheckMetadataProfile(map_dex));
+    Check(map_state.status.error == SmaliError::MalformedInput && map_state.status.dex_offset == 144);
+
+    Fixture normal;
+    State misuse{options};
+    CheckedDex entry_dex(normal.bytes, 0, misuse);
+    uint32_t entry;
+    Check(entry_dex.Init());
+    Check(!entry_dex.Entry(112, 0x40000001, 0x40000000, entry));
+    State zero_alignment{options};
+    CheckedDex aligned(normal.bytes, 0, zero_alignment);
+    Check(!aligned.Range(0, 0, 0) && zero_alignment.status.error == SmaliError::InternalError);
+    State zero_width{options};
+    CheckedDex mapped(normal.bytes, 0, zero_width);
+    uint32_t offset, count;
+    Check(!mapped.MapSection(0, offset, count, 0) && zero_width.status.error == SmaliError::InternalError);
+
+    State diagnostic{options};
+    diagnostic.status.dex_id = 7;
+    diagnostic.member_kind = SmaliMemberKind::Method;
+    diagnostic.member_id = 11;
+    diagnostic.code_offset = 3;
+    diagnostic.phase = SmaliPhase::Read;
+    diagnostic.Fail(SmaliError::MalformedInput, 128, 9);
+    diagnostic.Fail(SmaliError::Unsupported);
+    Check(diagnostic.status.dex_id == 7 && diagnostic.status.member_id == 11 &&
+          diagnostic.status.member_kind == SmaliMemberKind::Method && diagnostic.status.code_offset == 3 &&
+          diagnostic.status.dex_offset == 128 && diagnostic.status.detail == 9 &&
+          diagnostic.status.phase == SmaliPhase::Read && diagnostic.status.error == SmaliError::MalformedInput);
+
+    options.max_output_bytes = 3;
+    State unicode{options};
+    normal.String({2, 0xe4, 0xb8, 0xad, 0xe6, 0x96, 0x87, 0});
+    CheckedDex unicode_dex(normal.bytes, 0, unicode);
+    std::string name;
+    Check(unicode_dex.Init() && !unicode_dex.Name(0, name));
+    Check(unicode.status.error == SmaliError::LimitExceeded && name.size() <= 3);
+    State snapshot{options};
+    options.max_output_bytes = 0;
+    Check(snapshot.Append("abc"));
+
+    normal.header.string_ids_size = 2;
+    normal.header.type_ids_off = 120;
+    normal.header.type_ids_size = 2;
+    normal.header.proto_ids_off = 128;
+    normal.header.proto_ids_size = 1;
+    normal.header.data_off = 192;
+    normal.header.data_size = 320;
+    normal.Sync();
+    normal.Put<uint32_t>(112, 200); normal.Put<uint32_t>(116, 204);
+    normal.Put<uint32_t>(120, 0); normal.Put<uint32_t>(124, 1);
+    normal.Put(128, dex::ProtoId{0, 1, 208});
+    normal.bytes[200] = 1; normal.bytes[201] = 'I';
+    normal.bytes[204] = 1; normal.bytes[205] = 'V';
+    normal.Put<uint32_t>(208, 2);
+    options.max_output_bytes = 4;
+    State prototype{options};
+    CheckedDex proto_dex(normal.bytes, 0, prototype);
+    std::string signature;
+    Check(proto_dex.Init() && !proto_dex.Proto(0, signature));
+    Check(prototype.status.error == SmaliError::LimitExceeded && signature.size() <= 4);
 }
 } // namespace
 
@@ -205,5 +300,6 @@ int main() {
     BoundsAndLeb();
     LimitsAndNames();
     SelectionIsolation();
+    ReviewRegressions();
     std::cout << checks << " smali reader checks passed\n";
 }

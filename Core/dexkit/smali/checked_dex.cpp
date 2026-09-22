@@ -9,7 +9,9 @@ namespace dexkit::smali {
 
 bool State::Fail(SmaliError error, uint64_t offset, uint32_t detail) {
     if (status.ok()) {
+        const auto dex_id = status.dex_id;
         status = {error, phase, offset, code_offset, detail};
+        status.dex_id = dex_id;
         status.member_kind = member_kind;
         status.member_id = member_id;
     }
@@ -33,9 +35,19 @@ bool State::Items(size_t count) {
 
 bool State::Append(std::string_view text) {
     if (!status.ok()) return false;
-    if (text.size() > options.max_output_bytes - output.size())
+    if (text.size() > options.max_output_bytes - output.size() || text.size() > output.max_size() - output.size())
         return Fail(SmaliError::LimitExceeded);
     output.append(text);
+    return true;
+}
+
+bool State::TemporaryAppend(std::string& temporary, std::string_view text) {
+    if (!status.ok()) return false;
+    size_t remaining = options.max_output_bytes - output.size();
+    if (temporary.size() > remaining || text.size() > remaining - temporary.size() ||
+        text.size() > temporary.max_size() - temporary.size())
+        return Fail(SmaliError::LimitExceeded);
+    temporary.append(text);
     return true;
 }
 
@@ -53,6 +65,7 @@ bool State::Hex(uint64_t value, bool wide) {
 
 bool CheckedDex::Range(size_t offset, size_t bytes, size_t alignment) {
     if (!state_.status.ok()) return false;
+    if (!alignment) return state_.Fail(SmaliError::InternalError, offset);
     if (offset % alignment || offset > image_.size() || bytes > image_.size() - offset)
         return state_.Fail(SmaliError::MalformedInput, offset);
     return true;
@@ -71,6 +84,7 @@ bool CheckedDex::Read(size_t offset, void* output, size_t bytes) {
 }
 
 bool CheckedDex::Table(size_t offset, uint32_t count, size_t width) {
+    if (!width) return state_.Fail(SmaliError::InternalError, offset);
     if (!Range(offset, 0, 4)) return false;
     if (count > (image_.size() - offset) / width || (count && offset < header_offset_ + header_.header_size))
         return state_.Fail(SmaliError::MalformedInput, offset);
@@ -160,7 +174,7 @@ bool CheckedDex::String(uint32_t index, std::u16string& value) {
     uint32_t length;
     if (!Uleb(cursor, length)) return false;
     if (length > state_.options.max_input_bytes - state_.input_bytes ||
-        length > state_.options.max_output_bytes || length > value.max_size())
+        length > state_.options.max_output_bytes - state_.output.size() || length > value.max_size())
         return state_.Fail(SmaliError::LimitExceeded, cursor);
     if (!Data(cursor, length)) return false;
     value.clear();
@@ -227,7 +241,8 @@ bool CheckedDex::Identifier(const std::u16string& value, std::string& output, bo
                           (cp >= '0' && cp <= '9') || cp == '$' || cp == '_' || cp == '-';
             if (!simple && !(descriptor && (cp == '/' || cp == '[' || cp == ';')))
                 return state_.Fail(SmaliError::Unsupported, UINT64_MAX, cp);
-            output += char(cp);
+            char byte = char(cp);
+            if (!state_.TemporaryAppend(output, {&byte, 1})) return false;
         } else {
             if (cp >= 0xd800 && cp <= 0xdbff) {
                 if (++i >= value.size() || value[i] < 0xdc00 || value[i] > 0xdfff)
@@ -238,16 +253,19 @@ bool CheckedDex::Identifier(const std::u16string& value, std::string& output, bo
                 (cp >= 0x2028 && cp <= 0x202f) || cp == 0x3000 ||
                 (cp >= 0xfff0 && cp <= 0xffff))
                 return state_.Fail(SmaliError::Unsupported, UINT64_MAX, cp);
-            if (cp < 0x800) output += char(0xc0 | (cp >> 6));
+            char bytes[4];
+            size_t length = 0;
+            if (cp < 0x800) bytes[length++] = char(0xc0 | (cp >> 6));
             else if (cp < 0x10000) {
-                output += char(0xe0 | (cp >> 12));
-                output += char(0x80 | ((cp >> 6) & 63));
+                bytes[length++] = char(0xe0 | (cp >> 12));
+                bytes[length++] = char(0x80 | ((cp >> 6) & 63));
             } else {
-                output += char(0xf0 | (cp >> 18));
-                output += char(0x80 | ((cp >> 12) & 63));
-                output += char(0x80 | ((cp >> 6) & 63));
+                bytes[length++] = char(0xf0 | (cp >> 18));
+                bytes[length++] = char(0x80 | ((cp >> 12) & 63));
+                bytes[length++] = char(0x80 | ((cp >> 6) & 63));
             }
-            output += char(0x80 | (cp & 63));
+            bytes[length++] = char(0x80 | (cp & 63));
+            if (!state_.TemporaryAppend(output, {bytes, length})) return false;
         }
     }
     return true;
@@ -257,8 +275,8 @@ bool CheckedDex::Name(uint32_t index, std::string& name, bool method) {
     std::u16string value;
     if (!String(index, value)) return false;
     if (method && (value == u"<init>" || value == u"<clinit>")) {
-        name.assign(value.begin(), value.end());
-        return true;
+        name.clear();
+        return state_.TemporaryAppend(name, value == u"<init>" ? "<init>" : "<clinit>");
     }
     return Identifier(value, name, false);
 }
@@ -313,15 +331,15 @@ bool CheckedDex::Proto(uint32_t index, std::string& signature, std::vector<uint1
     auto& params = parameters ? *parameters : local;
     if (!Entry(header_.proto_ids_off, header_.proto_ids_size, index, entry) ||
         !TypeList(entry.parameters_off, params)) return false;
-    signature = "(";
+    signature.clear();
+    if (!state_.TemporaryAppend(signature, "(")) return false;
     std::string type;
     for (auto parameter : params) {
         if (!Type(parameter, type)) return false;
-        signature += type;
+        if (!state_.TemporaryAppend(signature, type)) return false;
     }
     if (!Type(entry.return_type_idx, type, true)) return false;
-    signature += ')'; signature += type;
-    return true;
+    return state_.TemporaryAppend(signature, ")") && state_.TemporaryAppend(signature, type);
 }
 
 bool CheckedDex::Field(uint32_t index, std::string& descriptor, bool qualified) {
@@ -330,9 +348,10 @@ bool CheckedDex::Field(uint32_t index, std::string& descriptor, bool qualified) 
     if (!Entry(header_.field_ids_off, header_.field_ids_size, index, entry) ||
         !Type(entry.class_idx, owner) || !Name(entry.name_idx, name) || !Type(entry.type_idx, type)) return false;
     if (owner.front() != 'L') return state_.Fail(SmaliError::MalformedInput);
-    descriptor = qualified ? owner + "->" : "";
-    descriptor += name; descriptor += ':'; descriptor += type;
-    return true;
+    descriptor.clear();
+    return (!qualified || (state_.TemporaryAppend(descriptor, owner) && state_.TemporaryAppend(descriptor, "->"))) &&
+           state_.TemporaryAppend(descriptor, name) && state_.TemporaryAppend(descriptor, ":") &&
+           state_.TemporaryAppend(descriptor, type);
 }
 
 bool CheckedDex::Method(uint32_t index, std::string& descriptor, bool qualified) {
@@ -341,9 +360,9 @@ bool CheckedDex::Method(uint32_t index, std::string& descriptor, bool qualified)
     if (!Entry(header_.method_ids_off, header_.method_ids_size, index, entry) ||
         !Type(entry.class_idx, owner) || !Name(entry.name_idx, name, true) || !Proto(entry.proto_idx, proto)) return false;
     if (owner.front() != 'L' && owner.front() != '[') return state_.Fail(SmaliError::MalformedInput);
-    descriptor = qualified ? owner + "->" : "";
-    descriptor += name; descriptor += proto;
-    return true;
+    descriptor.clear();
+    return (!qualified || (state_.TemporaryAppend(descriptor, owner) && state_.TemporaryAppend(descriptor, "->"))) &&
+           state_.TemporaryAppend(descriptor, name) && state_.TemporaryAppend(descriptor, proto);
 }
 
 bool CheckedDex::ClassDef(uint32_t index, dex::ClassDef& definition) {
@@ -352,11 +371,13 @@ bool CheckedDex::ClassDef(uint32_t index, dex::ClassDef& definition) {
 
 bool CheckedDex::MapSection(uint16_t type, uint32_t& offset, uint32_t& count, size_t width) {
     offset = count = 0;
+    if (!width) return state_.Fail(SmaliError::InternalError);
     uint32_t entries;
     if (!Data(header_.map_off, 4, 4) || !Object(header_.map_off, entries)) return false;
     size_t cursor = size_t(header_.map_off) + 4;
     if (entries > (image_.size() - cursor) / sizeof(dex::MapItem))
         return state_.Fail(SmaliError::MalformedInput, header_.map_off);
+    if (!Data(cursor, size_t(entries) * sizeof(dex::MapItem), 4)) return false;
     if (!state_.Items(entries)) return false;
     bool found = false;
     for (uint32_t i = 0; i < entries; ++i, cursor += sizeof(dex::MapItem)) {

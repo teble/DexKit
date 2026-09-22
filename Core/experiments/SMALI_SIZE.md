@@ -31,6 +31,11 @@ hidden visibility, no exceptions/RTTI, section GC and stripping, with metrics
 disabled. Build the normal Android release first, then configure its arm64 CMake
 build directory with `-DDEXKIT_SMALI_SIZE_PROBE=none`, `ir`, or `light` and build
 target `dexkit`. Compare the resulting `libdexkit.so`, not the static archive.
+For subsequent experiments, use a separate build directory with the same NDK,
+flags and prefab configuration. If an existing build directory is used, reset
+the cached selection to `none` explicitly before packaging and verify that
+`DexKitSmaliSizeProbe` is absent from the dynamic exports. A normal Gradle command
+does not reset an existing CMake cache selection.
 The original Gradle baseline before CMake reconfiguration was 394888 bytes;
 the table uses the consistently reconfigured B0 for both deltas.
 

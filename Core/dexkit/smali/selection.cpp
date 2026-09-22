@@ -51,6 +51,8 @@ bool Members(CheckedDex& dex, const dex::ClassDef& owner,
                 if (!dex.Object(offset, parent)) return false;
                 if (parent != owner.class_idx) return state.Fail(SmaliError::MalformedInput, offset);
                 if (methods) {
+                    bool direct = current.access & (dex::kAccStatic | dex::kAccPrivate | dex::kAccConstructor);
+                    if (direct != (group == 2)) return state.Fail(SmaliError::MalformedInput, cursor);
                     bool no_body = current.access & (dex::kAccAbstract | dex::kAccNative);
                     if (no_body != (current.code_offset == 0))
                         return state.Fail(SmaliError::MalformedInput, cursor);
@@ -73,7 +75,8 @@ bool SelectMethod(CheckedDex& dex, const dex::ClassDef& owner, uint32_t method_i
 }
 
 bool SelectClass(CheckedDex& dex, const dex::ClassDef& owner, ClassMembers& members) {
-    if (!Members(dex, owner, UINT32_MAX, nullptr, &members)) return false;
+    ClassMembers selected;
+    if (!Members(dex, owner, UINT32_MAX, nullptr, &selected)) return false;
     auto disjoint = [](const auto& a, const auto& b) {
         size_t i = 0, j = 0;
         while (i < a.size() && j < b.size()) {
@@ -82,9 +85,11 @@ bool SelectClass(CheckedDex& dex, const dex::ClassDef& owner, ClassMembers& memb
         }
         return true;
     };
-    return (disjoint(members.static_fields, members.instance_fields) &&
-            disjoint(members.direct_methods, members.virtual_methods)) ||
-            dex.state().Fail(SmaliError::MalformedInput, owner.class_data_off);
+    if (!disjoint(selected.static_fields, selected.instance_fields) ||
+        !disjoint(selected.direct_methods, selected.virtual_methods))
+        return dex.state().Fail(SmaliError::MalformedInput, owner.class_data_off);
+    members = std::move(selected);
+    return true;
 }
 
 bool SelectAnnotations(CheckedDex& dex, const dex::ClassDef& owner,

@@ -75,3 +75,13 @@ The full Reader-versus-lightweight end-to-end comparison is deliberately not
 claimed by the body-only experiment. Production is provisionally moving toward
 direct slicer decoding to keep the new checked boundary independent of the old
 Reader/CodeIr fail-fast and debug-merging paths.
+
+The first source review read all of `d7429c8`'s reader, selector, tests and probe.
+Confirmed corrections: check the entire map list against the data range; replace
+reused class-member results even for empty classes; validate direct/virtual
+grouping. Also bound temporary UTF-8/reference fragments, snapshot options,
+preserve diagnostic context and make generic read helpers self-contained.
+These are being covered by dedicated regression fixtures. The next experiment
+extension is a bounded packed-switch/array-data/catch-all subset, after which the
+CodeIr experiment stops growing. The production writer is checked independently
+with host smali/dexlib2 rather than building a second complete implementation.

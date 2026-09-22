@@ -84,7 +84,8 @@ use the supported BMP Unicode grammar. Checks cover the structures needed for em
 not ART type-flow verification or hardening of the existing bridge loader.
 
 For custom native builds, `-DDEXKIT_ENABLE_SMALI=OFF` removes the implementation;
-the API then returns `UNSUPPORTED`. Size experiments are separate and must use
+the API then returns `UNSUPPORTED`. Gradle builds expose the same switch as
+`-PenableSmali=false`. Size experiments are separate and must use
 `DEXKIT_SMALI_SIZE_PROBE=none` for production builds.
 
 Assembler caveat: [smali 2.5.2's default-value test](https://github.com/JesusFreke/smali/blob/v2.5.2/dexlib2/src/main/java/org/jf/dexlib2/util/EncodedValueUtils.java)

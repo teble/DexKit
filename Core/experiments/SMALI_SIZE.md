@@ -131,3 +131,39 @@ The host driver accepts `--control` to check S1 output equality. At the S1
 checkpoint, S0's 5000-constant body still produced identical 70068-byte text;
 observed means were 950 us with CodeIr and 205 us with direct decoding. This
 remains a synthetic host observation, not a production workload benchmark.
+
+## Complete production feature: final paired comparison
+
+Implementation SHA: `e3e9ee0841ae3d2b7ee0f61278a95c97fbe88076`. All eight isolated
+builds recorded this clean source SHA, used the configuration above and disabled
+metrics/probes. ON includes Strict and all production entry points; OFF retains
+the API's Unsupported stubs. The JSON record is `SMALI_SIZE_RESULTS.json`.
+
+| ABI | isolated OFF bytes | isolated ON bytes | feature delta | Gradle packaged bytes | packaged delta from master |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| arm64-v8a | 396408 | 446040 | 49632 | 446032 | 51144 |
+| armeabi-v7a | 264008 | 301728 | 37720 | 301716 | 38808 |
+| x86 | 434924 | 493892 | 58968 | 493884 | 60440 |
+| x86_64 | 420472 | 477824 | 57352 | 477816 | 58944 |
+
+The isolated ON files were 8-12 bytes larger than this Gradle packaging run.
+Use the paired isolated columns for the feature delta, and the two packaging
+columns for product size; do not mix these baselines. The arm64 feature delta is
+49,632 bytes (48.47 KiB). The optional build switch removes those production
+bodies without removing the public error-returning API. Neither variant exports
+the experimental probes. The AAR has all four ABIs and no smali JVM dependency.
+
+Selected ELF section deltas (ON minus OFF; bytes):
+
+| ABI | .text | .rodata | .data.rel.ro | .rela.dyn | .rel.dyn | .eh_frame | .eh_frame_hdr | .ARM.exidx | .ARM.extab |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| arm64-v8a | 34124 | 7584 | 552 | 744 | 0 | 5004 | 1544 | 0 | 0 |
+| armeabi-v7a | 28452 | 7136 | 276 | 0 | 248 | 0 | 0 | 688 | 860 |
+| x86 | 46364 | 7920 | 276 | 0 | 248 | 3392 | 696 | 0 | 0 |
+| x86_64 | 40138 | 8048 | 576 | 744 | 0 | 7088 | 664 | 0 | 0 |
+
+File-size deltas also include section alignment and metadata. The name-table
+change removes one pointer/relocation per opcode and is checked against all 256
+source spellings. We do not attribute the complete feature delta to that one
+optimization. Linker maps and raw section listings are generated alongside each
+external measurement build; they are not production or committed build outputs.

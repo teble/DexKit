@@ -68,7 +68,7 @@ link data、hidden-API 元数据、共享或孤立的 switch payload、内容相
 检查范围是输出所需的结构，不等同于 ART 类型流验证，也不改变旧 bridge 加载器的安全边界。
 
 自行构建原生库时可通过 `-DDEXKIT_ENABLE_SMALI=OFF` 移除实现，接口返回
-`UNSUPPORTED`。体积实验与正式构建分开，正式构建使用 `DEXKIT_SMALI_SIZE_PROBE=none`。
+`UNSUPPORTED`，Gradle 构建可使用同一开关 `-PenableSmali=false`。体积实验与正式构建分开，正式构建使用 `DEXKIT_SMALI_SIZE_PROBE=none`。
 
 Assembler 限制：[smali 2.5.2 的默认值判断](https://github.com/JesusFreke/smali/blob/v2.5.2/dexlib2/src/main/java/org/jf/dexlib2/util/EncodedValueUtils.java)
 把静态 `-0.0` 当成默认零值。它裁剪默认值后缀时可能丢弃符号位，即使后面还有其他默认值

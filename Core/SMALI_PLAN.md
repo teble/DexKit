@@ -44,9 +44,10 @@ pinned lexer cannot assemble them; string literals preserve all UTF-16 units.
 - [x] Check assembly semantics, limits, Unicode, numerical/register boundaries,
       reference identity, 041/shared data, concurrency, closure and memory.
 - [x] Run native, full JVM, Android release and R8 consumer checks.
-- [ ] Record final clean-SHA ON/OFF stripped sizes for every packaged ABI.
-- [ ] Finish documentation build and the final fixed-SHA Pro review, then push
-      the verified implementation and reports to `teble:smali`.
+- [x] Record final clean-SHA ON/OFF stripped sizes for every packaged ABI.
+- [x] Build the bilingual documentation (26 pages).
+- [x] Finish the final fixed-SHA Pro review and deliver the verified implementation
+      and reports on `teble:smali`.
 
 ## Verification
 
@@ -95,3 +96,11 @@ The current increment initializes/checks local states, tests unknown locals and
 implicit parameters, exercises deep truncation and late failures, and separately
 records the negative-zero oracle limitation. Pro reviews are source reviews;
 local test/build results are independently executed, not attributed to Pro.
+
+Final source review: `e3e9ee0841ae3d2b7ee0f61278a95c97fbe88076` was read against
+`34f7724`. Pro found no confirmed correctness blocker in the declared profile and
+closed the local-state, deep-failure and negative-zero documentation findings.
+Its non-blocking note about a future fail-fast dirty-tree measurement mode does
+not affect this run: all eight final ON/OFF records were checked to have the same
+clean implementation SHA. The final report commit changes documentation/results
+only; the reviewed, tested and measured production source is unchanged.

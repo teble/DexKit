@@ -120,16 +120,29 @@ size_t GetWidthFromBytecode(const u2* bytecode) {
   return width;
 }
 
-// Dalvik opcode names.
-static constexpr std::array<const char*, kNumPackedOpcodes> gOpcodeNames = {
-#define INSTRUCTION_NAME(o, c, pname, f, i, a, e, v) pname,
+// Relative offsets avoid a pointer and dynamic relocation for every name in
+// shared libraries. The instruction list remains the only source of spellings.
+static constexpr char gOpcodeNames[] =
+#define INSTRUCTION_NAME(o, c, pname, f, i, a, e, v) pname "\0"
 #include "export/slicer/dex_instruction_list.h"
     DEX_INSTRUCTION_LIST(INSTRUCTION_NAME)
 #undef DEX_INSTRUCTION_LIST
 #undef INSTRUCTION_NAME
-};
+;
+static_assert(sizeof(gOpcodeNames) <= UINT16_MAX);
+static constexpr auto gOpcodeNameOffsets = [] {
+  std::array<uint16_t, kNumPackedOpcodes> offsets{};
+  size_t position = 0;
+  for (size_t i = 0; i < offsets.size(); ++i) {
+    offsets[i] = static_cast<uint16_t>(position);
+    while (gOpcodeNames[position++]) {}
+  }
+  return offsets;
+}();
 
-const char* GetOpcodeName(Opcode opcode) { return gOpcodeNames[opcode]; }
+const char* GetOpcodeName(Opcode opcode) {
+  return gOpcodeNames + gOpcodeNameOffsets[opcode];
+};
 
 // Helpers for DecodeInstruction()
 static u4 InstA(u2 inst) { return (inst >> 8) & 0x0f; }

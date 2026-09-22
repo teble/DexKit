@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--ir", required=True, help="CodeIr probe library")
     parser.add_argument("--light", required=True, help="Decoder probe library")
     parser.add_argument("--iterations", type=int, default=200)
+    parser.add_argument("--control", action="store_true", help="Also compare the fixed S1 control-flow seeds")
     args = parser.parse_args()
     if args.iterations < 1:
         parser.error("iterations must be positive")
@@ -56,6 +57,23 @@ def main():
             "output_bytes": size,
         }
     print(json.dumps(results, indent=2))
+    if args.control:
+        controls = []
+        for path in (args.ir, args.light):
+            function = ctypes.CDLL(path).DexKitSmaliControlProbe
+            function.argtypes = [ctypes.c_uint, ctypes.c_void_p, ctypes.c_size_t]
+            function.restype = ctypes.c_size_t
+            controls.append(function)
+        for fixture in range(3):
+            texts = []
+            for function in controls:
+                size = function(fixture, output, len(output))
+                assert 0 < size <= len(output)
+                texts.append(bytes(output[:size]))
+            assert texts[0] == texts[1], texts
+            print(texts[0].decode())
+        for function in controls:
+            assert function(3, output, len(output)) == 0
 
 
 if __name__ == "__main__":

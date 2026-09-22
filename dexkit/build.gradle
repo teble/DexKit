@@ -147,6 +147,42 @@ afterEvaluate {
     tasks.test.systemProperty("access.flags.dex.path", fixtureOutput.get().file("classes.dex").asFile.absolutePath)
     tasks.testClasses.dependsOn(tasks.copyReleaseDemo)
     tasks.testClasses.dependsOn(tasks.copyLibrary)
+
+    // Classfile output lets the host execute the same consumer keep rules and
+    // JNI lookup paths without requiring a connected Android device.
+    def consumerJar = tasks.register("smaliConsumerJar", Jar) {
+        dependsOn(tasks.compileTestJava)
+        archiveBaseName.set("smali-consumer")
+        from(tasks.compileTestJava.destinationDirectory) {
+            include("org/luckypray/dexkit/smaliconsumer/**")
+        }
+    }
+    def shrunkConsumer = layout.buildDirectory.file("smali-r8/consumer.jar")
+    def consumerRules = files(project(":dexkit-android").file("proguard-rules.pro"),
+            file("src/test/resources/smali-consumer.pro"))
+    def shrinkConsumer = tasks.register("smaliR8Shrink", JavaExec) {
+        dependsOn(tasks.jar, consumerJar)
+        def android = project(":demo").extensions.getByName("android")
+        classpath = files("${android.sdkDirectory}/build-tools/${android.buildToolsVersion}/lib/d8.jar")
+        mainClass.set("com.android.tools.r8.R8")
+        inputs.files(consumerRules, configurations.runtimeClasspath, tasks.jar.archiveFile, consumerJar.flatMap { it.archiveFile })
+        outputs.file(shrunkConsumer)
+        doFirst {
+            shrunkConsumer.get().asFile.parentFile.mkdirs()
+            args = ["--release", "--classfile", "--lib", System.getProperty("java.home"),
+                    "--output", shrunkConsumer.get().asFile.absolutePath] +
+                    consumerRules.files.collectMany { ["--pg-conf", it.absolutePath] } +
+                    [tasks.jar.archiveFile.get().asFile.absolutePath, consumerJar.get().archiveFile.get().asFile.absolutePath] +
+                    configurations.runtimeClasspath.files.collect { it.absolutePath }
+        }
+    }
+    tasks.register("smaliR8Consumer", JavaExec) {
+        dependsOn(shrinkConsumer, tasks.test)
+        classpath = files(shrunkConsumer)
+        mainClass.set("org.luckypray.dexkit.smaliconsumer.SmaliConsumer")
+        systemProperty("java.library.path", layout.buildDirectory.dir("library").get().asFile.absolutePath)
+        args(layout.buildDirectory.file("smali-fixtures/SmaliRoundTrip.dex").get().asFile.absolutePath)
+    }
 }
 
 evaluationDependsOn(":demo")

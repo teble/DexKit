@@ -113,7 +113,7 @@ class SmaliOutputTest {
     }
 
     @Test fun completeClassRoundTripPreservesSemantics() {
-        for (resource in listOf("SmaliRoundTrip.smali", "ParameterAnnotations.smali")) {
+        for (resource in listOf("SmaliRoundTrip.smali", "ParameterAnnotations.smali", "SmaliBoundaries.smali")) {
             val bytes = assemble(source(resource))
             val original = read(bytes)
             DexKitBridge.create(arrayOf(bytes)).use { bridge ->
@@ -304,7 +304,7 @@ class SmaliOutputTest {
 
     @Test fun exportFixturesForDirectNativeChecks() {
         val directory = java.io.File("build/smali-fixtures").apply { mkdirs() }
-        for (name in listOf("SmaliRoundTrip", "SmaliDebug", "ParameterAnnotations"))
+        for (name in listOf("SmaliRoundTrip", "SmaliDebug", "ParameterAnnotations", "SmaliBoundaries"))
             directory.resolve("$name.dex").writeBytes(assemble(source("$name.smali")))
     }
 
@@ -336,6 +336,113 @@ class SmaliOutputTest {
             val after = identities(read(assemble(bridge.getClassData("Ltest/CallSites;")!!.toSmali())))
             for (i in before.indices) for (j in before.indices)
                 assertEquals(before[i] == before[j], after[i] == after[j])
+        }
+    }
+
+    @Test fun unicodeNamesAndNullDebugLocalsSurvive() {
+        val text = source("SmaliBoundaries.smali").replace("Ltest/SmaliBoundaries;", "Ltest/\u6d4b\u8bd5;")
+            .replace("nullableLocal", "\u5c40\u90e8")
+        val bytes = assemble(text)
+        val original = read(bytes)
+        DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+            val result = read(assemble(bridge.getClassData(original.type)!!.toSmali(
+                SmaliOptions(debug = SmaliDebugMode.STRICT))))
+            assertEquals(normalized(original), normalized(result))
+            for (method in original.methods)
+                assertEquals(debug(method), debug(result.methods.single { it.name == method.name }))
+        }
+        val dex = DexBackedDexFile(Opcodes.forApi(28), bytes)
+        val nameIndex = dex.stringSection.indexOfFirst { it == "\u5c40\u90e8" }
+        val nameOffset = word(bytes, word(bytes, 60) + nameIndex * 4)
+        assertEquals(2, bytes[nameOffset].toInt())
+        // Same UTF-16 length and MUTF-8 byte width, but a supplementary name
+        // cannot be reassembled by the supported lexer.
+        byteArrayOf(0xed.toByte(), 0xa0.toByte(), 0xbd.toByte(), 0xed.toByte(), 0xb8.toByte(), 0x80.toByte())
+            .copyInto(bytes, nameOffset + 1)
+        DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+            try { bridge.getClassData(original.type)!!.toSmali(); fail("Expected unsupported supplementary name") }
+            catch (error: SmaliException) { assertEquals(SmaliError.UNSUPPORTED, error.error) }
+        }
+    }
+
+    @Test fun noncanonicalNaNIsRejected() {
+        val seed = assemble(".class public Ltest/Nan;\n.super Ljava/lang/Object;\n" +
+            ".field public static f:F = 0x1.000002p0f\n")
+        val values = word(seed, word(seed, 100) + 28)
+        assertEquals(0x70, seed[values + 1].toInt() and 255) // float, all 4 bytes
+        for (bits in listOf(0x7fa00001, 0xffc00000.toInt())) {
+            val bytes = seed.copyOf()
+            putWord(bytes, values + 2, bits)
+            DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+                try { bridge.getClassData("Ltest/Nan;")!!.toSmali(); fail("NaN payload/sign must not be canonicalized") }
+                catch (error: SmaliException) { assertEquals(SmaliError.UNSUPPORTED, error.error) }
+            }
+        }
+        val negativeZero = seed.copyOf()
+        putWord(negativeZero, values + 2, Int.MIN_VALUE)
+        DexKitBridge.create(arrayOf(negativeZero)).use { bridge ->
+            val text = bridge.getClassData("Ltest/Nan;")!!.toSmali()
+            assertTrue(text.contains("= -0x0.000000p-126f"))
+            val literal = text.lineSequence().single { it.startsWith(".field") }.substringAfter(" = ")
+            assertEquals(Int.MIN_VALUE, java.lang.Float.floatToRawIntBits(java.lang.Float.parseFloat(literal)))
+            // Explicit oracle limitation: a default-value suffix is trimmed by
+            // smali 2.5.2, losing the sign despite the exact emitted literal.
+            val after = read(assemble(text)).fields.single().initialValue
+            val value = (after as? org.jf.dexlib2.iface.value.FloatEncodedValue)?.value ?: 0f
+            assertEquals(0, java.lang.Float.floatToRawIntBits(value))
+        }
+    }
+
+    @Test fun strictChecksLocalHistoryAndDeepDebugTruncation() {
+        val seed = assemble(".class public Ltest/LocalState;\n.super Ljava/lang/Object;\n" +
+            ".method public static run()V\n.registers 1\nreturn-void\n.end method\n")
+        val code = codeOffset(read(seed).methods.single())
+        fun withDebug(vararg stream: Int): ByteArray {
+            val bytes = seed.copyOf(seed.size + 16)
+            putWord(bytes, 32, bytes.size)
+            putWord(bytes, 104, word(seed, 104) + 16)
+            val offset = bytes.size - stream.size
+            putWord(bytes, code + 8, offset)
+            stream.forEachIndexed { index, byte -> bytes[offset + index] = byte.toByte() }
+            return bytes
+        }
+        val invalid = listOf(
+            withDebug(1, 0, 6, 0, 0), // restart with no history
+            withDebug(1, 0, 5, 0, 0), // end without a live local
+            withDebug(1, 0, 3, 0, 0, 0, 5, 0, 5, 0, 0), // double end
+            withDebug(1, 0, 3, 0, 0, 0, 6, 0, 0), // restart while live
+            withDebug(1, 0, 14, 4, 0, 0, 0, 0x80) // event allocated, signature LEB truncated
+        )
+        for (bytes in invalid) DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+            val method = bridge.getMethodData("Ltest/LocalState;->run()V")!!
+            assertTrue(method.toSmali().contains("return-void"))
+            try { method.toSmali(SmaliOptions(debug = SmaliDebugMode.STRICT)); fail("Expected malformed local state/stream") }
+            catch (error: SmaliException) { assertEquals(SmaliError.MALFORMED_INPUT, error.error) }
+        }
+        for (bytes in listOf(withDebug(100, 0, 0), withDebug(1, 0, 3, 0, 0, 0, 5, 0, 6, 0, 5, 0, 0))) {
+            DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+                val text = bridge.getClassData("Ltest/LocalState;")!!.toSmali(SmaliOptions(debug = SmaliDebugMode.STRICT))
+                assertFalse(text.contains(".line"))
+                assertEquals(debug(read(bytes).methods.single()), debug(read(assemble(text)).methods.single()))
+            }
+        }
+        val parameters = assemble("""
+            .class public Ltest/Params;
+            .super Ljava/lang/Object;
+            .method public params(JI)V
+                .registers 4
+                .end local p0
+                .restart local p0
+                .end local p1
+                .restart local p1
+                .end local p3
+                .restart local p3
+                return-void
+            .end method
+        """.trimIndent())
+        DexKitBridge.create(arrayOf(parameters)).use { bridge ->
+            val result = read(assemble(bridge.getClassData("Ltest/Params;")!!.toSmali(SmaliOptions(debug = SmaliDebugMode.STRICT))))
+            assertEquals(debug(read(parameters).methods.single()), debug(result.methods.single()))
         }
     }
 
@@ -418,5 +525,60 @@ class SmaliOutputTest {
             (readers + close).forEach { it.get(30, java.util.concurrent.TimeUnit.SECONDS) }
             assertTrue(expected.contains("return-void"))
         } finally { bridge.close(); pool.shutdownNow() }
+    }
+
+    @Test fun container041UsesPhysicalOffsetsBeyondTheLogicalDex() {
+        // Three logical headers. The middle DEX owns the class; its strings,
+        // class_data and code are shared data after the last header, outside
+        // the middle DEX's [120, 320) logical span.
+        val bytes = ByteArray(768)
+        fun put(offset: Int, value: Int) = putWord(bytes, offset, value)
+        for ((offset, size) in listOf(0 to 120, 120 to 200, 320 to 448)) {
+            "dex\n041\u0000".toByteArray().copyInto(bytes, offset)
+            put(offset + 32, size); put(offset + 36, 120); put(offset + 40, 0x12345678)
+            put(offset + 52, 600); put(offset + 112, bytes.size); put(offset + 116, offset)
+        }
+        for ((offset, value) in listOf(56 to 4, 60 to 240, 64 to 3, 68 to 256,
+            72 to 1, 76 to 268, 88 to 1, 92 to 280, 96 to 1, 100 to 288)) put(120 + offset, value)
+        var string = 448
+        for ((index, value) in listOf("Ljava/lang/Object;", "Ltest/Container;", "V", "run").withIndex()) {
+            put(240 + index * 4, string)
+            bytes[string++] = value.length.toByte()
+            value.toByteArray().copyInto(bytes, string)
+            string += value.length + 1
+        }
+        put(256, 0); put(260, 1); put(264, 2) // types
+        put(268, 2); put(272, 2) // ()V
+        put(280, 1); put(284, 3) // Container.run
+        put(288, 1); put(292, 1); put(296, 0); put(304, -1); put(312, 560)
+        byteArrayOf(0, 0, 1, 0, 0, 9, 0xc0.toByte(), 4).copyInto(bytes, 560)
+        put(576 + 12, 1); bytes[592] = 0x0e // return-void
+        val sections = listOf(0 to 120, 1 to 240, 2 to 256, 3 to 268, 5 to 280,
+            6 to 288, 0x2002 to 448, 0x2000 to 560, 0x2001 to 576, 0x1000 to 600)
+        put(600, sections.size)
+        for ((i, section) in sections.withIndex()) {
+            val entry = 604 + i * 12
+            put(entry, section.first); put(entry + 4, when (section.first) { 1, 0x2002 -> 4; 2 -> 3; else -> 1 })
+            put(entry + 8, section.second)
+        }
+        val expected = assemble(".class public Ltest/Container;\n.super Ljava/lang/Object;\n" +
+            ".method public static run()V\n.registers 0\nreturn-void\n.end method\n")
+        DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+            assertEquals(3, bridge.getDexNum())
+            val method = bridge.getMethodData("Ltest/Container;->run()V")!!
+            assertTrue(method.toSmali().contains("return-void"))
+            assertEquals(normalized(read(expected)), normalized(read(assemble(
+                bridge.getClassData("Ltest/Container;")!!.toSmali()))))
+        }
+        bytes[592] = 0xe3.toByte() // Unsupported runtime-only opcode.
+        DexKitBridge.create(arrayOf(bytes)).use { bridge ->
+            try { bridge.getMethodData("Ltest/Container;->run()V")!!.toSmali(); fail("Expected unsupported opcode") }
+            catch (error: SmaliException) {
+                assertEquals(SmaliError.UNSUPPORTED, error.error)
+                assertEquals(1L, error.dexId)
+                assertEquals(592L, error.containerByteOffset)
+                assertEquals(0L, error.codeUnitOffset)
+            }
+        }
     }
 }

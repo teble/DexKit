@@ -1,6 +1,7 @@
 // Copyright (C) 2026 DexKit contributors. SPDX-License-Identifier: LGPL-3.0-or-later
 #include "../dexkit/smali/checked_dex.h"
 #include "../dexkit/smali/selection.h"
+#include "slicer/dex_bytecode.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -12,6 +13,19 @@ int checks = 0;
 void Check(bool condition) {
     ++checks;
     if (!condition) { std::cerr << "Failed smali check " << checks << '\n'; std::abort(); }
+}
+
+void OpcodeNames() {
+    static constexpr const char* expected[]{
+#define NAME(o, c, pname, f, i, a, e, v) pname,
+#include "slicer/dex_instruction_list.h"
+        DEX_INSTRUCTION_LIST(NAME)
+#undef DEX_INSTRUCTION_LIST
+#undef NAME
+    };
+    static_assert(std::size(expected) == dex::kNumPackedOpcodes);
+    for (size_t i = 0; i < std::size(expected); ++i)
+        Check(std::strcmp(expected[i], dex::GetOpcodeName(static_cast<dex::Opcode>(i))) == 0);
 }
 
 struct Fixture {
@@ -67,7 +81,7 @@ void StringsAndContainer() {
     CheckedDex dex(fixture.bytes, 0, state);
     Check(dex.Init());
     std::string name;
-    Check(dex.Name(0, name) && name == "\xf0\x9f\x98\x80");
+    Check(!dex.Name(0, name) && state.status.error == SmaliError::Unsupported);
 }
 
 void MalformedStrings() {
@@ -295,6 +309,7 @@ void ReviewRegressions() {
 } // namespace
 
 int main() {
+    OpcodeNames();
     StringsAndContainer();
     MalformedStrings();
     BoundsAndLeb();

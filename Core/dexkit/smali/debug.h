@@ -10,7 +10,7 @@ namespace dexkit::smali {
 class DebugInfo {
 public:
     DebugInfo(CheckedDex& dex, const Code& code) : dex_(dex), state_(dex.state()), code_(code) {}
-    bool Read(size_t parameter_count);
+    bool Read(const std::vector<uint16_t>& parameters, bool is_static);
     bool EmitAt(uint32_t pc);
     const std::vector<uint32_t>& parameter_names() const { return parameter_names_; }
 private:

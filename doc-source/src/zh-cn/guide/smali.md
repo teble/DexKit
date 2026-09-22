@@ -11,6 +11,7 @@ val completeClass: String = bridge.getClassData("Lexample/Target;")!!.toSmali()
 ```
 
 方法输出是从 `.method` 到 `.end method` 的片段，回编时需要原所属类的上下文。
+身份检查只覆盖当前一次请求，独立导出的方法片段之间不共享身份映射。
 整类输出包含类声明、源文件、接口、字段、初值、方法及注解。只有引用而没有定义的
 类或方法返回 `NOT_DEFINED`，不会自动跳转到另一个 DEX 中的同名定义。
 
@@ -24,8 +25,10 @@ val completeClass: String = bridge.getClassData("Lexample/Target;")!!.toSmali()
 `org.luckypray.dexkit.smali.SmaliOptions` 默认使用 `SmaliDebugMode.NONE`，完全跳过
 方法 debug 流解析，包括参数名、行号和局部变量事件；保留类 `.source`、参数注解和
 异常处理表。`STRICT` 保留参数名和解释后的调试事件，包括位置、局部变量、源文件切换、
-prologue 和 epilogue 标记。无法落在真实指令边界上的事件返回 `DEBUG_NOT_REPRESENTABLE`；
-截断或结构无效的流返回 `MALFORMED_INPUT`。不会凭空插入初始行号事件。
+prologue 和 epilogue 标记。位置事件要求真实指令起点，其他事件还允许位于方法末尾；
+无法表示的位置返回 `DEBUG_NOT_REPRESENTABLE`。编码截断、无效引用／寄存器、没有 live local
+的 end、没有 ended local 的 restart 返回 `MALFORMED_INPUT`。校验会初始化隐式 this 和参数
+local，包括宽参数，但不等同于完整 ART 验证。不会凭空插入初始行号事件。
 
 输出、输入和条目预算在整个请求中累计，整类的所有成员共享；code-unit 上限按单方法计算，
 嵌套深度上限按当前递归层级计算：
@@ -60,13 +63,15 @@ C++ 调用者须自行保证析构不会与该实例的其他操作并发。
 以下输入明确报错：CompactDex、odex/quickened 或保留指令、反向字节序／未知版本、
 link data、hidden-API 元数据、共享或孤立的 switch payload、内容相同但源 ID 不同的
 已引用 method handle（smali 会合并它们）、超出支持的无引号语法的
-扩展名称，以及 smali 无法保留的 encoded NaN payload／符号位。
-字符串按 UTF-16 单元保留嵌入 NUL 和孤立代理项；名称须能用支持的 Unicode 语法表示。
+扩展名称（包括非 BMP Unicode 名称），以及 smali 无法保留的 encoded NaN payload／符号位。
+字符串按 UTF-16 单元保留嵌入 NUL 和孤立代理项；名称限于支持的 BMP Unicode 语法。
 检查范围是输出所需的结构，不等同于 ART 类型流验证，也不改变旧 bridge 加载器的安全边界。
 
 自行构建原生库时可通过 `-DDEXKIT_ENABLE_SMALI=OFF` 移除实现，接口返回
 `UNSUPPORTED`。体积实验与正式构建分开，正式构建使用 `DEXKIT_SMALI_SIZE_PROBE=none`。
 
-Assembler 限制：smali 2.5.2 会把末尾静态字段的 `-0.0` 初值误当成默认零值，丢弃符号位；
-当前 Google smali 也有这一行为。DexKit 仍输出精确的带符号十六进制字面量，原始位模式
-测试通过后置非零字段避免独立 oracle 丢弃输入。回编用于验证语义，不保证 DEX 字节相同。
+Assembler 限制：[smali 2.5.2 的默认值判断](https://github.com/JesusFreke/smali/blob/v2.5.2/dexlib2/src/main/java/org/jf/dexlib2/util/EncodedValueUtils.java)
+把静态 `-0.0` 当成默认零值。它裁剪默认值后缀时可能丢弃符号位，即使后面还有其他默认值
+字段也会发生。DexKit 输出精确的带符号十六进制字面量，但这种输入不在未修正 assembler 的
+端到端位级保真保证内。这是值变化，不能仅用“DEX 字节不保证相同”解释。测试分别检查原生
+文本和这一已知 oracle 限制；其他原始位模式回编测试通过后置非零字段保留输入。

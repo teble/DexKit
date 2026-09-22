@@ -20,7 +20,7 @@ bool DebugInfo::Add(Event event, size_t cursor) {
     return true;
 }
 
-bool DebugInfo::Read(size_t parameter_count) {
+bool DebugInfo::Read(const std::vector<uint16_t>& parameter_types, bool is_static) {
     state_.phase = SmaliPhase::Read;
     state_.code_offset = UINT32_MAX;
     parameter_names_.clear();
@@ -30,12 +30,31 @@ bool DebugInfo::Read(size_t parameter_count) {
     if (!cursor) return true;
     uint32_t initial_line, parameters;
     if (!dex_.Uleb(cursor, initial_line) || !dex_.Uleb(cursor, parameters)) return false;
-    if (parameters != parameter_count) return state_.Fail(SmaliError::MalformedInput, cursor);
+    if (parameters != parameter_types.size()) return state_.Fail(SmaliError::MalformedInput, cursor);
     if (!state_.Items(parameters) || parameters > parameter_names_.max_size())
         return state_.Fail(SmaliError::LimitExceeded, cursor);
     parameter_names_.resize(parameters);
     for (auto& name : parameter_names_)
         if (!Index(cursor, name, dex_.header().string_ids_size)) return false;
+    // A local can have unknown name/type and still have history. Implicit
+    // this/parameter locals begin live, including only the first wide slot.
+    enum : uint8_t { NeverSeen, Live, Ended };
+    if (!state_.Items(code_.header().registers_size)) return false;
+    std::vector<uint8_t> locals(code_.header().registers_size, NeverSeen);
+    uint32_t reg = code_.header().registers_size - code_.header().ins_size;
+    if (!is_static) {
+        if (reg >= locals.size()) return state_.Fail(SmaliError::MalformedInput, cursor);
+        locals[reg++] = Live;
+    }
+    for (auto type_index : parameter_types) {
+        std::string type;
+        if (!dex_.Type(type_index, type)) return false;
+        uint32_t width = type == "J" || type == "D" ? 2 : 1;
+        if (reg > locals.size() || width > locals.size() - reg)
+            return state_.Fail(SmaliError::MalformedInput, cursor);
+        locals[reg] = Live;
+        reg += width;
+    }
     if (initial_line > INT32_MAX) return state_.Fail(SmaliError::DebugNotRepresentable, cursor);
     int64_t line = initial_line;
     uint32_t pc = 0;
@@ -80,6 +99,7 @@ bool DebugInfo::Read(size_t parameter_count) {
                     if ((type == "J" || type == "D") && event.reg + 1 >= code_.header().registers_size)
                         return state_.Fail(SmaliError::MalformedInput, event_offset, event.reg);
                 }
+                locals[event.reg] = Live;
                 break;
             }
             case dex::DBG_END_LOCAL:
@@ -87,6 +107,9 @@ bool DebugInfo::Read(size_t parameter_count) {
                 if (!dex_.Uleb(cursor, event.reg)) return false;
                 if (event.reg >= code_.header().registers_size)
                     return state_.Fail(SmaliError::MalformedInput, event_offset, event.reg);
+                if (locals[event.reg] != (opcode == dex::DBG_END_LOCAL ? Live : Ended))
+                    return state_.Fail(SmaliError::MalformedInput, event_offset, event.reg);
+                locals[event.reg] = opcode == dex::DBG_END_LOCAL ? Ended : Live;
                 break;
             case dex::DBG_SET_PROLOGUE_END:
             case dex::DBG_SET_EPILOGUE_BEGIN: break;

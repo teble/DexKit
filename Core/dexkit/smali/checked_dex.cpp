@@ -244,24 +244,19 @@ bool CheckedDex::Identifier(const std::u16string& value, std::string& output, bo
             char byte = char(cp);
             if (!state_.TemporaryAppend(output, {&byte, 1})) return false;
         } else {
-            if (cp >= 0xd800 && cp <= 0xdbff) {
-                if (++i >= value.size() || value[i] < 0xdc00 || value[i] > 0xdfff)
-                    return state_.Fail(SmaliError::Unsupported);
-                cp = 0x10000 + ((cp - 0xd800) << 10) + value[i] - 0xdc00;
-            } else if (cp >= 0xdc00 && cp <= 0xdfff) return state_.Fail(SmaliError::Unsupported);
+            // The pinned smali lexer rejects supplementary name characters,
+            // even when a valid surrogate pair is supplied. Literals still
+            // preserve every UTF-16 unit; names have a narrower BMP profile.
+            if (cp >= 0xd800 && cp <= 0xdfff) return state_.Fail(SmaliError::Unsupported);
             if (cp < 0xa1 || (cp >= 0x2000 && cp <= 0x200f) ||
                 (cp >= 0x2028 && cp <= 0x202f) || cp == 0x3000 ||
                 (cp >= 0xfff0 && cp <= 0xffff))
                 return state_.Fail(SmaliError::Unsupported, UINT64_MAX, cp);
-            char bytes[4];
+            char bytes[3];
             size_t length = 0;
             if (cp < 0x800) bytes[length++] = char(0xc0 | (cp >> 6));
-            else if (cp < 0x10000) {
+            else {
                 bytes[length++] = char(0xe0 | (cp >> 12));
-                bytes[length++] = char(0x80 | ((cp >> 6) & 63));
-            } else {
-                bytes[length++] = char(0xf0 | (cp >> 18));
-                bytes[length++] = char(0x80 | ((cp >> 12) & 63));
                 bytes[length++] = char(0x80 | ((cp >> 6) & 63));
             }
             bytes[length++] = char(0x80 | (cp & 63));

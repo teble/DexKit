@@ -15,7 +15,8 @@ A method result is a `.method` through `.end method` fragment. A class result
 contains its declaration, source, interfaces, fields, initial values, methods
 and annotations. A referenced but undefined class/method returns `NOT_DEFINED`;
 the API does not redirect a result to a different DEX's same-named definition.
-The fragment needs its original class context before assembly.
+The fragment needs its original class context before assembly. Identity checks
+cover one request; independently exported fragments do not share an identity map.
 
 Both calls return independent strings. Closing the bridge does not invalidate
 previous text, but another call on its result throws `SmaliException` with
@@ -30,10 +31,13 @@ a bridge must stay immutable during all operations.
 This skips method debug parsing, including parameter names, line numbers and
 local-variable events. It retains class `.source`, parameter annotations and
 exception handlers. `STRICT` preserves parameter names and the interpreted debug
-events (positions, locals, source changes, prologue and epilogue markers). Events
-that cannot be placed on a real instruction boundary return
-`DEBUG_NOT_REPRESENTABLE`; truncated or structurally invalid streams return
-`MALFORMED_INPUT`. No initial line event is invented.
+events (positions, locals, source changes, prologue and epilogue markers). Position
+events require an instruction start; other events can also occur at method end.
+Unrepresentable positions return `DEBUG_NOT_REPRESENTABLE`. Truncated encodings,
+invalid references/registers, an end without a live local, and a restart without
+an ended local return `MALFORMED_INPUT`. Implicit receiver/parameter locals are
+initialized, including wide parameters. This is not full ART verification. No
+initial line event is invented.
 
 Output, input and item budgets accumulate over the complete request, including
 all methods in a class. Code-unit and nesting limits apply per method and per
@@ -74,17 +78,19 @@ Unsupported input fails explicitly: CompactDex, odex/quickened or reserved
 instructions, reverse-endian/unknown versions, link data, hidden-API metadata,
 shared or orphan switch payloads, referenced equal-content method handles with
 distinct source IDs (which smali would merge), extended names outside the supported unquoted
-grammar, and encoded NaN payload/sign bits that smali cannot preserve. Strings
+grammar (including supplementary Unicode names), and encoded NaN payload/sign bits that smali cannot preserve. Strings
 preserve UTF-16 code units, including embedded NUL and isolated surrogates; names
-require representable Unicode. Checks cover the structures needed for emission,
+use the supported BMP Unicode grammar. Checks cover the structures needed for emission,
 not ART type-flow verification or hardening of the existing bridge loader.
 
 For custom native builds, `-DDEXKIT_ENABLE_SMALI=OFF` removes the implementation;
 the API then returns `UNSUPPORTED`. Size experiments are separate and must use
 `DEXKIT_SMALI_SIZE_PROBE=none` for production builds.
 
-Assembler caveat: smali 2.5.2 treats trailing static `-0.0` initializers as default
-zero and can discard their sign. DexKit emits the exact signed hexadecimal
-literal; this external assembler bug also affects current Google smali. Raw-bit
-tests keep a later nonzero field so that the independent oracle preserves the
-input. Assembly is a semantic check, not byte-identical DEX reconstruction.
+Assembler caveat: [smali 2.5.2's default-value test](https://github.com/JesusFreke/smali/blob/v2.5.2/dexlib2/src/main/java/org/jf/dexlib2/util/EncodedValueUtils.java)
+treats static `-0.0` as default zero. When it trims a default-value suffix, it can
+discard the negative sign even if more default-valued fields follow. DexKit emits
+the exact signed hexadecimal literal, but this input shape is outside the
+unpatched assembler's end-to-end bit-preservation guarantee. That is a value
+change, not merely a different DEX layout. Tests cover both native text and this
+known oracle limitation; separate raw-bit round trips use a later nonzero field.

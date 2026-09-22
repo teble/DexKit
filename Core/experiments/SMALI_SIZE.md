@@ -34,8 +34,8 @@ target `dexkit`. Compare the resulting `libdexkit.so`, not the static archive.
 For subsequent experiments, use a separate build directory with the same NDK,
 flags and prefab configuration. If an existing build directory is used, reset
 the cached selection to `none` explicitly before packaging and verify that
-`DexKitSmaliSizeProbe` is absent from the dynamic exports. A normal Gradle command
-does not reset an existing CMake cache selection.
+`DexKitSmaliSizeProbe` is absent from the dynamic exports. Current desktop and Android Gradle commands explicitly reset the selection to
+`none`; standalone CMake users must select it themselves.
 The original Gradle baseline before CMake reconfiguration was 394888 bytes;
 the table uses the consistently reconfigured B0 for both deltas.
 
@@ -89,3 +89,45 @@ All 122 JVM tests passed against the rebuilt host library, including independent
 semantic assembly checks. Strict debug, further size tuning and final enabled/
 disabled measurements are still pending; these numbers are a development
 checkpoint, not the final feature budget.
+
+## S1 control-flow extension
+
+The final bounded extension has three closed, constant inputs: one packed-switch,
+one width-one array payload and one catch-all. `DexKitSmaliControlProbe` selects
+one fixture; other selections fail. Both backends emit identical method text.
+The CodeIr path actually visits payload and try nodes. This compares lifting and
+emission only; it does not add a general input verifier or a second production
+metadata/debug writer. S0's arbitrary-input preflight remains unchanged.
+
+With the compact opcode-name table and production smali disabled in all three
+variants, isolated Android arm64 builds using the same NDK/flags measured:
+
+| Variant | stripped bytes | delta from OFF |
+| --- | ---: | ---: |
+| OFF, public API stubs only | 396408 | 0 |
+| CodeIr, S0 + S1 | 432608 | 36200 |
+| Direct decoder, S0 + S1 | 407744 | 11336 |
+
+Unlike original S0, the OFF baseline now includes the integrated public API's
+unsupported stubs. Do not subtract across these two experiments. No comparative
+allocation peak is claimed. The production writer's retained-memory checks are
+recorded in `../SMALI_PLAN.md`. The probe stops at this subset.
+
+To reproduce isolated ABI measurements from a configured Gradle build:
+
+```sh
+python3 Core/experiments/smali_measure.py \
+  --cache dexkit-android/.cxx/Release/<configuration>/arm64-v8a/CMakeCache.txt \
+  --output /tmp/dexkit-smali-size --modes off ir light
+```
+
+Use `--modes off on` for the complete production feature and repeat with each
+ABI's cache. The script copies the effective compiler/toolchain/prefab settings,
+builds outside Gradle output directories, records the source SHA and dirty state,
+saves linker maps and section sizes, and checks probe exports. For a release
+comparison the recorded source tree must be clean.
+
+The host driver accepts `--control` to check S1 output equality. At the S1
+checkpoint, S0's 5000-constant body still produced identical 70068-byte text;
+observed means were 950 us with CodeIr and 205 us with direct decoding. This
+remains a synthetic host observation, not a production workload benchmark.

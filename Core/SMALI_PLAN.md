@@ -3,114 +3,95 @@
 Base: `34ca4b84814159aeb8e00c6634e85a4d624f3df6` (local master).
 Delivery branch: `teble/DexKit:smali`.
 
-## Scope
+## Scope and architecture
 
-Add on-demand DEX-to-smali output for a defined method (a `.method` fragment)
-and for a complete defined class. Reuse slicer's DEX structures and decoding;
-do not add a runtime JVM disassembler dependency. Preserve source DEX identity,
-annotations, encoded values, instruction operands, control flow and handlers.
-The returned text owns its contents and survives bridge closure. Per-call state
-is released after success or failure, with no persistent disassembly cache.
+On-demand DEX-to-smali for a defined method fragment or a complete defined class.
+The production path uses checked input, slicer `DecodeInstruction`, and a small
+plan keyed by code offsets. It does not invoke the old Reader/CodeIr fail-fast
+paths or add a JVM disassembler runtime dependency. The bounded CodeIr comparison
+stops at S0/S1; measurements are in `experiments/SMALI_SIZE.md`.
 
-Debug information has an explicit policy. Omitting debug must skip its parsing,
-not merely its printing. Unsupported formats and unrepresentable metadata must
-produce a diagnostic, never successful partial output. This does not promise
-that the existing DexKit loader validates arbitrary hostile DEX input.
+Core/JNI/Kotlin entry points retain source ownership, one query admission per
+request and the bridge read lock through JNI conversion. Source memory must stay
+immutable. Native callers synchronize destruction. Output owns its contents,
+survives bridge closure and replaces the C++ destination only on success. Each
+class member's code/debug plan is released before the next member; all request
+state, including the handle registry, is released on success and failure.
 
-## Plan and acceptance
+None skips method debug parsing. Strict preserves interpreted debug events and
+parameter names without synthetic initial positions. It checks encoding,
+references, position boundaries and local end/restart prerequisites, including
+implicit receiver and wide-parameter locals. This is not full ART verification.
+Class source, parameter annotations and handlers are retained in both modes.
 
-- [ ] Establish the supported DEX/smali profile, bounded read/output contracts
-      and baseline stripped Android library sizes.
-- [ ] Compare a reachable CodeIr path and a lightweight slicer decoding path
-      on the same small supported subset; record actual size and allocation
-      tradeoffs before choosing the production body writer.
-- [x] Implement bounded method selection, text emission, reference/annotation
-      handling, payload/try validation and explicit error results.
-- [x] Implement complete class output and Core/JNI/Kotlin entry points under
-      existing query and bridge lifecycle protection.
-- [ ] Test assembly and normalized semantics with pinned host-only smali/dexlib2;
-      cover failure isolation, limits, Unicode, metadata, modern opcodes,
-      nonzero container headers, concurrency, closure and temporary memory.
-- [ ] Run native checks, JVM build/tests, Android release builds and documentation
-      checks. Record stripped `.so` changes for all packaged ABIs.
-- [ ] Submit actual pushed commits to the bound Pro review conversation, verify
-      findings locally and repeat review after material corrections.
-- [ ] Finish documentation and push the verified implementation to `teble:smali`.
+The bilingual smali guides specify supported versions, budgets, typed failures
+and unsupported inputs. In particular, 041 uses physical container offsets;
+source IDs remain owner-bound; class requests include every defined member or
+fail; independent method requests do not share an identity registry. Native text
+preserves negative zero, while the pinned assembler can trim its default-value
+suffix. Supplementary Unicode names are explicitly unsupported because the
+pinned lexer cannot assemble them; string literals preserve all UTF-16 units.
 
-## Review notes
+## Acceptance progress
 
-The previous design review found bounds-check, 45cc register-list and positional
-parameter-annotation bugs; the base commit above contains their fixes. The
-existing Reader and CodeIr still have fail-fast paths, incomplete modern-index
-support and debug merging assumptions. A successful bridge load is not evidence
-that subsequently visited code or metadata is safe to lift through those paths.
+- [x] Establish bounded reading, explicit compatibility/diagnostics and baseline
+      stripped Android sizes.
+- [x] Compare bounded CodeIr and direct-decoder bodies, record size/latency, and
+      choose the production path without maintaining two full writers.
+- [x] Implement method/class output, annotations, encoded values, modern
+      references, control flow, payloads, handlers and Strict debug.
+- [x] Integrate Core/JNI/Kotlin with lifecycle/query protection and consumer rules.
+- [x] Check assembly semantics, limits, Unicode, numerical/register boundaries,
+      reference identity, 041/shared data, concurrency, closure and memory.
+- [x] Run native, full JVM, Android release and R8 consumer checks.
+- [ ] Record final clean-SHA ON/OFF stripped sizes for every packaged ABI.
+- [ ] Finish documentation build and the final fixed-SHA Pro review, then push
+      the verified implementation and reports to `teble:smali`.
 
-Production uses checked input plus `dex::DecodeInstruction` and an offset-based
-emission plan. This reuses slicer without entering Reader/CodeIr fail-fast paths.
-The initial equivalent-body experiment favored this approach for linked size and
-latency; a final same-commit ON/OFF measurement will quantify the complete feature.
+## Verification
 
-Method requests must not parse unrelated bodies/annotations in the same class.
-Class requests must include every member or fail. Strings require MUTF-8-aware
-escaping; descriptor/name grammar and JNI encoding need separate handling.
-DEX 041 offsets refer to the physical container and may reach beyond the logical
-DEX span. Resource limits are checked before growing temporary structures.
+Latest implementation checks: 137 JVM tests across 14 suites, no failures or
+skips; native reader/selector checks include all 256 opcode names. Core/JVM
+`cmakeBuild`, `jar`, `test`, Android `assembleRelease` and `smaliR8Consumer` pass.
+The R8 check uses classfile output on the host and the Android consumer rules;
+it executes real JNI success, typed native error and closed-bridge paths. It is
+not an Android-device runtime test. A separately built feature-OFF host library
+returns Unsupported through the same shrunk consumer.
 
-The first implementation-planning review read `161590b` and the baseline Core,
-JNI and Kotlin call paths. Adopt its single-admission rule: public method/class
-entry points enter query execution once; internal member emitters never enter it
-again (nested guards can deadlock at a concurrency limit of one or with warmup).
-Class output uses one cumulative budget and releases each method plan in turn.
-Source bytes must remain immutable throughout a call, including borrowed input.
-Status values have explicit stable numeric IDs and identify the failing member.
-Method debug suppression does not suppress class `.source` or parameter annotations.
-Hidden-API metadata, unrepresentable names/values and unsupported variants require
-explicit rejection. The complete supported profile is still under implementation.
+Four assembled native seeds cover metadata, modern references, control flow,
+numeric/register extremes and debug. The direct writer harness makes 111,676
+calls: all-byte perturbations, whole-file truncations, and repeated success plus
+late output-limit/deep debug-signature truncation failures. Normal and ASan/UBSan
+runs pass; failed output remains unchanged. After warmup, macOS allocator live
+bytes were unchanged for each seed. Whole-file truncations generally reject at
+the header; the dedicated signature case reaches a missing LEB byte after an
+event was allocated. Mutation successes are not semantic-oracle proofs.
 
-Status: baseline Android build and initial body linkage experiment complete (see
-`experiments/SMALI_SIZE.md`). Method and class output with Debug.None is connected
-through Core/JNI/Kotlin, with transactional output, modern references and typed
-errors. First semantic round trips cover methods, fields, annotations, constants,
-custom/polymorphic calls, sparse switch, array payload and exception handlers.
-Strict debug is implemented with an independent bounded state machine. It retains
-interpreted events and parameter names without synthetic initial positions; None
-never reads the stream. Broader container checks, the S1 probe and final size work
-remain.
-The full Reader-versus-lightweight end-to-end comparison is deliberately not
-claimed by the body-only experiment. Production is provisionally moving toward
-direct slicer decoding to keep the new checked boundary independent of the old
-Reader/CodeIr fail-fast and debug-merging paths.
+Reproduce host/native checks after `SmaliOutputTest` exports its DEX fixtures:
 
-The first source review read all of `d7429c8`'s reader, selector, tests and probe.
-Confirmed corrections: check the entire map list against the data range; replace
-reused class-member results even for empty classes; validate direct/virtual
-grouping. Also bound temporary UTF-8/reference fragments, snapshot options,
-preserve diagnostic context and make generic read helpers self-contained.
-These corrections are covered by dedicated regression fixtures. The next experiment
-extension is a bounded packed-switch/array-data/catch-all subset, after which the
-CodeIr experiment stops growing. The production writer is checked independently
-with host smali/dexlib2 rather than building a second complete implementation.
+```sh
+bash ./gradlew :dexkit:cmakeBuild :dexkit:jar :dexkit:test \
+  :dexkit:smaliR8Consumer :dexkit-android:assembleRelease
+cmake -S Core -B /tmp/dexkit-smali-native -G Ninja \
+  -DDEXKIT_BUILD_SMALI_TESTS=ON -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_CXX_FLAGS='-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer' \
+  -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+cmake --build /tmp/dexkit-smali-native -j 4
+ctest --test-dir /tmp/dexkit-smali-native --output-on-failure
+/tmp/dexkit-smali-native/dexkit_smali_writer_harness dexkit/build/smali-fixtures/*.dex
+```
 
-Current integration validation: 122 JVM tests across 14 suites passed, native
-reader/selector tests passed, all four Android ABI release libraries built, and
-the bilingual VuePress docs built. A new large annotated-class test detected
-that the desktop Gradle plugin did not track Core inputs; the Ninja task now
-tracks those inputs, and the test passes with the rebuilt library. Android and
-desktop tests also track the copied native library as an input, so a native
-change cannot leave the test task incorrectly up to date. Android and
-desktop Gradle builds explicitly select probe=none to prevent cached experiments
-from leaking into packaging. Whole-class annotation selection validates one
-borrowed directory view and binary-searches it instead of scanning it per member.
+## Pro review record
 
-Second source review (`58ef5fa`) corrections: reject referenced duplicate-content
-method-handle IDs that smali would merge, validate static-value type categories
-before recursive parsing, reject annotation-directory entries outside the defined
-class members, and restore code-unit diagnostic context in switch/handler passes.
-Regression tests cover each counterexample plus call-site identity partitions and
-raw IEEE-754 bits. Per-method code-unit limits are retained as documented.
+The baseline includes prior slicer bounds, 45cc and positional annotation fixes.
+Review of `d7429c8` led to `2620b42`: complete map ranges, reused empty class
+results, method grouping, bounded temporary fragments and diagnostic context.
+Review of `58ef5fa` led to `34f7724`: per-request handle identity checks, static
+initial-value categories, annotation-directory member binding and switch offsets.
 
-Direct writer verification: 84,216 calls across three assembled seeds, all-byte
-perturbations, all truncations and 10,000 repeated success/failure pairs per seed.
-ASan/UBSan reported no errors; failed calls preserve caller output. On macOS,
-allocator live-byte counts were unchanged after each warmed repetition loop.
-This is bounded mutation coverage, not a proof of safety for all possible input.
+Review of `34f7724` confirmed those corrections and Strict's main event semantics.
+It identified local end/restart preconditions and specific harness coverage gaps.
+The current increment initializes/checks local states, tests unknown locals and
+implicit parameters, exercises deep truncation and late failures, and separately
+records the negative-zero oracle limitation. Pro reviews are source reviews;
+local test/build results are independently executed, not attributed to Pro.

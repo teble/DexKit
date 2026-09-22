@@ -82,7 +82,8 @@ bool Writer::Method(const dex::ClassDef& owner, const Member& method) {
         if (!body.Build(method.code_offset)) return false;
         if (body.header().ins_size != input_registers)
             return state_.Fail(SmaliError::MalformedInput, method.code_offset);
-        if (state_.options.debug == SmaliDebugMode::Strict && !debug.Read(parameters.size())) return false;
+        if (state_.options.debug == SmaliDebugMode::Strict &&
+            !debug.Read(parameters, (method.access & 0x8) != 0)) return false;
     }
     state_.phase = SmaliPhase::Emit;
     state_.code_offset = UINT32_MAX;

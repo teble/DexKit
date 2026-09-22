@@ -53,6 +53,15 @@ bool Metadata::GetHandle(uint32_t index, dex::MethodHandle& handle) {
         !dex_.Entry(offset, count, index, handle)) return false;
     if (handle.unused || handle.unused2 || handle.method_handle_type > 8)
         return state_.Fail(SmaliError::MalformedInput, offset + size_t(index) * sizeof(handle));
+    uint32_t key = (uint32_t(handle.method_handle_type) << 16) | handle.field_or_method_id;
+    auto found = state_.handle_ids.find(key);
+    if (found != state_.handle_ids.end()) {
+        if (found->second != index)
+            return state_.Fail(SmaliError::Unsupported, offset + size_t(index) * sizeof(handle), index);
+    } else {
+        if (!state_.Items()) return false;
+        state_.handle_ids.emplace(key, index);
+    }
     return true;
 }
 
@@ -126,6 +135,31 @@ bool Metadata::Floating(uint64_t bits, bool wide) {
     return state_.Append({buffer, digits}) && state_.Append("p") &&
            state_.Number((exponent ? int(exponent) : 1) - (wide ? 1023 : 127)) &&
            state_.Append(wide ? "" : "f");
+}
+
+bool Metadata::StaticValue(std::string_view field_type, size_t& cursor) {
+    uint8_t header;
+    if (!dex_.Data(cursor, 1) || !dex_.Object(cursor, header)) return false;
+    const uint8_t type = header & 31;
+    char expected = 0;
+    switch (type) {
+        case dex::kEncodedBoolean: expected = 'Z'; break;
+        case dex::kEncodedByte: expected = 'B'; break;
+        case dex::kEncodedShort: expected = 'S'; break;
+        case dex::kEncodedChar: expected = 'C'; break;
+        case dex::kEncodedInt: expected = 'I'; break;
+        case dex::kEncodedLong: expected = 'J'; break;
+        case dex::kEncodedFloat: expected = 'F'; break;
+        case dex::kEncodedDouble: expected = 'D'; break;
+        case dex::kEncodedNull: case dex::kEncodedString: case dex::kEncodedType: expected = 'L'; break;
+        default: return state_.Fail(SmaliError::MalformedInput, cursor, type);
+    }
+    // Match ART's local static-value category check, without resolving a class
+    // hierarchy. Null/string/class constants require a reference-valued field.
+    if (field_type.empty() || (expected == 'L' ? (field_type[0] != 'L' && field_type[0] != '[')
+                                              : (field_type.size() != 1 || field_type[0] != expected)))
+        return state_.Fail(SmaliError::MalformedInput, cursor, type);
+    return Value(cursor);
 }
 
 bool Metadata::Value(size_t& cursor, uint32_t depth, uint8_t* value_type) {

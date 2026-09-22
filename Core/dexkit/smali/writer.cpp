@@ -2,6 +2,7 @@
 #include "writer.h"
 
 #include "code.h"
+#include "debug.h"
 #include "selection.h"
 
 namespace dexkit::smali {
@@ -15,7 +16,8 @@ public:
 
 private:
     bool Field(const dex::ClassDef& owner, const Member& field, size_t* initial);
-    bool Parameters(const std::vector<uint16_t>& types, uint32_t annotation_offset, uint32_t access);
+    bool Parameters(const std::vector<uint16_t>& types, const std::vector<uint32_t>& names,
+                    uint32_t annotation_offset, uint32_t access);
     bool Annotations(const dex::ClassDef& owner, SmaliMemberKind kind, uint32_t id, AnnotationOffsets& result) {
         return whole_class_ ? directory_.Find(dex_, kind, id, result) : SelectAnnotations(dex_, owner, kind, id, result);
     }
@@ -26,7 +28,8 @@ private:
     bool whole_class_ = false;
 };
 
-bool Writer::Parameters(const std::vector<uint16_t>& types, uint32_t annotation_offset, uint32_t access) {
+bool Writer::Parameters(const std::vector<uint16_t>& types, const std::vector<uint32_t>& names,
+                        uint32_t annotation_offset, uint32_t access) {
     uint32_t count = 0;
     size_t entries = 0;
     if (annotation_offset) {
@@ -39,9 +42,12 @@ bool Writer::Parameters(const std::vector<uint16_t>& types, uint32_t annotation_
     for (size_t i = 0; i < types.size(); ++i) {
         uint32_t annotations = 0;
         if (i < count && !dex_.Object(entries + i * 4, annotations)) return false;
-        if (annotations) {
-            if (!state_.Append(".param p") || !state_.Number(reg) || !state_.Append("\n") ||
-                !metadata_.AnnotationSet(annotations) || !state_.Append(".end param\n")) return false;
+        uint32_t name = i < names.size() ? names[i] : dex::kNoIndex;
+        if (annotations || name != dex::kNoIndex) {
+            if (!state_.Append(".param p") || !state_.Number(reg)) return false;
+            if (name != dex::kNoIndex && (!state_.Append(", ") || !dex_.Quoted(name))) return false;
+            if (!state_.Append("\n")) return false;
+            if (annotations && (!metadata_.AnnotationSet(annotations) || !state_.Append(".end param\n"))) return false;
         }
         std::string type;
         if (!dex_.Type(types[i], type)) return false;
@@ -71,14 +77,12 @@ bool Writer::Method(const dex::ClassDef& owner, const Member& method) {
     AnnotationOffsets annotations;
     if (!Annotations(owner, SmaliMemberKind::Method, method.index, annotations)) return false;
     Code body(dex_);
+    DebugInfo debug(dex_, body);
     if (method.code_offset) {
         if (!body.Build(method.code_offset)) return false;
         if (body.header().ins_size != input_registers)
             return state_.Fail(SmaliError::MalformedInput, method.code_offset);
-        // Strict debug is implemented separately from the instruction plan.
-        // Until that layer exists, never silently drop requested debug data.
-        if (state_.options.debug == SmaliDebugMode::Strict && body.header().debug_info_off)
-            return state_.Fail(SmaliError::Unsupported, body.header().debug_info_off);
+        if (state_.options.debug == SmaliDebugMode::Strict && !debug.Read(parameters.size())) return false;
     }
     state_.phase = SmaliPhase::Emit;
     state_.code_offset = UINT32_MAX;
@@ -87,14 +91,14 @@ bool Writer::Method(const dex::ClassDef& owner, const Member& method) {
     if (method.code_offset && (!state_.Append(".registers ") || !state_.Number(body.header().registers_size) ||
                                !state_.Append("\n"))) return false;
     if (!metadata_.AnnotationSet(annotations.annotations) ||
-        !Parameters(parameters, annotations.parameters, method.access)) return false;
+        !Parameters(parameters, debug.parameter_names(), annotations.parameters, method.access)) return false;
     if (method.code_offset) {
         for (uint32_t pc = 0; pc < body.header().insns_size;) {
             Decoded decoded;
-            if (!body.DecodeAt(pc, decoded) || !body.EmitAt(pc, decoded)) return false;
+            if (!body.DecodeAt(pc, decoded) || !debug.EmitAt(pc) || !body.EmitAt(pc, decoded)) return false;
             pc += decoded.width;
         }
-        if (!body.EmitCatches()) return false;
+        if (!debug.EmitAt(body.header().insns_size) || !body.EmitCatches()) return false;
     }
     return state_.Append(".end method\n");
 }
@@ -111,7 +115,8 @@ bool Writer::Field(const dex::ClassDef& owner, const Member& field, size_t* init
     state_.phase = SmaliPhase::Emit;
     if (!state_.Append(".field ") || !Access(state_, field.access, SmaliMemberKind::Field) ||
         !state_.Append(descriptor)) return false;
-    if (initial && (!state_.Append(" = ") || !metadata_.Value(*initial))) return false;
+    auto field_type = std::string_view(descriptor).substr(descriptor.find(':') + 1);
+    if (initial && (!state_.Append(" = ") || !metadata_.StaticValue(field_type, *initial))) return false;
     if (!state_.Append("\n")) return false;
     if (annotations.annotations && (!metadata_.AnnotationSet(annotations.annotations) ||
                                      !state_.Append(".end field\n"))) return false;
@@ -126,9 +131,9 @@ bool Writer::Class(const dex::ClassDef& owner) {
     ClassMembers members;
     std::vector<uint16_t> interfaces;
     AnnotationOffsets annotations;
-    if (!directory_.Init(dex_, owner)) return false;
+    if (!SelectClass(dex_, owner, members) || !directory_.Init(dex_, owner, members)) return false;
     whole_class_ = true;
-    if (!dex_.Type(owner.class_idx, descriptor) || !SelectClass(dex_, owner, members) ||
+    if (!dex_.Type(owner.class_idx, descriptor) ||
         !dex_.TypeList(owner.interfaces_off, interfaces) ||
         !Annotations(owner, SmaliMemberKind::Class, owner.class_idx, annotations)) return false;
     if (descriptor.front() != 'L') return state_.Fail(SmaliError::MalformedInput);

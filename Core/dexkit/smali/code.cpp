@@ -109,6 +109,7 @@ bool Code::Boundary(uint32_t pc, bool allow_end) const {
 }
 
 bool Code::Target(uint32_t pc, int32_t delta, uint32_t& target, bool executable) {
+    state_.code_offset = pc;
     int64_t absolute = int64_t(pc) + delta;
     if (absolute < 0 || absolute >= header_.insns_size)
         return state_.Fail(SmaliError::MalformedInput, byte_offset(pc));
@@ -123,6 +124,7 @@ bool Code::Build(uint32_t offset) {
     payloads_.clear();
     tries_.clear();
     state_.phase = SmaliPhase::Decode;
+    state_.code_offset = UINT32_MAX;
     if (!dex_.Data(offset, sizeof(header_), 4) || !dex_.Object(offset, header_)) return false;
     if (!header_.insns_size || header_.registers_size < header_.ins_size)
         return state_.Fail(SmaliError::MalformedInput, offset);
@@ -186,6 +188,7 @@ bool Code::PayloadLinks() {
         pc += decoded.width;
     }
     for (auto payload : payloads_) {
+        state_.code_offset = payload.offset;
         if (payload.kind == dex::kArrayDataSignature) continue;
         if (payload.owner == UINT32_MAX) return state_.Fail(SmaliError::Unsupported, byte_offset(payload.offset), payload.kind);
         uint16_t count;
@@ -199,6 +202,7 @@ bool Code::PayloadLinks() {
                 return state_.Fail(SmaliError::MalformedInput, keys);
         }
         for (uint32_t i = 0; i < count; ++i) {
+            state_.code_offset = payload.offset;
             if (payload.kind == dex::kSparseSwitchSignature) {
                 if (!dex_.Object(keys + size_t(i) * 4, key)) return false;
                 if (i && key <= previous) return state_.Fail(SmaliError::MalformedInput, keys + size_t(i) * 4);
@@ -212,6 +216,7 @@ bool Code::PayloadLinks() {
 }
 
 bool Code::TryBlocks() {
+    state_.code_offset = UINT32_MAX;
     if (!header_.tries_size) return true;
     size_t cursor = byte_offset(header_.insns_size);
     if (header_.insns_size & 1) {
@@ -226,6 +231,9 @@ bool Code::TryBlocks() {
     size_t handlers_base = cursor;
     uint32_t count;
     if (!dex_.Uleb(cursor, count) || !state_.Items(count)) return false;
+    // Every handler list needs a signed count and at least one handler entry.
+    if (count > (dex_.size() - cursor) / 2 || !dex_.Data(cursor, size_t(count) * 2))
+        return state_.Fail(SmaliError::MalformedInput, cursor);
     struct CatchList { uint32_t offset; std::vector<Handler> handlers; };
     std::vector<CatchList> lists;
     if (count > lists.max_size()) return state_.Fail(SmaliError::LimitExceeded, cursor);

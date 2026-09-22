@@ -11,6 +11,7 @@ public:
     explicit Metadata(CheckedDex& dex) : dex_(dex), state_(dex.state()) {}
     bool Index(dex::InstructionIndexType kind, uint32_t index);
     bool Value(size_t& cursor, uint32_t depth = 0, uint8_t* value_type = nullptr);
+    bool StaticValue(std::string_view field_type, size_t& cursor);
     bool AnnotationSet(uint32_t offset);
     bool Annotation(size_t& cursor, uint32_t depth, bool nested);
     bool Handle(uint32_t index);

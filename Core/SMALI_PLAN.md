@@ -45,11 +45,10 @@ existing Reader and CodeIr still have fail-fast paths, incomplete modern-index
 support and debug merging assumptions. A successful bridge load is not evidence
 that subsequently visited code or metadata is safe to lift through those paths.
 
-An implementation choice remains open: checked input plus temporary CodeIr and a
-single method-body Visitor, or checked input plus `dex::DecodeInstruction` and a
-small offset-based emission plan. Both reuse slicer. Measurements and the amount
-of duplicate validation needed will determine the choice; no size saving is
-claimed before measuring the final linked library.
+Production uses checked input plus `dex::DecodeInstruction` and an offset-based
+emission plan. This reuses slicer without entering Reader/CodeIr fail-fast paths.
+The initial equivalent-body experiment favored this approach for linked size and
+latency; a final same-commit ON/OFF measurement will quantify the complete feature.
 
 Method requests must not parse unrelated bodies/annotations in the same class.
 Class requests must include every member or fail. Strings require MUTF-8-aware
@@ -73,9 +72,10 @@ Status: baseline Android build and initial body linkage experiment complete (see
 through Core/JNI/Kotlin, with transactional output, modern references and typed
 errors. First semantic round trips cover methods, fields, annotations, constants,
 custom/polymorphic calls, sparse switch, array payload and exception handlers.
-Strict debug is not implemented yet: existing debug streams are explicitly
-rejected when Strict is requested. Broader failure, lifecycle/container and
-memory checks, the S1 probe, final size work and Pro implementation review remain.
+Strict debug is implemented with an independent bounded state machine. It retains
+interpreted events and parameter names without synthetic initial positions; None
+never reads the stream. Broader container checks, the S1 probe and final size work
+remain.
 The full Reader-versus-lightweight end-to-end comparison is deliberately not
 claimed by the body-only experiment. Production is provisionally moving toward
 direct slicer decoding to keep the new checked boundary independent of the old
@@ -86,7 +86,7 @@ Confirmed corrections: check the entire map list against the data range; replace
 reused class-member results even for empty classes; validate direct/virtual
 grouping. Also bound temporary UTF-8/reference fragments, snapshot options,
 preserve diagnostic context and make generic read helpers self-contained.
-These are being covered by dedicated regression fixtures. The next experiment
+These corrections are covered by dedicated regression fixtures. The next experiment
 extension is a bounded packed-switch/array-data/catch-all subset, after which the
 CodeIr experiment stops growing. The production writer is checked independently
 with host smali/dexlib2 rather than building a second complete implementation.
@@ -101,3 +101,16 @@ change cannot leave the test task incorrectly up to date. Android and
 desktop Gradle builds explicitly select probe=none to prevent cached experiments
 from leaking into packaging. Whole-class annotation selection validates one
 borrowed directory view and binary-searches it instead of scanning it per member.
+
+Second source review (`58ef5fa`) corrections: reject referenced duplicate-content
+method-handle IDs that smali would merge, validate static-value type categories
+before recursive parsing, reject annotation-directory entries outside the defined
+class members, and restore code-unit diagnostic context in switch/handler passes.
+Regression tests cover each counterexample plus call-site identity partitions and
+raw IEEE-754 bits. Per-method code-unit limits are retained as documented.
+
+Direct writer verification: 84,216 calls across three assembled seeds, all-byte
+perturbations, all truncations and 10,000 repeated success/failure pairs per seed.
+ASan/UBSan reported no errors; failed calls preserve caller output. On macOS,
+allocator live-byte counts were unchanged after each warmed repetition loop.
+This is bounded mutation coverage, not a proof of safety for all possible input.

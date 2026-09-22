@@ -70,6 +70,17 @@
     .end array-data
 .end method
 
+.method public static packed(I)I
+    .registers 1
+    packed-switch p0, :data
+    :result
+    return p0
+    :data
+    .packed-switch 0
+        :result
+    .end packed-switch
+.end method
+
 .method public static modern(Ljava/lang/invoke/MethodHandle;)V
     .registers 2
     const-method-type v0, ()V

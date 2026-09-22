@@ -5,6 +5,7 @@
 #include <span>
 #include <string_view>
 #include <vector>
+#include <unordered_map>
 
 #include "smali.h"
 #include "slicer/dex_format.h"
@@ -23,6 +24,9 @@ struct State {
     size_t input_bytes = 0;
     size_t items = 0;
     std::string output;
+    // smali has no identity syntax for equal-content method handles. Keep this
+    // at request scope so conflicts across instructions/members are detected.
+    std::unordered_map<uint32_t, uint32_t> handle_ids;
 
     bool Fail(SmaliError error, uint64_t offset = UINT64_MAX, uint32_t detail = 0);
     bool Input(size_t count, size_t offset);

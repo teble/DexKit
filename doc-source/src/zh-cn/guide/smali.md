@@ -23,10 +23,12 @@ val completeClass: String = bridge.getClassData("Lexample/Target;")!!.toSmali()
 
 `org.luckypray.dexkit.smali.SmaliOptions` 默认使用 `SmaliDebugMode.NONE`，完全跳过
 方法 debug 流解析，包括参数名、行号和局部变量事件；保留类 `.source`、参数注解和
-异常处理表。此开发分支仍在实现 Strict debug：当前请求读取已有 debug 流时返回
-`UNSUPPORTED`，不会静默丢弃请求的数据。
+异常处理表。`STRICT` 保留参数名和解释后的调试事件，包括位置、局部变量、源文件切换、
+prologue 和 epilogue 标记。无法落在真实指令边界上的事件返回 `DEBUG_NOT_REPRESENTABLE`；
+截断或结构无效的流返回 `MALFORMED_INPUT`。不会凭空插入初始行号事件。
 
-预算针对一次完整请求，整类的所有成员共享累计预算：
+输出、输入和条目预算在整个请求中累计，整类的所有成员共享；code-unit 上限按单方法计算，
+嵌套深度上限按当前递归层级计算：
 
 | 选项 | 默认值 | 含义 |
 | --- | ---: | --- |
@@ -56,10 +58,15 @@ C++ 调用者须自行保证析构不会与该实例的其他操作并发。
 独立读取比对。各版本和边界用例仍在补充，当前分支尚未完成全部验收。
 
 以下输入明确报错：CompactDex、odex/quickened 或保留指令、反向字节序／未知版本、
-link data、hidden-API 元数据、共享或孤立的 switch payload、超出支持的无引号语法的
+link data、hidden-API 元数据、共享或孤立的 switch payload、内容相同但源 ID 不同的
+已引用 method handle（smali 会合并它们）、超出支持的无引号语法的
 扩展名称，以及 smali 无法保留的 encoded NaN payload／符号位。
 字符串按 UTF-16 单元保留嵌入 NUL 和孤立代理项；名称须能用支持的 Unicode 语法表示。
 检查范围是输出所需的结构，不等同于 ART 类型流验证，也不改变旧 bridge 加载器的安全边界。
 
 自行构建原生库时可通过 `-DDEXKIT_ENABLE_SMALI=OFF` 移除实现，接口返回
 `UNSUPPORTED`。体积实验与正式构建分开，正式构建使用 `DEXKIT_SMALI_SIZE_PROBE=none`。
+
+Assembler 限制：smali 2.5.2 会把末尾静态字段的 `-0.0` 初值误当成默认零值，丢弃符号位；
+当前 Google smali 也有这一行为。DexKit 仍输出精确的带符号十六进制字面量，原始位模式
+测试通过后置非零字段避免独立 oracle 丢弃输入。回编用于验证语义，不保证 DEX 字节相同。

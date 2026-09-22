@@ -142,7 +142,7 @@ bool CheckMetadataProfile(CheckedDex& dex) {
            (!count || dex.state().Fail(SmaliError::Unsupported, offset, 0xf000));
 }
 
-bool AnnotationDirectory::Init(CheckedDex& dex, const dex::ClassDef& owner) {
+bool AnnotationDirectory::Init(CheckedDex& dex, const dex::ClassDef& owner, const ClassMembers& members) {
     *this = {};
     if (!owner.annotations_off) return true;
     auto& state = dex.state();
@@ -168,6 +168,16 @@ bool AnnotationDirectory::Init(CheckedDex& dex, const dex::ClassDef& owner) {
             if ((i && item.method_idx <= previous) || !item.annotations_off ||
                 item.method_idx >= (group == 0 ? dex.header().field_ids_size : dex.header().method_ids_size))
                 return state.Fail(SmaliError::MalformedInput, cursor + size_t(i) * width);
+            auto contains = [&](const std::vector<Member>& values) {
+                auto found = std::lower_bound(values.begin(), values.end(), item.method_idx,
+                    [](const Member& value, uint32_t index) { return value.index < index; });
+                return found != values.end() && found->index == item.method_idx;
+            };
+            // Every directory entry must attach to an actual definition of this
+            // class. Otherwise a complete-class export would silently drop it.
+            bool defined = group == 0 ? contains(members.static_fields) || contains(members.instance_fields)
+                                      : contains(members.direct_methods) || contains(members.virtual_methods);
+            if (!defined) return state.Fail(SmaliError::MalformedInput, cursor + size_t(i) * width, item.method_idx);
             previous = item.method_idx;
         }
         cursor += bytes;

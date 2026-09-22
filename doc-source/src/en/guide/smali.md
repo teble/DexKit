@@ -29,11 +29,15 @@ a bridge must stay immutable during all operations.
 `org.luckypray.dexkit.smali.SmaliOptions` defaults to `SmaliDebugMode.NONE`.
 This skips method debug parsing, including parameter names, line numbers and
 local-variable events. It retains class `.source`, parameter annotations and
-exception handlers. Strict debug output is still being implemented on this
-development branch; a request with an existing debug stream currently returns
-`UNSUPPORTED`, without silently omitting the stream.
+exception handlers. `STRICT` preserves parameter names and the interpreted debug
+events (positions, locals, source changes, prologue and epilogue markers). Events
+that cannot be placed on a real instruction boundary return
+`DEBUG_NOT_REPRESENTABLE`; truncated or structurally invalid streams return
+`MALFORMED_INPUT`. No initial line event is invented.
 
-Limits apply to one complete request, including all methods in a class:
+Output, input and item budgets accumulate over the complete request, including
+all methods in a class. Code-unit and nesting limits apply per method and per
+nested value respectively:
 
 | Option | Default | Meaning |
 | --- | ---: | --- |
@@ -68,7 +72,8 @@ being expanded before this branch's implementation is considered complete.
 
 Unsupported input fails explicitly: CompactDex, odex/quickened or reserved
 instructions, reverse-endian/unknown versions, link data, hidden-API metadata,
-shared or orphan switch payloads, extended names outside the supported unquoted
+shared or orphan switch payloads, referenced equal-content method handles with
+distinct source IDs (which smali would merge), extended names outside the supported unquoted
 grammar, and encoded NaN payload/sign bits that smali cannot preserve. Strings
 preserve UTF-16 code units, including embedded NUL and isolated surrogates; names
 require representable Unicode. Checks cover the structures needed for emission,
@@ -77,3 +82,9 @@ not ART type-flow verification or hardening of the existing bridge loader.
 For custom native builds, `-DDEXKIT_ENABLE_SMALI=OFF` removes the implementation;
 the API then returns `UNSUPPORTED`. Size experiments are separate and must use
 `DEXKIT_SMALI_SIZE_PROBE=none` for production builds.
+
+Assembler caveat: smali 2.5.2 treats trailing static `-0.0` initializers as default
+zero and can discard their sign. DexKit emits the exact signed hexadecimal
+literal; this external assembler bug also affects current Google smali. Raw-bit
+tests keep a later nonzero field so that the independent oracle preserves the
+input. Assembly is a semantic check, not byte-identical DEX reconstruction.

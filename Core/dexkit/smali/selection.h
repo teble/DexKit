@@ -24,7 +24,7 @@ struct ClassMembers {
 // search without reparsing every annotation directory for every member.
 class AnnotationDirectory {
 public:
-    bool Init(CheckedDex& dex, const dex::ClassDef& owner);
+    bool Init(CheckedDex& dex, const dex::ClassDef& owner, const ClassMembers& members);
     bool Find(CheckedDex& dex, SmaliMemberKind kind, uint32_t member_id, AnnotationOffsets& offsets) const;
 private:
     uint32_t class_annotations_ = 0;

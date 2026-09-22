@@ -385,6 +385,55 @@ Java 分别通过 `getModifiers()` 和 `getAccessFlags()` 读取。类的原始�
 `class_def_item`；`modifiers` 优先使用 `InnerClass` 注解中的标志。
 方法的归一化规则见 [AccessFlagsMatcher](#accessflagsmatcher)。
 
+### MethodData.usingNumbers（实验性 API）
+
+`MethodData.usingNumbers: List<UsingNumberData>`（Java：`getUsingNumbers()`）标记为
+`DexKitExperimentalApi`，后续可能发生不兼容变更。返回 `const*` 与整数 `lit8`/`lit16`
+操作数的不可修改快照，保留指令顺序及重复项。列表下标表示数字出现的序号，不是操作码下标
+或 DEX 字节偏移。不推断源码类型和调用实参，不包含 switch 键、数组 payload、字段初值或
+运算结果；没有代码的方法返回空列表。
+
+首次访问需要 bridge 有效，仅解析当前方法或复用已有全量缓存，不主动初始化全库缓存。
+现有惰性缓存首次使用时仍可能分配该 DEX 的槽位目录。读取后关闭 bridge，快照仍可使用；
+关闭后首次读取该属性会失败。
+
+`UsingNumberData` 是不可变的值对象，不继承 `Number`：
+
+| 成员 | 含义 |
+|:-----|:-----|
+| `rawBits: Long` | 解码后的位模式；32 位值的高 32 位清零，宽值保留全部 64 位 |
+| `opCode: Int` | 来源 DEX 操作码，范围 0..255 |
+| `bitWidth: Int` | 由操作码派生的数值位宽 32 或 64；lit8/lit16 扩展为 32 位，不表示立即数编码长度 |
+
+| 来源 | `intValue()` | `longValue()` | `floatValue()` | `doubleValue()` |
+|:-----|:-------------|:--------------|:---------------|:----------------|
+| 32 位 const | 有符号 Int | Int 符号扩展为 Long | float 位视图 | float 位视图提升为 Double |
+| 64 位 const | 抛异常 | 有符号 Long | 抛异常 | double 位视图 |
+| lit8/lit16 | 符号扩展为 Int | 符号扩展为 Long | 抛异常 | 抛异常 |
+
+不支持的视图抛出 `IllegalStateException`，不会隐式截断。例如 `const/16 -1` 的 `rawBits`
+为 `0x00000000ffffffffL`，而 `longValue()` 为 `-1L`。浮点视图是位解释，不是整数转浮点，
+也不应用查询容差。正负零与极小非正规数会保留；精确 NaN payload 以 `rawBits` 为准，
+浮点运算或提升可能将 signaling NaN 转为 quiet NaN。相等性与哈希精确比较 `(opCode, rawBits)`，
+不同操作码即使数值相同，也属于不同记录。
+
+已经定位方法时，可结合当前宿主版本的资源表筛选候选资源 ID：
+
+```kotlin
+@OptIn(DexKitExperimentalApi::class)
+fun resourceIdCandidates(method: MethodData, currentViewIds: Set<Int>): List<Int> =
+    method.usingNumbers.asSequence()
+        .filter { it.bitWidth == 32 }
+        .map { it.intValue() }
+        .filter { it in currentViewIds }
+        .distinct()
+        .toList()
+```
+
+这些值仍是候选，不能证明某个数字就是某次调用的实参。示例中的去重由调用者选择。
+Java 通过 `getUsingNumbers()`、`getRawBits()`、`getOpCode()`、`getBitWidth()` 访问，
+四种数值视图方法名称与 Kotlin 相同。
+
 ## 枚举相关
 
 ### AnnotationEncodeValueType

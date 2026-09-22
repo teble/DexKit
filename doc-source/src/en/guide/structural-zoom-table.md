@@ -390,6 +390,60 @@ Java callers use `getModifiers()` and `getAccessFlags()`, respectively. Raw clas
 from `class_def_item`; class `modifiers` use the `InnerClass` annotation's flags when available.
 See [AccessFlagsMatcher](#accessflagsmatcher) for method normalization rules.
 
+### MethodData.usingNumbers (experimental)
+
+`MethodData.usingNumbers: List<UsingNumberData>` (Java: `getUsingNumbers()`) is marked
+with `DexKitExperimentalApi` and may change incompatibly. It returns an unmodifiable
+snapshot of `const*` and integer `lit8`/`lit16` operands, in instruction order with
+duplicates preserved. An index identifies a literal occurrence, not an opcode index
+or DEX byte offset. Source types and call arguments are not inferred. Switch keys,
+array payloads, field initializers and computed values are excluded; methods without
+code return an empty list.
+
+First access requires an open bridge and parses the requested method or reuses the
+full cache. It does not request full-cache initialization, though the existing lazy
+cache may allocate a per-DEX slot directory. Once read, the snapshot remains usable
+after close; first access after close fails.
+
+`UsingNumberData` is an immutable value object, not a `Number`:
+
+| Member | Meaning |
+|:-------|:--------|
+| `rawBits: Long` | Decoded bits; upper 32 bits are zero for 32-bit values; wide values retain all 64 bits |
+| `opCode: Int` | Source DEX opcode (0..255) |
+| `bitWidth: Int` | Decoded width, 32 or 64, derived from opcode; lit8/lit16 use 32 |
+
+| Source | `intValue()` | `longValue()` | `floatValue()` | `doubleValue()` |
+|:-------|:-------------|:--------------|:---------------|:----------------|
+| 32-bit const | Signed Int | Sign-extended Int | Float bit view | Float view promoted to Double |
+| 64-bit const | Throws | Signed Long | Throws | Double bit view |
+| lit8/lit16 | Sign-extended Int | Sign-extended Long | Throws | Throws |
+
+Unsupported views throw `IllegalStateException`, without implicit narrowing.
+For `const/16 -1`, `rawBits` is `0x00000000ffffffffL`, while `longValue()` is `-1L`.
+Floating views interpret bits, without numeric integer conversion or query tolerance.
+Signed zero and subnormals are retained. Exact NaN payloads are guaranteed by `rawBits`;
+floating operations or promotion may quiet a signaling NaN. Equality and hashing compare
+`(opCode, rawBits)` exactly; different opcodes with equal numeric values remain distinct.
+
+For a method already located by other conditions, filter candidate resource IDs using
+the current host version's resource table:
+
+```kotlin
+@OptIn(DexKitExperimentalApi::class)
+fun resourceIdCandidates(method: MethodData, currentViewIds: Set<Int>): List<Int> =
+    method.usingNumbers.asSequence()
+        .filter { it.bitWidth == 32 }
+        .map { it.intValue() }
+        .filter { it in currentViewIds }
+        .distinct()
+        .toList()
+```
+
+These are candidates, not proof of a particular call's arguments. Deduplication above
+is the caller's choice. Java uses `getUsingNumbers()`, `getRawBits()`, `getOpCode()`,
+`getBitWidth()` and the same four value methods.
+
 ## Enumerations
 
 ### AnnotationEncodeValueType

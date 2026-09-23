@@ -11,6 +11,7 @@ const navigationLinks = {
         '/guide/structural-zoom-table',
         '/guide/run-on-desktop',
         '/guide/smali',
+        '/guide/mcp',
     ],
     about: [
         '/about/contacts',
@@ -61,6 +62,7 @@ export const navBarItems = {
                 { text: 'Structural Zoom Table', link: i18n.string(navigationLinks.start[6], 'en') },
                 { text: 'Run on Desktop', link: i18n.string(navigationLinks.start[7], 'en') },
                 { text: 'Native smali', link: i18n.string(navigationLinks.start[8], 'en') },
+                { text: 'MCP server', link: i18n.string(navigationLinks.start[9], 'en') },
             ]
         }, {
             text: 'About',
@@ -84,6 +86,7 @@ export const navBarItems = {
                 { text: '结构速查表', link: i18n.string(navigationLinks.start[6], 'zh-cn') },
                 { text: '桌面平台运行', link: i18n.string(navigationLinks.start[7], 'zh-cn') },
                 { text: '原生 smali', link: i18n.string(navigationLinks.start[8], 'zh-cn') },
+                { text: 'MCP 服务器', link: i18n.string(navigationLinks.start[9], 'zh-cn') },
             ]
         }, {
             text: '关于',

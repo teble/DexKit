@@ -1,6 +1,7 @@
 # DexKit native MCP
 
-Experimental native stdio MCP server built in Rust and statically linked to the
+Experimental native MCP server supporting Streamable HTTP and stdio, built in
+Rust and statically linked to the
 existing C++ Core. The server does not require a JVM at runtime. Java/Gradle and
 the repository Android setup are still needed to assemble test fixtures and run
 the existing JVM/Android regression suite.
@@ -13,30 +14,44 @@ on macOS arm64; see VALIDATION.md for the exact executed checks and limitations.
 
 ```sh
 cargo build --release --manifest-path mcp/Cargo.toml --locked
-mcp/target/release/dexkit-mcp --allow-root /path/to/apks
+mcp/target/release/dexkit-mcp --transport http --listen 127.0.0.1:7331 --allow-root /path/to/apks
 ```
 
-The process communicates through standard MCP pipes. Its stdout contains only
-protocol messages; diagnostics go to stderr. It is not an interactive terminal
-prompt. Repeat `--allow-root` for additional input directories. By default only
-the current directory and its descendants are accepted.
+Connect an HTTP MCP client to `http://127.0.0.1:7331/mcp` while the process is
+running. This is the official SDK Streamable HTTP endpoint, with request-scoped
+SSE and stateless routing. Modern clients use per-request metadata; older clients
+can initialize without receiving a transport session ID.
 
-Example MCP client configuration (use absolute paths on your machine):
+One native worker keeps business instances alive across HTTP requests and client
+reconnections. All local clients share the configured roots, instances and
+quotas. Use the returned `instanceId` in later calls and close it explicitly;
+HTTP disconnect does not close a DEX instance. The server accepts only loopback
+listen addresses and validates Host/Origin. This mode is for a trusted local
+user, without remote authentication or tenant isolation.
+
+HTTP bodies are limited to 2 MiB and ten seconds to read; up to 16 active HTTP
+requests/response streams are allowed. The HTTP read deadline does not limit
+Core execution time. SIGINT/SIGTERM shuts down HTTP and releases the worker.
+The existing native queue and business request/result limits still apply.
+
+For command-based MCP clients, stdio remains the default and is selectable with
+`--transport stdio`. Example configuration (use absolute paths):
 
 ```json
 {
   "mcpServers": {
     "dexkit": {
       "command": "/path/to/DexKit/mcp/target/release/dexkit-mcp",
-      "args": ["--allow-root", "/path/to/apks"]
+      "args": ["--transport", "stdio", "--allow-root", "/path/to/apks"]
     }
   }
 }
 ```
 
-`--dump-schema` prints the current tool contracts. HTTP and file-polling
-transports are not implemented. The official rmcp SDK manages protocol versions,
-including the legacy initialization flow and the 2026-07-28 metadata flow.
+Repeat `--allow-root` for additional input directories. By default only the
+current directory and its descendants are accepted. `--dump-schema` prints the
+tool contracts. Diagnostics go to stderr; stdout stays reserved for stdio MCP.
+File-polling and the deprecated separate HTTP+SSE endpoints are not implemented.
 
 ## Layout
 
@@ -46,8 +61,8 @@ mcp/
   crates/
     dexkit-sys/       native build and private C ABI
     dexkit-rs/        typed contract, Planus mapping and analysis state
-    dexkit-mcp/       MCP SDK, stdio and isolated native worker
-  tests/             MCP pipe and schema tests
+    dexkit-mcp/       MCP SDK, HTTP/stdio and isolated native worker
+  tests/             MCP HTTP/pipe and schema tests
   target/            ignored build outputs
 tests/interop/planus/ independent Core compatibility tests, without MCP SDK
 ```
@@ -68,12 +83,13 @@ cargo fmt --manifest-path mcp/Cargo.toml --all -- --check
 ```
 
 The first command assembles fixtures, runs the independent compatibility suite,
-builds the MCP server, exercises real pipes and validates captured requests and
+builds the MCP server, exercises real pipes and HTTP sockets plus the official
+HTTP SDK client, and validates captured requests and
 responses against the schemas actually returned by tools/list. Test-only schema
 validation libraries do not enter the release executable.
 
-See the [English guide](../doc-source/src/en/guide/run-on-desktop.md) or
-[Chinese guide](../doc-source/src/zh-cn/guide/run-on-desktop.md) for query semantics and limits.
+See the [English guide](../doc-source/src/en/guide/mcp.md) or
+[Chinese guide](../doc-source/src/zh-cn/guide/mcp.md) for query semantics and limits.
 
 ## Extending the contract
 

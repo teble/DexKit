@@ -11,7 +11,8 @@ Work directly in the `mcp` branch; publish to `teble:mcp` after source review.
   explicit coverage of native schema additions, and versioned tool names.
 - Open/close/capabilities, class/method/field search, entity details and direct
   relationships, complete materialized result paging, bounded smali output and
-  managed artifact access over standard stdio MCP. HTTP is deferred.
+  managed artifact access over standard MCP transports. The initial stdio-only
+  delivery omitted the requested Streamable HTTP entry and is corrected below.
 - Normal Unicode including embedded NUL and supplementary characters. Decode
   native MUTF-8 before exposing UTF-8; encode queries in the reverse direction.
   Reject isolated UTF-16 surrogates explicitly in the Rust public contract.
@@ -62,3 +63,33 @@ bounded metadata/replies and SDK token handling now address them. The final delt
 was reviewed with no remaining substantive blocker in the declared first-release
 scope. All prior P1/P2 findings are closed.
 Pro performs source review; local build/test evidence is recorded separately.
+
+
+## Streamable HTTP correction
+
+Base: `d039774954a337d018ef459e0b8c0cbf5a7c8fe8`; continue on `mcp`.
+
+1. [x] Add the official SDK Streamable HTTP service at `/mcp`, selected by
+   `--transport http --listen 127.0.0.1:7331`. Keep existing stdio startup working.
+2. [x] Reuse one bounded native worker for the local single-user server. Business
+   instances live until explicit close/server exit, independent of TCP requests.
+   Use stateless HTTP routing for modern and legacy clients; do not mint protocol
+   session IDs. Legacy initialize remains supported by the SDK.
+3. [x] Enforce loopback binding, Host/Origin validation, request-body and active
+   HTTP stream limits, and bounded shutdown. Use SDK SSE responses and
+   cancellation rather than implementing JSON-RPC framing ourselves.
+4. [x] Exercise real HTTP clients, cross-request handles, Unicode, resources,
+   error/limit paths, cancellation, legacy initialization and process shutdown.
+   Re-run the existing stdio/interop checks and measure native executable size.
+5. [x] Give MCP its own Chinese/English guide and navigation entry, with HTTP
+   startup/client configuration and explicit instance/session lifetime semantics.
+6. [x] Obtain Pro review of the actual transport delta and fix verified findings.
+   The SDK's unbounded unknown-tool cache is now request-scoped; the production
+   router regression fails against the previous persistent service and passes
+   after the fix. Pro accepted the final delta with no substantive blocker.
+7. Publish the corrected implementation to `teble:mcp`; Git and the completion
+   report record the final remote revision.
+
+This local server has one trusted-user state space and one set of allowed roots.
+It does not treat MCP clientInfo as authentication or promise per-client data
+isolation. The existing instance/entity ownership checks remain unchanged.

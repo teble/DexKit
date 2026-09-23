@@ -57,8 +57,8 @@ Commands for reproducing the adapter checks are in README.md and
 ## Size and lifetime
 
 The macOS arm64 release uses thin LTO, one codegen unit and debug-info stripping.
-The current executable is 4968880 bytes (4.739 MiB); it also passes
-the ten real-pipe tests in release mode. Its SHA-256 is
+The stdio baseline executable at `d039774` was 4968880 bytes (4.739 MiB);
+it passed the ten real-pipe tests in release mode. Its SHA-256 is
 `e45f8f0f62727ffdf12f623f9b648d53c630fcc748f320e80420f3ec8576aad4`.
 Test-only JSON Schema validation dependencies do not enter this executable.
 
@@ -128,3 +128,74 @@ finalized before the three scoped commits.
 
 Pro's findings are source-review evidence. Build/test outcomes above are local
 execution results, not tests performed by Pro.
+
+
+## Streamable HTTP completion
+
+The prior three-round acceptance applied to the stdio implementation only. The
+user clarified that the intended transport also included Streamable HTTP. This
+follow-up starts from `d039774954a337d018ef459e0b8c0cbf5a7c8fe8` and corrects
+that omitted scope; prior stdio approval is not HTTP approval.
+
+The official rmcp 3.4.0 Streamable HTTP service now serves `/mcp` with
+`--transport http`. It supports modern request metadata and legacy initialization
+without transport session IDs. A shared worker owns the explicit application
+instances, so state survives new connections and repeated initialization. The
+local single-user scope, shared quotas and lack of remote authentication are
+stated in the independent English/Chinese MCP guides and README.
+
+Implemented transport boundaries include loopback-only binding, exact Host/Origin
+allowlists, a streamed 2 MiB request-body limit, a ten-second body read deadline,
+16 active HTTP requests/response streams, SDK disconnect cancellation and bounded
+SIGINT/SIGTERM shutdown. The body timeout wraps body reading only; timing the full
+SDK response would incorrectly impose a native query timeout for modern MCP.
+
+Current checks on macOS arm64:
+
+- All 11 independent interop tests and 10 workspace unit test functions pass.
+- All 10 existing stdio pipe tests still pass (44 schema samples).
+- 12 real HTTP tests pass, covering all 11 tools, new connections retaining
+  handles, Unicode, resources/chunks, legacy initialize, concurrent ownership,
+  body/header limits, queue cancellation on disconnect, worker failure and
+  shutdown. The stalled-body test gets HTTP 408 while a blocked native request
+  continues waiting, then succeeds after the worker resumes.
+- 35 HTTP request/result pairs validate against the actual tool schemas, including
+  inverted success-flag rejection. The official rmcp HTTP client performs modern
+  discovery and open/find/close against the actual executable with proxies disabled.
+- The HTTP suite also passes against the release executable.
+- Workspace clippy with warnings denied, Rust formatting and documentation build
+  pass; VuePress now renders 28 pages including the independent MCP guides.
+- Host CMake/JAR/JVM and Android release Gradle checks pass. Unchanged JVM/Android
+  tasks were up-to-date; the 143-test JVM result remains baseline evidence rather
+  than a newly forced test run. No Core/JNI/shared schema/Android sources changed.
+
+The first HTTP source snapshot was 232139 bytes (21 complete file blocks),
+SHA-256 `605abed0b58ff1b85f4bc55a024de4a3a3fed6da0ad4d58385d36e8eca5b4472`.
+Pro verified the source and found one P1: rmcp 3.4.0 permanently caches unknown
+tool names in a shared schema cache. Local inspection confirmed the unbounded
+negative cache. The HTTP router now creates a request-scoped SDK service while
+sharing the immutable catalogue, application worker, configuration and global
+stream semaphore. No SDK fork or native instance recreation is involved.
+
+A production-router regression counts unknown schema lookups across requests,
+including repeated names. It passes with request-scoped routing and fails on
+the third request with the prior persistent service (two lookups instead of
+three). The same regression checks that Mcp-Name/body mismatch still returns
+the SDK's HTTP 400 / JSON-RPC -32020 error.
+
+The HTTP-enabled macOS arm64 release executable is 6397696 bytes (6.101 MiB),
+an increase of 1428816 bytes (1.363 MiB) from the stdio baseline above. SHA-256:
+`e0f245dedc591af50bc6677c855039c49085176d58b9c5b20d1e615e435006f3`.
+It still links only macOS system libraries. The official HTTP client and
+regression helper dependencies are test-only. Android library sizes are
+unchanged by this transport work.
+
+The final cache correction snapshot was 34165 bytes (three complete files plus
+diffs), SHA-256
+`eb6aa23656d36b65a6e312359f97be2e6abf9cb4b761a1aef16ecfdab6229911`.
+Pro verified this delta against the first HTTP snapshot, closed the cache P1,
+and found no new substantive blocker in the request-scoped transport wrapper.
+The accepted source combination covers Streamable HTTP within the declared
+local, trusted-user, stateless experimental scope, as well as the retained stdio
+entry. This was source review, not Pro-executed builds or tests.
+Only these review/plan records were finalized after acceptance.

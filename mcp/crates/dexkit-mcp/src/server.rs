@@ -7,15 +7,16 @@ use rmcp::{model::*, service::RequestContext, ErrorData as McpError, RoleServer,
 use serde_json::{json, Value};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct Server {
     pub worker: Arc<Worker>,
-    pub tools: Vec<Tool>,
+    pub tools: Arc<Vec<Tool>>,
 }
 impl Server {
     pub fn new(worker: Arc<Worker>) -> Self {
         Self {
             worker,
-            tools: catalog::tools(),
+            tools: Arc::new(catalog::tools()),
         }
     }
     async fn work(
@@ -48,7 +49,7 @@ impl ServerHandler for Server {
                 None,
             ));
         }
-        Ok(ListToolsResult::with_all_items(self.tools.clone())
+        Ok(ListToolsResult::with_all_items(self.tools.as_ref().clone())
             .with_ttl_ms(0)
             .with_cache_scope(CacheScope::Private))
     }

@@ -1,4 +1,5 @@
 mod catalog;
+mod http;
 mod server;
 mod worker;
 
@@ -6,6 +7,7 @@ use rmcp::ServiceExt;
 use std::{
     fs::File,
     io,
+    net::SocketAddr,
     os::fd::FromRawFd,
     path::PathBuf,
     pin::Pin,
@@ -23,6 +25,8 @@ fn main() {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut roots = Vec::new();
     let mut worker_mode = false;
+    let mut http_mode = false;
+    let mut listen: Option<SocketAddr> = None;
     let mut args = std::env::args_os().skip(1);
     while let Some(arg) = args.next() {
         match arg.to_str() {
@@ -30,6 +34,22 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 args.next().ok_or("--allow-root requires a directory")?,
             )),
             Some("--worker") => worker_mode = true,
+            Some("--transport") => {
+                http_mode = match args.next().as_deref().and_then(|s| s.to_str()) {
+                    Some("http") => true,
+                    Some("stdio") => false,
+                    _ => return Err("--transport requires http or stdio".into()),
+                };
+            }
+            Some("--listen") => {
+                listen = Some(
+                    args.next()
+                        .ok_or("--listen requires IP:PORT")?
+                        .to_str()
+                        .ok_or("--listen requires an IP address")?
+                        .parse()?,
+                );
+            }
             Some("--dump-schema") => {
                 println!("{}", serde_json::to_string_pretty(&catalog::tools())?);
                 return Ok(());
@@ -39,11 +59,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Some("--help") => {
-                println!("dexkit-mcp [--allow-root DIRECTORY]...\nNative stdio MCP server. Default input root: current directory.\n--dump-schema prints the tool contracts. --version prints the version.");
+                println!("dexkit-mcp [--transport stdio|http] [--allow-root DIRECTORY]...\n\n--transport http  Serve Streamable HTTP at /mcp.\n--listen IP:PORT  HTTP loopback address (default 127.0.0.1:7331; port 0 selects a free port).\n--transport stdio Standard MCP pipes (default, for existing client configurations).\n--allow-root DIR  Allowed input directory; repeatable. Default: current directory.\n--dump-schema     Print tool contracts.\n--version         Print version.");
                 return Ok(());
             }
             _ => return Err(format!("Unknown argument: {arg:?}").into()),
         }
+    }
+    if listen.is_some() && !http_mode {
+        return Err("--listen requires --transport http".into());
+    }
+    if worker_mode && http_mode {
+        return Err("Internal worker cannot serve HTTP".into());
+    }
+    let listen = listen.unwrap_or_else(|| SocketAddr::from(([127, 0, 0, 1], 7331)));
+    if http_mode && !listen.ip().is_loopback() {
+        return Err("HTTP currently accepts only a loopback --listen address".into());
     }
     if roots.is_empty() {
         roots.push(std::env::current_dir()?);
@@ -58,17 +88,24 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if worker_mode {
         return worker::run(roots);
     }
-    let protocol = isolate_stdout()?;
+    let protocol = if http_mode {
+        None
+    } else {
+        Some(isolate_stdout()?)
+    };
     let worker = Arc::new(worker::Worker::start(&roots)?);
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
     let result = runtime.block_on(async {
+        if http_mode {
+            return http::run(worker.clone(), listen).await;
+        }
         let input = BoundedInput {
             inner: tokio::io::stdin(),
             line_bytes: 0,
         };
-        let output = tokio::fs::File::from_std(protocol);
+        let output = tokio::fs::File::from_std(protocol.expect("stdio protocol FD"));
         let service = server::Server::new(worker.clone())
             .serve((input, output))
             .await?;

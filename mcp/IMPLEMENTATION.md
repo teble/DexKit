@@ -93,3 +93,26 @@ Base: `d039774954a337d018ef459e0b8c0cbf5a7c8fe8`; continue on `mcp`.
 This local server has one trusted-user state space and one set of allowed roots.
 It does not treat MCP clientInfo as authentication or promise per-client data
 isolation. The existing instance/entity ownership checks remain unchanged.
+
+## Query contract discovery compatibility
+
+Base: `efbd3901046d79df729c8bd22b357ca228dc9e7c`; continue on `mcp`.
+
+1. [x] Consult Pro using the verified Codex 5000-byte schema-compaction evidence
+   and current catalogue/DTOs; settle a bounded contract-discovery interface.
+   Use overview when pointer is omitted, full schema for an empty pointer, and
+   unchanged fragments with JSON Pointer navigation otherwise. Keep the schema
+   hash as an optional precondition and handle help in the parent.
+2. [x] Implement discovery from the same generated query schemas, preserve
+   query semantics and inline small enums where useful. Keep help available
+   without an APK and independent of native work.
+3. [x] Verify schema navigation, examples, malformed requests and real HTTP/stdio
+   queries; exercise model-visible declarations with the diagnosed Codex client.
+4. [x] Update bilingual guides, measure the executable and submit the actual
+   source delta to Pro. The source review found no substantive blocker; the
+   suggested Code Mode Select assertion and result-budget wording were added
+   and verified without changing runtime code after review.
+5. Publish to `teble:mcp`; Git and the completion report record the remote revision.
+
+This follow-up addresses query discoverability. It does not change APK size
+budgets, native execution, client binaries or the existing transport modes.

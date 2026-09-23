@@ -1,4 +1,5 @@
 mod catalog;
+mod discovery;
 mod http;
 mod server;
 mod worker;

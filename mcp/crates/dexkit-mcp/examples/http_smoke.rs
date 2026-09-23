@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             },
         )
         .await?;
-    assert_eq!(client.list_tools(None).await?.tools.len(), 11);
+    assert_eq!(client.list_tools(None).await?.tools.len(), 12);
     let opened = client
         .call_tool(
             CallToolRequestParams::new("dexkit_v1_open")

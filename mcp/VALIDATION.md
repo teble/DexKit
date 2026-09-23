@@ -183,7 +183,7 @@ the third request with the prior persistent service (two lookups instead of
 three). The same regression checks that Mcp-Name/body mismatch still returns
 the SDK's HTTP 400 / JSON-RPC -32020 error.
 
-The HTTP-enabled macOS arm64 release executable is 6397696 bytes (6.101 MiB),
+The HTTP baseline at `efbd390` is 6397696 bytes (6.101 MiB),
 an increase of 1428816 bytes (1.363 MiB) from the stdio baseline above. SHA-256:
 `e0f245dedc591af50bc6677c855039c49085176d58b9c5b20d1e615e435006f3`.
 It still links only macOS system libraries. The official HTTP client and
@@ -199,3 +199,63 @@ The accepted source combination covers Streamable HTTP within the declared
 local, trusted-user, stateless experimental scope, as well as the retained stdio
 entry. This was source review, not Pro-executed builds or tests.
 Only these review/plan records were finalized after acceptance.
+
+## Query contract discovery
+
+Base: `efbd3901046d79df729c8bd22b357ca228dc9e7c`. A separate client diagnostic
+confirmed that Codex 0.155.0-alpha.9 compacts input schemas above a 5000-byte
+normalized budget. The raw DexKit contracts were intact; model-visible query
+types were lost before TypeScript rendering. This feature exposes the same
+contracts as bounded ordinary tool results. It does not fix the client's
+compactor or change native query semantics, APK budgets or transport protocols.
+
+Pro's design consultation recommended an overview, exact JSON Pointer fragments
+and optional complete-document retrieval. The implementation follows that design,
+inlines Select from its generated definition, and keeps discovery in the parent.
+MCP capabilities describe all 12 advertised tools through a dedicated output DTO;
+the analysis library retains its existing 11 executable operations.
+
+Executed validation:
+
+- Two new Rust regressions cover original-document equality, all current
+  definition fragments, navigation destinations, examples, enum equivalence,
+  malformed selectors, stale hashes, escaped pointers and oversized replies.
+  All 12 workspace unit functions and 11 independent interop tests pass.
+- All 11 stdio and 13 HTTP tests pass. They exercise discovery before opening
+  an input, execute all five returned examples on the real fixture, and check
+  help while the native worker is stopped or dead. The actual advertised schemas
+  validate 72 stdio and 63 HTTP request/result samples across 12 tools.
+- The same stdio and HTTP suites pass against the release executable.
+- `test_codex_discovery.py` runs the installed `codex-cli 0.155.0-alpha.9`
+  against a local scripted model endpoint with user configuration/rules ignored.
+  It verifies both code-mode and native tool definitions, the small help input
+  and inline Select enum, and equality of the complete schema delivered in a
+  subsequent model request with the binary's published schema. The code-mode
+  sequence executes a real nested parameter query from the returned examples
+  and closes its instance. No real model/API call is made. This is client
+  integration evidence, not autonomous model tool-selection or success-rate
+  evidence. Both modes pass with the release executable, including explicit
+  Select enum assertions in both modes.
+- The helper input schema is 555 compact JSON bytes. Business help JSON is
+  bounded to 16 KiB, including errors; the serialized CallToolResult is checked
+  against 64 KiB, excluding JSON-RPC/SSE framing. Query schemas retain their
+  complete references and semantics.
+- Workspace clippy with warnings denied, formatting, diff checks and the
+  28-page bilingual documentation build pass. No Core/JNI/schema/Android files
+  changed, so the prior JVM/Android results remain baseline evidence.
+
+The macOS arm64 release is 6597776 bytes (6.292 MiB), an increase of 200080 bytes
+from the HTTP baseline. SHA-256:
+`2bcfa7031c7fb11181d4797f4c4d806db4550df3f5af8082c4d0830f450fb74a`.
+This change does not enter the Android link graph.
+
+The completed source snapshot was 146373 bytes, SHA-256
+`3ec075286dc2677c5f7da52c5381f08eac4a378924b1c733a4ca4ad951b548ec`.
+Pro verified all 13 complete source/test/guide blocks against their hashes and
+reviewed the other five files as diffs. It accepted the discovery implementation
+with no substantive blocker. Two nonblocking precision suggestions were adopted:
+explicitly check Select in Code Mode as well as native mode, and clarify that
+the 64 KiB check covers CallToolResult rather than the entire network frame.
+The installed-Codex check and documentation build passed again after these
+test/documentation refinements. Runtime source was unchanged after acceptance.
+Pro reviewed source; execution and binary measurements above were performed locally.

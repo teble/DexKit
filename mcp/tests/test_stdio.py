@@ -11,6 +11,7 @@ import tempfile
 import threading
 import unittest
 import zipfile
+from discovery_checks import exercise as exercise_discovery
 
 ROOT = Path(__file__).resolve().parents[2]
 BINARY = ROOT / 'mcp/target/debug/dexkit-mcp'
@@ -114,11 +115,14 @@ class StdioTests(unittest.TestCase):
     def open(self, path=None):
         return self.client.call('open', {'path': str(path or self.dex)})['instanceId']
 
+    def test_query_discovery_without_docs_and_examples(self):
+        exercise_discovery(self.client, self.dex, TOOLS)
+
     def test_unicode_query_paging_artifact_and_close(self):
         instance = self.open()
         capabilities = self.client.call('capabilities', {})
         self.assertFalse(capabilities['nativeCancellation'])
-        self.assertEqual(len(TOOLS), 11)
+        self.assertEqual(len(TOOLS), 12)
         query = {'matcher': {'usingStrings': [{'value': 'pair\U0001f600', 'match': 'equal'}]}}
         found = self.client.call('find_methods', {'instanceId': instance, 'query': query, 'pageSize': 1})
         self.assertEqual(found['resultSet']['totalItems'], '1')
@@ -193,9 +197,10 @@ class StdioTests(unittest.TestCase):
         children = subprocess.check_output(['pgrep', '-P', str(self.client.process.pid)], text=True).split()
         self.assertEqual(len(children), 1)
         os.kill(int(children[0]), signal.SIGKILL)
+        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
         error = self.client.call('capabilities', {}, success=False)
         self.assertEqual(error['code'], 'WORKER_EXITED')
-        self.assertEqual(len(self.client.rpc('tools/list', {})['result']['tools']), 11)
+        self.assertEqual(len(self.client.rpc('tools/list', {})['result']['tools']), 12)
         self.assertEqual(set(self.root.iterdir()), {self.dex, self.unicode})
 
     def test_artifact_is_unlinked_on_normal_stdin_close(self):
@@ -242,6 +247,7 @@ class StdioTests(unittest.TestCase):
         worker = int(children[0])
         os.kill(worker, signal.SIGSTOP)
         try:
+            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
             for _ in range(4):
                 self.client.ident += 1
                 request_id = self.client.ident
@@ -251,7 +257,7 @@ class StdioTests(unittest.TestCase):
                                   'params': {'requestId': request_id, 'reason': 'test cancellation'}})
                 # rmcp intentionally suppresses cancelled responses. tools/list
                 # is a protocol barrier and must remain available while stopped.
-                self.assertEqual(len(self.client.rpc('tools/list', {})['result']['tools']), 11)
+                self.assertEqual(len(self.client.rpc('tools/list', {})['result']['tools']), 12)
         finally:
             os.kill(worker, signal.SIGCONT)
         # At most one cancelled open was already active. Queued opens must be

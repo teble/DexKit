@@ -53,6 +53,36 @@ current directory and its descendants are accepted. `--dump-schema` prints the
 tool contracts. Diagnostics go to stderr; stdout stays reserved for stdio MCP.
 File-polling and the deprecated separate HTTP+SSE endpoints are not implemented.
 
+## Discover query parameters
+
+If a client displays `query: unknown` or hides nested matcher fields, call
+`dexkit_v1_get_query_schema` with the full `find_classes`, `find_methods` or
+`find_fields` tool name. Help requires no open APK and remains available while
+the native worker is busy or unavailable.
+
+```json
+{"tool":"dexkit_v1_find_methods"}
+```
+
+Omitting `pointer` returns an overview, parameter links, rules and examples.
+Passing `"pointer":""` returns the complete input schema. Other JSON Pointers
+must refer to that same document; copy them from `links` to read exact fragments
+or follow recursive types. Fragments have `standalone:false`; their references
+resolve against the full document, not against the help reply. `ifSchemaHash`
+optionally rejects a request based on an older document. Schema hashes cover
+the schema only, not the native implementation or explanatory notes.
+
+The contracts come from the same final schemas as `tools/list` and
+`--dump-schema`. Small `select` enums are inlined; full matcher contracts and
+runtime validation are preserved. This supplies missing information as tool
+results; it does not disable client schema compaction or guarantee that a client
+will render the original query signature in full. Each help reply is bounded to
+16 KiB of business JSON and 64 KiB for the serialized MCP tool result (text plus
+structured content, excluding JSON-RPC/SSE framing); oversized sections return
+an error and child pointers rather than truncated JSON. `linksComplete:false`
+marks an incomplete navigation list. The capability response
+lists the MCP tool, while the underlying analysis library retains its own tools.
+
 ## Layout
 
 ```text
@@ -81,6 +111,16 @@ python3 mcp/test.py
 cargo clippy --manifest-path mcp/Cargo.toml --workspace --all-targets --locked -- -D warnings
 cargo fmt --manifest-path mcp/Cargo.toml --all -- --check
 ```
+
+An optional installed-Codex integration check uses a local scripted model
+endpoint and makes no real model/API calls:
+
+```sh
+python3 mcp/tests/test_codex_discovery.py --codex /absolute/path/to/codex
+```
+
+It checks model-visible declarations, help delivery and scripted real queries.
+It does not measure autonomous model tool selection or first-call success rates.
 
 The first command assembles fixtures, runs the independent compatibility suite,
 builds the MCP server, exercises real pipes and HTTP sockets plus the official

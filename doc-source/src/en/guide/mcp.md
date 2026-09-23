@@ -108,10 +108,39 @@ reclaim it immediately; result sets and artifacts also expire automatically.
 
 ## Tools and query contract
 
+When a client hides nested input types or shows `query: unknown`, use
+`dexkit_v1_get_query_schema` to retrieve the contract through ordinary tool
+results. It is available without opening an APK, including while native work is
+busy or the worker has failed.
+
+```json
+{"tool":"dexkit_v1_find_methods"}
+```
+
+Omit `pointer` for an overview with parameter links, rules and sample arguments;
+replace the examples' instance placeholder with a real `open` result. Pass
+`"pointer":""` for the complete input schema, or copy a JSON Pointer from
+`links` to read an exact fragment. Recursive types remain references with
+navigation links. Fragment references resolve against the complete input schema
+for that tool, so `standalone:false` fragments are not independent validators.
+Optional `ifSchemaHash` checks that the document still matches an earlier reply;
+on `SCHEMA_CHANGED`, request a fresh overview. The hash covers schema contents,
+not native behavior or explanatory notes.
+
+Help uses exactly the final `tools/list` contract and preserves runtime checks.
+It addresses lost parameter information without changing the client's schema
+compaction policy. Business help replies are limited to 16 KiB and the serialized
+MCP tool result (text plus structured content) to 64 KiB, excluding JSON-RPC/SSE
+framing. `linksComplete:false` marks an incomplete navigation list.
+Oversized sections return `SCHEMA_SECTION_TOO_LARGE` with
+child pointers; replies are never cut into invalid JSON. The API contract remains
+v1; the help envelope has `discoveryVersion: 1`.
+
 All tools use the `dexkit_v1_` prefix:
 
 | Tools | Purpose |
 | --- | --- |
+| `get_query_schema` | Read query contracts, examples and JSON Pointer fragments without an instance |
 | `open`, `close`, `capabilities` | Input lifetime, fingerprints and actual capabilities |
 | `find_classes`, `find_methods`, `find_fields` | Typed matcher trees, with complete materialized result sets |
 | `describe`, `relations` | Metadata, optional annotations/code details and direct relationships |

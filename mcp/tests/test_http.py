@@ -17,6 +17,7 @@ import unittest
 from urllib.parse import urlsplit
 
 import test_stdio as common
+from discovery_checks import exercise as exercise_discovery
 
 BINARY = common.BINARY
 SDK_CLIENT = common.ROOT / 'mcp/target/debug/examples/http_smoke'
@@ -144,6 +145,11 @@ class HttpTests(unittest.TestCase):
     def open(self):
         return self.client.call('open', {'path': str(self.dex)})['instanceId']
 
+    def test_query_discovery_without_docs_and_examples(self):
+        fixture = self.root / 'query-examples.dex'
+        fixture.write_bytes((common.FIXTURES / 'fixture.dex').read_bytes())
+        exercise_discovery(self.client, fixture, common.TOOLS)
+
     def test_handles_survive_new_connections_and_client_discovery(self):
         instance = self.open()
         another = HttpClient(self.server.url)
@@ -239,6 +245,7 @@ class HttpTests(unittest.TestCase):
     def test_worker_failure_remains_explicit_over_http(self):
         self.open()
         os.kill(self.server.worker(), signal.SIGKILL)
+        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
         error = self.client.call('capabilities', {}, success=False)
         self.assertEqual(error['code'], 'WORKER_EXITED')
         self.client.catalogue()
@@ -248,6 +255,7 @@ class HttpTests(unittest.TestCase):
         worker = self.server.worker()
         os.kill(worker, signal.SIGSTOP)
         try:
+            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
             for _ in range(4):
                 connection = self.client.connection()
                 body, headers = self.client.envelope('tools/call', {

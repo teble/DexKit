@@ -1,3 +1,4 @@
+use crate::discovery::{DiscoveryReply, GetQuerySchema, McpCapabilities, NAME};
 use dexkit_rs::api::*;
 use rmcp::model::{Tool, ToolAnnotations};
 use schemars::JsonSchema;
@@ -6,7 +7,7 @@ use std::sync::Arc;
 
 pub fn tools() -> Vec<Tool> {
     vec![
-        tool::<Empty,Capabilities>("capabilities","Report the actual API contract, supported tools, lifetime/size limits and native execution limitations."),
+        tool::<Empty,McpCapabilities>("capabilities","Report the actual API contract, supported tools, lifetime/size limits and native execution limitations."),
         tool::<Open,Opened>("open","Open a local APK/DEX under an allowed directory as an immutable snapshot. Return an instanceId and SHA-256 fingerprint. Close unused instances."),
         tool::<Instance,Closed>("close","Close an instance and invalidate all its entities, result sets and temporary artifacts. Input files are never modified."),
         tool::<FindClasses,Found>("find_classes","Find classes with typed matchers. className uses Java names (example java.lang.String). Omitted conditions do not constrain; boolean arrays must be nonempty. Results are complete, sorted by descriptor and DEX identity, then paginated in the adapter."),
@@ -17,11 +18,36 @@ pub fn tools() -> Vec<Tool> {
         tool::<Page,Found>("page","Read the next page using an opaque cursor from this instance. Does not rerun the native query. Cursors expire or become invalid when the instance closes."),
         tool::<Smali,SmaliOutput>("smali","Disassemble a class or method. inline is limited to 64 KiB; artifact publishes a managed dexkit:// resource. maxOutputBytes limits generation, not a truncated preview. None/strict debug modes follow the native writer contract."),
         tool::<ReadArtifact,ArtifactChunk>("read_artifact","Read a bounded UTF-8 chunk of a managed artifact, using byte offsets from nextByte. Does not accept arbitrary filesystem paths. maxBytes is 1..65536."),
-    ]
+    ].into_iter().map(|mut tool| {
+        if tool.name.starts_with("dexkit_v1_find_") {
+            let mut input = tool.input_schema.as_ref().clone();
+            let root = Value::Object(input.clone());
+            if let Some(reference) = root.pointer("/properties/select/items/$ref").and_then(Value::as_str) {
+                let values = root.pointer(reference.strip_prefix('#').expect("local enum reference"))
+                    .expect("Select definition").clone();
+                input["properties"]["select"]["items"] = values;
+            }
+            tool.input_schema = Arc::new(input);
+            let description = tool.description.as_deref().unwrap_or_default();
+            tool.description = Some(format!("{description} If query structure is unknown, missing or unclear, call {NAME} with this tool name first. Omit pointer for overview; use an empty pointer for the full contract.").into());
+        }
+        tool
+    }).chain([Tool::new(
+        NAME,
+        "Read exact query contracts without opening an APK. Select one find_* tool. Omit pointer for overview and examples; use pointer=\"\" for the complete schema, or copy a JSON Pointer from returned links. Pass ifSchemaHash to detect changed contracts. Fragment references resolve against the full tool input schema. Available even while the native worker is busy or unavailable.",
+        input_schema::<GetQuerySchema>().as_object().unwrap().clone(),
+    ).with_raw_output_schema(Arc::new(
+        { let mut output = serde_json::to_value(schemars::schema_for!(DiscoveryReply)).unwrap();
+          output["type"] = json!("object"); output.as_object().unwrap().clone() }
+    )).with_annotations(ToolAnnotations::new().read_only(true).destructive(false).open_world(false).idempotent(true))]).collect()
 }
-fn tool<I: JsonSchema, O: JsonSchema>(name: &str, description: &str) -> Tool {
+fn input_schema<I: JsonSchema>() -> Value {
     let mut input = serde_json::to_value(schemars::schema_for!(I)).unwrap();
     strict_properties(&mut input);
+    input
+}
+fn tool<I: JsonSchema, O: JsonSchema>(name: &str, description: &str) -> Tool {
+    let input = input_schema::<I>();
     let mut output = serde_json::to_value(schemars::schema_for!(Reply<O>)).unwrap();
     output["type"] = json!("object");
     Tool::new(

@@ -92,10 +92,32 @@ Core 查询；当前不提供原生取消和通用结果数量上限。
 
 ## 工具与查询契约
 
+如果客户端隐藏嵌套参数，或将查询显示为 `query: unknown`，可以通过
+`dexkit_v1_get_query_schema` 按需读取真实契约。帮助通过普通工具结果返回，
+无需先打开 APK；原生 worker 忙碌或失效时仍可读取。
+
+```json
+{"tool":"dexkit_v1_find_methods"}
+```
+
+省略 `pointer` 返回参数概览、导航链接、语义规则及示例；使用示例时，将实例占位值
+替换为 `open` 返回的真实 ID。传入 `"pointer":""` 获取完整输入 schema，或复制
+`links` 中的 JSON Pointer 读取原文片段。递归类型保留引用并提供后续链接。
+片段中的引用相对该工具的完整输入 schema 解析，`standalone:false` 表示它不能单独
+作为完整验证器。可选的 `ifSchemaHash` 用于确认文档与先前结果一致；遇到
+`SCHEMA_CHANGED` 应重新读取概览。摘要只覆盖 schema，不代表原生行为或说明文字相同。
+
+帮助与 `tools/list` 使用同一份最终契约，原有参数校验仍然生效。这项兼容功能补充模型
+缺失的参数信息，不会关闭客户端的 schema 精简策略。业务帮助回复上限为 16 KiB，
+MCP 工具结果（文本及结构化内容）上限为 64 KiB，不含 JSON-RPC／SSE 外层。
+`linksComplete:false` 表示导航列表不完整；超限返回 `SCHEMA_SECTION_TOO_LARGE` 和子节点链接，
+不会截断 JSON。查询契约保持 v1，帮助包络使用 `discoveryVersion: 1`。
+
 所有工具都使用 `dexkit_v1_` 前缀：
 
 | 工具 | 作用 |
 | --- | --- |
+| `get_query_schema` | 无需实例即可读取查询契约、示例及 JSON Pointer 片段 |
 | `open`、`close`、`capabilities` | 管理输入生命周期、指纹及实际能力 |
 | `find_classes`、`find_methods`、`find_fields` | 类型化条件查询，保留完整结果集 |
 | `describe`、`relations` | 元数据、按需注解／指令信息，以及直接关系 |

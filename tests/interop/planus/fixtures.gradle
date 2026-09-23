@@ -1,0 +1,20 @@
+// Shared with the standalone compatibility suite; no production Gradle dependency.
+gradle.projectsEvaluated {
+    def library = gradle.rootProject.project(":dexkit")
+    def experiment = new File(gradle.rootProject.rootDir, "tests/interop/planus")
+    def fixtureTasks = ["Interop": "fixture", "Unicode": "unicode", "References": "references", "Deep": "deep"].collect { sourceName, outputName ->
+        library.tasks.register("planusFixture${sourceName}", JavaExec) {
+            classpath = library.configurations.testRuntimeClasspath
+            mainClass.set("org.jf.smali.Main")
+            def source = new File(experiment, "fixtures/${sourceName}.smali")
+            def output = new File(experiment, "target/fixture/${outputName}.dex")
+            inputs.file(source)
+            outputs.file(output)
+            doFirst {
+                output.parentFile.mkdirs()
+                args = ["assemble", "--api", "28", "--jobs", "1", "-o", output.absolutePath, source.absolutePath]
+            }
+        }
+    }
+    library.tasks.register("planusInteropFixture") { dependsOn(fixtureTasks) }
+}

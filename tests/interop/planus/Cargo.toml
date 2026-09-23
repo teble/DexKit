@@ -1,0 +1,16 @@
+[package]
+name = "dexkit-planus-interop"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.88"
+license = "LGPL-3.0-or-later"
+publish = false
+
+[workspace]
+
+[dependencies]
+dexkit-rs = { path = "../../../mcp/crates/dexkit-rs" }
+serde_json = "1"
+
+[build-dependencies]
+cmake = "0.1"

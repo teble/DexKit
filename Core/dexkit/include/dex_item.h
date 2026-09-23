@@ -77,6 +77,11 @@ public:
     [[nodiscard]] uint32_t GetDexId() const {
         return dex_id;
     }
+    // Bounds checks for external adapters. These do not imply a definition
+    // exists: method/field ID tables also contain references.
+    [[nodiscard]] bool HasTypeId(uint32_t id) const { return id < reader.TypeIds().size(); }
+    [[nodiscard]] bool HasMethodId(uint32_t id) const { return id < reader.MethodIds().size(); }
+    [[nodiscard]] bool HasFieldId(uint32_t id) const { return id < reader.FieldIds().size(); }
 
     std::vector<std::future<std::vector<ClassBean>>>
     FindClass(

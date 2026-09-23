@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.20)
+project(dexkit_native LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_subdirectory("${DEXKIT_ROOT}/Core" core)
+add_library(dexkit_native STATIC bridge.cpp)
+target_link_libraries(dexkit_native PUBLIC dexkit_static)
+install(TARGETS dexkit_native dexkit_static ARCHIVE DESTINATION lib)

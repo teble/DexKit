@@ -1,0 +1,64 @@
+# Native MCP implementation plan
+
+Base: `76d2dca3ac5fbc098ff09db601e91b1be5f2e0ee` (`smali`).
+Work directly in the `mcp` branch; publish to `teble:mcp` after source review.
+
+## Scope
+
+- An independent Rust workspace: `dexkit-sys`, `dexkit-rs`, `dexkit-mcp`.
+- Static Core linkage and a private synchronous C ABI with explicit ownership.
+- Typed JSON queries and strict validation, generated input/output schemas,
+  explicit coverage of native schema additions, and versioned tool names.
+- Open/close/capabilities, class/method/field search, entity details and direct
+  relationships, complete materialized result paging, bounded smali output and
+  managed artifact access over standard stdio MCP. HTTP is deferred.
+- Normal Unicode including embedded NUL and supplementary characters. Decode
+  native MUTF-8 before exposing UTF-8; encode queries in the reverse direction.
+  Reject isolated UTF-16 surrogates explicitly in the Rust public contract.
+- Repair the demonstrated Kotlin query/result encoding boundary using local
+  helpers, without changing the process-global FlatBuffers codec.
+- Keep the standalone Planus compatibility experiment in `tests/interop/planus`.
+  Kotlin regressions stay with the JVM tests.
+- No Android dependency on Rust, JSON, schema generators or MCP SDKs.
+
+## Steps
+
+1. [x] Inspect baseline and preserve the existing unrelated Main.kt edits.
+2. [x] Relocate the independent interoperability experiment.
+3. [x] Implement and verify typed native binding and Unicode adaptation.
+4. [x] Implement public DTOs, query mapping and bounded analysis service.
+5. [x] Add SDK stdio transport, resources, documentation and end-to-end checks.
+6. [x] Run Rust, JVM, Android and documentation checks; measure release size.
+7. [x] Submit concrete source to the authorized Pro conversation, assess and
+   fix substantive findings, and resubmit changed source until no blocking
+   issue remains in the declared scope.
+8. Publish three scoped commits to `teble:mcp`; Git and the goal completion
+   report record the final remote revision.
+
+## Invariants
+
+- Unknown conditions must never be silently discarded.
+- Empty candidate sets stay empty; parameter wildcards preserve positions.
+- IDs belong to an instance; closed or expired state is an error.
+- Paging does not imply native result limits, streaming or cancellation.
+- Native logging must never write onto the MCP protocol stream.
+- A failed decode or exhausted budget must not become a successful empty query.
+
+## Review
+
+The authorized Pro conversation is
+https://chatgpt.com/c/6aad8202-1ee4-83e9-983b-fc6d0578d7fc.
+The design consultation confirmed Planus with explicit string adaptation.
+The first source review covered the foundation snapshot (SHA-256
+`ede2c3bd0d736216ebb9dba9c9cc0f88598a49e3f00c660839c1996a99082be7`).
+Confirmed findings were assessed and fixed: native ID quota mutation on failure,
+reference/declaration confusion, preflight of every page, annotation signed zero,
+unchecked public typed entry points, native exception lifetime, and path-opening
+races. Generated string-field coverage now has structural build assertions.
+The second source review closed the foundation findings and identified artifact
+cleanup, reply depth, and cancellation integration issues. Anonymous files,
+bounded metadata/replies and SDK token handling now address them. The final delta
+(SHA-256 `82c0a323e5c8e1e295de94f7ed69653df189ce7e33d243fc3a29bf4e06df30fc`)
+was reviewed with no remaining substantive blocker in the declared first-release
+scope. All prior P1/P2 findings are closed.
+Pro performs source review; local build/test evidence is recorded separately.

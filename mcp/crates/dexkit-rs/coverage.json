@@ -1,0 +1,1348 @@
+{
+  "AccessFlagsMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AccessFlagsMatcher.flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AccessFlagsMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMatcher.name": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMatcher.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMeta.name": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementMeta.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementsMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementsMatcher.element_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementsMatcher.elements": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationElementsMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArray": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArray.values": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArrayMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArrayMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArrayMatcher.value_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeArrayMatcher.values": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.AnnotationEncodeArray": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.AnnotationMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.ClassMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueBoolean": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueByte": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueChar": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueDouble": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueFloat": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueInt": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueLong": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueNull": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueShort": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.EncodeValueString": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.FieldMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValue.MethodMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.AnnotationEncodeArrayMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.AnnotationMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.ClassMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueBoolean": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueByte": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueChar": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueDouble": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueFloat": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueInt": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueLong": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueNull": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.EncodeValueShort": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.FieldMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.MethodMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMatcher.StringMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMeta.type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueMeta.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.AnnotationValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.ArrayValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.BoolValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.ByteValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.CharValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.DoubleValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.EnumValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.FloatValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.IntValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.LongValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.MethodValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.NullValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.ShortValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.StringValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationEncodeValueType.TypeValue": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher.elements": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher.policy": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher.target_element_types": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher.type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMatcher.using_strings": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMeta.dex_id": {
+    "exposure": "wire-only",
+    "reason": "Native annotation identity is decoded but v1 returns its descriptor, visibility and elements only."
+  },
+  "AnnotationMeta.elements": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMeta.type_descriptor": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMeta.type_id": {
+    "exposure": "wire-only",
+    "reason": "Native annotation identity is decoded but v1 returns its descriptor, visibility and elements only."
+  },
+  "AnnotationMeta.visibility": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMetaArrayHolder": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationMetaArrayHolder.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationVisibilityType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationVisibilityType.Build": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationVisibilityType.None": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationVisibilityType.Runtime": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationVisibilityType.System": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationsMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationsMatcher.annotation_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationsMatcher.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "AnnotationsMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "BatchClassMeta": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchClassMeta.classes": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchClassMeta.union_key": {
+    "encoding": "utf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchClassMetaArrayHolder": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchClassMetaArrayHolder.items": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings.exclude_packages": {
+    "encoding": "mutf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings.ignore_packages_case": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings.in_classes": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings.matchers": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindClassUsingStrings.search_packages": {
+    "encoding": "mutf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.exclude_packages": {
+    "encoding": "mutf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.ignore_packages_case": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.in_classes": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.in_methods": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.matchers": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchFindMethodUsingStrings.search_packages": {
+    "encoding": "mutf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchMethodMeta": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchMethodMeta.methods": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchMethodMeta.union_key": {
+    "encoding": "utf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchMethodMetaArrayHolder": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchMethodMetaArrayHolder.items": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchUsingStringsMatcher": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchUsingStringsMatcher.union_key": {
+    "encoding": "utf8",
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "BatchUsingStringsMatcher.using_strings": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "ClassMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.all_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.any_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.class_name": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.fields": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.interfaces": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.none_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.smali_source": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.super_class": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMatcher.using_strings": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta.dex_descriptor": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta.dex_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMeta.fields": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMeta.id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMeta.interfaces": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMeta.methods": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMeta.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta.source_file": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMeta.super_class": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "ClassMetaArrayHolder": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ClassMetaArrayHolder.classes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueBoolean": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueBoolean.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueByte": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueByte.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueChar": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueChar.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueDouble": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueDouble.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueFloat": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueFloat.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueInt": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueInt.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueLong": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueLong.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueNull": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueNull.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueShort": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueShort.value": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueString": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "EncodeValueString.value": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.all_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.any_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.declaring_class": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.field_name": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.get_methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.none_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.put_methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMatcher.type_class": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMeta.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMeta.class_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "FieldMeta.dex_descriptor": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMeta.dex_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "FieldMeta.id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "FieldMeta.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMeta.type_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "FieldMetaArrayHolder": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldMetaArrayHolder.fields": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldsMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldsMatcher.field_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldsMatcher.fields": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FieldsMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass.exclude_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass.find_first": {
+    "exposure": "deferred",
+    "reason": "v1 fully evaluates queries before materialized pagination."
+  },
+  "FindClass.ignore_packages_case": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass.in_classes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass.matcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindClass.search_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.exclude_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.find_first": {
+    "exposure": "deferred",
+    "reason": "v1 fully evaluates queries before materialized pagination."
+  },
+  "FindField.ignore_packages_case": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.in_classes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.in_fields": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.matcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindField.search_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.exclude_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.find_first": {
+    "exposure": "deferred",
+    "reason": "v1 fully evaluates queries before materialized pagination."
+  },
+  "FindMethod.ignore_packages_case": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.in_classes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.in_methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.matcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "FindMethod.search_packages": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "IntRange": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "IntRange.max": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "IntRange.min": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "InterfacesMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "InterfacesMatcher.interface_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "InterfacesMatcher.interfaces": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "InterfacesMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "LongRange": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "LongRange.max": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "LongRange.min": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "MatchType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MatchType.Contains": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MatchType.Equal": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.all_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.any_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.declaring_class": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.invoking_methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.method_callers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.method_name": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.none_of": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.op_codes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.parameters": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.proto_shorty": {
+    "encoding": "ascii",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.return_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.using_fields": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.using_numbers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMatcher.using_strings": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMeta.access_flags": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMeta.class_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "MethodMeta.dex_descriptor": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMeta.dex_id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "MethodMeta.id": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "MethodMeta.modifiers": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMeta.parameter_types": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "MethodMeta.return_type": {
+    "exposure": "wire-only",
+    "reason": "Internal metadata/instance identity; raw IDs are not exposed as public handles."
+  },
+  "MethodMetaArrayHolder": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodMetaArrayHolder.methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodsMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodsMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodsMatcher.method_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "MethodsMatcher.methods": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueByte": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueDouble": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueFloat": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueInt": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueLong": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "Number.EncodeValueShort": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodeMatchType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodeMatchType.Contains": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodeMatchType.EndWith": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodeMatchType.Equal": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodeMatchType.StartWith": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodesMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodesMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodesMatcher.op_code_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "OpCodesMatcher.op_codes": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParameterMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParameterMatcher.annotations": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParameterMatcher.parameter_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParametersAnnotationMetaArrayHoler": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "ParametersAnnotationMetaArrayHoler.annotations_array": {
+    "exposure": "deferred",
+    "reason": "Not exposed by the initial MCP tool contract."
+  },
+  "ParametersMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParametersMatcher.parameter_count": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "ParametersMatcher.parameters": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "RetentionPolicyType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "RetentionPolicyType.Any": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "RetentionPolicyType.Class": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "RetentionPolicyType.Runtime": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "RetentionPolicyType.Source": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatchType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatchType.Contains": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatchType.EndWith": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatchType.Equal": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatchType.SimilarRegex": {
+    "exposure": "deferred",
+    "reason": "v1 only exposes the four explicit string matching modes."
+  },
+  "StringMatchType.StartWith": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatcher.ignore_case": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "StringMatcher.value": {
+    "encoding": "mutf8",
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.AnnotationType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Constructor": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Field": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.LocalVariable": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Method": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Package": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Parameter": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.Type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.TypeParameter": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementType.TypeUse": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementTypesMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementTypesMatcher.match_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "TargetElementTypesMatcher.types": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingFieldMatcher": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingFieldMatcher.field": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingFieldMatcher.using_type": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingFieldMeta": {
+    "exposure": "deferred",
+    "reason": "Used-field metadata is not a v1 describe section; usingFields query matching is separate."
+  },
+  "UsingFieldMeta.field": {
+    "exposure": "deferred",
+    "reason": "Used-field metadata is not a v1 describe section; usingFields query matching is separate."
+  },
+  "UsingFieldMeta.using_type": {
+    "exposure": "deferred",
+    "reason": "Used-field metadata is not a v1 describe section; usingFields query matching is separate."
+  },
+  "UsingFieldMetaArrayHolder": {
+    "exposure": "deferred",
+    "reason": "Used-field metadata is not a v1 describe section; usingFields query matching is separate."
+  },
+  "UsingFieldMetaArrayHolder.items": {
+    "exposure": "deferred",
+    "reason": "Used-field metadata is not a v1 describe section; usingFields query matching is separate."
+  },
+  "UsingNumberMeta": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingNumberMeta.op_code": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingNumberMeta.raw_bits": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingNumberMetaArrayHolder": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingNumberMetaArrayHolder.items": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingType": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingType.Any": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingType.Get": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  },
+  "UsingType.Put": {
+    "exposure": "mapped",
+    "reason": "Explicit v1 query/result mapping; native wire format is generated from shared FBS."
+  }
+}

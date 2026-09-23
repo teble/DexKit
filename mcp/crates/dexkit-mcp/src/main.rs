@@ -1,0 +1,194 @@
+mod catalog;
+mod server;
+mod worker;
+
+use rmcp::ServiceExt;
+use std::{
+    fs::File,
+    io,
+    os::fd::FromRawFd,
+    path::PathBuf,
+    pin::Pin,
+    sync::Arc,
+    task::{Context, Poll},
+};
+use tokio::io::{AsyncRead, ReadBuf};
+
+fn main() {
+    if let Err(error) = run() {
+        eprintln!("dexkit-mcp: {error}");
+        std::process::exit(1);
+    }
+}
+fn run() -> Result<(), Box<dyn std::error::Error>> {
+    let mut roots = Vec::new();
+    let mut worker_mode = false;
+    let mut args = std::env::args_os().skip(1);
+    while let Some(arg) = args.next() {
+        match arg.to_str() {
+            Some("--allow-root") => roots.push(PathBuf::from(
+                args.next().ok_or("--allow-root requires a directory")?,
+            )),
+            Some("--worker") => worker_mode = true,
+            Some("--dump-schema") => {
+                println!("{}", serde_json::to_string_pretty(&catalog::tools())?);
+                return Ok(());
+            }
+            Some("--version") => {
+                println!("dexkit-mcp {}", env!("CARGO_PKG_VERSION"));
+                return Ok(());
+            }
+            Some("--help") => {
+                println!("dexkit-mcp [--allow-root DIRECTORY]...\nNative stdio MCP server. Default input root: current directory.\n--dump-schema prints the tool contracts. --version prints the version.");
+                return Ok(());
+            }
+            _ => return Err(format!("Unknown argument: {arg:?}").into()),
+        }
+    }
+    if roots.is_empty() {
+        roots.push(std::env::current_dir()?);
+    }
+    roots = roots
+        .into_iter()
+        .map(|r| r.canonicalize())
+        .collect::<io::Result<Vec<_>>>()?;
+    if roots.iter().any(|r| !r.is_dir()) {
+        return Err("--allow-root must be a directory".into());
+    }
+    if worker_mode {
+        return worker::run(roots);
+    }
+    let protocol = isolate_stdout()?;
+    let worker = Arc::new(worker::Worker::start(&roots)?);
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()?;
+    let result = runtime.block_on(async {
+        let input = BoundedInput {
+            inner: tokio::io::stdin(),
+            line_bytes: 0,
+        };
+        let output = tokio::fs::File::from_std(protocol);
+        let service = server::Server::new(worker.clone())
+            .serve((input, output))
+            .await?;
+        service.waiting().await?;
+        Ok::<(), Box<dyn std::error::Error>>(())
+    });
+    worker.shutdown();
+    result
+}
+
+pub(crate) fn isolate_stdout() -> io::Result<File> {
+    // SAFETY: called once at process startup before threads/native execution.
+    // Own the duplicated descriptor; permanently route FD 1 to stderr. Never
+    // redirect around individual calls or bypass Rust UTF-8 validity.
+    unsafe {
+        let protocol = libc::fcntl(libc::STDOUT_FILENO, libc::F_DUPFD_CLOEXEC, 3);
+        if protocol < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        let file = File::from_raw_fd(protocol);
+        if libc::dup2(libc::STDERR_FILENO, libc::STDOUT_FILENO) < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(file)
+    }
+}
+struct BoundedInput<R> {
+    inner: R,
+    line_bytes: usize,
+}
+impl<R: AsyncRead + Unpin> AsyncRead for BoundedInput<R> {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        let this = self.get_mut();
+        let before = buf.filled().len();
+        let result = Pin::new(&mut this.inner).poll_read(cx, buf);
+        if let Poll::Ready(Ok(())) = result {
+            for byte in &buf.filled()[before..] {
+                if *byte == b'\n' {
+                    this.line_bytes = 0;
+                } else {
+                    this.line_bytes += 1;
+                }
+                if this.line_bytes > 2 * 1024 * 1024 {
+                    // AsyncRead must not expose new bytes together with Err.
+                    // Tokio's read_to_end enforces this contract as well.
+                    buf.set_filled(before);
+                    return Poll::Ready(Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "MCP frame exceeds 2 MiB",
+                    )));
+                }
+            }
+        }
+        result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tokio::io::AsyncReadExt;
+
+    #[test]
+    fn stdio_isolation_child() {
+        if std::env::var_os("DEXKIT_TEST_STDOUT_CHILD").is_none() {
+            return;
+        }
+        let mut protocol = isolate_stdout().unwrap();
+        unsafe {
+            libc::puts(c"native stdout diagnostic".as_ptr());
+            libc::fflush(std::ptr::null_mut());
+        }
+        protocol.write_all(b"{\"protocol\":true}\n").unwrap();
+        protocol.flush().unwrap();
+        std::process::exit(0);
+    }
+
+    #[test]
+    fn native_stdout_cannot_contaminate_protocol_fd() {
+        let result = std::process::Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", "tests::stdio_isolation_child", "--nocapture"])
+            .env("DEXKIT_TEST_STDOUT_CHILD", "1")
+            .output()
+            .unwrap();
+        assert!(result.status.success());
+        let stdout = String::from_utf8(result.stdout).unwrap();
+        let stderr = String::from_utf8(result.stderr).unwrap();
+        assert!(stdout.contains("{\"protocol\":true}"));
+        assert!(!stdout.contains("native stdout diagnostic"));
+        assert!(stderr.contains("native stdout diagnostic"));
+    }
+
+    #[test]
+    fn frame_budget_is_per_line_and_rejects_unterminated_oversize() {
+        tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap()
+            .block_on(async {
+                let bytes = vec![b'x'; 2 * 1024 * 1024 + 1];
+                let mut input = BoundedInput {
+                    inner: bytes.as_slice(),
+                    line_bytes: 0,
+                };
+                assert!(input.read_to_end(&mut Vec::new()).await.is_err());
+                let mut bytes = vec![b'x'; 1_500_000];
+                bytes.push(b'\n');
+                let bytes = bytes.repeat(2);
+                let mut input = BoundedInput {
+                    inner: bytes.as_slice(),
+                    line_bytes: 0,
+                };
+                assert_eq!(
+                    input.read_to_end(&mut Vec::new()).await.unwrap(),
+                    bytes.len()
+                );
+            });
+    }
+}

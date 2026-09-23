@@ -70,9 +70,12 @@ including references beyond a logical DEX span. This is input compatibility, not
 a promise to recreate the original container layout or DEX bytes.
 
 Standard instructions include polymorphic/custom calls, method types and handles.
-The development round-trip tests use host-only `org.smali:smali:2.5.2`, API 28,
-and dexlib2 as an independent reader. Version and edge-case coverage is still
-being expanded before this branch's implementation is considered complete.
+Round-trip tests use host-only `org.smali:smali:2.5.2`, API 28, and dexlib2 as an
+independent reader. The first implementation has completed validation within
+the declared profile; this is not exhaustive verification of every DEX variant,
+instruction combination or runtime. All four Android ABIs build, and the R8/JNI
+consumer runs on the host. Android-device execution and comparison over a large
+real-world APK corpus have not been performed.
 
 Unsupported input fails explicitly: CompactDex, odex/quickened or reserved
 instructions, reverse-endian/unknown versions, link data, hidden-API metadata,

@@ -57,8 +57,10 @@ C++ 调用者须自行保证析构不会与该实例的其他操作并发。
 原始容器布局或字节完全相同的 DEX。
 
 标准指令覆盖 polymorphic/custom 调用、方法类型和方法句柄。
-开发中的回编测试仅在宿主测试端使用 `org.smali:smali:2.5.2`、API 28，并通过 dexlib2
-独立读取比对。各版本和边界用例仍在补充，当前分支尚未完成全部验收。
+回编测试仅在宿主测试端使用 `org.smali:smali:2.5.2`、API 28，并通过 dexlib2
+独立读取比对。首版已完成声明范围内的实现与验收；这不表示所有 DEX 变体、指令组合和
+运行环境均已穷尽验证。Android 四 ABI 已构建，R8/JNI 消费端验证在宿主执行，尚未进行
+Android 真机运行和大规模真实 APK 语料对照。
 
 以下输入明确报错：CompactDex、odex/quickened 或保留指令、反向字节序／未知版本、
 link data、hidden-API 元数据、共享或孤立的 switch payload、内容相同但源 ID 不同的

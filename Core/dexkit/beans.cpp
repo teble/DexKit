@@ -95,8 +95,19 @@ AnnotationEncodeValueBean::CreateAnnotationEncodeValueMeta(flatbuffers::FlatBuff
         case AnnotationEncodeValueType::CharValue: offset = schema::CreateEncodeValueChar(fbb, get<int16_t>(this->value)).Union(); break;
         case AnnotationEncodeValueType::IntValue: offset = schema::CreateEncodeValueInt(fbb, get<int32_t>(this->value)).Union(); break;
         case AnnotationEncodeValueType::LongValue: offset = schema::CreateEncodeValueLong(fbb, get<int64_t>(this->value)).Union(); break;
-        case AnnotationEncodeValueType::FloatValue: offset = schema::CreateEncodeValueFloat(fbb, get<float>(this->value)).Union(); break;
-        case AnnotationEncodeValueType::DoubleValue: offset = schema::CreateEncodeValueDouble(fbb, get<double>(this->value)).Union(); break;
+        case AnnotationEncodeValueType::FloatValue: {
+            // Always write the scalar: default elision considers -0 equal to +0.
+            const auto start = fbb.StartTable();
+            fbb.AddElement<float>(schema::EncodeValueFloat::VT_VALUE, get<float>(this->value));
+            offset = flatbuffers::Offset<schema::EncodeValueFloat>(fbb.EndTable(start)).Union();
+            break;
+        }
+        case AnnotationEncodeValueType::DoubleValue: {
+            const auto start = fbb.StartTable();
+            fbb.AddElement<double>(schema::EncodeValueDouble::VT_VALUE, get<double>(this->value));
+            offset = flatbuffers::Offset<schema::EncodeValueDouble>(fbb.EndTable(start)).Union();
+            break;
+        }
         case AnnotationEncodeValueType::StringValue: offset = schema::CreateEncodeValueString(fbb, fbb.CreateString(get<std::string_view>(this->value))).Union(); break;
         case AnnotationEncodeValueType::TypeValue: offset = get<std::unique_ptr<ClassBean>>(this->value)->CreateClassMeta(fbb).Union(); break;
         case AnnotationEncodeValueType::MethodValue: offset = get<std::unique_ptr<MethodBean>>(this->value)->CreateMethodMeta(fbb).Union(); break;

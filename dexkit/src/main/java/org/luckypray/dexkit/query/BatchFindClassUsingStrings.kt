@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.query
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import com.google.flatbuffers.FlatBufferBuilder
 import org.luckypray.dexkit.InnerBatchFindClassUsingStrings
 import org.luckypray.dexkit.query.base.BaseFinder
@@ -253,9 +255,9 @@ class BatchFindClassUsingStrings : BaseFinder() {
         }
         val root = InnerBatchFindClassUsingStrings.createBatchFindClassUsingStrings(
             fbb,
-            searchPackages?.map { fbb.createString(it) }?.toIntArray()
+            searchPackages?.map { DexStringCodec.create(fbb, it) }?.toIntArray()
                 ?.let { fbb.createVectorOfTables(it) } ?: 0,
-            excludePackages?.map { fbb.createString(it) }?.toIntArray()
+            excludePackages?.map { DexStringCodec.create(fbb, it) }?.toIntArray()
                 ?.let { fbb.createVectorOfTables(it) } ?: 0,
             ignorePackagesCase,
             searchClasses?.map { it.getEncodeId() }?.toLongArray()

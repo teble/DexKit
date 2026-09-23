@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.query.matchers
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import com.google.flatbuffers.FlatBufferBuilder
 import org.luckypray.dexkit.InnerEncodeValueBoolean
 import org.luckypray.dexkit.InnerEncodeValueByte
@@ -98,7 +100,7 @@ class EncodeValueDouble(val value: Double) : EncodeValue(), IAnnotationEncodeVal
 
 class EncodeValueString(val value: String) : EncodeValue() {
     override fun innerBuild(fbb: FlatBufferBuilder): Int {
-        val root = InnerEncodeValueString.createEncodeValueString(fbb, fbb.createString(value))
+        val root = InnerEncodeValueString.createEncodeValueString(fbb, DexStringCodec.create(fbb, value))
         fbb.finish(root)
         return root
     }

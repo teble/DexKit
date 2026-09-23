@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.result
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerAnnotationMeta
 import org.luckypray.dexkit.query.enums.AnnotationVisibilityType
@@ -47,7 +49,7 @@ class AnnotationData private constructor(
             bridge,
             annotationMeta.dexId.toInt(),
             annotationMeta.typeId.toInt(),
-            annotationMeta.typeDescriptor!!,
+            DexStringCodec.decode(annotationMeta.typeDescriptorAsByteBuffer)!!,
             AnnotationVisibilityType.from(annotationMeta.visibility),
             mutableListOf<AnnotationElementData>().apply {
                 for (i in 0 until annotationMeta.elementsLength) {

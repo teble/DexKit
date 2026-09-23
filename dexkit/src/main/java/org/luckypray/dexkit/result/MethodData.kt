@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.result
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import org.luckypray.dexkit.DexAccessFlags
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerMethodMeta
@@ -79,7 +81,7 @@ class MethodData private constructor(
             methodMeta.classId.toInt(),
             methodMeta.modifiers.toInt(),
             methodMeta.accessFlags.toInt(),
-            methodMeta.dexDescriptor ?: "",
+            DexStringCodec.decode(methodMeta.dexDescriptorAsByteBuffer) ?: "",
             methodMeta.returnType.toInt(),
             mutableListOf<Int>().apply {
                 for (i in 0 until methodMeta.parameterTypesLength) {

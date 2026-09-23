@@ -41,8 +41,7 @@ import org.luckypray.dexkit.InnerFieldMeta
 import org.luckypray.dexkit.InnerMethodMeta
 import org.luckypray.dexkit.query.enums.AnnotationEncodeValueType
 import org.luckypray.dexkit.result.base.BaseData
-import org.luckypray.dexkit.util.MUtf8Util
-import org.luckypray.dexkit.util.StringUnicodeEncoderDecoder
+import org.luckypray.dexkit.util.DexStringCodec
 
 class AnnotationEncodeArrayData private constructor(
     bridge: DexKitBridge,
@@ -68,17 +67,7 @@ class AnnotationEncodeArrayData private constructor(
                         AnnotationEncodeValueType.DoubleValue -> (encodeValue.value(InnerEncodeValueDouble()) as InnerEncodeValueDouble).value
                         AnnotationEncodeValueType.StringValue -> {
                             val encodeValueString = (encodeValue.value(InnerEncodeValueString()) as InnerEncodeValueString)
-                            try {
-                                encodeValueString.value!!
-                            } catch (e: IllegalArgumentException) {
-                                // try to unescape unicode
-                                runCatching {
-                                    encodeValueString.valueAsByteBuffer.let {
-                                        val mUtf8String = MUtf8Util.decode(it)
-                                        StringUnicodeEncoderDecoder.encodeStringToUnicodeSequence(mUtf8String)
-                                    }
-                                }.getOrElse { "" }
-                            }
+                            DexStringCodec.decode(encodeValueString.valueAsByteBuffer)!!
                         }
                         AnnotationEncodeValueType.TypeValue -> ClassData.from(bridge, encodeValue.value(InnerClassMeta()) as InnerClassMeta)
                         AnnotationEncodeValueType.MethodValue -> MethodData.from(bridge, encodeValue.value(InnerMethodMeta()) as InnerMethodMeta)

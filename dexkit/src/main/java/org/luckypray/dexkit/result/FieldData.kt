@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.result
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import org.luckypray.dexkit.DexAccessFlags
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerFieldMeta
@@ -61,7 +63,7 @@ class FieldData private constructor(
             fieldMeta.classId.toInt(),
             fieldMeta.modifiers.toInt(),
             fieldMeta.accessFlags.toInt(),
-            fieldMeta.dexDescriptor!!,
+            DexStringCodec.decode(fieldMeta.dexDescriptorAsByteBuffer)!!,
             fieldMeta.typeId.toInt()
         )
     }

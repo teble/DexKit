@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.result
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import org.luckypray.dexkit.DexAccessFlags
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerClassMeta
@@ -69,10 +71,10 @@ class ClassData private constructor(
             bridge,
             classMeta.id.toInt(),
             classMeta.dexId.toInt(),
-            classMeta.sourceFile ?: "",
+            DexStringCodec.decode(classMeta.sourceFileAsByteBuffer) ?: "",
             classMeta.modifiers.toInt(),
             classMeta.accessFlags.toInt(),
-            classMeta.dexDescriptor ?: "",
+            DexStringCodec.decode(classMeta.dexDescriptorAsByteBuffer) ?: "",
             classMeta.superClass.toInt().let { if (it == -1) null else it },
             mutableListOf<Int>().apply {
                 for (i in 0 until classMeta.interfacesLength) {

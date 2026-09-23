@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.query.matchers
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import com.google.flatbuffers.FlatBufferBuilder
 import org.luckypray.dexkit.DexAccessFlags
 import org.luckypray.dexkit.InnerMethodMatcher
@@ -1537,7 +1539,7 @@ class MethodMatcher : BaseMatcher, IAnnotationEncodeValue {
                 ?.let { InnerMethodMatcher.createUsingNumbersVector(fbb, it) } ?: 0,
             invokeMethodsMatcher?.build(fbb) ?: 0,
             callerMethodsMatcher?.build(fbb) ?: 0,
-            protoShortyMatcher?.let { fbb.createString(it) } ?: 0,
+            protoShortyMatcher?.let { DexStringCodec.create(fbb, it) } ?: 0,
             allOfMatchers?.map { it.build(fbb) }?.toIntArray()
                 ?.let { fbb.createVectorOfTables(it) } ?: 0,
             anyOfMatchers?.map { it.build(fbb) }?.toIntArray()

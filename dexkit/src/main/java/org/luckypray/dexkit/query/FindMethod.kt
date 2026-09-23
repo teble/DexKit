@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.query
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import com.google.flatbuffers.FlatBufferBuilder
 import org.luckypray.dexkit.InnerFindMethod
 import org.luckypray.dexkit.query.base.BaseFinder
@@ -207,9 +209,9 @@ class FindMethod : BaseFinder() {
     override fun innerBuild(fbb: FlatBufferBuilder): Int {
         val root = InnerFindMethod.createFindMethod(
             fbb,
-            searchPackages?.map { fbb.createString(it) }?.toIntArray()
+            searchPackages?.map { DexStringCodec.create(fbb, it) }?.toIntArray()
                 ?.let { fbb.createVectorOfTables(it) } ?: 0,
-            excludePackages?.map { fbb.createString(it) }?.toIntArray()
+            excludePackages?.map { DexStringCodec.create(fbb, it) }?.toIntArray()
                 ?.let { fbb.createVectorOfTables(it) } ?: 0,
             ignorePackagesCase,
             searchClasses?.map { it.getEncodeId() }?.toLongArray()

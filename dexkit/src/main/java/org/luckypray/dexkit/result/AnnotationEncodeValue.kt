@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.result
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.InnerAnnotationEncodeArray
 import org.luckypray.dexkit.InnerAnnotationEncodeValueMeta
@@ -58,7 +60,7 @@ class AnnotationEncodeValue private constructor(
                 AnnotationEncodeValueType.LongValue -> (encodeValueMeta.value(InnerEncodeValueLong()) as InnerEncodeValueLong).value
                 AnnotationEncodeValueType.FloatValue -> (encodeValueMeta.value(InnerEncodeValueFloat()) as InnerEncodeValueFloat).value
                 AnnotationEncodeValueType.DoubleValue -> (encodeValueMeta.value(InnerEncodeValueDouble()) as InnerEncodeValueDouble).value
-                AnnotationEncodeValueType.StringValue -> (encodeValueMeta.value(InnerEncodeValueString()) as InnerEncodeValueString).value!!
+                AnnotationEncodeValueType.StringValue -> DexStringCodec.decode((encodeValueMeta.value(InnerEncodeValueString()) as InnerEncodeValueString).valueAsByteBuffer)!!
                 AnnotationEncodeValueType.TypeValue -> ClassData.from(bridge, encodeValueMeta.value(InnerClassMeta()) as InnerClassMeta)
                 AnnotationEncodeValueType.MethodValue -> MethodData.from(bridge, encodeValueMeta.value(InnerMethodMeta()) as InnerMethodMeta)
                 AnnotationEncodeValueType.EnumValue -> FieldData.from(bridge, encodeValueMeta.value(InnerFieldMeta()) as InnerFieldMeta)

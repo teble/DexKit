@@ -23,6 +23,8 @@
 
 package org.luckypray.dexkit.query.matchers.base
 
+import org.luckypray.dexkit.util.DexStringCodec
+
 import com.google.flatbuffers.FlatBufferBuilder
 import org.luckypray.dexkit.InnerStringMatcher
 import org.luckypray.dexkit.query.base.BaseMatcher
@@ -128,7 +130,7 @@ class StringMatcher : BaseMatcher, IAnnotationEncodeValue {
         }
         val root = InnerStringMatcher.createStringMatcher(
             fbb,
-            fbb.createString(value!!),
+            DexStringCodec.create(fbb, value!!),
             matchType.value,
             ignoreCase
         )

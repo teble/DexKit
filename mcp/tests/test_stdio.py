@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Exercise the built MCP binary over real subprocess pipes, without a shell."""
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -208,14 +207,10 @@ class StdioTests(unittest.TestCase):
                 # Stored/aligned entries must be detached from the APK mapping.
                 self.assertEqual((info.header_offset + 30 + len(name) + len(info.extra)) % 4, 0)
         self.assertGreater(apk.stat().st_size, 256 * 1024 * 1024)
-        digest = hashlib.sha256()
-        with apk.open('rb') as source:
-            for chunk in iter(lambda: source.read(1024 * 1024), b''):
-                digest.update(chunk)
         opened = self.client.call('open', {'path': str(apk)})
+        self.assertEqual(set(opened), {'instanceId', 'byteLength', 'dexCount'})
         self.assertEqual(opened['dexCount'], 2)
         self.assertEqual(opened['byteLength'], str(apk.stat().st_size))
-        self.assertEqual(opened['fingerprint'], 'sha256:' + digest.hexdigest())
         apk.write_bytes(b'replaced and truncated')
         apk.unlink()
         instance = opened['instanceId']

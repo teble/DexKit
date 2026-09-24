@@ -182,7 +182,6 @@ impl AnalysisService {
         let instance_id = id("i");
         let result = Opened {
             instance_id: instance_id.clone(),
-            fingerprint: input.fingerprint,
             byte_length: input.byte_length.to_string(),
             dex_count: native.dex_count,
         };

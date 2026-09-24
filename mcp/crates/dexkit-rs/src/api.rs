@@ -212,7 +212,6 @@ impl<T> Reply<T> {
 #[serde(rename_all = "camelCase")]
 pub struct Opened {
     pub instance_id: String,
-    pub fingerprint: String,
     pub byte_length: String,
     pub dex_count: u32,
 }

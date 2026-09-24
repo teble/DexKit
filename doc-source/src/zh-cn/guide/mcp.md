@@ -72,17 +72,18 @@ mcp/target/release/dexkit-mcp --transport stdio --allow-root /path/to/apks
 
 ## 输入与 worker 生命周期
 
-可重复指定 `--allow-root`，默认只接受当前工作目录及其子目录。打开时分块计算完整文件
-的 SHA-256，再由 C++ 映射同一个已打开的文件句柄，不把整个 APK 复制到内存，也不生成
+可重复指定 `--allow-root`，默认只接受当前工作目录及其子目录。打开时检查文件元数据，
+再由 C++ 映射同一个已打开的文件句柄，不把整个 APK 复制到内存，也不生成
 临时 APK。只保留分析所需的 DEX：未压缩条目和原始 DEX 复制一次，压缩条目保留解压后的
-缓冲区。源 APK/DEX 不会被修改。指纹覆盖整个原始文件，包括完整容器或压缩包。
+缓冲区。源 APK/DEX 不会被修改。`open` 返回 `instanceId`、`byteLength` 和
+`dexCount`，不计算整包文件指纹。
 APK 读取连续的 `classes.dex`、`classes2.dex` 等条目，序号缺口及解压失败
 明确报错。
 文件读取沿已持有的允许目录句柄逐级打开，拒绝检查后被替换的符号链接；FIFO 等非普通
 文件会直接被拒绝，不会阻塞等待。
 
-源文件在 `open` 完成前需保持不变；完成后可以修改或删除，不影响实例。哈希与加载前后
-会检查文件元数据，检测到并发变化时返回可重试的 `INPUT_CHANGED`。这不是文件系统原子
+源文件在 `open` 完成前需保持不变；完成后可以修改或删除，不影响实例。原生加载前后
+会检查文件大小、mtime 和 ctime，检测到并发变化时返回可重试的 `INPUT_CHANGED`。这不是文件系统原子
 快照；若映射期间源文件被截断，也可能导致 worker 退出并返回 `WORKER_EXITED`。
 
 两个传输入口共用以下启动参数：
@@ -142,7 +143,7 @@ MCP 工具结果（文本及结构化内容）上限为 64 KiB，不含 JSON-RPC
 | 工具 | 作用 |
 | --- | --- |
 | `get_query_schema` | 无需实例即可读取查询契约、示例及 JSON Pointer 片段 |
-| `open`、`close`、`capabilities` | 管理输入生命周期、指纹及实际能力 |
+| `open`、`close`、`capabilities` | 管理输入生命周期、文件字节数、DEX 数量及实际能力 |
 | `find_classes`、`find_methods`、`find_fields` | 类型化条件查询，保留完整结果集 |
 | `describe`、`relations` | 元数据、按需注解／指令信息，以及直接关系 |
 | `page` | 读取已保留结果的后续页，不重新运行查询 |

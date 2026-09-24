@@ -85,19 +85,19 @@ mcp/target/release/dexkit-mcp --transport stdio --allow-root /path/to/apks
 ## Input and worker lifetime
 
 Repeat `--allow-root` for multiple directories. The default is the process's
-current directory. The adapter streams the complete input SHA-256, then C++ maps
-the same open file descriptor. It does not copy the entire APK to memory or to a
+current directory. The adapter checks input metadata, then C++ maps the same
+open file descriptor. It does not copy the entire APK to memory or to a
 temporary file. Only loaded DEX bytes are retained: stored entries and raw DEX
 are copied once, while deflated entries keep their decompressed buffer. The
-source APK/DEX is never modified. The fingerprint covers the complete original
-file, including the full container/archive. APK input uses consecutive
+source APK/DEX is never modified. `open` returns `instanceId`, `byteLength` and
+`dexCount`, without computing a whole-file fingerprint. APK input uses consecutive
 `classes.dex`, `classes2.dex`, etc.; gaps and decompression failures are errors.
 File opens traverse held allowed-directory handles without following replaced
 symlinks. Non-regular inputs such as FIFOs are rejected without blocking.
 
 Keep the source unchanged until `open` completes; afterward it may be modified
-or deleted without affecting the instance. File metadata is checked around
-hashing and loading, and detected changes return retryable `INPUT_CHANGED`.
+or deleted without affecting the instance. File size, mtime and ctime are checked
+around native loading, and detected changes return retryable `INPUT_CHANGED`.
 This is not an atomic filesystem snapshot: concurrent truncation of a mapped
 input can terminate the worker and produce `WORKER_EXITED` instead.
 
@@ -171,7 +171,7 @@ Available tools:
 | Tools | Purpose |
 | --- | --- |
 | `get_query_schema` | Read query contracts, examples and JSON Pointer fragments without an instance |
-| `open`, `close`, `capabilities` | Input lifetime, fingerprints and actual capabilities |
+| `open`, `close`, `capabilities` | Input lifetime, byte length, DEX count and actual capabilities |
 | `find_classes`, `find_methods`, `find_fields` | Typed matcher trees, with complete materialized result sets |
 | `describe`, `relations` | Metadata, optional annotations/code details and direct relationships |
 | `page` | Continue the same retained result set without rerunning Core |

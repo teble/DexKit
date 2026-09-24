@@ -152,3 +152,18 @@ Base: `10484393c0df17065cec376bfcb96bb83e0b9192`; continue on `mcp`.
 3. [x] Update naming/evolution guidance and run the existing Rust, interop,
    HTTP/stdio, schema and installed-client checks; rebuild the docs and release.
 4. Publish to `teble:mcp`; Git and the completion report record the remote revision.
+
+## Remove unused whole-input fingerprints
+
+Base: `2c641a6f36d68006b5b4716aad0ac6a57a431073`; continue on `mcp`.
+
+1. [x] Confirm that the input fingerprint is only returned by open, with no use
+   in cache lookup, deduplication, instance ownership or source-change detection.
+2. [x] Remove whole-input hashing and the open response field. Keep input byte
+   budgets, held-descriptor loading and metadata checks around native loading.
+3. [x] Update the current guides and existing contract/lifetime regressions;
+   validate the release and remeasure complete QQ APK opens.
+4. Publish to `teble:mcp`; Git and the completion report record the remote revision.
+
+Query-schema and smali-artifact hashes retain their existing purposes. This
+unpublished API cleanup does not introduce a placeholder or compatibility field.

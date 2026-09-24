@@ -29,6 +29,8 @@ Basic Features:
 - [x] Experimental native method/class smali output ([usage and limits](doc-source/src/en/guide/smali.md))
 - [x] Experimental native MCP server with `dexkit_` tools, query contract discovery and configurable input budgets (Streamable HTTP / stdio) ([build and contract](doc-source/src/en/guide/mcp.md))
 
+Native MCP `dexkit_open` returns `instanceId`, `byteLength` and `dexCount`.
+
 ⭐️ Distinctive Features (Recommended):
 
 - [x] Batch search of classes using strings

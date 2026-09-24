@@ -360,3 +360,42 @@ Executed validation:
 
 The macOS arm64 release remains 6616896 bytes. SHA-256:
 `09851feb6da9582a78c99e4a238e69090d8b7638c1de7bdd1ce10417ee223622`.
+
+## Remove unused input fingerprints
+
+Base: `2c641a6f36d68006b5b4716aad0ac6a57a431073`.
+
+This update removes the whole-file SHA-256 preparation pass and the open reply's
+fingerprint field, superseding that behavior in the earlier input-handling record.
+Open now returns only `instanceId`, `byteLength` and `dexCount`. File-size budgets,
+held-descriptor mapping, before/after native-loading metadata checks and independent
+DEX ownership remain in place. Query-schema and smali-artifact hashes are retained.
+
+The existing suite passes: 13 workspace unit functions, 11 interop tests, 15 stdio
+tests and 14 HTTP tests. Actual published schemas validate 110 stdio and 69 HTTP
+request/result cases across all 12 tools. The large stored-APK regression checks
+the exact three-field open reply and query/smali after source truncation/deletion;
+input budget and change-detection regressions still pass. Workspace clippy with
+warnings denied, formatting, diff checks and the 28-page docs build pass.
+
+The release schema contains exactly those three Opened properties and required
+fields. For the real 389727209-byte QQ APK, old/new release binaries were run in
+alternating order three times each on macOS arm64, with warm filesystem cache and
+a fresh server/worker per run. Discovery and worker readiness were outside the
+timed HTTP open request. Results in milliseconds:
+
+| Build | Run 1 | Run 2 | Run 3 | Median |
+| --- | ---: | ---: | ---: | ---: |
+| Before | 2118.305 | 2019.577 | 2044.852 | 2044.852 |
+| After | 865.582 | 874.386 | 871.823 | 871.823 |
+
+The measured median decreased by 57.4%. Each new-build run opens all 41 DEX entries,
+queries the declared class in logical DEX 40, produces 2454 bytes of smali and
+closes successfully. This is a local warm-cache result, not a cold-cache or
+cross-platform performance guarantee. Native loading is still serial; no parallel
+loader or full-cache initialization was added.
+
+The macOS arm64 release is 6616496 bytes (400 fewer than the previous release).
+SHA-256: `62d524459ccdce9283324977fff7280a80a3d1bcf0e614955a5d3d278a129fd1`.
+No C++ Core, JNI, FBS or Android sources changed; their earlier checks remain
+baseline evidence.

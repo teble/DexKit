@@ -59,9 +59,10 @@ DEX bytes in an APK. Set it higher for larger codebases, or to `0` to disable it
 Both options apply to HTTP and stdio; capabilities reports their effective byte
 values as `maxInputBytes` and `maxDexBytes`, where zero means unlimited.
 
-The adapter streams the whole-file SHA-256, maps the already-open input in C++,
-and retains only owned DEX bytes. It neither copies the whole APK into a heap
-buffer nor creates a temporary APK. Stored DEX entries are copied once; deflated
+The adapter checks input metadata, maps the already-open input in C++, and
+retains only owned DEX bytes. Open returns `instanceId`, `byteLength` and
+`dexCount`; it does not compute a whole-file fingerprint. It neither copies
+the whole APK into a heap buffer nor creates a temporary APK. Stored DEX entries are copied once; deflated
 entries retain their decompressed buffer. Keep the source unchanged until open
 returns; afterward it can be modified or deleted without affecting the instance.
 Detected concurrent changes return `INPUT_CHANGED`; concurrent truncation of a

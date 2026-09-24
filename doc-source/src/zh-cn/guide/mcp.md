@@ -36,7 +36,7 @@ GET 和 DELETE 返回 405。`resources/read` 也是 MCP POST 调用，不是对 
 发起普通 HTTP GET。
 
 **DEX 实例的生命周期独立于 HTTP 连接。** 常驻原生 worker 保存已打开输入，
-`instanceId` 可跨请求、新 TCP 连接和客户端重新握手使用。调用 `dexkit_v1_close`
+`instanceId` 可跨请求、新 TCP 连接和客户端重新握手使用。调用 `dexkit_close`
 释放实例；客户端断连不会自动关闭它。服务器退出后全部句柄失效。
 这是本机单用户服务：所有已连接客户端共享允许目录、分析状态及配额。
 客户端名称、实例 ID 不承担认证或租户隔离作用。
@@ -112,11 +112,11 @@ Core 查询；当前不提供原生取消和通用结果数量上限。
 ## 工具与查询契约
 
 如果客户端隐藏嵌套参数，或将查询显示为 `query: unknown`，可以通过
-`dexkit_v1_get_query_schema` 按需读取真实契约。帮助通过普通工具结果返回，
+`dexkit_get_query_schema` 按需读取真实契约。帮助通过普通工具结果返回，
 无需先打开 APK；原生 worker 忙碌或失效时仍可读取。
 
 ```json
-{"tool":"dexkit_v1_find_methods"}
+{"tool":"dexkit_find_methods"}
 ```
 
 省略 `pointer` 返回参数概览、导航链接、语义规则及示例；使用示例时，将实例占位值
@@ -132,7 +132,12 @@ MCP 工具结果（文本及结构化内容）上限为 64 KiB，不含 JSON-RPC
 `linksComplete:false` 表示导航列表不完整；超限返回 `SCHEMA_SECTION_TOO_LARGE` 和子节点链接，
 不会截断 JSON。查询契约保持 v1，帮助包络使用 `discoveryVersion: 1`。
 
-所有工具都使用 `dexkit_v1_` 前缀：
+所有工具都使用稳定的 `dexkit_` 前缀，名称中不包含版本号。
+`serverInfo.version` 表示程序发布版本；capabilities／查询帮助中的 `apiMajor`、
+`contractRevision` 表示业务契约版本；`schemaHash` 仅标识输入 schema。
+这些信息不会自动完成工具版本协商。
+
+可用工具如下：
 
 | 工具 | 作用 |
 | --- | --- |
@@ -147,7 +152,7 @@ MCP 工具结果（文本及结构化内容）上限为 64 KiB，不含 JSON-RPC
 
 ```json
 {
-  "name": "dexkit_v1_find_methods",
+  "name": "dexkit_find_methods",
   "arguments": {
     "instanceId": "returned-instance-id",
     "query": {
@@ -231,5 +236,6 @@ Rust 接口明确拒绝无法表示的孤立 UTF-16 代理项元数据；smali �
 新增可选条件不得改变已有含义或默认行为；不同目标的新查询应增加独立工具。
 需要同步更新公开 DTO、校验、原生映射、字段覆盖／编码清单、语义测试、能力登记和契约版本。
 FBS 新字段、枚举、union 未分类时构建失败，但清单本身不能证明类型、默认值或语义变化兼容。
-破坏公开行为时应使用新的 `dexkit_v2_` 契约。保存查询的重放、批量查询工具、
-通用正则和传递调用路径暂不提供。
+兼容变更保持工具名稳定。破坏公开行为时需要明确提升契约主版本并制定迁移策略；
+只有需要不兼容契约同时存在时，才使用不同工具名或服务入口。
+保存查询的重放、批量查询工具、通用正则和传递调用路径暂不提供。

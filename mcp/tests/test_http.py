@@ -265,7 +265,7 @@ class HttpTests(unittest.TestCase):
     def test_worker_failure_remains_explicit_over_http(self):
         self.open()
         os.kill(self.server.worker(), signal.SIGKILL)
-        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
+        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_find_methods'})['kind'], 'overview')
         error = self.client.call('capabilities', {}, success=False)
         self.assertEqual(error['code'], 'WORKER_EXITED')
         self.client.catalogue()
@@ -275,11 +275,11 @@ class HttpTests(unittest.TestCase):
         worker = self.server.worker()
         os.kill(worker, signal.SIGSTOP)
         try:
-            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
+            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_find_methods'})['kind'], 'overview')
             for _ in range(4):
                 connection = self.client.connection()
                 body, headers = self.client.envelope('tools/call', {
-                    'name': 'dexkit_v1_open', 'arguments': {'path': str(self.dex)}})
+                    'name': 'dexkit_open', 'arguments': {'path': str(self.dex)}})
                 connection.request('POST', '/mcp', json.dumps(body).encode(), headers)
                 # Modern rmcp waits for its first message before choosing the
                 # HTTP status. Cancel while headers are still pending.
@@ -367,7 +367,7 @@ class HttpTests(unittest.TestCase):
         worker = self.server.worker()
         os.kill(worker, signal.SIGSTOP)
         connection = self.client.connection()
-        body, headers = self.client.envelope('tools/call', {'name': 'dexkit_v1_capabilities', 'arguments': {}})
+        body, headers = self.client.envelope('tools/call', {'name': 'dexkit_capabilities', 'arguments': {}})
         connection.request('POST', '/mcp', json.dumps(body).encode(), headers)
         try:
             self.server.close(signal.SIGINT)

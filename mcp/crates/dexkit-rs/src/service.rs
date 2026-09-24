@@ -117,7 +117,7 @@ impl AnalysisService {
             api_major: API_MAJOR,
             contract_revision: CONTRACT_REVISION.into(),
             implementation: env!("CARGO_PKG_VERSION").into(),
-            tools: TOOLS.iter().map(|s| format!("dexkit_v1_{s}")).collect(),
+            tools: TOOLS.iter().map(|s| format!("dexkit_{s}")).collect(),
             pagination: "materializedResultSet".into(),
             native_result_limit: false,
             native_cancellation: false,
@@ -144,7 +144,7 @@ impl AnalysisService {
                 value(self.$method(request)?)
             }};
         }
-        match name.strip_prefix("dexkit_v1_").unwrap_or("") {
+        match name.strip_prefix("dexkit_").unwrap_or("") {
             "capabilities" => {
                 let _: Empty = parse(arguments)?;
                 value(self.capabilities())
@@ -723,7 +723,7 @@ impl AnalysisService {
         let a = self.artifacts.get(id).ok_or_else(missing_artifact)?;
         if a.size > 65536 {
             return Err(Error::limit(
-                "Use dexkit_v1_read_artifact to read this resource in chunks",
+                "Use dexkit_read_artifact to read this resource in chunks",
             ));
         }
         let instance_id = a.instance.clone();

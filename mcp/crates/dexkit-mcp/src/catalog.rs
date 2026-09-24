@@ -19,7 +19,7 @@ pub fn tools() -> Vec<Tool> {
         tool::<Smali,SmaliOutput>("smali","Disassemble a class or method. inline is limited to 64 KiB; artifact publishes a managed dexkit:// resource. maxOutputBytes limits generation, not a truncated preview. None/strict debug modes follow the native writer contract."),
         tool::<ReadArtifact,ArtifactChunk>("read_artifact","Read a bounded UTF-8 chunk of a managed artifact, using byte offsets from nextByte. Does not accept arbitrary filesystem paths. maxBytes is 1..65536."),
     ].into_iter().map(|mut tool| {
-        if tool.name.starts_with("dexkit_v1_find_") {
+        if tool.name.starts_with("dexkit_find_") {
             let mut input = tool.input_schema.as_ref().clone();
             let root = Value::Object(input.clone());
             if let Some(reference) = root.pointer("/properties/select/items/$ref").and_then(Value::as_str) {
@@ -51,7 +51,7 @@ fn tool<I: JsonSchema, O: JsonSchema>(name: &str, description: &str) -> Tool {
     let mut output = serde_json::to_value(schemars::schema_for!(Reply<O>)).unwrap();
     output["type"] = json!("object");
     Tool::new(
-        format!("dexkit_v1_{name}"),
+        format!("dexkit_{name}"),
         description.to_owned(),
         input.as_object().unwrap().clone(),
     )

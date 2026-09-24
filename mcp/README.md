@@ -70,13 +70,18 @@ bound Core indexes, query memory or execution time.
 
 ## Discover query parameters
 
+Tool names use the stable `dexkit_` prefix. The program version is reported in
+server information; `apiMajor` and `contractRevision` describe the business
+contract through capabilities and query help. `schemaHash` identifies the input
+schema only. These metadata fields do not automatically negotiate tool versions.
+
 If a client displays `query: unknown` or hides nested matcher fields, call
-`dexkit_v1_get_query_schema` with the full `find_classes`, `find_methods` or
+`dexkit_get_query_schema` with the full `find_classes`, `find_methods` or
 `find_fields` tool name. Help requires no open APK and remains available while
 the native worker is busy or unavailable.
 
 ```json
-{"tool":"dexkit_v1_find_methods"}
+{"tool":"dexkit_find_methods"}
 ```
 
 Omitting `pointer` returns an overview, parameter links, rules and examples.
@@ -160,6 +165,8 @@ See the [English guide](../doc-source/src/en/guide/mcp.md) or
    Schemars generates the tool schemas from DTOs; do not maintain another manual
    schema that can drift. Breaking types/defaults/semantics require a new API
    major, rather than silently interpreting old queries differently.
+   Keep tool names stable for compatible changes. Only introduce distinct tool
+   names or server entry points when incompatible contracts must coexist.
 
 The current normal-Unicode contract rejects isolated UTF-16 surrogates on the
 Rust side. Smali is escaped text and may still represent those DEX units without

@@ -27,7 +27,7 @@ Basic Features:
 - [x] Multi-condition field search
 - [x] Provides multiple metadata APIs to obtain field/method/class related data
 - [x] Experimental native method/class smali output ([usage and limits](doc-source/src/en/guide/smali.md))
-- [x] Experimental native MCP server with query contract discovery and configurable input budgets (Streamable HTTP / stdio) ([build and contract](doc-source/src/en/guide/mcp.md))
+- [x] Experimental native MCP server with `dexkit_` tools, query contract discovery and configurable input budgets (Streamable HTTP / stdio) ([build and contract](doc-source/src/en/guide/mcp.md))
 
 ⭐️ Distinctive Features (Recommended):
 

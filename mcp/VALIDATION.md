@@ -328,3 +328,35 @@ The final unit/clippy checks, release HTTP/stdio suites, captured-schema checks
 and real QQ open/query/smali/close all pass after these refinements. Pro's review
 covers the supplied source; the post-review refinements and execution results
 were validated locally, not by another Pro test run.
+
+## Stable tool names before publication
+
+Base: `10484393c0df17065cec376bfcb96bb83e0b9192`.
+
+All 12 tools now use the stable `dexkit_` prefix, including the query-help tool
+and its three tool selectors. Catalogue names, native-worker dispatch,
+capabilities, instructions, resource diagnostics, SDK examples and client tests
+use the same names. As requested for the unpublished implementation, no legacy
+aliases were added. API major 1, contract revision 1.0 and the program version
+remain separate metadata; query parameters and semantics did not change.
+
+Executed validation:
+
+- `mcp/test.py` passes: 13 workspace unit functions, 11 interop tests, 15 stdio
+  tests and 14 HTTP tests, including the official SDK client. The generated
+  schemas validate 110 stdio and 69 HTTP request/result cases across all 12 tools.
+- The installed Codex 0.155.0-alpha.9 check passes in Code Mode and native tool
+  mode with the renamed declarations/selectors. It uses a local scripted model
+  endpoint; Code Mode discovers help and executes a real query from its returned
+  example. This checks client integration, not autonomous model performance.
+- Both workspaces pass clippy with warnings denied and formatting checks.
+  Frozen Yarn installation and the 28-page documentation build pass.
+- The release catalogue contains exactly the 12 expected names and the updated
+  query-tool enum; the helper input schema is 546 compact JSON bytes. The official
+  SDK also passes discovery/open/find/close against the release HTTP executable.
+- Source/example/documentation searches find no remaining versioned tool names.
+  No Core/JNI/FBS/Android production sources changed; their previous checks remain
+  baseline evidence for this naming-only update.
+
+The macOS arm64 release remains 6616896 bytes. SHA-256:
+`09851feb6da9582a78c99e4a238e69090d8b7638c1de7bdd1ce10417ee223622`.

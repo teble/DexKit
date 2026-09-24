@@ -69,7 +69,7 @@ class Client:
                 return message
 
     def call(self, name, arguments, success=True, valid_input=True):
-        name = 'dexkit_v1_' + name
+        name = 'dexkit_' + name
         response = self.rpc('tools/call', {'name': name, 'arguments': arguments})
         assert 'result' in response, response
         result = response['result']
@@ -172,7 +172,7 @@ class StdioTests(unittest.TestCase):
         malformed = self.root / 'invalid.dex'
         malformed.write_bytes(b'not a dex')
         self.client.call('open', {'path': str(malformed)}, success=False)
-        unknown = self.client.rpc('tools/call', {'name': 'dexkit_v1_unknown', 'arguments': {}})
+        unknown = self.client.rpc('tools/call', {'name': 'dexkit_unknown', 'arguments': {}})
         self.assertIn('error', unknown)
         self.assertIn('error', self.client.rpc('resources/read', {'uri': 'file:///etc/passwd'}))
 
@@ -298,7 +298,7 @@ class StdioTests(unittest.TestCase):
         children = subprocess.check_output(['pgrep', '-P', str(self.client.process.pid)], text=True).split()
         self.assertEqual(len(children), 1)
         os.kill(int(children[0]), signal.SIGKILL)
-        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
+        self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_find_methods'})['kind'], 'overview')
         error = self.client.call('capabilities', {}, success=False)
         self.assertEqual(error['code'], 'WORKER_EXITED')
         self.assertEqual(len(self.client.rpc('tools/list', {})['result']['tools']), 12)
@@ -328,7 +328,7 @@ class StdioTests(unittest.TestCase):
         count = (2 * 1024 * 1024 - 1200) // (len(item) + 1)
         self.client.ident += 1
         prefix = ('{"jsonrpc":"2.0","id":' + str(self.client.ident)
-                  + ',"method":"tools/call","params":{"name":"dexkit_v1_find_methods",'
+                  + ',"method":"tools/call","params":{"name":"dexkit_find_methods",'
                   + '"arguments":{"instanceId":' + json.dumps(instance)
                   + ',"query":{"matcher":{"usingNumbers":[')
         frame = (prefix + ','.join([item] * count) + ']}}}}}\n').encode()
@@ -348,12 +348,12 @@ class StdioTests(unittest.TestCase):
         worker = int(children[0])
         os.kill(worker, signal.SIGSTOP)
         try:
-            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_v1_find_methods'})['kind'], 'overview')
+            self.assertEqual(self.client.call('get_query_schema', {'tool': 'dexkit_find_methods'})['kind'], 'overview')
             for _ in range(4):
                 self.client.ident += 1
                 request_id = self.client.ident
                 self.client.send({'jsonrpc': '2.0', 'id': request_id, 'method': 'tools/call',
-                                  'params': {'name': 'dexkit_v1_open', 'arguments': {'path': str(self.dex)}}})
+                                  'params': {'name': 'dexkit_open', 'arguments': {'path': str(self.dex)}}})
                 self.client.send({'jsonrpc': '2.0', 'method': 'notifications/cancelled',
                                   'params': {'requestId': request_id, 'reason': 'test cancellation'}})
                 # rmcp intentionally suppresses cancelled responses. tools/list
@@ -371,7 +371,7 @@ class StdioTests(unittest.TestCase):
     def test_latest_protocol_without_initialize(self):
         modern = Client(self.root, modern=True)
         try:
-            response = modern.rpc('tools/call', {'name': 'dexkit_v1_capabilities', 'arguments': {}})
+            response = modern.rpc('tools/call', {'name': 'dexkit_capabilities', 'arguments': {}})
             self.assertEqual(response['result']['resultType'], 'complete')
             self.assertTrue(response['result']['structuredContent']['ok'])
             listing = modern.rpc('tools/list', {})['result']

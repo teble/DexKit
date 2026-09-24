@@ -10,7 +10,7 @@ def exercise(client, fixture, tools):
     assert capabilities['querySchemaDiscovery']['execution'] == 'parent'
     overviews = []
     for suffix in ('classes', 'methods', 'fields'):
-        name = 'dexkit_v1_find_' + suffix
+        name = 'dexkit_find_' + suffix
         overview = client.call('get_query_schema', {'tool': name})
         assert overview['kind'] == 'overview'
         assert 'fragment' not in overview
@@ -29,12 +29,12 @@ def exercise(client, fixture, tools):
         assert matcher_doc['standalone'] is False
         overviews.append((name, overview))
     for arguments, code, valid in [
-        ({'tool': 'dexkit_v1_find_methods', 'pointer': '/missing'}, 'SCHEMA_POINTER_INVALID', True),
-        ({'tool': 'dexkit_v1_find_methods', 'pointer': '#/properties/query'}, 'SCHEMA_POINTER_INVALID', True),
-        ({'tool': 'dexkit_v1_find_methods', 'ifSchemaHash': 'old'}, 'SCHEMA_CHANGED', True),
-        ({'tool': 'dexkit_v1_find_methods', 'pointer': None}, 'INVALID_ARGUMENT', False),
-        ({'tool': 'dexkit_v1_find_methods', 'extra': True}, 'INVALID_ARGUMENT', False),
-        ({'tool': 'dexkit_v1_open'}, 'INVALID_ARGUMENT', False),
+        ({'tool': 'dexkit_find_methods', 'pointer': '/missing'}, 'SCHEMA_POINTER_INVALID', True),
+        ({'tool': 'dexkit_find_methods', 'pointer': '#/properties/query'}, 'SCHEMA_POINTER_INVALID', True),
+        ({'tool': 'dexkit_find_methods', 'ifSchemaHash': 'old'}, 'SCHEMA_CHANGED', True),
+        ({'tool': 'dexkit_find_methods', 'pointer': None}, 'INVALID_ARGUMENT', False),
+        ({'tool': 'dexkit_find_methods', 'extra': True}, 'INVALID_ARGUMENT', False),
+        ({'tool': 'dexkit_open'}, 'INVALID_ARGUMENT', False),
     ]:
         error = client.call('get_query_schema', arguments, success=False, valid_input=valid)
         assert error['code'] == code, error
@@ -43,7 +43,7 @@ def exercise(client, fixture, tools):
         for name, overview in overviews:
             for example in overview['examples']:
                 arguments = {**example, 'instanceId': instance}
-                result = client.call(name.removeprefix('dexkit_v1_'), arguments)
+                result = client.call(name.removeprefix('dexkit_'), arguments)
                 assert result['resultSet']['totalItems'] == '1', result
     finally:
         client.call('close', {'instanceId': instance})

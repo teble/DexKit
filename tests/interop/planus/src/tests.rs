@@ -32,7 +32,7 @@ impl Test {
             "Assemble fixtures with run.py before testing"
         );
         let mut service = AnalysisService::new(vec![path.parent().unwrap().into()]).unwrap();
-        let opened = ok(service.call("dexkit_v1_open", json!({"path":path})));
+        let opened = ok(service.call("dexkit_open", json!({"path":path})));
         Self {
             service,
             instance: opened["instanceId"].as_str().unwrap().into(),
@@ -40,7 +40,7 @@ impl Test {
     }
     fn call(&mut self, tool: &str, mut args: Value) -> Value {
         args["instanceId"] = json!(self.instance);
-        ok(self.service.call(&format!("dexkit_v1_{tool}"), args))
+        ok(self.service.call(&format!("dexkit_{tool}"), args))
     }
     fn methods(&mut self, matcher: Value) -> Value {
         self.call("find_methods", json!({"query":{"matcher":matcher}}))
@@ -258,7 +258,7 @@ fn native_unicode_results_decode_and_lone_surrogates_fail_explicitly() {
     let mut raw = Test::new(false);
     let target = raw.method("strings");
     let response = raw.service.call(
-        "dexkit_v1_describe",
+        "dexkit_describe",
         json!({"instanceId":raw.instance,"entityId":target,"include":["usingStrings"]}),
     );
     assert_eq!(response["ok"], false);
@@ -276,16 +276,15 @@ fn stable_paging_ownership_and_closed_handles() {
     let next = t.call("page", json!({"cursor":cursor}));
     let repeated = t.call("page", json!({"cursor":cursor}));
     assert_eq!(next["items"], repeated["items"]);
-    let wrong =
-        ok(t.service.call("dexkit_v1_open", json!({"path":fixture()})))["instanceId"].clone();
+    let wrong = ok(t.service.call("dexkit_open", json!({"path":fixture()})))["instanceId"].clone();
     let response = t.service.call(
-        "dexkit_v1_describe",
+        "dexkit_describe",
         json!({"instanceId":wrong,"entityId":page["items"][0]["entityId"]}),
     );
     assert_eq!(response["error"]["code"], "INVALID_ENTITY");
     t.call("close", json!({}));
     let response = t.service.call(
-        "dexkit_v1_page",
+        "dexkit_page",
         json!({"instanceId":t.instance,"cursor":cursor}),
     );
     assert_eq!(response["error"]["code"], "INSTANCE_CLOSED");
@@ -319,7 +318,7 @@ fn smali_artifact_and_limit_errors() {
     }
     assert_eq!(bytes, inline["text"].as_str().unwrap());
     let limited = t.service.call(
-        "dexkit_v1_smali",
+        "dexkit_smali",
         json!({"instanceId":t.instance,"entityId":method,"maxOutputBytes":4}),
     );
     assert_eq!(limited["ok"], false);
@@ -337,7 +336,7 @@ fn strict_contract_does_not_silently_drop_conditions() {
         json!({"scope":{"within":{"entityIds":[],"resultSetId":"x"}}}),
     ] {
         let result = t.service.call(
-            "dexkit_v1_find_methods",
+            "dexkit_find_methods",
             json!({"instanceId":t.instance,"query":query}),
         );
         assert_eq!(result["ok"], false, "{result}");
@@ -398,14 +397,14 @@ fn fields_flags_opcodes_and_using_field_matchers() {
 fn declared_methods_do_not_include_undefined_references() {
     let path = fixture().with_file_name("references.dex");
     let mut service = AnalysisService::new(vec![path.parent().unwrap().into()]).unwrap();
-    let instance = ok(service.call("dexkit_v1_open", json!({"path":path})))["instanceId"].clone();
+    let instance = ok(service.call("dexkit_open", json!({"path":path})))["instanceId"].clone();
     let classes = ok(service.call(
-        "dexkit_v1_find_classes",
+        "dexkit_find_classes",
         json!({"instanceId":instance,"query":{}}),
     ));
     let entity = classes["items"][0]["entityId"].clone();
     let members = ok(service.call(
-        "dexkit_v1_relations",
+        "dexkit_relations",
         json!({"instanceId":instance,"entityId":entity,"relation":"declaredMethods"}),
     ));
     assert_eq!(count(&members), 1);
@@ -414,7 +413,7 @@ fn declared_methods_do_not_include_undefined_references() {
         "Linterop/References;->touch()V"
     );
     let all = ok(service.call(
-        "dexkit_v1_find_methods",
+        "dexkit_find_methods",
         json!({"instanceId":instance,"query":{}}),
     ));
     assert_eq!(
@@ -423,7 +422,7 @@ fn declared_methods_do_not_include_undefined_references() {
         "Core query also includes referenced IDs in a defined class"
     );
     let fields = ok(service.call(
-        "dexkit_v1_relations",
+        "dexkit_relations",
         json!({"instanceId":instance,"entityId":entity,"relation":"fieldReferences"}),
     ));
     assert_eq!(

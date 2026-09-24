@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
-pub const NAME: &str = "dexkit_v1_get_query_schema";
+pub const NAME: &str = "dexkit_get_query_schema";
 pub const MAX_REPLY: usize = 16 * 1024;
 pub const MAX_MCP_REPLY: usize = 64 * 1024;
 const MAX_LINKS: usize = 64;
@@ -15,19 +15,19 @@ const MAX_LINKS: usize = 64;
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, JsonSchema)]
 #[schemars(inline)]
 pub enum QueryTool {
-    #[serde(rename = "dexkit_v1_find_classes")]
+    #[serde(rename = "dexkit_find_classes")]
     Classes,
-    #[serde(rename = "dexkit_v1_find_methods")]
+    #[serde(rename = "dexkit_find_methods")]
     Methods,
-    #[serde(rename = "dexkit_v1_find_fields")]
+    #[serde(rename = "dexkit_find_fields")]
     Fields,
 }
 impl QueryTool {
     pub fn name(self) -> &'static str {
         match self {
-            Self::Classes => "dexkit_v1_find_classes",
-            Self::Methods => "dexkit_v1_find_methods",
-            Self::Fields => "dexkit_v1_find_fields",
+            Self::Classes => "dexkit_find_classes",
+            Self::Methods => "dexkit_find_methods",
+            Self::Fields => "dexkit_find_fields",
         }
     }
 }
@@ -134,7 +134,7 @@ impl QueryContracts {
     pub fn new(tools: &[Tool]) -> Self {
         let documents = tools
             .iter()
-            .filter(|t| t.name.starts_with("dexkit_v1_find_"))
+            .filter(|t| t.name.starts_with("dexkit_find_"))
             .map(|tool| {
                 let schema = Value::Object(tool.input_schema.as_ref().clone());
                 let bytes = serde_json::to_vec(&sorted(&schema)).expect("schema JSON");
@@ -618,8 +618,8 @@ mod tests {
         for args in [
             json!({}),
             json!({"tool":"not-a-query"}),
-            json!({"tool":"dexkit_v1_find_methods","pointer":null}),
-            json!({"tool":"dexkit_v1_find_methods","extra":true}),
+            json!({"tool":"dexkit_find_methods","pointer":null}),
+            json!({"tool":"dexkit_find_methods","extra":true}),
         ] {
             let reply = contracts.call(args);
             assert_eq!(reply["ok"], false);

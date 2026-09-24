@@ -41,7 +41,7 @@ stateless and does not issue `Mcp-Session-Id`; GET and DELETE return 405.
 
 **DEX state is independent of HTTP connections.** A single native worker keeps
 opened inputs and their `instanceId` handles available across requests, new TCP
-connections and repeated client initialization. Call `dexkit_v1_close` to free
+connections and repeated client initialization. Call `dexkit_close` to free
 an instance; disconnecting a client does not close it. Server exit invalidates
 all handles. This is a local single-user service: all connected clients share
 allowed roots, analysis state and quotas. Client names and instance IDs do not
@@ -133,12 +133,12 @@ reclaim it immediately; result sets and artifacts also expire automatically.
 ## Tools and query contract
 
 When a client hides nested input types or shows `query: unknown`, use
-`dexkit_v1_get_query_schema` to retrieve the contract through ordinary tool
+`dexkit_get_query_schema` to retrieve the contract through ordinary tool
 results. It is available without opening an APK, including while native work is
 busy or the worker has failed.
 
 ```json
-{"tool":"dexkit_v1_find_methods"}
+{"tool":"dexkit_find_methods"}
 ```
 
 Omit `pointer` for an overview with parameter links, rules and sample arguments;
@@ -160,7 +160,13 @@ Oversized sections return `SCHEMA_SECTION_TOO_LARGE` with
 child pointers; replies are never cut into invalid JSON. The API contract remains
 v1; the help envelope has `discoveryVersion: 1`.
 
-All tools use the `dexkit_v1_` prefix:
+All tools use the stable `dexkit_` prefix without a version in the name.
+`serverInfo.version` identifies the program release; `apiMajor` and
+`contractRevision` in capabilities/query help identify the business contract.
+`schemaHash` fingerprints the input schema only. These values do not provide
+automatic tool-version negotiation.
+
+Available tools:
 
 | Tools | Purpose |
 | --- | --- |
@@ -175,7 +181,7 @@ For example, after `open` returns an `instanceId`, call:
 
 ```json
 {
-  "name": "dexkit_v1_find_methods",
+  "name": "dexkit_find_methods",
   "arguments": {
     "instanceId": "returned-instance-id",
     "query": {
@@ -282,5 +288,7 @@ native mapping, coverage/encoding manifest, semantic tests, capability registry
 and contract revision together. New FBS fields/enums/unions without a coverage
 classification fail the build. Changes to field types, defaults or semantics
 require explicit compatibility review; a coverage list alone cannot prove them.
-Breaking public behavior needs a new `dexkit_v2_` contract. Saved-query
+Keep tool names stable for compatible changes. Breaking public behavior needs
+an explicit contract-major change and migration policy; use distinct tool names
+or server entry points only when incompatible contracts must coexist. Saved-query
 replay, batch-query tools, general regex and transitive call paths are deferred.

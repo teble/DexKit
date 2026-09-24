@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(client.list_tools(None).await?.tools.len(), 12);
     let opened = client
         .call_tool(
-            CallToolRequestParams::new("dexkit_v1_open")
+            CallToolRequestParams::new("dexkit_open")
                 .with_arguments(json!({"path":path}).as_object().unwrap().clone()),
         )
         .await?;
@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instance = opened["data"]["instanceId"].clone();
     let found = client
         .call_tool(
-            CallToolRequestParams::new("dexkit_v1_find_classes").with_arguments(
+            CallToolRequestParams::new("dexkit_find_classes").with_arguments(
                 json!({"instanceId":instance,"query":{}})
                     .as_object()
                     .unwrap()
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     let closed = client
         .call_tool(
-            CallToolRequestParams::new("dexkit_v1_close")
+            CallToolRequestParams::new("dexkit_close")
                 .with_arguments(json!({"instanceId":instance}).as_object().unwrap().clone()),
         )
         .await?;

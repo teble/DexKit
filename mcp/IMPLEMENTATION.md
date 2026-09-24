@@ -8,7 +8,8 @@ Work directly in the `mcp` branch; publish to `teble:mcp` after source review.
 - An independent Rust workspace: `dexkit-sys`, `dexkit-rs`, `dexkit-mcp`.
 - Static Core linkage and a private synchronous C ABI with explicit ownership.
 - Typed JSON queries and strict validation, generated input/output schemas,
-  explicit coverage of native schema additions, and versioned tool names.
+  explicit coverage of native schema additions, and stable tool names with
+  separate contract-version metadata.
 - Open/close/capabilities, class/method/field search, entity details and direct
   relationships, complete materialized result paging, bounded smali output and
   managed artifact access over standard MCP transports. The initial stdio-only
@@ -138,3 +139,16 @@ Base: `d67f02c678943bd31931dac0259a4948d4487f0d`; continue on `mcp`.
 DEX byte budgets are resource guards, not a process-wide memory or CPU limit.
 The source must remain unchanged during open; no full-APK copy is retained in
 memory or temporary storage.
+
+## Stable tool names before publication
+
+Base: `10484393c0df17065cec376bfcb96bb83e0b9192`; continue on `mcp`.
+
+1. [x] Locate names in the catalogue, dispatch, capabilities, query discovery,
+   instructions, SDK examples, interop/client tests and bilingual guides.
+2. [x] Use the `dexkit_` prefix consistently for all 12 tools and query selectors.
+   Keep contract metadata separate. No legacy aliases or migration layer are
+   needed because the user confirmed this MCP implementation is unpublished.
+3. [x] Update naming/evolution guidance and run the existing Rust, interop,
+   HTTP/stdio, schema and installed-client checks; rebuild the docs and release.
+4. Publish to `teble:mcp`; Git and the completion report record the remote revision.

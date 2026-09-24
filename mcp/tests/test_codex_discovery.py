@@ -17,7 +17,7 @@ import threading
 ROOT = Path(__file__).resolve().parents[2]
 PRELUDE = '''
 const call = async (name, args) => {
-  const tool = ALL_TOOLS.find(t => t.name.endsWith("dexkit_probe__dexkit_v1_" + name));
+  const tool = ALL_TOOLS.find(t => t.name.endsWith("dexkit_probe__dexkit_" + name));
   if (!tool) throw new Error("Missing tool " + name);
   const reply = await tools[tool.name](args);
   const result = reply.structuredContent || JSON.parse(reply.content.find(c => c.type === "text").text);
@@ -30,14 +30,14 @@ const call = async (name, args) => {
 def code_steps(fixture):
     return [
         PRELUDE + '''
-text({declarations: ALL_TOOLS.filter(t => /dexkit_probe__dexkit_v1_(get_query_schema|find_methods)$/.test(t.name)),
-      overview: await call("get_query_schema", {tool:"dexkit_v1_find_methods"})});
+text({declarations: ALL_TOOLS.filter(t => /dexkit_probe__dexkit_(get_query_schema|find_methods)$/.test(t.name)),
+      overview: await call("get_query_schema", {tool:"dexkit_find_methods"})});
 ''',
         PRELUDE + '''
-text({fullContract: await call("get_query_schema", {tool:"dexkit_v1_find_methods",pointer:""})});
+text({fullContract: await call("get_query_schema", {tool:"dexkit_find_methods",pointer:""})});
 ''',
         PRELUDE + '''
-const overview = await call("get_query_schema", {tool:"dexkit_v1_find_methods"});
+const overview = await call("get_query_schema", {tool:"dexkit_find_methods"});
 const opened = await call("open", {path:''' + json.dumps(str(fixture)) + '''});
 try {
   const example = overview.examples[1];
@@ -58,7 +58,7 @@ def native_definitions(request):
     result = {}
     def walk(value):
         if isinstance(value, dict):
-            if value.get('type') == 'function' and value.get('name', '').startswith('dexkit_v1_'):
+            if value.get('type') == 'function' and value.get('name', '').startswith('dexkit_'):
                 result[value['name']] = value
             for child in value.values():
                 walk(child)
@@ -115,11 +115,11 @@ def run(options, mode):
             elif mode == 'native' and index == 0:
                 item = {'id': 'search_probe', 'type': 'tool_search_call', 'call_id': 'search_probe',
                         'execution': 'client', 'status': 'completed',
-                        'arguments': {'query': 'dexkit_probe dexkit_v1_get_query_schema dexkit_v1_find_methods', 'limit': 3}}
+                        'arguments': {'query': 'dexkit_probe dexkit_get_query_schema dexkit_find_methods', 'limit': 3}}
             elif mode == 'native' and index == 1:
                 item = {'id': 'help_probe', 'type': 'function_call', 'call_id': 'help_probe',
-                        'name': 'dexkit_v1_get_query_schema', 'namespace': 'mcp__dexkit_probe', 'status': 'completed',
-                        'arguments': json.dumps({'tool': 'dexkit_v1_find_methods', 'pointer': ''})}
+                        'name': 'dexkit_get_query_schema', 'namespace': 'mcp__dexkit_probe', 'status': 'completed',
+                        'arguments': json.dumps({'tool': 'dexkit_find_methods', 'pointer': ''})}
             response = {'id': f'resp_{index}', 'object': 'response', 'status': 'completed', 'output': [item],
                         'usage': {'input_tokens': 0, 'output_tokens': 0, 'total_tokens': 0}}
             events = [
@@ -179,7 +179,7 @@ def run(options, mode):
         delivered = [item.get('output') for request in captured[1:] for item in outputs(request)]
         objects = list(result_objects(delivered))
         published = json.loads(subprocess.check_output([str(options.binary), '--dump-schema']))
-        expected = next(tool['inputSchema'] for tool in published if tool['name'] == 'dexkit_v1_find_methods')
+        expected = next(tool['inputSchema'] for tool in published if tool['name'] == 'dexkit_find_methods')
         assert any(obj.get('kind') == 'full' and obj.get('fragment') == expected for obj in objects), (mode, 'Full schema was not delivered intact')
         assert any(any('null entries are positional wildcards' in note for note in obj.get('notes', []))
                    for obj in objects), mode
@@ -187,15 +187,15 @@ def run(options, mode):
             assert any(obj.get('queryFromContractPassed') is True and obj.get('total') == '1' for obj in objects)
             declaration = next(obj['declarations'] for obj in objects if 'declarations' in obj)
             helper = next(tool for tool in declaration if tool['name'].endswith('get_query_schema'))
-            assert 'pointer?: string' in helper['description'] and 'dexkit_v1_find_methods' in helper['description']
+            assert 'pointer?: string' in helper['description'] and 'dexkit_find_methods' in helper['description']
             query_declaration = next(tool['description'] for tool in declaration if tool['name'].endswith('find_methods'))
             assert 'select?: Array<"descriptor" | "flags" | "source">' in query_declaration.replace('\\"', '"')
         else:
             definitions = {name: tool for request in captured for name, tool in native_definitions(request).items()}
-            helper = definitions['dexkit_v1_get_query_schema']['parameters']
-            assert 'dexkit_v1_find_methods' in helper['properties']['tool']['enum']
+            helper = definitions['dexkit_get_query_schema']['parameters']
+            assert 'dexkit_find_methods' in helper['properties']['tool']['enum']
             assert helper['properties']['pointer']['type'] == 'string'
-            query = definitions['dexkit_v1_find_methods']['parameters']
+            query = definitions['dexkit_find_methods']['parameters']
             assert query['properties']['select']['items']['enum'] == ['descriptor', 'flags', 'source']
         return {'mode': mode, 'modelRequests': len(captured), 'contractDelivered': True,
                 'queryExecuted': mode == 'code'}

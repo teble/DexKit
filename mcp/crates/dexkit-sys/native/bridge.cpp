@@ -2,33 +2,15 @@
 #include "bridge.h"
 #include "dexkit.h"
 #include "dex_item.h"
-#include "zip_archive.h"
 #include "schema/querys_generated.h"
 #include "schema/results_generated.h"
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-#include <charconv>
 #include <memory>
 
 namespace {
 constexpr size_t kMaxResult = 64u * 1024 * 1024;
-struct InputMapping {
-    void *address = MAP_FAILED;
-    size_t size = 0;
-    int Open(int fd, uint64_t expected_size) {
-        struct stat stat{};
-        if (fstat(fd, &stat) != 0 || !S_ISREG(stat.st_mode)) return 8;
-        if (uint64_t(stat.st_size) != expected_size) return 9;
-        if (stat.st_size <= 0 || uint64_t(stat.st_size) > PTRDIFF_MAX) return 8;
-        size = static_cast<size_t>(stat.st_size);
-        address = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
-        return address != MAP_FAILED ? 0 : 8;
-    }
-    ~InputMapping() {
-        if (address != MAP_FAILED) munmap(address, size);
-    }
-};
 [[noreturn]] void FatalException() noexcept {
     // Core is not proven reusable after an unexpected exception (for example,
     // during warmup). Production invokes this ABI in a dedicated worker.
@@ -39,17 +21,6 @@ struct InputMapping {
 struct Context {
     dexkit::DexKit core;
 };
-bool DexHeader(const uint8_t *bytes, size_t size) {
-    // Reject obvious invalid/truncated input before the legacy loader. This
-    // is deliberately not a full DEX bytecode verifier or a sandbox.
-    if (size < 112 || std::memcmp(bytes, "dex\n", 4) || bytes[7] != 0) return false;
-    uint32_t length, header, endian;
-    std::memcpy(&length, bytes + 32, 4);
-    std::memcpy(&header, bytes + 36, 4);
-    std::memcpy(&endian, bytes + 40, 4);
-    return length >= header && length <= size && (header == 112 || header == 120)
-        && size >= header && endian == 0x12345678;
-}
 int Copy(const uint8_t *data, size_t size, DkBuffer *output) {
     if (size > kMaxResult) return 5;
     auto owned = std::make_unique<uint8_t[]>(size);
@@ -76,68 +47,17 @@ extern "C" uint32_t dk_default_thread_count() {
     try { return dexkit::DexKit().GetThreadNum(); }
     catch (...) { FatalException(); }
 }
-extern "C" int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, uint32_t threads,
+extern "C" int dk_open(const char *path, uint64_t max_dex_bytes, uint32_t threads,
     void **opaque, uint32_t *count) {
     if (!opaque || !count) return 1;
     *opaque = nullptr; *count = 0;
-    if (threads > INT32_MAX) return 1;
+    if (!path || threads > INT32_MAX) return 1;
     try {
-        auto owner = std::make_shared<InputMapping>();
-        const auto map_status = owner->Open(input_fd, expected_size);
-        if (map_status) return map_status;
-        const auto *input = static_cast<const uint8_t *>(owner->address);
-        const auto size = owner->size;
-        auto mapping = std::make_shared<dexkit::MemMap>(dexkit::MemMap::view(input, size, owner));
-        if (!mapping->ok()) return 8;
         auto ctx = std::make_unique<Context>();
         if (threads) ctx->core.SetThreadNum(static_cast<int>(threads));
-        if (size >= 4 && !std::memcmp(input, "dex\n", 4)) {
-            if (max_dex_bytes && size > max_dex_bytes) return 7;
-            if (!DexHeader(input, size)) return 1;
-            auto image = std::make_unique<dexkit::MemMap>(input, size);
-            if (!image->ok()) return 8;
-            if (ctx->core.AddImage(std::move(image)) != dexkit::Error::SUCCESS) return 1;
-        } else {
-            auto archive = dexkit::ZipArchive::Open(mapping);
-            if (!archive) return 1;
-            uint64_t total = 0;
-            std::vector<const dexkit::Entry *> dex_entries;
-            // Match Core's APK entry convention; diagnose gaps instead of
-            // silently omitting later DEX entries.
-            for (size_t i = 1; i <= 128; ++i) {
-                auto name = "classes" + (i == 1 ? std::string() : std::to_string(i)) + ".dex";
-                auto entry = archive->Find(name);
-                if (!entry) break;
-                if (entry->uncomp_size > UINT64_MAX - total) return 1;
-                total += entry->uncomp_size;
-                if (max_dex_bytes && total > max_dex_bytes) return 7;
-                dex_entries.push_back(entry);
-            }
-            if (dex_entries.empty()) return 1;
-            for (const auto &entry : archive->GetEntries()) {
-                if (entry.name.starts_with("classes") && entry.name.ends_with(".dex") &&
-                    entry.name.find('/') == std::string::npos) {
-                    auto suffix = entry.name.substr(7, entry.name.size() - 11);
-                    if (suffix.empty()) continue;
-                    if (suffix.find_first_not_of("0123456789") == std::string::npos) {
-                        unsigned long n = 0;
-                        auto parsed = std::from_chars(suffix.data(), suffix.data() + suffix.size(), n);
-                        if (parsed.ec != std::errc() || parsed.ptr != suffix.data() + suffix.size()) return 1;
-                        if (n < 2 || n > dex_entries.size() || suffix != std::to_string(n)) return 1;
-                    }
-                }
-            }
-            // Validate the complete byte budget and numbering before inflating
-            // any DEX or constructing Core indexes. Keep only owned DEX bytes,
-            // so later edits/truncation of the APK cannot affect this instance.
-            auto images = archive->GetUncompressData(dex_entries, ctx->core.GetThreadNum(),
-                                                     alignof(dex::Header), true);
-            if (images.size() != dex_entries.size()) return 1;
-            for (const auto &image : images) {
-                if (!DexHeader(image->data(), image->len())) return 1;
-            }
-            if (ctx->core.AddImage(std::move(images)) != dexkit::Error::SUCCESS) return 1;
-        }
+        auto result = ctx->core.AddPath(path, max_dex_bytes);
+        if (result == dexkit::Error::DEX_BYTES_EXCEEDED) return 7;
+        if (result != dexkit::Error::SUCCESS) return 1;
         *count = ctx->core.GetDexNum();
         if (!*count) return 1;
         if (*count > UINT16_MAX) return 5;

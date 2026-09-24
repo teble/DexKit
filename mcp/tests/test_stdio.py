@@ -103,7 +103,7 @@ class StdioTests(unittest.TestCase):
         self.root = Path(self.directory.name)
         self.dex = self.root / 'fixture with spaces.dex'
         self.dex.write_bytes((FIXTURES / 'fixture.dex').read_bytes())
-        self.unicode = self.root / 'unicode.dex'
+        self.unicode = self.root / 'unicode \u6d4b\u8bd5 \U0001f600.dex'
         self.unicode.write_bytes((FIXTURES / 'unicode.dex').read_bytes())
         self.client = Client(self.root)
 
@@ -207,8 +207,6 @@ class StdioTests(unittest.TestCase):
                     opened = client.call('open', {'path': str(apk)})
                     self.assertEqual(opened['dexCount'], 3)
                     instance = opened['instanceId']
-                    # Both stored and deflated images must outlive this input.
-                    apk.write_bytes(b'input replaced after open')
                     found = client.call('find_classes', {'instanceId': instance, 'query': {}})
                     rows = [(row['descriptor'], row['source']['dexIndex']) for row in found['items']]
                     self.assertEqual(sorted(index for _, index in rows), [0, 1, 2])
@@ -234,7 +232,7 @@ class StdioTests(unittest.TestCase):
                 finally:
                     client.close()
 
-    def test_large_resource_apk_and_snapshot_lifetime(self):
+    def test_large_resource_apk_and_close_lifetime(self):
         apk = self.root / 'resource-heavy.apk'
         with zipfile.ZipFile(apk, 'w') as archive:
             # Keep the fixture generation bounded too: resources exceed the old
@@ -248,20 +246,20 @@ class StdioTests(unittest.TestCase):
                 padding = -(archive.fp.tell() + 30 + len(name) + 4) % 4
                 info.extra = struct.pack('<HH', 0xcafe, padding) + bytes(padding)
                 archive.writestr(info, path.read_bytes())
-                # Stored/aligned entries must be detached from the APK mapping.
+                # Aligned stored entries can use Core's borrowed mapping path.
                 self.assertEqual((info.header_offset + 30 + len(name) + len(info.extra)) % 4, 0)
         self.assertGreater(apk.stat().st_size, 256 * 1024 * 1024)
         opened = self.client.call('open', {'path': str(apk)})
         self.assertEqual(set(opened), {'instanceId', 'byteLength', 'dexCount'})
         self.assertEqual(opened['dexCount'], 2)
         self.assertEqual(opened['byteLength'], str(apk.stat().st_size))
-        apk.write_bytes(b'replaced and truncated')
-        apk.unlink()
         instance = opened['instanceId']
         found = self.client.call('find_classes', {'instanceId': instance, 'query': {}})
         self.assertEqual(found['resultSet']['totalItems'], '2')
         self.client.call('smali', {'instanceId': instance, 'entityId': found['items'][0]['entityId']})
         self.client.call('close', {'instanceId': instance})
+        # Mutating/removing inputs is supported after their instance closes.
+        apk.unlink()
         self.assertEqual(set(self.root.iterdir()), {self.dex, self.unicode})
 
     def test_configurable_input_and_dex_budgets(self):

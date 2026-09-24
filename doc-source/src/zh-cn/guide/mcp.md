@@ -72,27 +72,25 @@ mcp/target/release/dexkit-mcp --transport stdio --allow-root /path/to/apks
 
 ## 输入与 worker 生命周期
 
-可重复指定 `--allow-root`，默认只接受当前工作目录及其子目录。打开时检查文件元数据，
-再由 C++ 映射同一个已打开的文件句柄，不把整个 APK 复制到内存，也不生成
-临时 APK。只保留分析所需的 DEX：未压缩条目和原始 DEX 复制一次，压缩条目保留解压后的
-缓冲区。源 APK/DEX 不会被修改。`open` 返回 `instanceId`、`byteLength` 和
-`dexCount`，不计算整包文件指纹。
+可重复指定 `--allow-root`，默认只接受当前工作目录及其子目录。适配层检查规范化路径、
+普通文件类型和文件大小，再把路径交给 Core 的 APK／原始 DEX 加载入口。
+文件映射由 Core 持有：原始 DEX 和已对齐的未压缩条目直接使用映射数据；未对齐条目
+仅做对齐所需的复制，压缩条目保留解压数据。不复制整个 APK，不生成临时 APK 或文件变化快照。
+源 APK/DEX 不会被修改。`open` 返回 `instanceId`、`byteLength` 和 `dexCount`，不计算整包文件指纹。
 APK 读取连续的 `classes.dex`、`classes2.dex` 等条目，序号缺口及解压失败
 明确报错。
-文件读取沿已持有的允许目录句柄逐级打开，拒绝检查后被替换的符号链接；FIFO 等非普通
-文件会直接被拒绝，不会阻塞等待。
-
-源文件在 `open` 完成前需保持不变；完成后可以修改或删除，不影响实例。原生加载前后
-会检查文件大小、mtime 和 ctime，检测到并发变化时返回可重试的 `INPUT_CHANGED`。这不是文件系统原子
-快照；若映射期间源文件被截断，也可能导致 worker 退出并返回 `WORKER_EXITED`。
+源文件及其路径应在实例关闭前保持不变。需要修改、替换或删除输入时，先关闭实例，
+之后按需重新打开。服务不检测或恢复源文件变化。允许目录按打开时的规范化路径检查，
+用于本地访问策略，不提供针对并发文件系统变更的安全隔离。FIFO 等非普通文件会在
+交给 Core 前被拒绝。
 
 默认由 Core 自动检测 CPU 线程数（`--threads 0`，至少一个线程）。可以用
 `--threads N` 覆写，例如 `--threads 4`。该设置同时控制每个实例的 DEX 并行加载、
 缓存初始化和查询，HTTP 与 stdio 均适用。`capabilities.nativeThreads` 返回实际采用的
 线程数。这是 Core 内部工作线程的预算，不是进程总线程数或 MCP 请求并发数。
 
-APK 加载复用 Core 的并行 ZIP 解压与批量 `AddImage` 初始化。适配层在解压前检查总预算，
-在初始化前检查每个 DEX 的头部，并按输入顺序保留独立持有的 DEX 数据。
+APK 加载复用 Core 的并行 ZIP 解压与批量 `AddImage` 初始化。Core 在解压前检查总预算，
+在初始化前检查每个物理 DEX image 的头部，并保留输入顺序。
 同名类定义出现在多个 DEX 时，Core 的声明查找固定采用最后一个逻辑 DEX 中的定义，
 不受线程完成顺序影响。
 
@@ -200,7 +198,7 @@ FBS JSON；未知字段、枚举会递归拒绝。可选条件应省略，不能
 `scope.within` 在 `entityIds` 与 `resultSetId` 中二选一，并检查实体种类和实例归属。
 `scope.inClasses` 可用类句柄缩小方法／字段搜索范围。实体 ID 和 cursor 都是不透明、
 实例内有效的引用，不能保存为永久主键。默认结果包含签名、flags、来源 DEX 索引；
-`select` 可选择 `descriptor`、`flags`、`source` 的任意子集。来源 DEX 索引是当前快照
+`select` 可选择 `descriptor`、`flags`、`source` 的任意子集。来源 DEX 索引是当前实例
 中的 logical 索引，不是 ZIP 条目名称，也不独立构成永久身份。
 
 关系包括 `invokes`、`callers`、`fieldReaders`、`fieldWriters`、`declaredMethods`、

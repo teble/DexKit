@@ -65,17 +65,22 @@ DEX bytes in an APK. Set it higher for larger codebases, or to `0` to disable it
 Both options apply to HTTP and stdio; capabilities reports their effective byte
 values as `maxInputBytes` and `maxDexBytes`, where zero means unlimited.
 
-The adapter checks input metadata, maps the already-open input in C++, and
-retains only owned DEX bytes. Open returns `instanceId`, `byteLength` and
-`dexCount`; it does not compute a whole-file fingerprint. It neither copies
-the whole APK into a heap buffer nor creates a temporary APK. Stored DEX entries are copied once; deflated
-entries retain their decompressed buffer. Keep the source unchanged until open
-returns; afterward it can be modified or deleted without affecting the instance.
-Detected concurrent changes return `INPUT_CHANGED`; concurrent truncation of a
-mapped input can instead terminate the isolated worker. DEX byte limits do not
-bound Core indexes, query memory or execution time.
-APK loading reuses Core's parallel ZIP extraction and batch `AddImage` path;
-the adapter validates budgets and entry headers before publishing an instance.
+The adapter validates the canonical path, regular-file type and input byte
+budget, then passes the path to Core's APK/raw DEX loader through a thin C ABI.
+Core owns the mappings. Raw DEX and aligned stored entries use file-backed data;
+unaligned entries are copied for alignment and deflated entries are decompressed.
+Open returns `instanceId`, `byteLength` and `dexCount` without hashing the input.
+No full-APK copy, temporary APK or source-change snapshot is created.
+
+Keep the source file and its path unchanged until the instance is closed. Close
+it before modifying, replacing or deleting the input, then reopen if needed.
+The server does not detect or recover from source changes. Allowed-root checks
+apply to the canonical path at open; they are a local access policy, not a
+security boundary against concurrent filesystem changes.
+
+Core validates aggregate DEX budgets and entry headers before parallel
+initialization. DEX byte limits do not bound indexes, query memory or execution
+time. The adapter does not implement ZIP extraction or DEX initialization.
 Duplicate-class declaration lookup consistently prefers the last logical DEX.
 
 ## Discover query parameters

@@ -192,11 +192,9 @@ impl AnalysisService {
         if self.instances.len() >= MAX_INSTANCES {
             return Err(Error::limit("Close an instance before opening another"));
         }
-        let file = crate::input::Root::open(&self.roots, &request.path)?;
-        let input = Input::prepare(file, self.input_limits.max_input_bytes)?;
-        let opened = Native::open(&input, self.input_limits.max_dex_bytes, self.native_threads);
-        input.verify_unchanged()?;
-        let native = opened?;
+        let path = crate::input::Root::resolve(&self.roots, &request.path)?;
+        let input = Input::prepare(path, self.input_limits.max_input_bytes)?;
+        let native = Native::open(&input, self.input_limits.max_dex_bytes, self.native_threads)?;
         let instance_id = id("i");
         let result = Opened {
             instance_id: instance_id.clone(),

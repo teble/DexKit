@@ -490,3 +490,83 @@ passed focused Pro re-review with no substantive blocker. Pro confirmed the
 duplicate-class precedence, zero-alignment check and C ABI exception boundary.
 The source was unchanged after that snapshot except for plan/validation records.
 Both reviews are source review, not Pro-executed builds or performance tests.
+
+## Direct Core path loading and caller-owned input lifetime
+
+Base: `606986058857a4867c5415b45994dfc4188c9649`. This section supersedes the
+earlier source-change and detached-snapshot guarantees. The caller keeps the
+input file and its path unchanged until the instance closes. Close before
+modifying, replacing or deleting an input; reopen afterward if needed.
+
+Rust now checks the canonical allowed-root path, regular-file type and initial
+input size, then passes a UTF-8 path through `dk_open` to Core's `AddPath`.
+There is no held-directory traversal, input FD ABI, before/after metadata
+comparison, or `INPUT_CHANGED` recovery. Canonical root checks are a trusted
+local access policy, not isolation against concurrent filesystem changes.
+
+Core owns loading, parallel extraction and initialization. Raw DEX retains its
+file mapping; aligned stored DEX borrows a slice whose shared owner retains the
+APK mapping. Unaligned stored entries copy only for alignment; deflated entries
+keep their decompressed buffer. No input snapshot or forced detached-copy mode
+remains. File and aggregate DEX budgets retain their configured behavior.
+
+`AddZipPath` keeps its signature and default unlimited DEX budget, but now shares
+the preflight previously implemented by MCP: no DEX, numbered-entry gaps or
+noncanonical numeric names, and basic invalid DEX headers are rejected instead
+of silently loading a prefix or empty archive. The header checks are not a full
+DEX verifier. No JNI signatures or FBS definitions changed.
+
+Executed locally on macOS arm64:
+
+- `mcp/test.py`: 12 workspace unit functions, 11 interop tests, 16 stdio tests,
+  14 HTTP tests, and 144/69 request/result schema cases pass.
+- Final release stdio/HTTP runs pass again, including a UTF-8 filename containing
+  Chinese characters and an emoji, large aligned stored APKs, mixed archives,
+  budgets, queries, smali and close-before-delete lifetime. Their 144/69 captured
+  request/result cases validate against all 12 published tool schemas.
+- CMake/CTest passes both native tests. Borrowed slices keep their owner alive
+  after archive destruction and release it when cleared. Alignment copies remain
+  readable independently. `AddPath` also handles a non-NUL-terminated string view
+  and rejects embedded NUL without publishing another DEX.
+- Final `bash gradlew :dexkit:cmakeBuild :dexkit:jar :dexkit:test
+  :dexkit-android:assembleRelease` passes (31 executed, 82 up-to-date).
+  All 143 JVM tests ran, with no failures, errors or skips.
+- Release build, workspace Clippy with `-D warnings`, formatting and diff checks
+  pass. Frozen Yarn installation and the 28-page documentation build pass.
+
+The final macOS arm64 executable is 6631792 bytes, 19696 fewer than the base.
+SHA-256: `87698493026bb0f95821b4db8d35fe562d06c324df789759ef238eee1f59bef1`.
+Stripped Android shared-library sizes from the same local release pipeline:
+
+| ABI | Before | After | Delta (bytes) |
+| --- | ---: | ---: | ---: |
+| arm64-v8a | 447136 | 447360 | +224 |
+| armeabi-v7a | 302756 | 303100 | +344 |
+| x86 | 495964 | 496628 | +664 |
+| x86_64 | 479672 | 479208 | -464 |
+
+The real 389727209-byte QQ APK opens all 41 DEX entries, finds the target class
+in logical DEX 40, produces 2454 bytes of smali and closes in each final-build
+run. Three alternating measurements per binary use fresh HTTP servers/workers,
+warm filesystem cache and default eight Core threads; startup/discovery is
+excluded from the timed open request:
+
+| Build | Run 1 (ms) | Run 2 (ms) | Run 3 (ms) | Median (ms) |
+| --- | ---: | ---: | ---: | ---: |
+| Base | 642.887 | 262.366 | 241.678 | 262.366 |
+| Final | 249.764 | 267.404 | 245.761 | 249.764 |
+
+These local timings are comparable; the small median difference is not evidence
+of a general speedup. This APK uses deflated DEX entries, so it does not measure
+the removed raw/stored DEX copy. No source APK was modified.
+
+Pro verified the 116767-byte source snapshot (SHA-256
+`11131cd6e9dd796b4ad46282db5a2997768e814255601621658af5d6ed44ab9a`) and found no
+substantive blocker under the selected stable-input contract. The review covered
+mapping ownership, the thin ABI, budgets, ordinary errors, instance publication
+and the stricter Core preflight. Its two nonblocking suggestions were adopted:
+restore a misplaced historical plan paragraph, and make the new `AddPath`
+respect string-view length before a NUL-terminated system open. The latter local
+refinement and its regression were added after that reviewed snapshot; final
+native, JVM/Android and release tests above include them. Pro did not execute
+these builds or measurements. Windows MCP support is not claimed by this change.

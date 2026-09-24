@@ -184,3 +184,19 @@ Base: `3d4742b3a5acde450a1b2979eaa7981e8167b226`; continue on `mcp`.
    precedence for duplicate declarations and accept the alignment/FFI guards;
    no substantive blocker remains in either source review.
 5. Publish to `teble:mcp`; Git and the completion report record the remote revision.
+
+## Simplify input lifetime and use Core path loading
+
+Base: `606986058857a4867c5415b45994dfc4188c9649`; continue on `mcp`.
+The user explicitly rejects protecting instances against source file changes or
+deletion. Inputs and their paths must stay unchanged until the instance closes.
+
+1. [x] Replace held-directory/FD/source-change handling with canonical path
+   validation and a thin path-based native create operation.
+2. [x] Centralize APK/raw DEX path loading in Core. Keep configured byte budgets,
+   parallel loading and normal input errors; remove detached-copy policy.
+3. [x] Update lifetime contracts and regressions, verify Rust/native/JVM/Android,
+   docs and release behavior/size, then obtain focused Pro review. No substantive
+   blocker was found. Correct the new C++ path entry's string-view termination
+   handling and verify it with a native regression and final release checks.
+4. Publish to `teble:mcp`; Git and the completion report record the remote revision.

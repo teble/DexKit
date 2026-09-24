@@ -22,6 +22,8 @@
 #include "include/query_context.h"
 
 #include <algorithm>
+#include <charconv>
+#include <cstring>
 #include <iterator>
 
 #include "zip_archive.h"
@@ -40,6 +42,19 @@ bool comp(std::unique_ptr<DexItem> &a, std::unique_ptr<DexItem> &b) {
 
 static uint32_t NormalizeThreadNum(uint32_t thread_num) {
     return std::max<uint32_t>(1U, thread_num);
+}
+
+static bool ValidDexImage(const MemMap &image) {
+    // Basic input checks before the legacy reader, not a full DEX verifier.
+    const auto *bytes = image.data();
+    const auto size = image.len();
+    if (size < 112 || std::memcmp(bytes, "dex\n", 4) || bytes[7] != 0) return false;
+    uint32_t length, header, endian;
+    std::memcpy(&length, bytes + 32, 4);
+    std::memcpy(&header, bytes + 36, 4);
+    std::memcpy(&endian, bytes + 40, 4);
+    return length >= header && length <= size && (header == 112 || header == 120)
+           && size >= header && endian == 0x12345678;
 }
 
 template<typename T>
@@ -456,25 +471,59 @@ Error DexKit::AddImage(std::vector<std::unique_ptr<MemMap>> dex_images) {
     return Error::SUCCESS;
 }
 
-Error DexKit::AddZipPath(std::string_view apk_path, int unzip_thread_num) {
-    auto map = std::make_shared<MemMap>(apk_path);
-    if (!map->ok()) {
-        return Error::FILE_NOT_FOUND;
+Error DexKit::AddPath(std::string_view path, uint64_t max_dex_bytes) {
+    if (path.find('\0') != std::string_view::npos) return Error::OPEN_FILE_FAILED;
+    // MemMap opens synchronously and requires a NUL-terminated path.
+    auto image = std::make_unique<MemMap>(std::string(path));
+    if (!image->ok()) return Error::FILE_NOT_FOUND;
+    if (image->len() >= 4 && !std::memcmp(image->data(), "dex\n", 4)) {
+        if (max_dex_bytes && image->len() > max_dex_bytes) return Error::DEX_BYTES_EXCEEDED;
+        if (!ValidDexImage(*image)) return Error::OPEN_FILE_FAILED;
+        return AddImage(std::move(image));
     }
-    auto zip_file = ZipArchive::Open(map);
+    return AddZipImage(std::move(image), 0, max_dex_bytes);
+}
+
+Error DexKit::AddZipPath(std::string_view apk_path, int unzip_thread_num) {
+    return AddZipImage(std::make_shared<MemMap>(apk_path), unzip_thread_num, 0);
+}
+
+Error DexKit::AddZipImage(std::shared_ptr<MemMap> image, int unzip_thread_num, uint64_t max_dex_bytes) {
+    if (!image->ok()) return Error::FILE_NOT_FOUND;
+    auto zip_file = ZipArchive::Open(std::move(image));
     if (!zip_file) return Error::OPEN_ZIP_FILE_FAILED;
     std::vector<const Entry *> entries;
-    for (int idx = 1;; ++idx) {
+    uint64_t total = 0;
+    for (size_t idx = 1;; ++idx) {
         auto entry_name = "classes" + (idx == 1 ? std::string() : std::to_string(idx)) + ".dex";
         auto entry = zip_file->Find(entry_name);
         if (!entry) {
             break;
         }
+        if (entry->uncomp_size > UINT64_MAX - total) return Error::OPEN_ZIP_FILE_FAILED;
+        total += entry->uncomp_size;
+        if (max_dex_bytes && total > max_dex_bytes) return Error::DEX_BYTES_EXCEEDED;
         entries.push_back(entry);
+    }
+    if (entries.empty()) return Error::OPEN_ZIP_FILE_FAILED;
+    for (const auto &entry : zip_file->GetEntries()) {
+        if (!entry.name.starts_with("classes") || !entry.name.ends_with(".dex")
+            || entry.name.find('/') != std::string::npos) continue;
+        auto suffix = std::string_view(entry.name).substr(7, entry.name.size() - 11);
+        if (suffix.empty() || suffix.find_first_not_of("0123456789") != std::string::npos) continue;
+        size_t number = 0;
+        auto parsed = std::from_chars(suffix.data(), suffix.data() + suffix.size(), number);
+        if (parsed.ec != std::errc() || parsed.ptr != suffix.data() + suffix.size()
+            || number < 2 || number > entries.size() || suffix != std::to_string(number)) {
+            return Error::OPEN_ZIP_FILE_FAILED;
+        }
     }
     auto thread_num = unzip_thread_num > 0 ? static_cast<uint32_t>(unzip_thread_num) : GetThreadNum();
     auto dex_images = zip_file->GetUncompressData(entries, thread_num, alignof(dex::Header));
     if (dex_images.size() != entries.size()) return Error::OPEN_ZIP_FILE_FAILED;
+    for (const auto &dex_image : dex_images) {
+        if (!ValidDexImage(*dex_image)) return Error::OPEN_FILE_FAILED;
+    }
     return AddImage(std::move(dex_images));
 }
 

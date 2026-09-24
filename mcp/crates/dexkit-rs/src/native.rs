@@ -6,7 +6,10 @@ use crate::{
 };
 use dexkit_sys as sys;
 use planus::{ReadAsRoot, SliceWithStartOffset, TableRead};
-use std::{ffi::c_void, os::fd::AsRawFd, ptr::NonNull};
+use std::{
+    ffi::{c_void, CString},
+    ptr::NonNull,
+};
 
 pub(crate) struct Native {
     pointer: NonNull<c_void>,
@@ -46,16 +49,20 @@ impl Native {
         unsafe { sys::dk_default_thread_count() }
     }
     pub fn open(input: &Input, max_dex_bytes: u64, threads: u32) -> Result<Self> {
+        let path = CString::new(
+            input
+                .path
+                .to_str()
+                .ok_or_else(|| Error::invalid("Input path must be UTF-8"))?,
+        )
+        .map_err(|_| Error::invalid("NUL in input path"))?;
         let mut pointer = std::ptr::null_mut();
         let mut dex_count = 0;
-        // SAFETY: the FD is a held regular file, borrowed only for this call.
-        // Native owns all loaded DEX bytes before returning; no input mapping
-        // escapes. As with Core's file loader, concurrent source mutation is
-        // unsupported (detected changes are checked before publishing handles).
+        // SAFETY: the NUL-terminated UTF-8 path is borrowed for this call. Core
+        // owns its mappings; callers must keep the source unchanged until close.
         let status = unsafe {
             sys::dk_open(
-                input.file.as_raw_fd(),
-                input.byte_length,
+                path.as_ptr(),
                 max_dex_bytes,
                 threads,
                 &mut pointer,
@@ -66,22 +73,6 @@ impl Native {
             return Err(Error::limit(format!(
                 "DEX bytes exceed configured limit of {max_dex_bytes} bytes. Adjust --max-dex-mib (0 disables it)."
             )));
-        }
-        if status == 8 {
-            return Err(Error::new(
-                "io",
-                "INPUT_MAP_FAILED",
-                "Could not map the input file",
-            ));
-        }
-        if status == 9 {
-            let mut error = Error::new(
-                "io",
-                "INPUT_CHANGED",
-                "Input changed while opening; retry after its writer finishes",
-            );
-            error.retryable = true;
-            return Err(error);
         }
         if status != 0 {
             return Err(Error::native(status));

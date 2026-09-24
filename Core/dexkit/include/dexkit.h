@@ -80,6 +80,9 @@ public:
     Error AddDex(uint8_t *data, size_t size);
     Error AddImage(std::unique_ptr<MemMap> dex_image);
     Error AddImage(std::vector<std::unique_ptr<MemMap>> dex_images);
+    // Load an APK or raw DEX by path. Keep the input unchanged until destruction.
+    // Zero disables the raw/total uncompressed DEX byte limit.
+    Error AddPath(std::string_view path, uint64_t max_dex_bytes = 0);
     Error AddZipPath(std::string_view apk_path, int unzip_thread_num = 0);
     [[nodiscard]] Error ExportDexFile(std::string_view path) const;
     [[nodiscard]] int GetDexNum() const;
@@ -121,6 +124,7 @@ public:
     void PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint32_t type_idx);
 
 private:
+    Error AddZipImage(std::shared_ptr<MemMap> image, int unzip_thread_num, uint64_t max_dex_bytes);
     std::mutex _mutex;
     std::shared_mutex _put_class_mutex;
     mutable std::mutex query_execution_mutex;

@@ -150,7 +150,7 @@ class HttpTests(unittest.TestCase):
         fixture.write_bytes((common.FIXTURES / 'fixture.dex').read_bytes())
         exercise_discovery(self.client, fixture, common.TOOLS)
 
-    def test_http_input_policy_and_private_snapshot(self):
+    def test_http_input_policy_and_path_lifetime(self):
         server = HttpProcess(self.root, extra_args=['--max-input-mib', '2', '--max-dex-mib', '1', '--threads', '3'])
         try:
             client = HttpClient(server.url)
@@ -159,15 +159,15 @@ class HttpTests(unittest.TestCase):
             self.assertEqual(capabilities['maxDexBytes'], 1024 * 1024)
             self.assertEqual(capabilities['nativeThreads'], 3)
             instance = client.call('open', {'path': str(self.dex)})['instanceId']
-            self.dex.write_bytes(self.dex.read_bytes().ljust(1024 * 1024 + 1, b'\0'))
-            error = client.call('open', {'path': str(self.dex)}, success=False)
+            oversized = self.root / 'oversized.dex'
+            oversized.write_bytes(self.dex.read_bytes().ljust(1024 * 1024 + 1, b'\0'))
+            error = client.call('open', {'path': str(oversized)}, success=False)
             self.assertEqual(error['code'], 'LIMIT_EXCEEDED')
-            self.dex.write_bytes(b'original DEX removed')
-            self.dex.unlink()
             found = client.call('find_classes', {'instanceId': instance, 'query': {}})
             self.assertEqual(found['resultSet']['totalItems'], '1')
             client.call('smali', {'instanceId': instance, 'entityId': found['items'][0]['entityId']})
             client.call('close', {'instanceId': instance})
+            self.dex.unlink()
         finally:
             server.close()
 

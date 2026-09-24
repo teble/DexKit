@@ -2,7 +2,10 @@
 #include "dexkit.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 namespace {
@@ -54,12 +57,12 @@ void BatchOwnership() {
         Check(bool(archive));
         const std::vector<const Entry *> entries{archive->Find("b"), archive->Find("a")};
         Check(entries[0] && entries[1]);
-        Check(archive->GetUncompressData(entries, threads, 0, false).empty());
-        Check(archive->GetUncompressData(entries, threads, 0, true).empty());
-        auto detached = archive->GetUncompressData(entries, threads, 4, true);
-        Check(detached.size() == 2);
-        Check(std::string_view(reinterpret_cast<const char *>(detached[0]->data()), 3) == "two");
-        Check(reinterpret_cast<uintptr_t>(detached[0]->data()) % 4 == 0);
+        Check(archive->GetUncompressData(entries, threads, 0).empty());
+        // These stored entries are unaligned and need an alignment copy.
+        auto aligned = archive->GetUncompressData(entries, threads, 4);
+        Check(aligned.size() == 2);
+        Check(std::string_view(reinterpret_cast<const char *>(aligned[0]->data()), 3) == "two");
+        Check(reinterpret_cast<uintptr_t>(aligned[0]->data()) % 4 == 0);
         auto borrowed = archive->GetUncompressData(entries, threads);
         Check(borrowed.size() == 2);
         Check(borrowed[0]->data() == mapping->data() + entries[0]->data_offset);
@@ -72,7 +75,7 @@ void BatchOwnership() {
         Check(!lifetime.expired());
         borrowed.clear();
         Check(lifetime.expired());
-        Check(std::string_view(reinterpret_cast<const char *>(detached[1]->data()), 3) == "one");
+        Check(std::string_view(reinterpret_cast<const char *>(aligned[1]->data()), 3) == "one");
     }
 }
 
@@ -124,6 +127,30 @@ void DuplicateDeclarationOrder() {
         Check(item && item->GetDexId() == 1 && type_index == 0);
     }
 }
+
+void PathSpan() {
+    auto path = std::filesystem::temp_directory_path() /
+                ("dexkit-path-" + std::to_string(std::chrono::steady_clock::now()
+                        .time_since_epoch().count()) + ".dex");
+    auto image = OneClassDex();
+    {
+        std::ofstream file(path, std::ios::binary);
+        file.write(reinterpret_cast<const char *>(image->data()), image->len());
+        file.close();
+        Check(bool(file));
+    }
+    {
+        dexkit::DexKit core;
+        auto storage = path.string() + ".missing";
+        auto view = std::string_view(storage).substr(0, storage.size() - 8);
+        Check(core.AddPath(view) == dexkit::Error::SUCCESS);
+        Check(core.GetDexNum() == 1);
+        auto nul_path = path.string() + std::string("\0ignored", 8);
+        Check(core.AddPath(nul_path) == dexkit::Error::OPEN_FILE_FAILED);
+        Check(core.GetDexNum() == 1);
+    }
+    Check(std::filesystem::remove(path));
+}
 } // namespace
 
 int main() {
@@ -133,5 +160,6 @@ int main() {
     Check(core.GetThreadNum() == 3);
     BatchOwnership();
     DuplicateDeclarationOrder();
+    PathSpan();
     std::cout << "Archive batch order, failure and ownership checks passed\n";
 }

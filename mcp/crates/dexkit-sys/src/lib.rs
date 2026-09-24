@@ -1,6 +1,6 @@
 //! Private, synchronous static ABI. All functions require exclusive access to
 //! a live context. The safe adapter owns contexts and validates query semantics.
-use std::ffi::c_void;
+use std::ffi::{c_char, c_void};
 
 #[repr(C)]
 #[derive(Default)]
@@ -23,8 +23,7 @@ pub struct SmaliStatus {
 unsafe extern "C" {
     pub fn dk_default_thread_count() -> u32;
     pub fn dk_open(
-        input_fd: i32,
-        expected_size: u64,
+        path: *const c_char,
         max_dex_bytes: u64,
         threads: u32,
         context: *mut *mut c_void,

@@ -6,21 +6,20 @@
 extern "C" {
 #endif
 // Private static ABI. Calls are synchronous and externally serialized. Inputs
-// are borrowed for one call, and buffers use dk_free. Open borrows a regular
-// input FD for mmap; the input must not be modified during the call. All loaded
-// DEX bytes are independently owned on success; no input mapping escapes.
+// are borrowed for one call, and buffers use dk_free. Open borrows a UTF-8 path
+// and delegates mapping/loading to Core. The input and its path must remain
+// unchanged until the context is closed; no source-change recovery is provided.
 typedef struct DkBuffer { uint8_t *data; size_t size; } DkBuffer;
 typedef struct DkStatus {
     uint64_t dex_offset;
     uint32_t code_offset, detail, dex_id, member_id;
     uint8_t error, phase, member_kind;
 } DkStatus;
-// max_dex_bytes == 0 disables the DEX byte ceiling. Status 7: DEX byte limit;
-// status 8: input mmap failed; status 9: input size changed. Other status codes
-// match dk_call. expected_size is checked against the held descriptor before mmap.
+// max_dex_bytes == 0 disables the DEX byte ceiling. Status 7: DEX byte limit.
+// Other status codes match dk_call.
 // Zero threads selects Core's automatic default; positive values override it.
 uint32_t dk_default_thread_count(void);
-int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, uint32_t threads,
+int dk_open(const char *path, uint64_t max_dex_bytes, uint32_t threads,
     void **context, uint32_t *dex_count);
 void dk_close(void *context);
 void dk_free(DkBuffer buffer);

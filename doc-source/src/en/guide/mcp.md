@@ -85,21 +85,21 @@ mcp/target/release/dexkit-mcp --transport stdio --allow-root /path/to/apks
 ## Input and worker lifetime
 
 Repeat `--allow-root` for multiple directories. The default is the process's
-current directory. The adapter checks input metadata, then C++ maps the same
-open file descriptor. It does not copy the entire APK to memory or to a
-temporary file. Only loaded DEX bytes are retained: stored entries and raw DEX
-are copied once, while deflated entries keep their decompressed buffer. The
-source APK/DEX is never modified. `open` returns `instanceId`, `byteLength` and
-`dexCount`, without computing a whole-file fingerprint. APK input uses consecutive
+current directory. The adapter checks the canonical path, regular-file type and
+input size, then passes the path to Core's APK/raw DEX loader. Core owns file
+mappings: raw DEX and aligned stored entries use mapped data, while unaligned
+entries are copied for alignment and deflated entries retain decompressed data.
+No full-APK copy, temporary APK or source-change snapshot is created. The source
+APK/DEX is never modified. `open` returns `instanceId`, `byteLength` and `dexCount`
+without computing a whole-file fingerprint. APK entries must be consecutive
 `classes.dex`, `classes2.dex`, etc.; gaps and decompression failures are errors.
-File opens traverse held allowed-directory handles without following replaced
-symlinks. Non-regular inputs such as FIFOs are rejected without blocking.
 
-Keep the source unchanged until `open` completes; afterward it may be modified
-or deleted without affecting the instance. File size, mtime and ctime are checked
-around native loading, and detected changes return retryable `INPUT_CHANGED`.
-This is not an atomic filesystem snapshot: concurrent truncation of a mapped
-input can terminate the worker and produce `WORKER_EXITED` instead.
+Keep the source file and its path unchanged until the instance is closed. Close
+before modifying, replacing or deleting an input; reopen it afterward if needed.
+The server does not detect or recover from source changes. Allowed-root checks
+apply to the canonical path at open; they are a local access policy, not a
+security boundary against concurrent filesystem changes. Non-regular inputs
+such as FIFOs are rejected before Core opens them.
 
 Core detects the CPU thread count automatically by default (`--threads 0`, with
 a minimum of one). Override it with `--threads N`, for example `--threads 4`.
@@ -109,8 +109,8 @@ the effective count. This is a Core worker budget, not a process-wide thread cap
 or the number of concurrent MCP requests.
 
 APK loading uses Core's shared parallel ZIP extraction and batch `AddImage`
-initialization. The adapter checks the total budget before extraction and every
-DEX header before initialization, retaining independent DEX bytes in input order.
+initialization. Core checks the total budget before extraction and every physical
+DEX image header before initialization, preserving input order.
 For duplicate class definitions, Core's declaration lookup keeps the last
 logical DEX's definition, independent of thread completion order.
 
@@ -239,7 +239,7 @@ kind and instance as the query. `scope.inClasses` accepts class handles to narro
 a method/field search. Entity IDs and cursors are opaque and instance-local, not
 persistent identifiers. Default results contain descriptors, flags and source
 DEX indices; `select` can request any subset of `descriptor`, `flags`, `source`.
-A source DEX index is a logical index within this snapshot, not a ZIP entry name
+A source DEX index is a logical index within this instance, not a ZIP entry name
 or an independently stable identifier.
 
 Relations are direct: `invokes`, `callers`, `fieldReaders`, `fieldWriters`,

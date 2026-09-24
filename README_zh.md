@@ -30,6 +30,7 @@
 
 原生 MCP 的 `dexkit_open` 返回 `instanceId`、`byteLength` 和 `dexCount`。
 Core 默认自动选择线程数，可通过 `--threads N` 覆写。
+输入 APK/DEX 及其路径应在对应 MCP 实例关闭前保持不变。
 
 ⭐️ 特色功能（推荐）：
 

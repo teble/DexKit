@@ -31,6 +31,7 @@ Basic Features:
 
 Native MCP `dexkit_open` returns `instanceId`, `byteLength` and `dexCount`.
 Core threads are automatic by default; use `--threads N` to override them.
+Keep the input APK/DEX and its path unchanged until its MCP instance is closed.
 
 ⭐️ Distinctive Features (Recommended):
 

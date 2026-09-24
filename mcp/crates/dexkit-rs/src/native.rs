@@ -41,7 +41,11 @@ impl Buffer {
     }
 }
 impl Native {
-    pub fn open(input: &Input, max_dex_bytes: u64) -> Result<Self> {
+    pub fn default_thread_count() -> u32 {
+        // SAFETY: reads Core's normalized default without creating worker threads.
+        unsafe { sys::dk_default_thread_count() }
+    }
+    pub fn open(input: &Input, max_dex_bytes: u64, threads: u32) -> Result<Self> {
         let mut pointer = std::ptr::null_mut();
         let mut dex_count = 0;
         // SAFETY: the FD is a held regular file, borrowed only for this call.
@@ -53,6 +57,7 @@ impl Native {
                 input.file.as_raw_fd(),
                 input.byte_length,
                 max_dex_bytes,
+                threads,
                 &mut pointer,
                 &mut dex_count,
             )

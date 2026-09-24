@@ -151,12 +151,13 @@ class HttpTests(unittest.TestCase):
         exercise_discovery(self.client, fixture, common.TOOLS)
 
     def test_http_input_policy_and_private_snapshot(self):
-        server = HttpProcess(self.root, extra_args=['--max-input-mib', '2', '--max-dex-mib', '1'])
+        server = HttpProcess(self.root, extra_args=['--max-input-mib', '2', '--max-dex-mib', '1', '--threads', '3'])
         try:
             client = HttpClient(server.url)
             capabilities = client.call('capabilities', {})
             self.assertEqual(capabilities['maxInputBytes'], 2 * 1024 * 1024)
             self.assertEqual(capabilities['maxDexBytes'], 1024 * 1024)
+            self.assertEqual(capabilities['nativeThreads'], 3)
             instance = client.call('open', {'path': str(self.dex)})['instanceId']
             self.dex.write_bytes(self.dex.read_bytes().ljust(1024 * 1024 + 1, b'\0'))
             error = client.call('open', {'path': str(self.dex)}, success=False)

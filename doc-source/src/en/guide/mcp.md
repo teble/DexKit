@@ -101,7 +101,20 @@ around native loading, and detected changes return retryable `INPUT_CHANGED`.
 This is not an atomic filesystem snapshot: concurrent truncation of a mapped
 input can terminate the worker and produce `WORKER_EXITED` instead.
 
-Input budgets are startup options, shared by both transports:
+Core detects the CPU thread count automatically by default (`--threads 0`, with
+a minimum of one). Override it with `--threads N`, for example `--threads 4`.
+The same setting controls parallel DEX loading, cache initialization and queries
+for each instance, over either transport. `capabilities.nativeThreads` reports
+the effective count. This is a Core worker budget, not a process-wide thread cap
+or the number of concurrent MCP requests.
+
+APK loading uses Core's shared parallel ZIP extraction and batch `AddImage`
+initialization. The adapter checks the total budget before extraction and every
+DEX header before initialization, retaining independent DEX bytes in input order.
+For duplicate class definitions, Core's declaration lookup keeps the last
+logical DEX's definition, independent of thread completion order.
+
+Input budgets are also startup options, shared by both transports:
 
 | Option | Default | Scope |
 | --- | --- | --- |
@@ -117,8 +130,8 @@ budget returns `LIMIT_EXCEEDED` with the corresponding startup option to adjust.
 Platform mapping ranges and supported APK/DEX format constraints still apply.
 
 The SDK handles both the older initialize handshake and the 2026-07-28 protocol.
-MCP stdout contains only protocol messages. Native analysis runs serially in a
-child process with its diagnostics permanently routed to stderr. A worker crash
+MCP stdout contains only protocol messages. Native MCP calls run one at a time in
+a child process, with Core's internal parallelism and diagnostics routed to stderr. A worker crash
 returns `WORKER_EXITED`; restart the server and reopen inputs because all old
 handles are invalid. The worker is failure containment, not a security sandbox
 or a complete DEX verifier. Cancelling a caller does not interrupt an active Core

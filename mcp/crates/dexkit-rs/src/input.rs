@@ -173,11 +173,11 @@ mod tests {
             std::fs::write(&path, b"changed").unwrap();
             assert_eq!(input.verify_unchanged().unwrap_err().code, "INPUT_CHANGED");
             assert!(
-                matches!(crate::native::Native::open(&input, 0), Err(e) if e.code == "INPUT_CHANGED")
+                matches!(crate::native::Native::open(&input, 0, 0), Err(e) if e.code == "INPUT_CHANGED")
             );
             std::fs::write(&path, []).unwrap();
             assert!(
-                matches!(crate::native::Native::open(&input, 0), Err(e) if e.code == "INPUT_CHANGED")
+                matches!(crate::native::Native::open(&input, 0, 0), Err(e) if e.code == "INPUT_CHANGED")
             );
             std::fs::write(&path, &original).unwrap();
         }

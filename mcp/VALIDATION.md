@@ -399,3 +399,94 @@ The macOS arm64 release is 6616496 bytes (400 fewer than the previous release).
 SHA-256: `62d524459ccdce9283324977fff7280a80a3d1bcf0e614955a5d3d278a129fd1`.
 No C++ Core, JNI, FBS or Android sources changed; their earlier checks remain
 baseline evidence.
+
+## Automatic threads and shared Core loading
+
+Base: `3d4742b3a5acde450a1b2979eaa7981e8167b226`. `--threads N` now defaults to
+Core's normalized hardware thread count; zero selects automatic mode. The
+effective value is forwarded to every native instance and reported as
+`capabilities.nativeThreads`. Native requests still run one at a time.
+
+Core's existing parallel ZIP extraction is now shared by `AddZipPath` and MCP.
+Both paths use batch `AddImage` for initialization. MCP keeps aggregate budget
+and entry-number preflight, checks every extracted DEX header before indexing,
+and asks the batch extractor to detach stored entries from the input mapping.
+Batch initialization now observes task futures instead of silently discarding
+construction exceptions. No JNI signatures, FBS definitions or Android
+dependencies changed.
+
+Executed locally:
+
+- `mcp/test.py`: 11 interop tests, 13 workspace unit functions, 16 stdio tests,
+  14 HTTP tests, and 144/69 real request/result schema cases pass.
+- Automatic/1/3-thread startup, mixed stored/deflated multi-DEX order, source
+  replacement after open, and recovery after a bad later DEX are covered.
+  The mixed-archive and large stored-APK lifetime cases also pass in release.
+- CMake/CTest: the new ZIP batch ownership/order/failure checks and existing
+  checked smali reader pass. These assert data/lifetime behavior, not OS thread
+  scheduling or timing. The test fixture initially used the wrong EOCD field
+  name; correcting it to `cd_offset32` resolved the compile error.
+- `bash gradlew :dexkit:cmakeBuild :dexkit:jar :dexkit:test
+  :dexkit-android:assembleRelease` passes (final run: 18 executed, 95 up-to-date).
+  All 143 JVM tests actually ran, with no failures, errors or skips.
+- Release build, workspace clippy with `-D warnings`, formatting, diff checks,
+  and the 28-page documentation build pass.
+
+The same 389727209-byte, 41-DEX QQ APK was measured with a fresh HTTP server and
+worker per run. Discovery/startup is outside the timer; filesystem cache is warm.
+Three runs per setting alternate forward/reverse order, with no concurrent local
+build or test job during the recorded measurement:
+
+| Setting | Median open (ms) |
+| --- | ---: |
+| Previous serial loader | 922.130 |
+| New `--threads 1` | 895.085 |
+| New `--threads 2` | 485.246 |
+| New `--threads 4` | 297.292 |
+| New default (8 threads on this host) | 244.292 |
+
+The final default median is 73.5% lower on this workload. Every new-build run opens
+all 41 DEX entries, finds the class in logical DEX 40, produces 2454 bytes of
+smali and closes. These are local results, not a general scaling guarantee.
+
+The macOS arm64 executable is 6651488 bytes (+34992); SHA-256:
+`98a72b0473c7db67004fbf6b80d3ef9bc38eb1f85276087fb283375b7b68edfc`.
+Stripped Android shared-library sizes from the same local release pipeline:
+
+| ABI | Before | After | Delta (bytes) |
+| --- | ---: | ---: | ---: |
+| arm64-v8a | 445904 | 447136 | +1232 |
+| armeabi-v7a | 301604 | 302756 | +1152 |
+| x86 | 493772 | 495964 | +2192 |
+| x86_64 | 477704 | 479672 | +1968 |
+
+The first source review (399089-byte snapshot, SHA-256
+`dc58746c9f32936a619643fda535620237cc8e920a6af7c2d3c20c351d67e0e7`)
+found no substantive blocker. Its duplicate-class observation was also confirmed
+locally: twelve parallel opens of eight same-name DEX definitions selected indices
+`[0,7,7,7,7,5,7,5,6,7,6,7]` for an exact class lookup. Core now keeps the greatest
+logical DEX ID under the existing registration lock, preserving the previous
+serial loader's last-DEX precedence. The deterministic native regression models
+both registration orders explicitly: it failed before the fix and passes after.
+The MCP regression now checks exact lookup as well as stable enumeration indices.
+
+The batch helper also rejects zero alignment consistently in both ownership
+modes. The default-thread-count C ABI catches unexpected C++ exceptions, including
+allocation by the temporary Core's standard containers, before they can unwind
+through Rust. These final changes are included in all results above.
+
+Loading is not transactional on unexpected Core construction exceptions: direct
+C++ callers must discard a partially initialized instance. MCP terminates its
+worker instead of returning that state. Ordinary ZIP/DEX-header failures occur
+before initialization and remain recoverable; the tests do not assert arbitrary
+construction-exception recovery. Core's ordinary AddZipPath retains its existing
+stored-entry borrowing policy; the independent-input guarantee applies to MCP's
+explicit detached mode. No new ThreadPool recovery or Core constructor error
+reporting contract is claimed.
+
+The 28284-byte follow-up delta (SHA-256
+`79fc765b3b536d77735c7a9d63478d0257da03a3cf1d9e91a23984078878ee1f`)
+passed focused Pro re-review with no substantive blocker. Pro confirmed the
+duplicate-class precedence, zero-alignment check and C ABI exception boundary.
+The source was unchanged after that snapshot except for plan/validation records.
+Both reviews are source review, not Pro-executed builds or performance tests.

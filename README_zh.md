@@ -29,6 +29,7 @@
 - [x] 实验性原生 MCP 服务器，使用 `dexkit_` 工具名，支持按需查询契约和可配置输入预算（Streamable HTTP / stdio）（[构建与契约](doc-source/src/zh-cn/guide/mcp.md)）
 
 原生 MCP 的 `dexkit_open` 返回 `instanceId`、`byteLength` 和 `dexCount`。
+Core 默认自动选择线程数，可通过 `--threads N` 覆写。
 
 ⭐️ 特色功能（推荐）：
 

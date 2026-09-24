@@ -106,7 +106,6 @@ DexKit::DexKit(std::string_view apk_path, int unzip_thread_num) {
     if (unzip_thread_num > 0) {
         _thread_num.store(NormalizeThreadNum(static_cast<uint32_t>(unzip_thread_num)), std::memory_order_release);
     }
-    std::lock_guard lock(_mutex);
     AddZipPath(apk_path, unzip_thread_num);
     std::sort(dex_items.begin(), dex_items.end(), comp);
 }
@@ -122,6 +121,10 @@ void DexKit::SetThreadNum(int num) {
     std::lock_guard lock(query_executor_mutex);
     shared_query_scheduler_.reset();
     shared_query_pool_thread_num_ = 0;
+}
+
+uint32_t DexKit::GetThreadNum() const {
+    return NormalizeThreadNum(_thread_num.load(std::memory_order_acquire));
 }
 
 void DexKit::SetMaxConcurrentQueries(uint32_t max_concurrent_queries) {
@@ -435,15 +438,19 @@ Error DexKit::AddImage(std::vector<std::unique_ptr<MemMap>> dex_images) {
     }
     const auto old_item_size = dex_items.size();
     dex_items.resize(old_item_size + add_items.size());
-    {
-        ThreadPool pool(NormalizeThreadNum(_thread_num.load(std::memory_order_acquire)));
+    if (!add_items.empty()) {
+        std::vector<std::future<void>> futures;
+        futures.reserve(add_items.size());
+        ThreadPool pool(std::min(static_cast<size_t>(GetThreadNum()), add_items.size()));
         auto index = old_item_size;
         for (auto &[image, offset]: add_items) {
-            pool.enqueue([this, &image, index, offset]() {
+            futures.push_back(pool.enqueue([this, image = std::move(image), index, offset]() mutable {
                 dex_items[index] = std::make_unique<DexItem>(index, std::move(image), offset, this);
-            });
+            }));
             index++;
         }
+        // Do not hide construction failures inside packaged_task futures.
+        for (auto &future : futures) future.get();
     }
     dex_cnt += add_items.size();
     return Error::SUCCESS;
@@ -456,55 +463,19 @@ Error DexKit::AddZipPath(std::string_view apk_path, int unzip_thread_num) {
     }
     auto zip_file = ZipArchive::Open(map);
     if (!zip_file) return Error::OPEN_ZIP_FILE_FAILED;
-    std::vector<std::pair<int, const Entry *>> image_pairs;
+    std::vector<const Entry *> entries;
     for (int idx = 1;; ++idx) {
         auto entry_name = "classes" + (idx == 1 ? std::string() : std::to_string(idx)) + ".dex";
         auto entry = zip_file->Find(entry_name);
         if (!entry) {
             break;
         }
-        image_pairs.emplace_back(idx, entry);
+        entries.push_back(entry);
     }
-    const auto old_size = images.size();
-    const auto new_size = old_size + image_pairs.size();
-    images.resize(new_size);
-    {
-        auto thread_num = unzip_thread_num == 0
-                          ? NormalizeThreadNum(_thread_num.load(std::memory_order_acquire))
-                          : NormalizeThreadNum(static_cast<uint32_t>(unzip_thread_num));
-        ThreadPool pool(thread_num);
-        for (auto &dex_pair: image_pairs) {
-            pool.enqueue([this, &dex_pair, old_size, &zip_file]() {
-                auto dex_image = zip_file->GetUncompressData(*dex_pair.second, alignof(dex::Header));
-                auto ptr = std::make_unique<MemMap>(std::move(dex_image));
-                if (!ptr->ok()) {
-                    return;
-                }
-                auto idx = old_size + dex_pair.first - 1;
-                images[idx] = std::move(ptr);
-            });
-        }
-    }
-    std::vector<std::pair<std::shared_ptr<MemMap>, uint32_t>> add_items;
-    for (auto i = old_size; i < new_size; i++) {
-        for (auto off : ParseLogicalDexOffsets(images[i])) {
-            add_items.emplace_back(images[i], off);
-        }
-    }
-    const auto old_item_size = dex_items.size();
-    dex_items.resize(old_item_size + add_items.size());
-    {
-        ThreadPool pool(NormalizeThreadNum(_thread_num.load(std::memory_order_acquire)));
-        auto index = old_item_size;
-        for (auto &[image, offset]: add_items) {
-            pool.enqueue([this, &image, index, offset]() {
-                dex_items[index] = std::make_unique<DexItem>(index, std::move(image), offset, this);
-            });
-            index++;
-        }
-    }
-    dex_cnt += add_items.size();
-    return Error::SUCCESS;
+    auto thread_num = unzip_thread_num > 0 ? static_cast<uint32_t>(unzip_thread_num) : GetThreadNum();
+    auto dex_images = zip_file->GetUncompressData(entries, thread_num, alignof(dex::Header));
+    if (dex_images.size() != entries.size()) return Error::OPEN_ZIP_FILE_FAILED;
+    return AddImage(std::move(dex_images));
 }
 
 Error DexKit::ExportDexFile(std::string_view path) const {
@@ -1473,7 +1444,10 @@ DexItem *DexKit::GetDexItem(uint16_t dex_id) {
 
 void DexKit::PutDeclaredClass(std::string_view class_name, uint16_t dex_id, uint32_t type_idx) {
     std::lock_guard lock(this->_put_class_mutex);
-    this->class_declare_dex_map[class_name] = {dex_id, type_idx};
+    // Preserve sequential loading's last-DEX precedence regardless of the
+    // completion order of parallel DexItem initialization.
+    auto &declared = this->class_declare_dex_map[class_name];
+    if (declared.first <= dex_id) declared = {dex_id, type_idx};
 }
 
 uint32_t DexKit::BeginBuildCrossRefAggregates(uint32_t aggregate_flags) {

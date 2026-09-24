@@ -273,6 +273,13 @@ public:
         return out;
     }
 
+    // Extract in parallel, preserving entry order. Empty on any failed entry;
+    // exceptions propagate after all workers finish. copy_stored detaches stored
+    // entries from the archive mapping; deflated entries already own their data.
+    [[nodiscard]] std::vector<std::unique_ptr<MemMap>> GetUncompressData(
+            const std::vector<const Entry *> &entries, size_t thread_num,
+            size_t alignment = 1, bool copy_stored = false) const;
+
 private:
     explicit ZipArchive(std::shared_ptr<const MemMap> mm)
             : mapping_(std::move(mm)), mm_(*mapping_) {}

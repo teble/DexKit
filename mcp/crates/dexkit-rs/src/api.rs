@@ -359,6 +359,8 @@ pub struct Capabilities {
     pub pagination: String,
     pub native_result_limit: bool,
     pub native_cancellation: bool,
+    /// Effective Core worker count per instance for loading, cache initialization and queries.
+    pub native_threads: u32,
     pub unicode: String,
     pub result_ttl_seconds: u32,
     /// Maximum input file bytes; zero means no configured ceiling.

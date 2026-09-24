@@ -18,7 +18,10 @@ typedef struct DkStatus {
 // max_dex_bytes == 0 disables the DEX byte ceiling. Status 7: DEX byte limit;
 // status 8: input mmap failed; status 9: input size changed. Other status codes
 // match dk_call. expected_size is checked against the held descriptor before mmap.
-int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, void **context, uint32_t *dex_count);
+// Zero threads selects Core's automatic default; positive values override it.
+uint32_t dk_default_thread_count(void);
+int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, uint32_t threads,
+    void **context, uint32_t *dex_count);
 void dk_close(void *context);
 void dk_free(DkBuffer buffer);
 // Internal operation enum is mirrored in Rust. Only the typed adapter builds

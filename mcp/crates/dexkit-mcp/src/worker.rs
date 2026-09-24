@@ -37,14 +37,16 @@ fn died() -> Error {
     )
 }
 impl Worker {
-    pub fn start(roots: &[PathBuf], limits: InputLimits) -> io::Result<Self> {
+    pub fn start(roots: &[PathBuf], limits: InputLimits, threads: u32) -> io::Result<Self> {
         let mut command = Command::new(std::env::current_exe()?);
         command
             .arg("--worker")
             .arg("--max-input-mib")
             .arg((limits.max_input_bytes / (1024 * 1024)).to_string())
             .arg("--max-dex-mib")
-            .arg((limits.max_dex_bytes / (1024 * 1024)).to_string());
+            .arg((limits.max_dex_bytes / (1024 * 1024)).to_string())
+            .arg("--threads")
+            .arg(threads.to_string());
         for root in roots {
             command.arg("--allow-root").arg(root);
         }
@@ -128,11 +130,12 @@ fn shutdown_child(owner: &Mutex<Option<Child>>) {
 pub fn run(
     roots: Vec<PathBuf>,
     limits: InputLimits,
+    threads: u32,
 ) -> std::result::Result<(), Box<dyn std::error::Error>> {
     // Do this before any native work or threads. FD 1 belongs permanently to
     // diagnostics; only the duplicated descriptor carries worker responses.
     let mut protocol = crate::isolate_stdout()?;
-    let mut service = AnalysisService::with_input_limits(roots, limits)?;
+    let mut service = AnalysisService::with_options(roots, limits, threads)?;
     let mut input = BufReader::new(io::stdin().lock());
     while let Some(line) = read_frame(&mut input)? {
         let request: Request = serde_json::from_slice(&line)?;

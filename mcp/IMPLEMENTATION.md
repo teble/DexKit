@@ -167,3 +167,20 @@ Base: `2c641a6f36d68006b5b4716aad0ac6a57a431073`; continue on `mcp`.
 
 Query-schema and smali-artifact hashes retain their existing purposes. This
 unpublished API cleanup does not introduce a placeholder or compatibility field.
+
+## Automatic threads and shared parallel loading
+
+Base: `3d4742b3a5acde450a1b2979eaa7981e8167b226`; continue on `mcp`.
+
+1. [x] Default to Core's automatic thread count and add `--threads N` (0: auto).
+   Forward the setting to the native worker and report the effective count.
+2. [x] Extract Core's existing parallel ZIP extraction into a shared batch API;
+   use it from both AddZipPath and MCP, followed by Core's batch AddImage.
+   Preserve input preflight, independent DEX ownership and stable DEX indices.
+3. [x] Verify overrides, corrupt/mixed archives, source lifetime and complete
+   real-APK opens; run Rust, JVM, Android and documentation checks.
+4. [x] Submit the actual shared-Core delta to the authorized Pro conversation
+   and complete a focused follow-up review. Preserve deterministic last-DEX
+   precedence for duplicate declarations and accept the alignment/FFI guards;
+   no substantive blocker remains in either source review.
+5. Publish to `teble:mcp`; Git and the completion report record the remote revision.

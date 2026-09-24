@@ -30,6 +30,7 @@ Basic Features:
 - [x] Experimental native MCP server with `dexkit_` tools, query contract discovery and configurable input budgets (Streamable HTTP / stdio) ([build and contract](doc-source/src/en/guide/mcp.md))
 
 Native MCP `dexkit_open` returns `instanceId`, `byteLength` and `dexCount`.
+Core threads are automatic by default; use `--threads N` to override them.
 
 ⭐️ Distinctive Features (Recommended):
 

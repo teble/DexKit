@@ -53,6 +53,12 @@ current directory and its descendants are accepted. `--dump-schema` prints the
 tool contracts. Diagnostics go to stderr; stdout stays reserved for stdio MCP.
 File-polling and the deprecated separate HTTP+SSE endpoints are not implemented.
 
+Core threads default to automatic CPU detection (`--threads 0`, with at least
+one thread). Use `--threads 4`, for example, to override the count for every
+instance. `capabilities.nativeThreads` reports the effective count. This applies
+to parallel DEX loading, cache initialization and queries in both transports;
+native MCP calls still execute one at a time. It is not a process-wide thread cap.
+
 There is no default input-file size ceiling (`--max-input-mib 0`). The separate
 `--max-dex-mib` limit defaults to 512 MiB of raw DEX bytes or total uncompressed
 DEX bytes in an APK. Set it higher for larger codebases, or to `0` to disable it.
@@ -68,6 +74,9 @@ returns; afterward it can be modified or deleted without affecting the instance.
 Detected concurrent changes return `INPUT_CHANGED`; concurrent truncation of a
 mapped input can instead terminate the isolated worker. DEX byte limits do not
 bound Core indexes, query memory or execution time.
+APK loading reuses Core's parallel ZIP extraction and batch `AddImage` path;
+the adapter validates budgets and entry headers before publishing an instance.
+Duplicate-class declaration lookup consistently prefers the last logical DEX.
 
 ## Discover query parameters
 

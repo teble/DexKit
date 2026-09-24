@@ -190,6 +190,50 @@ class StdioTests(unittest.TestCase):
             archive.writestr('classes3.dex', self.unicode.read_bytes())
         self.client.call('open', {'path': str(gap)}, success=False)
 
+    def test_thread_options_and_parallel_multidex(self):
+        automatic = self.client.call('capabilities', {})['nativeThreads']
+        self.assertGreaterEqual(automatic, 1)
+        expected = None
+        for threads in [0, 1, 3]:
+            with self.subTest(threads=threads):
+                apk = self.root / 'mixed.apk'
+                with zipfile.ZipFile(apk, 'w') as archive:
+                    archive.writestr('classes.dex', self.dex.read_bytes(), compress_type=zipfile.ZIP_STORED)
+                    archive.writestr('classes2.dex', self.unicode.read_bytes(), compress_type=zipfile.ZIP_DEFLATED)
+                    archive.writestr('classes3.dex', self.dex.read_bytes(), compress_type=zipfile.ZIP_DEFLATED)
+                client = Client(self.root, extra_args=['--threads', str(threads)])
+                try:
+                    self.assertEqual(client.call('capabilities', {})['nativeThreads'], threads or automatic)
+                    opened = client.call('open', {'path': str(apk)})
+                    self.assertEqual(opened['dexCount'], 3)
+                    instance = opened['instanceId']
+                    # Both stored and deflated images must outlive this input.
+                    apk.write_bytes(b'input replaced after open')
+                    found = client.call('find_classes', {'instanceId': instance, 'query': {}})
+                    rows = [(row['descriptor'], row['source']['dexIndex']) for row in found['items']]
+                    self.assertEqual(sorted(index for _, index in rows), [0, 1, 2])
+                    if expected is None:
+                        expected = rows
+                    self.assertEqual(rows, expected)
+                    exact = client.call('find_classes', {'instanceId': instance, 'query': {
+                        'matcher': {'className': {'value': 'interop.Probe', 'match': 'equal'}}}})
+                    self.assertEqual(exact['resultSet']['totalItems'], '1')
+                    self.assertEqual(exact['items'][0]['source']['dexIndex'], 2)
+                    for row in found['items']:
+                        smali = client.call('smali', {'instanceId': instance, 'entityId': row['entityId']})
+                        self.assertIn(row['descriptor'], smali['text'])
+                    client.call('close', {'instanceId': instance})
+                    # A bad later entry must fail the complete load, while the
+                    # worker remains usable for a subsequent valid request.
+                    with zipfile.ZipFile(apk, 'w', zipfile.ZIP_DEFLATED) as archive:
+                        archive.writestr('classes.dex', self.dex.read_bytes())
+                        archive.writestr('classes2.dex', b'not a DEX')
+                    client.call('open', {'path': str(apk)}, success=False)
+                    recovered = client.call('open', {'path': str(self.dex)})['instanceId']
+                    client.call('close', {'instanceId': recovered})
+                finally:
+                    client.close()
+
     def test_large_resource_apk_and_snapshot_lifetime(self):
         apk = self.root / 'resource-heavy.apk'
         with zipfile.ZipFile(apk, 'w') as archive:
@@ -276,14 +320,18 @@ class StdioTests(unittest.TestCase):
             finally:
                 client.close()
 
-    def test_input_limit_cli_validation(self):
-        for flag in ['--max-input-mib', '--max-dex-mib']:
+    def test_startup_option_validation(self):
+        for flag in ['--max-input-mib', '--max-dex-mib', '--threads']:
             for value in ['-1', '1.5', 'no', '4294967296', '18446744073709551616']:
                 result = subprocess.run([str(BINARY), flag, value], capture_output=True, timeout=5)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn(flag.encode(), result.stderr)
             result = subprocess.run([str(BINARY), flag], capture_output=True, timeout=5)
             self.assertNotEqual(result.returncode, 0)
+        for value in ['2147483648', '+2', '']:
+            result = subprocess.run([str(BINARY), '--threads', value], capture_output=True, timeout=5)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b'--threads', result.stderr)
 
     def test_worker_failure_is_a_tool_error(self):
         instance = self.open()

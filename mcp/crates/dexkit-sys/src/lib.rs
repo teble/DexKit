@@ -21,10 +21,12 @@ pub struct SmaliStatus {
     pub member_kind: u8,
 }
 unsafe extern "C" {
+    pub fn dk_default_thread_count() -> u32;
     pub fn dk_open(
         input_fd: i32,
         expected_size: u64,
         max_dex_bytes: u64,
+        threads: u32,
         context: *mut *mut c_void,
         dex_count: *mut u32,
     ) -> i32;

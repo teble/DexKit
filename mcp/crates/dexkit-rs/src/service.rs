@@ -53,6 +53,7 @@ struct Artifact {
 pub struct AnalysisService {
     roots: Vec<crate::input::Root>,
     input_limits: InputLimits,
+    native_threads: u32,
     instances: HashMap<String, OpenInstance>,
     results: HashMap<String, StoredSet>,
     artifacts: HashMap<String, Artifact>,
@@ -94,9 +95,24 @@ fn missing_artifact() -> Error {
 
 impl AnalysisService {
     pub fn new(roots: Vec<PathBuf>) -> Result<Self> {
-        Self::with_input_limits(roots, InputLimits::default())
+        Self::with_options(roots, InputLimits::default(), 0)
     }
-    pub fn with_input_limits(roots: Vec<PathBuf>, input_limits: InputLimits) -> Result<Self> {
+    /// Zero threads selects Core's automatic default; positive values override it.
+    pub fn with_options(
+        roots: Vec<PathBuf>,
+        input_limits: InputLimits,
+        threads: u32,
+    ) -> Result<Self> {
+        if threads > i32::MAX as u32 {
+            return Err(Error::invalid(
+                "Thread count must fit a signed 32-bit integer",
+            ));
+        }
+        let native_threads = if threads == 0 {
+            Native::default_thread_count()
+        } else {
+            threads
+        };
         if roots.is_empty() {
             return Err(Error::invalid("At least one input directory is required"));
         }
@@ -107,6 +123,7 @@ impl AnalysisService {
         Ok(Self {
             roots,
             input_limits,
+            native_threads,
             instances: HashMap::new(),
             results: HashMap::new(),
             artifacts: HashMap::new(),
@@ -121,6 +138,7 @@ impl AnalysisService {
             pagination: "materializedResultSet".into(),
             native_result_limit: false,
             native_cancellation: false,
+            native_threads: self.native_threads,
             unicode: "normal Unicode via MUTF-8; isolated surrogates rejected".into(),
             result_ttl_seconds: TTL.as_secs() as u32,
             max_input_bytes: self.input_limits.max_input_bytes,
@@ -176,7 +194,7 @@ impl AnalysisService {
         }
         let file = crate::input::Root::open(&self.roots, &request.path)?;
         let input = Input::prepare(file, self.input_limits.max_input_bytes)?;
-        let opened = Native::open(&input, self.input_limits.max_dex_bytes);
+        let opened = Native::open(&input, self.input_limits.max_dex_bytes, self.native_threads);
         input.verify_unchanged()?;
         let native = opened?;
         let instance_id = id("i");

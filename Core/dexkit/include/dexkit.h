@@ -66,6 +66,7 @@ public:
     ~DexKit();
 
     void SetThreadNum(int num);
+    [[nodiscard]] uint32_t GetThreadNum() const;
     void SetMaxConcurrentQueries(uint32_t max_concurrent_queries);
 #if DEXKIT_ENABLE_INTERNAL_METRICS
     void SetQueryMetricsEnabled(bool enabled);

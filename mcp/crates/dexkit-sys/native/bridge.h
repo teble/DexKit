@@ -6,14 +6,19 @@
 extern "C" {
 #endif
 // Private static ABI. Calls are synchronous and externally serialized. Inputs
-// are borrowed for one call, open copies all DEX bytes, and buffers use dk_free.
+// are borrowed for one call, and buffers use dk_free. Open borrows a regular
+// input FD for mmap; the input must not be modified during the call. All loaded
+// DEX bytes are independently owned on success; no input mapping escapes.
 typedef struct DkBuffer { uint8_t *data; size_t size; } DkBuffer;
 typedef struct DkStatus {
     uint64_t dex_offset;
     uint32_t code_offset, detail, dex_id, member_id;
     uint8_t error, phase, member_kind;
 } DkStatus;
-int dk_open(const uint8_t *input, size_t size, void **context, uint32_t *dex_count);
+// max_dex_bytes == 0 disables the DEX byte ceiling. Status 7: DEX byte limit;
+// status 8: input mmap failed; status 9: input size changed. Other status codes
+// match dk_call. expected_size is checked against the held descriptor before mmap.
+int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, void **context, uint32_t *dex_count);
 void dk_close(void *context);
 void dk_free(DkBuffer buffer);
 // Internal operation enum is mirrored in Rust. Only the typed adapter builds

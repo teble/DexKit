@@ -4,6 +4,7 @@ use crate::{
     encoding::WireString,
     error::{Error, Result},
     generated::dexkit::schema as fb,
+    input::{Input, InputLimits},
     metadata::{self, Row},
     native::Native,
     query::ToWire,
@@ -18,7 +19,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-const MAX_INPUT: usize = 256 * 1024 * 1024;
 const MAX_REPLY: usize = 1024 * 1024;
 const MAX_INSTANCES: usize = 4;
 const MAX_SETS: usize = 32;
@@ -52,6 +52,7 @@ struct Artifact {
 }
 pub struct AnalysisService {
     roots: Vec<crate::input::Root>,
+    input_limits: InputLimits,
     instances: HashMap<String, OpenInstance>,
     results: HashMap<String, StoredSet>,
     artifacts: HashMap<String, Artifact>,
@@ -93,6 +94,9 @@ fn missing_artifact() -> Error {
 
 impl AnalysisService {
     pub fn new(roots: Vec<PathBuf>) -> Result<Self> {
+        Self::with_input_limits(roots, InputLimits::default())
+    }
+    pub fn with_input_limits(roots: Vec<PathBuf>, input_limits: InputLimits) -> Result<Self> {
         if roots.is_empty() {
             return Err(Error::invalid("At least one input directory is required"));
         }
@@ -102,6 +106,7 @@ impl AnalysisService {
             .collect::<Result<Vec<_>>>()?;
         Ok(Self {
             roots,
+            input_limits,
             instances: HashMap::new(),
             results: HashMap::new(),
             artifacts: HashMap::new(),
@@ -118,7 +123,8 @@ impl AnalysisService {
             native_cancellation: false,
             unicode: "normal Unicode via MUTF-8; isolated surrogates rejected".into(),
             result_ttl_seconds: TTL.as_secs() as u32,
-            max_input_bytes: MAX_INPUT as u32,
+            max_input_bytes: self.input_limits.max_input_bytes,
+            max_dex_bytes: self.input_limits.max_dex_bytes,
             max_page_size: MAX_PAGE,
             max_instances: MAX_INSTANCES as u32,
             max_result_sets: MAX_SETS as u32,
@@ -169,26 +175,15 @@ impl AnalysisService {
             return Err(Error::limit("Close an instance before opening another"));
         }
         let file = crate::input::Root::open(&self.roots, &request.path)?;
-        let stat = file.metadata().map_err(io)?;
-        if !stat.is_file() {
-            return Err(Error::invalid("Input must be a regular DEX or APK file"));
-        }
-        if stat.len() > MAX_INPUT as u64 {
-            return Err(Error::limit("Input exceeds 256 MiB"));
-        }
-        let mut bytes = Vec::new();
-        file.take((MAX_INPUT + 1) as u64)
-            .read_to_end(&mut bytes)
-            .map_err(io)?;
-        if bytes.len() > MAX_INPUT {
-            return Err(Error::limit("Input exceeds 256 MiB"));
-        }
-        let native = Native::open(&bytes)?;
+        let input = Input::prepare(file, self.input_limits.max_input_bytes)?;
+        let opened = Native::open(&input, self.input_limits.max_dex_bytes);
+        input.verify_unchanged()?;
+        let native = opened?;
         let instance_id = id("i");
         let result = Opened {
             instance_id: instance_id.clone(),
-            fingerprint: format!("sha256:{:x}", Sha256::digest(&bytes)),
-            byte_length: bytes.len().to_string(),
+            fingerprint: input.fingerprint,
+            byte_length: input.byte_length.to_string(),
             dex_count: native.dex_count,
         };
         self.instances.insert(

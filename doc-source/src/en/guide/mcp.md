@@ -85,12 +85,36 @@ mcp/target/release/dexkit-mcp --transport stdio --allow-root /path/to/apks
 ## Input and worker lifetime
 
 Repeat `--allow-root` for multiple directories. The default is the process's
-current directory. Input files are read into an immutable snapshot; the source
-APK/DEX is never modified. The input fingerprint covers the complete original
+current directory. The adapter streams the complete input SHA-256, then C++ maps
+the same open file descriptor. It does not copy the entire APK to memory or to a
+temporary file. Only loaded DEX bytes are retained: stored entries and raw DEX
+are copied once, while deflated entries keep their decompressed buffer. The
+source APK/DEX is never modified. The fingerprint covers the complete original
 file, including the full container/archive. APK input uses consecutive
 `classes.dex`, `classes2.dex`, etc.; gaps and decompression failures are errors.
 File opens traverse held allowed-directory handles without following replaced
 symlinks. Non-regular inputs such as FIFOs are rejected without blocking.
+
+Keep the source unchanged until `open` completes; afterward it may be modified
+or deleted without affecting the instance. File metadata is checked around
+hashing and loading, and detected changes return retryable `INPUT_CHANGED`.
+This is not an atomic filesystem snapshot: concurrent truncation of a mapped
+input can terminate the worker and produce `WORKER_EXITED` instead.
+
+Input budgets are startup options, shared by both transports:
+
+| Option | Default | Scope |
+| --- | --- | --- |
+| `--max-input-mib N` | `0` (unlimited) | Complete APK or raw DEX file |
+| `--max-dex-mib N` | `512` | Raw DEX bytes, or total uncompressed DEX bytes in one APK |
+
+Set either option to `0` to disable that byte ceiling. For example,
+`--max-dex-mib 1024` permits 1 GiB of DEX data without limiting unrelated APK
+resources. `capabilities` returns the active byte values in `maxInputBytes` and
+`maxDexBytes`; zero means no configured ceiling. The aggregate DEX budget is
+checked before any archive DEX is inflated or indexed. Exceeding an enabled
+budget returns `LIMIT_EXCEEDED` with the corresponding startup option to adjust.
+Platform mapping ranges and supported APK/DEX format constraints still apply.
 
 The SDK handles both the older initialize handshake and the 2026-07-28 protocol.
 MCP stdout contains only protocol messages. Native analysis runs serially in a
@@ -222,8 +246,8 @@ and does not silently start a new query.
 Current defaults/ceilings include 4 instances, 32 result sets, 50,000 cached
 entities and 32 MiB of entity metadata per instance, 200,000 retained result
 references, 1 MiB business requests/results, 32 levels/10,000 request JSON nodes
-and 64 levels/100,000 response JSON nodes,
-256 MiB input files and 512 MiB total inflated DEX data per archive. A page has
+and 64 levels/100,000 response JSON nodes. The configurable DEX byte budget
+defaults to 512 MiB per input; there is no default APK container ceiling. A page has
 1..500 rows. The native result-copy ceiling is 64 MiB, checked after Core has
 constructed the result; these limits are not a total process memory/CPU budget.
 Annotation metadata conversion also has a 32-step recursion limit. Exceeding a

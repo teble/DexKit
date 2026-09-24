@@ -22,8 +22,9 @@ pub struct SmaliStatus {
 }
 unsafe extern "C" {
     pub fn dk_open(
-        input: *const u8,
-        size: usize,
+        input_fd: i32,
+        expected_size: u64,
+        max_dex_bytes: u64,
         context: *mut *mut c_void,
         dex_count: *mut u32,
     ) -> i32;

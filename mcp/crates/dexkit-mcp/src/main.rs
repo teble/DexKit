@@ -4,6 +4,7 @@ mod http;
 mod server;
 mod worker;
 
+use dexkit_rs::InputLimits;
 use rmcp::ServiceExt;
 use std::{
     fs::File,
@@ -25,6 +26,7 @@ fn main() {
 }
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut roots = Vec::new();
+    let mut input_limits = InputLimits::default();
     let mut worker_mode = false;
     let mut http_mode = false;
     let mut listen: Option<SocketAddr> = None;
@@ -35,6 +37,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 args.next().ok_or("--allow-root requires a directory")?,
             )),
             Some("--worker") => worker_mode = true,
+            Some("--max-input-mib") => {
+                input_limits.max_input_bytes = parse_mib(args.next(), "--max-input-mib")?;
+            }
+            Some("--max-dex-mib") => {
+                input_limits.max_dex_bytes = parse_mib(args.next(), "--max-dex-mib")?;
+            }
             Some("--transport") => {
                 http_mode = match args.next().as_deref().and_then(|s| s.to_str()) {
                     Some("http") => true,
@@ -60,7 +68,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Some("--help") => {
-                println!("dexkit-mcp [--transport stdio|http] [--allow-root DIRECTORY]...\n\n--transport http  Serve Streamable HTTP at /mcp.\n--listen IP:PORT  HTTP loopback address (default 127.0.0.1:7331; port 0 selects a free port).\n--transport stdio Standard MCP pipes (default, for existing client configurations).\n--allow-root DIR  Allowed input directory; repeatable. Default: current directory.\n--dump-schema     Print tool contracts.\n--version         Print version.");
+                println!("dexkit-mcp [--transport stdio|http] [--allow-root DIRECTORY]...\n\n--transport http  Serve Streamable HTTP at /mcp.\n--listen IP:PORT  HTTP loopback address (default 127.0.0.1:7331; port 0 selects a free port).\n--transport stdio Standard MCP pipes (default, for existing client configurations).\n--allow-root DIR  Allowed input directory; repeatable. Default: current directory.\n--max-input-mib N Input file limit in MiB (default 0: unlimited).\n--max-dex-mib N   Raw/total uncompressed DEX limit per input in MiB (default 512; 0: unlimited).\n--dump-schema     Print tool contracts.\n--version         Print version.");
                 return Ok(());
             }
             _ => return Err(format!("Unknown argument: {arg:?}").into()),
@@ -87,14 +95,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         return Err("--allow-root must be a directory".into());
     }
     if worker_mode {
-        return worker::run(roots);
+        return worker::run(roots, input_limits);
     }
     let protocol = if http_mode {
         None
     } else {
         Some(isolate_stdout()?)
     };
-    let worker = Arc::new(worker::Worker::start(&roots)?);
+    let worker = Arc::new(worker::Worker::start(&roots, input_limits)?);
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
@@ -115,6 +123,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     });
     worker.shutdown();
     result
+}
+
+fn parse_mib(
+    value: Option<std::ffi::OsString>,
+    flag: &str,
+) -> Result<u64, Box<dyn std::error::Error>> {
+    // A u32 MiB count also keeps capability integers exact in JSON/JavaScript.
+    let mib = value
+        .as_deref()
+        .and_then(|s| s.to_str())
+        .filter(|s| !s.is_empty() && s.bytes().all(|c| c.is_ascii_digit()))
+        .and_then(|s| s.parse::<u32>().ok())
+        .ok_or_else(|| format!("{flag} requires an integer from 0 to {} (MiB)", u32::MAX))?;
+    Ok(u64::from(mib) * 1024 * 1024)
 }
 
 pub(crate) fn isolate_stdout() -> io::Result<File> {

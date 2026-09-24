@@ -362,7 +362,10 @@ pub struct Capabilities {
     pub native_cancellation: bool,
     pub unicode: String,
     pub result_ttl_seconds: u32,
-    pub max_input_bytes: u32,
+    /// Maximum input file bytes; zero means no configured ceiling.
+    pub max_input_bytes: u64,
+    /// Maximum raw DEX bytes or total uncompressed APK DEX bytes; zero disables it.
+    pub max_dex_bytes: u64,
     pub max_page_size: u32,
     pub max_instances: u32,
     pub max_result_sets: u32,

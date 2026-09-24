@@ -259,3 +259,72 @@ the 64 KiB check covers CallToolResult rather than the entire network frame.
 The installed-Codex check and documentation build passed again after these
 test/documentation refinements. Runtime source was unchanged after acceptance.
 Pro reviewed source; execution and binary measurements above were performed locally.
+
+## Large APK input handling
+
+Base: `d67f02c678943bd31931dac0259a4948d4487f0d`.
+
+The adapter now hashes input with a fixed 64 KiB buffer and passes the held file
+descriptor to C++. Native code maps that descriptor for the duration of open
+and retains only independently owned DEX bytes. Raw/stored DEX data is copied
+once; deflated data keeps its decompressed allocation. No full-container heap
+copy or temporary APK is created. The source must remain unchanged until open
+returns; metadata checks detect ordinary changes but are not an atomic snapshot
+or protection against concurrent truncation of a mapped file.
+
+The input-file ceiling defaults to disabled. Both `--max-input-mib` and
+`--max-dex-mib` are startup options, with zero disabling the respective byte
+ceiling; the DEX default remains 512 MiB. C++ checks the aggregate DEX budget
+before any archive DEX is inflated/indexed. These are not total RSS/CPU limits.
+
+Executed on macOS arm64:
+
+- All 13 workspace unit functions and 11 independent interop tests pass.
+- All 15 stdio and 14 HTTP tests pass in debug and release. New regressions cover
+  a 257 MiB resource entry plus two stored/aligned DEX entries, exact whole-input
+  fingerprints, successful query/smali after the source APK or raw DEX is
+  truncated/deleted, custom budgets, zero/raised budgets, CLI errors and failed
+  opens not consuming instance slots. Input hashing crosses buffer boundaries
+  and detects changes through the held descriptor.
+- The aggregate preflight regression uses a deliberately invalid first DEX and
+  a later entry declaring more than 512 MiB. Default policy returns a limit error
+  before parsing the first DEX; raised/disabled policy reaches input validation.
+  This verifies control flow without allocating the declared large data; it does
+  not claim execution of a valid DEX payload larger than 512 MiB.
+- The generated contracts validate 110 stdio and 69 HTTP request/result cases
+  across all 12 tools, including effective capability budgets.
+- The real QQ 9.3.55 APK (389727209 bytes) opens over release HTTP using defaults:
+  all 41 DEX entries, 411819364 uncompressed DEX bytes. A targeted query for a
+  declared class in `classes41.dex` returns `source.dexIndex = 40`, produces
+  2454 bytes of smali and closes successfully. An independent Python SHA-256
+  agrees with the whole-APK fingerprint; the input is not modified.
+  Open took 2.229 seconds with the final release, not a portable performance claim.
+  Worker RSS was 597488 KiB after open and 222448 KiB after close; these are
+  point samples, not peak memory or a promise that allocators return all pages.
+- Workspace clippy with warnings denied, formatting and diff checks pass.
+  Host CMake/JAR/JVM and Android release Gradle checks pass (113 tasks: 15
+  executed, 98 up-to-date). JVM tests are up-to-date, so the earlier 143-test
+  result remains baseline evidence, not a newly forced run.
+- Frozen Yarn installation and the 28-page documentation build pass.
+
+The macOS arm64 release is 6616896 bytes, 19120 bytes larger than the query-help
+baseline. SHA-256:
+`0e80eb56d3d6de41dea2ebef7704dccc920d959f11773659dab940a644711731`.
+It still links only the same macOS system libraries. No dependencies or
+Core/JNI/FBS/Android production sources changed; the Android link graph is unchanged.
+
+The Pro source-review snapshot contains the actual delta and ownership context:
+265811 bytes, SHA-256
+`e423e3d7ca5c9eecb23dcd3b4c026c8ddc36a9b3ec98a1b43f3cd63b9d37d135`.
+Pro verified all 19 complete file blocks and the 37 matching diff hunks, and
+found no substantive blocker or input-mapping ownership escape. It recommended
+checking source metadata even when native loading returns an ordinary error,
+actually destroying the original raw DEX contents in the HTTP lifetime test,
+and clarifying the source-stability requirement in the open tool description.
+Those local refinements were applied after review. A related local regression
+first reproduced incorrect classification when a file is truncated to zero
+before mmap; checking expected size before rejecting an empty mapping fixes it.
+The final unit/clippy checks, release HTTP/stdio suites, captured-schema checks
+and real QQ open/query/smali/close all pass after these refinements. Pro's review
+covers the supplied source; the post-review refinements and execution results
+were validated locally, not by another Pro test run.

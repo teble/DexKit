@@ -8,7 +8,7 @@ use std::sync::Arc;
 pub fn tools() -> Vec<Tool> {
     vec![
         tool::<Empty,McpCapabilities>("capabilities","Report the actual API contract, supported tools, lifetime/size limits and native execution limitations."),
-        tool::<Open,Opened>("open","Open a local APK/DEX under an allowed directory as an immutable snapshot. Return an instanceId and SHA-256 fingerprint. Close unused instances."),
+        tool::<Open,Opened>("open","Open a local APK/DEX under an allowed directory. Keep the source unchanged until open completes; retained DEX bytes are independent afterward. Return an instanceId and whole-file SHA-256 fingerprint. Close unused instances."),
         tool::<Instance,Closed>("close","Close an instance and invalidate all its entities, result sets and temporary artifacts. Input files are never modified."),
         tool::<FindClasses,Found>("find_classes","Find classes with typed matchers. className uses Java names (example java.lang.String). Omitted conditions do not constrain; boolean arrays must be nonempty. Results are complete, sorted by descriptor and DEX identity, then paginated in the adapter."),
         tool::<FindMethods,Found>("find_methods","Find methods using strings, numbers, annotations, flags, parameters and direct call relationships. Text match requires explicit equal/contains/startWith/endWith (no regex). Parameter null slots are positional wildcards. Int64 values use decimal strings; float queries use Core's numeric comparison, not bit equality. pageSize does not limit native evaluation."),

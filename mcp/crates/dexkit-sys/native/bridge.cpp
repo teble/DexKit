@@ -12,9 +12,23 @@
 #include <memory>
 
 namespace {
-constexpr size_t kMaxInput = 256u * 1024 * 1024;
-constexpr size_t kMaxInflated = 512u * 1024 * 1024;
 constexpr size_t kMaxResult = 64u * 1024 * 1024;
+struct InputMapping {
+    void *address = MAP_FAILED;
+    size_t size = 0;
+    int Open(int fd, uint64_t expected_size) {
+        struct stat stat{};
+        if (fstat(fd, &stat) != 0 || !S_ISREG(stat.st_mode)) return 8;
+        if (uint64_t(stat.st_size) != expected_size) return 9;
+        if (stat.st_size <= 0 || uint64_t(stat.st_size) > PTRDIFF_MAX) return 8;
+        size = static_cast<size_t>(stat.st_size);
+        address = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
+        return address != MAP_FAILED ? 0 : 8;
+    }
+    ~InputMapping() {
+        if (address != MAP_FAILED) munmap(address, size);
+    }
+};
 [[noreturn]] void FatalException() noexcept {
     // Core is not proven reusable after an unexpected exception (for example,
     // during warmup). Production invokes this ABI in a dedicated worker.
@@ -58,35 +72,42 @@ bool ValidId(Context& context, uint64_t id, unsigned kind) {
 }
 } // namespace
 
-extern "C" int dk_open(const uint8_t *input, size_t size, void **opaque, uint32_t *count) {
+extern "C" int dk_open(int input_fd, uint64_t expected_size, uint64_t max_dex_bytes, void **opaque, uint32_t *count) {
     if (!opaque || !count) return 1;
     *opaque = nullptr; *count = 0;
-    if (!input || !size || size > kMaxInput) return 1;
     try {
+        auto owner = std::make_shared<InputMapping>();
+        const auto map_status = owner->Open(input_fd, expected_size);
+        if (map_status) return map_status;
+        const auto *input = static_cast<const uint8_t *>(owner->address);
+        const auto size = owner->size;
+        auto mapping = std::make_shared<dexkit::MemMap>(dexkit::MemMap::view(input, size, owner));
+        if (!mapping->ok()) return 8;
         auto ctx = std::make_unique<Context>();
         ctx->core.SetThreadNum(2);
         if (size >= 4 && !std::memcmp(input, "dex\n", 4)) {
+            if (max_dex_bytes && size > max_dex_bytes) return 7;
             if (!DexHeader(input, size)) return 1;
-            if (ctx->core.AddDex(const_cast<uint8_t *>(input), size) != dexkit::Error::SUCCESS) return 1;
+            auto image = std::make_unique<dexkit::MemMap>(input, size);
+            if (!image->ok()) return 8;
+            if (ctx->core.AddImage(std::move(image)) != dexkit::Error::SUCCESS) return 1;
         } else {
-            auto mapping = std::make_shared<dexkit::MemMap>(input, size);
             auto archive = dexkit::ZipArchive::Open(mapping);
             if (!archive) return 1;
-            size_t total = 0, found = 0;
+            uint64_t total = 0;
+            std::vector<const dexkit::Entry *> dex_entries;
             // Match Core's APK entry convention; diagnose gaps instead of
             // silently omitting later DEX entries.
             for (size_t i = 1; i <= 128; ++i) {
                 auto name = "classes" + (i == 1 ? std::string() : std::to_string(i)) + ".dex";
                 auto entry = archive->Find(name);
                 if (!entry) break;
-                if (entry->uncomp_size > kMaxInflated - total) return 5;
+                if (entry->uncomp_size > UINT64_MAX - total) return 1;
                 total += entry->uncomp_size;
-                auto image = archive->GetUncompressData(*entry, 4);
-                if (!image.ok() || !DexHeader(image.data(), image.len())) return 1;
-                if (ctx->core.AddImage(std::make_unique<dexkit::MemMap>(std::move(image))) != dexkit::Error::SUCCESS) return 1;
-                ++found;
+                if (max_dex_bytes && total > max_dex_bytes) return 7;
+                dex_entries.push_back(entry);
             }
-            if (!found) return 1;
+            if (dex_entries.empty()) return 1;
             for (const auto &entry : archive->GetEntries()) {
                 if (entry.name.starts_with("classes") && entry.name.ends_with(".dex") &&
                     entry.name.find('/') == std::string::npos) {
@@ -96,9 +117,21 @@ extern "C" int dk_open(const uint8_t *input, size_t size, void **opaque, uint32_
                         unsigned long n = 0;
                         auto parsed = std::from_chars(suffix.data(), suffix.data() + suffix.size(), n);
                         if (parsed.ec != std::errc() || parsed.ptr != suffix.data() + suffix.size()) return 1;
-                        if (n < 2 || n > found || suffix != std::to_string(n)) return 1;
+                        if (n < 2 || n > dex_entries.size() || suffix != std::to_string(n)) return 1;
                     }
                 }
+            }
+            // Validate the complete byte budget and numbering before inflating
+            // any DEX or constructing Core indexes. Keep only owned DEX bytes,
+            // so later edits/truncation of the APK cannot affect this instance.
+            for (const auto *entry : dex_entries) {
+                auto image = archive->GetUncompressData(*entry, 1);
+                if (!image.ok() || !DexHeader(image.data(), image.len())) return 1;
+                auto owned = entry->method == dexkit::COMP_STORE
+                    ? std::make_unique<dexkit::MemMap>(image.data(), image.len())
+                    : std::make_unique<dexkit::MemMap>(std::move(image));
+                if (!owned->ok()) return 8;
+                if (ctx->core.AddImage(std::move(owned)) != dexkit::Error::SUCCESS) return 1;
             }
         }
         *count = ctx->core.GetDexNum();

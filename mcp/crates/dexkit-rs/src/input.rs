@@ -1,15 +1,105 @@
 //! Open beneath an already-held allowed directory without following replaced
 //! path components. O_NONBLOCK lets us reject FIFOs before any blocking read.
 use crate::error::{Error, Result};
+use sha2::{Digest, Sha256};
 use std::{
     ffi::CString,
-    fs::{File, OpenOptions},
+    fs::{File, Metadata, OpenOptions},
+    io::Read,
     os::{
         fd::{AsRawFd, FromRawFd},
-        unix::{ffi::OsStrExt, fs::OpenOptionsExt},
+        unix::{ffi::OsStrExt, fs::MetadataExt, fs::OpenOptionsExt},
     },
     path::{Component, Path, PathBuf},
 };
+
+/// Startup resource policy. Zero disables the corresponding byte ceiling.
+/// DEX bytes do not include Core indexes or query results.
+#[derive(Clone, Copy, Debug)]
+pub struct InputLimits {
+    pub max_input_bytes: u64,
+    pub max_dex_bytes: u64,
+}
+impl Default for InputLimits {
+    fn default() -> Self {
+        Self {
+            max_input_bytes: 0,
+            max_dex_bytes: 512 * 1024 * 1024,
+        }
+    }
+}
+
+pub(crate) struct Input {
+    pub file: File,
+    pub byte_length: u64,
+    pub fingerprint: String,
+    metadata: Metadata,
+}
+impl Input {
+    pub fn prepare(mut file: File, limit: u64) -> Result<Self> {
+        let before = file.metadata().map_err(io)?;
+        if !before.is_file() {
+            return Err(Error::invalid("Input must be a regular DEX or APK file"));
+        }
+        let len = before.len();
+        if limit != 0 && len > limit {
+            return Err(Error::limit(format!(
+                "Input is {len} bytes; configured limit is {limit} bytes. Adjust --max-input-mib (0 disables it)."
+            )));
+        }
+        if len == 0 || len > isize::MAX as u64 {
+            return Err(Error::new(
+                "invalid_input",
+                "INVALID_INPUT",
+                "Empty input or input exceeds the platform mapping range",
+            ));
+        }
+        // Stream the whole-input fingerprint without retaining container bytes.
+        // Native maps this same held descriptor; the path is never reopened.
+        // The source must stay unchanged until open completes.
+        let mut hash = Sha256::new();
+        let mut remaining = len;
+        let mut buffer = [0u8; 64 * 1024];
+        while remaining != 0 {
+            let wanted = remaining.min(buffer.len() as u64) as usize;
+            let n = file.read(&mut buffer[..wanted]).map_err(io)?;
+            if n == 0 {
+                return Err(changed());
+            }
+            hash.update(&buffer[..n]);
+            remaining -= n as u64;
+        }
+        let input = Self {
+            file,
+            byte_length: len,
+            fingerprint: format!("sha256:{:x}", hash.finalize()),
+            metadata: before,
+        };
+        input.verify_unchanged()?;
+        Ok(input)
+    }
+    pub fn verify_unchanged(&self) -> Result<()> {
+        let after = self.file.metadata().map_err(io)?;
+        if self.metadata.len() != after.len()
+            || self.metadata.mtime() != after.mtime()
+            || self.metadata.mtime_nsec() != after.mtime_nsec()
+            || self.metadata.ctime() != after.ctime()
+            || self.metadata.ctime_nsec() != after.ctime_nsec()
+        {
+            return Err(changed());
+        }
+        Ok(())
+    }
+}
+fn changed() -> Error {
+    let mut error = Error::new(
+        "io",
+        "INPUT_CHANGED",
+        "Input changed while opening; retry after its writer finishes",
+    );
+    error.retryable = true;
+    error
+}
 
 pub(crate) struct Root {
     path: PathBuf,
@@ -86,6 +176,39 @@ impl Root {
 mod tests {
     use super::*;
     use std::{io::Read, os::unix::fs::symlink};
+
+    #[test]
+    fn input_budget_fingerprint_and_change_detection() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        let original = vec![b'x'; 65537]; // Cross the streaming buffer boundary.
+        std::fs::write(&path, &original).unwrap();
+        let rejected = Input::prepare(File::open(&path).unwrap(), 65536);
+        assert!(matches!(rejected, Err(e) if e.code == "LIMIT_EXCEEDED"));
+        for limit in [65537, 0] {
+            let input = Input::prepare(File::open(&path).unwrap(), limit).unwrap();
+            assert_eq!(input.byte_length, 65537);
+            assert_eq!(
+                input.fingerprint,
+                format!("sha256:{:x}", Sha256::digest(&original))
+            );
+            input.verify_unchanged().unwrap();
+            std::fs::write(&path, b"changed").unwrap();
+            assert_eq!(input.verify_unchanged().unwrap_err().code, "INPUT_CHANGED");
+            assert!(
+                matches!(crate::native::Native::open(&input, 0), Err(e) if e.code == "INPUT_CHANGED")
+            );
+            std::fs::write(&path, []).unwrap();
+            assert!(
+                matches!(crate::native::Native::open(&input, 0), Err(e) if e.code == "INPUT_CHANGED")
+            );
+            std::fs::write(&path, &original).unwrap();
+        }
+        std::fs::write(&path, []).unwrap();
+        assert!(
+            matches!(Input::prepare(File::open(&path).unwrap(), 0), Err(e) if e.code == "INVALID_INPUT")
+        );
+    }
 
     #[test]
     fn allowed_links_and_fifo() {

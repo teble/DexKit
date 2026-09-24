@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Exercise the built MCP binary over real subprocess pipes, without a shell."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import queue
 import signal
+import struct
 import subprocess
 import tempfile
 import threading
@@ -21,12 +23,12 @@ TOOLS = {}
 
 
 class Client:
-    def __init__(self, root, modern=False):
+    def __init__(self, root, modern=False, extra_args=()):
         self.stderr = tempfile.TemporaryFile(mode='w+b')
         environment = os.environ.copy()
         environment['TMPDIR'] = str(root)
         self.process = subprocess.Popen(
-            [str(BINARY), '--allow-root', str(root)], stdin=subprocess.PIPE,
+            [str(BINARY), '--allow-root', str(root), *extra_args], stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=self.stderr, env=environment)
         self.messages = queue.Queue()
         self.ident = 0
@@ -188,6 +190,105 @@ class StdioTests(unittest.TestCase):
             archive.writestr('classes.dex', self.dex.read_bytes())
             archive.writestr('classes3.dex', self.unicode.read_bytes())
         self.client.call('open', {'path': str(gap)}, success=False)
+
+    def test_large_resource_apk_and_snapshot_lifetime(self):
+        apk = self.root / 'resource-heavy.apk'
+        with zipfile.ZipFile(apk, 'w') as archive:
+            # Keep the fixture generation bounded too: resources exceed the old
+            # container ceiling, but the two DEX entries remain small.
+            with archive.open('assets/padding.dat', 'w') as asset:
+                chunk = bytes(1024 * 1024)
+                for _ in range(257):
+                    asset.write(chunk)
+            for name, path in [('classes.dex', self.dex), ('classes2.dex', self.unicode)]:
+                info = zipfile.ZipInfo(name)
+                padding = -(archive.fp.tell() + 30 + len(name) + 4) % 4
+                info.extra = struct.pack('<HH', 0xcafe, padding) + bytes(padding)
+                archive.writestr(info, path.read_bytes())
+                # Stored/aligned entries must be detached from the APK mapping.
+                self.assertEqual((info.header_offset + 30 + len(name) + len(info.extra)) % 4, 0)
+        self.assertGreater(apk.stat().st_size, 256 * 1024 * 1024)
+        digest = hashlib.sha256()
+        with apk.open('rb') as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b''):
+                digest.update(chunk)
+        opened = self.client.call('open', {'path': str(apk)})
+        self.assertEqual(opened['dexCount'], 2)
+        self.assertEqual(opened['byteLength'], str(apk.stat().st_size))
+        self.assertEqual(opened['fingerprint'], 'sha256:' + digest.hexdigest())
+        apk.write_bytes(b'replaced and truncated')
+        apk.unlink()
+        instance = opened['instanceId']
+        found = self.client.call('find_classes', {'instanceId': instance, 'query': {}})
+        self.assertEqual(found['resultSet']['totalItems'], '2')
+        self.client.call('smali', {'instanceId': instance, 'entityId': found['items'][0]['entityId']})
+        self.client.call('close', {'instanceId': instance})
+        self.assertEqual(set(self.root.iterdir()), {self.dex, self.unicode})
+
+    def test_configurable_input_and_dex_budgets(self):
+        capabilities = self.client.call('capabilities', {})
+        self.assertEqual(capabilities['maxInputBytes'], 0)
+        self.assertEqual(capabilities['maxDexBytes'], 512 * 1024 * 1024)
+        raw = self.root / 'padded.dex'
+        raw.write_bytes(self.dex.read_bytes().ljust(1024 * 1024 + 1, b'\0'))
+        apk = self.root / 'aggregate.apk'
+        with zipfile.ZipFile(apk, 'w', zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('classes.dex', self.dex.read_bytes().ljust(600 * 1024, b'\0'))
+            archive.writestr('classes2.dex', self.unicode.read_bytes().ljust(600 * 1024, b'\0'))
+        cases = [(['--max-input-mib', '1'], raw, '--max-input-mib'),
+                 (['--max-dex-mib', '1'], raw, '--max-dex-mib'),
+                 (['--max-dex-mib', '1'], apk, '--max-dex-mib')]
+        for args, path, flag in cases:
+            client = Client(self.root, extra_args=args)
+            try:
+                for _ in range(5):  # Failed opens must not consume instance slots.
+                    error = client.call('open', {'path': str(path)}, success=False)
+                    self.assertEqual(error['code'], 'LIMIT_EXCEEDED')
+                    self.assertIn(flag, error['message'])
+                client.call('open', {'path': str(self.dex)})
+            finally:
+                client.close()
+        for limit in ['2', '0']:
+            client = Client(self.root, extra_args=['--max-input-mib', '0', '--max-dex-mib', limit])
+            try:
+                self.assertEqual(client.call('capabilities', {})['maxDexBytes'], int(limit) * 1024 * 1024)
+                for path, count in [(raw, 1), (apk, 2)]:
+                    opened = client.call('open', {'path': str(path)})
+                    self.assertEqual(opened['dexCount'], count)
+                    client.call('close', {'instanceId': opened['instanceId']})
+            finally:
+                client.close()
+
+    def test_dex_budget_preflight_before_loading_and_no_hidden_ceiling(self):
+        apk = self.root / 'preflight.apk'
+        with zipfile.ZipFile(apk, 'w') as archive:
+            archive.writestr('classes.dex', b'invalid first DEX')
+            archive.writestr('classes2.dex', b'not compressed')
+        data = bytearray(apk.read_bytes())
+        second = data.index(b'PK\x01\x02', data.index(b'PK\x01\x02') + 1)
+        struct.pack_into('<I', data, second + 24, 512 * 1024 * 1024 + 1)
+        struct.pack_into('<H', data, second + 10, 99)  # Unsupported method; never inflate a huge fixture.
+        apk.write_bytes(data)
+        # The complete aggregate is checked before even parsing the first DEX.
+        error = self.client.call('open', {'path': str(apk)}, success=False)
+        self.assertEqual(error['code'], 'LIMIT_EXCEEDED')
+        for limit in ['1024', '0']:
+            client = Client(self.root, extra_args=['--max-dex-mib', limit])
+            try:
+                error = client.call('open', {'path': str(apk)}, success=False)
+                self.assertEqual(error['code'], 'INVALID_INPUT')
+                client.call('open', {'path': str(self.dex)})
+            finally:
+                client.close()
+
+    def test_input_limit_cli_validation(self):
+        for flag in ['--max-input-mib', '--max-dex-mib']:
+            for value in ['-1', '1.5', 'no', '4294967296', '18446744073709551616']:
+                result = subprocess.run([str(BINARY), flag, value], capture_output=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(flag.encode(), result.stderr)
+            result = subprocess.run([str(BINARY), flag], capture_output=True, timeout=5)
+            self.assertNotEqual(result.returncode, 0)
 
     def test_worker_failure_is_a_tool_error(self):
         instance = self.open()

@@ -53,6 +53,21 @@ current directory and its descendants are accepted. `--dump-schema` prints the
 tool contracts. Diagnostics go to stderr; stdout stays reserved for stdio MCP.
 File-polling and the deprecated separate HTTP+SSE endpoints are not implemented.
 
+There is no default input-file size ceiling (`--max-input-mib 0`). The separate
+`--max-dex-mib` limit defaults to 512 MiB of raw DEX bytes or total uncompressed
+DEX bytes in an APK. Set it higher for larger codebases, or to `0` to disable it.
+Both options apply to HTTP and stdio; capabilities reports their effective byte
+values as `maxInputBytes` and `maxDexBytes`, where zero means unlimited.
+
+The adapter streams the whole-file SHA-256, maps the already-open input in C++,
+and retains only owned DEX bytes. It neither copies the whole APK into a heap
+buffer nor creates a temporary APK. Stored DEX entries are copied once; deflated
+entries retain their decompressed buffer. Keep the source unchanged until open
+returns; afterward it can be modified or deleted without affecting the instance.
+Detected concurrent changes return `INPUT_CHANGED`; concurrent truncation of a
+mapped input can instead terminate the isolated worker. DEX byte limits do not
+bound Core indexes, query memory or execution time.
+
 ## Discover query parameters
 
 If a client displays `query: unknown` or hides nested matcher fields, call

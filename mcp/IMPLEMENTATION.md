@@ -116,3 +116,25 @@ Base: `efbd3901046d79df729c8bd22b357ca228dc9e7c`; continue on `mcp`.
 
 This follow-up addresses query discoverability. It does not change APK size
 budgets, native execution, client binaries or the existing transport modes.
+
+## Large APK input handling
+
+Base: `d67f02c678943bd31931dac0259a4948d4487f0d`; continue on `mcp`.
+
+1. [x] Inspect both input limits, native ownership and the 372 MiB APK case.
+2. [x] Replace full-container heap copies with direct native mapping of the held
+   input descriptor. Keep only owned DEX bytes, preserving allowed-root opening,
+   whole-input fingerprints and independence from changes after open completes.
+3. [x] Remove the default container size ceiling; make input and total DEX byte
+   budgets configurable at startup, including explicit unlimited settings.
+   Check aggregate DEX size before loading any archive entries.
+4. [x] Exercise stored/deflated archives, limits, lifetime and HTTP/stdio;
+   open all 41 DEX entries of the real QQ APK and run a targeted query.
+5. [x] Update bilingual docs, validate builds/size and obtain Pro source review.
+   No substantive blocker was found. Adopt the error-propagation, raw DEX
+   mutation-test and tool-description refinements; validate the final release.
+6. Publish to `teble:mcp`; Git and the completion report record the remote revision.
+
+DEX byte budgets are resource guards, not a process-wide memory or CPU limit.
+The source must remain unchanged during open; no full-APK copy is retained in
+memory or temporary storage.

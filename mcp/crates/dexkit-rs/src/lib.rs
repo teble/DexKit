@@ -2,6 +2,7 @@ pub mod api;
 pub mod encoding;
 pub mod error;
 mod input;
+pub use input::InputLimits;
 mod metadata;
 mod native;
 pub mod query;

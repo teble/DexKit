@@ -24,12 +24,12 @@ SDK_CLIENT = common.ROOT / 'mcp/target/debug/examples/http_smoke'
 
 
 class HttpProcess:
-    def __init__(self, root):
+    def __init__(self, root, extra_args=()):
         environment = os.environ.copy()
         environment['TMPDIR'] = str(root)
         self.process = subprocess.Popen(
             [str(BINARY), '--transport', 'http', '--listen', '127.0.0.1:0',
-             '--allow-root', str(root)], stdin=subprocess.DEVNULL,
+             '--allow-root', str(root), *extra_args], stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment)
         self.lines = []
         self.ready = queue.Queue()
@@ -149,6 +149,26 @@ class HttpTests(unittest.TestCase):
         fixture = self.root / 'query-examples.dex'
         fixture.write_bytes((common.FIXTURES / 'fixture.dex').read_bytes())
         exercise_discovery(self.client, fixture, common.TOOLS)
+
+    def test_http_input_policy_and_private_snapshot(self):
+        server = HttpProcess(self.root, extra_args=['--max-input-mib', '2', '--max-dex-mib', '1'])
+        try:
+            client = HttpClient(server.url)
+            capabilities = client.call('capabilities', {})
+            self.assertEqual(capabilities['maxInputBytes'], 2 * 1024 * 1024)
+            self.assertEqual(capabilities['maxDexBytes'], 1024 * 1024)
+            instance = client.call('open', {'path': str(self.dex)})['instanceId']
+            self.dex.write_bytes(self.dex.read_bytes().ljust(1024 * 1024 + 1, b'\0'))
+            error = client.call('open', {'path': str(self.dex)}, success=False)
+            self.assertEqual(error['code'], 'LIMIT_EXCEEDED')
+            self.dex.write_bytes(b'original DEX removed')
+            self.dex.unlink()
+            found = client.call('find_classes', {'instanceId': instance, 'query': {}})
+            self.assertEqual(found['resultSet']['totalItems'], '1')
+            client.call('smali', {'instanceId': instance, 'entityId': found['items'][0]['entityId']})
+            client.call('close', {'instanceId': instance})
+        finally:
+            server.close()
 
     def test_handles_survive_new_connections_and_client_discovery(self):
         instance = self.open()

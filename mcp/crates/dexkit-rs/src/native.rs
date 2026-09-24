@@ -2,10 +2,11 @@ use crate::{
     encoding::{decode, WireStr},
     error::{Error, NativeError, Result},
     generated::dexkit::schema as fb,
+    input::Input,
 };
 use dexkit_sys as sys;
 use planus::{ReadAsRoot, SliceWithStartOffset, TableRead};
-use std::{ffi::c_void, ptr::NonNull};
+use std::{ffi::c_void, os::fd::AsRawFd, ptr::NonNull};
 
 pub(crate) struct Native {
     pointer: NonNull<c_void>,
@@ -40,12 +41,43 @@ impl Buffer {
     }
 }
 impl Native {
-    pub fn open(bytes: &[u8]) -> Result<Self> {
+    pub fn open(input: &Input, max_dex_bytes: u64) -> Result<Self> {
         let mut pointer = std::ptr::null_mut();
         let mut dex_count = 0;
-        // SAFETY: input is borrowed for the call; native stores owned mappings.
-        let status =
-            unsafe { sys::dk_open(bytes.as_ptr(), bytes.len(), &mut pointer, &mut dex_count) };
+        // SAFETY: the FD is a held regular file, borrowed only for this call.
+        // Native owns all loaded DEX bytes before returning; no input mapping
+        // escapes. As with Core's file loader, concurrent source mutation is
+        // unsupported (detected changes are checked before publishing handles).
+        let status = unsafe {
+            sys::dk_open(
+                input.file.as_raw_fd(),
+                input.byte_length,
+                max_dex_bytes,
+                &mut pointer,
+                &mut dex_count,
+            )
+        };
+        if status == 7 {
+            return Err(Error::limit(format!(
+                "DEX bytes exceed configured limit of {max_dex_bytes} bytes. Adjust --max-dex-mib (0 disables it)."
+            )));
+        }
+        if status == 8 {
+            return Err(Error::new(
+                "io",
+                "INPUT_MAP_FAILED",
+                "Could not map the input file",
+            ));
+        }
+        if status == 9 {
+            let mut error = Error::new(
+                "io",
+                "INPUT_CHANGED",
+                "Input changed while opening; retry after its writer finishes",
+            );
+            error.retryable = true;
+            return Err(error);
+        }
         if status != 0 {
             return Err(Error::native(status));
         }

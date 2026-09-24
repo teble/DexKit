@@ -26,7 +26,7 @@
 - [x] 多条件查找属性
 - [x] 提供多种元数据API获取 field/method/class 相关数据
 - [x] 实验性原生方法／整类 smali 输出（[用法与限制](doc-source/src/zh-cn/guide/smali.md)）
-- [x] 实验性原生 MCP 服务器，支持按需查询契约（Streamable HTTP / stdio）（[构建与契约](doc-source/src/zh-cn/guide/mcp.md)）
+- [x] 实验性原生 MCP 服务器，支持按需查询契约和可配置输入预算（Streamable HTTP / stdio）（[构建与契约](doc-source/src/zh-cn/guide/mcp.md)）
 
 ⭐️ 特色功能（推荐）：
 
